@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Saç Kesimleri",
+    "description": "En trend saç kesimi çalışmalarımız",
+    "orderIndex": 1,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "name": "Saç Boyama",
+    "description": "Rengarenk saç boyama örnekleri",
+    "orderIndex": 2,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "name": "Gelin Saçları",
+    "description": "Özel gün saç modelleri",
+    "orderIndex": 3,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "name": "Makyaj",
+    "description": "Profesyonel makyaj çalışmaları",
+    "orderIndex": 4,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "name": "Erkek Kuaförü",
+    "description": "Erkek saç kesimi ve tıraş örnekleri",
+    "orderIndex": 5,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  }
+] 

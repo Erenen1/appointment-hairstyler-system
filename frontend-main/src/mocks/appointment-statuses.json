@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "pending",
+    "displayName": "Beklemede",
+    "description": "Randevu onay bekliyor",
+    "color": "#FFA500",
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "name": "confirmed",
+    "displayName": "Onaylandı",
+    "description": "Randevu onaylandı",
+    "color": "#28A745",
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "name": "in_progress",
+    "displayName": "Devam Ediyor",
+    "description": "Hizmet veriliyor",
+    "color": "#007BFF",
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "name": "completed",
+    "displayName": "Tamamlandı",
+    "description": "Hizmet tamamlandı",
+    "color": "#6F42C1",
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "name": "cancelled",
+    "displayName": "İptal Edildi",
+    "description": "Randevu iptal edildi",
+    "color": "#DC3545",
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "name": "no_show",
+    "displayName": "Gelmedi",
+    "description": "Müşteri randevuya gelmedi",
+    "color": "#6C757D",
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  }
+] 
