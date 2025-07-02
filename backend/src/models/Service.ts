@@ -18,23 +18,11 @@ module.exports = (sequelize: any, DataTypes: any) => {
       allowNull: false,
       unique: true,
     },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    shortDescription: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
     description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    fullDescription: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
@@ -46,10 +34,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    discountPrice: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
     icon: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -58,11 +42,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
-    },
-    isPopular: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
     },
     orderIndex: {
       type: DataTypes.INTEGER,
@@ -78,10 +57,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
       allowNull: true,
     },
     recommendedFor: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-    faqs: {
       type: DataTypes.JSON,
       allowNull: true,
     },
