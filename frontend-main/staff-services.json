@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "staffId": 1,
+    "serviceId": 1,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "staffId": 1,
+    "serviceId": 3,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "staffId": 1,
+    "serviceId": 4,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "staffId": 2,
+    "serviceId": 6,
+    "createdAt": "2023-02-01T10:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "staffId": 2,
+    "serviceId": 8,
+    "createdAt": "2023-02-01T10:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "staffId": 2,
+    "serviceId": 1,
+    "createdAt": "2023-02-01T10:00:00.000Z"
+  },
+  {
+    "id": 7,
+    "staffId": 3,
+    "serviceId": 2,
+    "createdAt": "2023-03-01T10:00:00.000Z"
+  },
+  {
+    "id": 8,
+    "staffId": 3,
+    "serviceId": 7,
+    "createdAt": "2023-03-01T10:00:00.000Z"
+  },
+  {
+    "id": 9,
+    "staffId": 4,
+    "serviceId": 5,
+    "createdAt": "2023-04-01T10:00:00.000Z"
+  },
+  {
+    "id": 10,
+    "staffId": 4,
+    "serviceId": 3,
+    "createdAt": "2023-04-01T10:00:00.000Z"
+  },
+  {
+    "id": 11,
+    "staffId": 4,
+    "serviceId": 1,
+ 

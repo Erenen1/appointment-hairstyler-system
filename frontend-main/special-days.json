@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "date": "2024-01-01",
+    "description": "Yılbaşı",
+    "isClosed": true,
+    "openTime": null,
+    "closeTime": null,
+    "createdAt": "2023-12-01T10:00:00.000Z",
+    "updatedAt": "2023-12-01T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "date": "2024-04-23",
+    "description": "23 Nisan Ulusal Egemenlik ve Çocuk Bayramı",
+    "isClosed": true,
+    "openTime": null,
+    "closeTime": null,
+    "createdAt": "2023-12-01T10:00:00.000Z",
+    "updatedAt": "2023-12-01T10:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "date": "2024-05-01",
+    "description": "1 Mayıs İşçi Bayramı",
+    "isClosed": true,
+    "openTime": null,
+    "closeTime": null,
+    "createdAt": "2023-12-01T10:00:00.000Z",
+    "updatedAt": "2023-12-01T10:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "date": "2024-05-19",
+    "description": "19 Mayıs Atatürk'ü Anma, Gençlik ve Spor Bayramı",
+    "isClosed": true,
+    "openTime": null,
+    "closeTime": null,
+    "createdAt": "2023-12-01T10:00:00.000Z",
+    "updatedAt": "2023-12-01T10:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "date": "2024-08-30",
+    "description": "30 Ağustos Zafer Bayramı",
+    "isClosed": true,
+    "openTime": null,
+    "closeTime": null,
+    "createdAt": "2023-12-01T10:00:00.000Z",
+    "updatedAt": "2023-12-01T10:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "date": "2024-10-29",
+    "description": "29 Ekim Cumhuriyet Bayramı",
+    "isClosed": true,
+    "openTime": null,
+    "closeTime": null,
+    "createdAt": "2023-12-01T10:00:00.000Z",
+    "updatedAt": "2023-12-01T10:00:00.000Z"
+  },
+  {
+    "id": 7,
+    "date": "2024-02-14",
+    "description": "Sevgililer Günü - Özel Saatler",
+    "isClosed": false,
+    "openTime": "08:00:00",
+    "closeTime": "20:00:00",
+    "createdAt": "2023-12-01T10:00:00.000Z",
+    "updatedAt": "2023-12-01T10:00:00.000Z"
+  },
+  {
+    "id": 8,
+    "date": "2024-12-31",
+    "description": "Yılbaşı Arifesi - Yarım Gün",
+    "isClosed": false,
+    "openTime": "09:00:00",
+    "closeTime": "14:00:00",
+    "createdAt": "2023-12-01T10:00:00.000Z",
+    "updatedAt": "2023-12-01T10:00:00.000Z"
+  }
+] 

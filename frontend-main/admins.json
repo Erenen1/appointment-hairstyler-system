@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "fullName": "Ahmet Yılmaz",
+    "email": "admin@kuafor.com",
+    "phone": "+90 532 123 4567",
+    "password": "$2b$10$encrypted_password_hash",
+    "lastLogin": "2024-01-15T09:30:00.000Z",
+    "isActive": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2024-01-15T09:30:00.000Z"
+  },
+  {
+    "id": 2,
+    "fullName": "Mehmet Kaya",
+    "email": "mehmet@kuafor.com",
+    "phone": "+90 541 987 6543",
+    "password": "$2b$10$encrypted_password_hash_2",
+    "lastLogin": "2024-01-14T14:20:00.000Z",
+    "isActive": true,
+    "createdAt": "2023-02-15T11:00:00.000Z",
+    "updatedAt": "2024-01-14T14:20:00.000Z"
+  },
+  {
+    "id": 3,
+    "fullName": "Ayşe Demir",
+    "email": "ayse@kuafor.com",
+    "phone": "+90 555 111 2233",
+    "password": "$2b$10$encrypted_password_hash_3",
+    "lastLogin": "2024-01-10T08:45:00.000Z",
+    "isActive": false,
+    "createdAt": "2023-03-20T12:00:00.000Z",
+    "updatedAt": "2024-01-10T08:45:00.000Z"
+  }
+] 
