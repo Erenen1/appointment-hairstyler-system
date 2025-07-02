@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: kuafor_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kuafor_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # - ./backend/database.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - kuafor_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kuafor_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Kuaför Backend Application
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kuafor_app
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.production
+    environment:
+      # Docker-specific overrides
+      DB_HOST: db
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kuafor_network
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/uploads:/app/uploads
+
+  # pgAdmin (PostgreSQL Web UI)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: kuafor_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@kuafor.com
+      PGADMIN_DEFAULT_PASSWORD: password123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    networks:
+      - kuafor_network
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+# Volumes
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+# Networks
+networks:
+  kuafor_network:
+    driver: bridge
