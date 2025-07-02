@@ -2,12 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../utils';
 import logger from '../config/logger';
 import { getRequestContext } from './requestLogger';
-
 interface ExtendedRequest extends Request {
   id?: string;
   startTime?: number;
 }
-
 export const errorHandler = (
   error: any,
   req: ExtendedRequest,
@@ -15,7 +13,6 @@ export const errorHandler = (
   next: NextFunction
 ): void => {
   let apiError: ApiError;
-
   if (error instanceof ApiError) {
     apiError = error;
   }
@@ -24,8 +21,6 @@ export const errorHandler = (
   }
   else if (error.name && error.name.startsWith('Sequelize')) {
     apiError = ApiError.fromSequelize(error);
-    
-    // Database hata logu
     logger.error('Database Error', {
       ...getRequestContext(req),
       error: {
@@ -38,7 +33,6 @@ export const errorHandler = (
     });
   }
   else {
-    // Beklenmeyen hata logu
     logger.error('Unexpected Error', {
       ...getRequestContext(req),
       error: {
@@ -47,13 +41,9 @@ export const errorHandler = (
         stack: error.stack
       }
     });
-    
     apiError = ApiError.internal('Beklenmeyen bir hata oluştu');
   }
-
   apiError.path = req.originalUrl;
-
-  // API hata logu
   const logLevel = apiError.statusCode >= 500 ? 'error' : 'warn';
   logger.log(logLevel, 'API Error Response', {
     ...getRequestContext(req),
@@ -64,7 +54,6 @@ export const errorHandler = (
       errors: apiError.errors
     }
   });
-
   const responseData: any = {
     success: apiError.success || false,
     type: apiError.type || 'INTERNAL_SERVER_ERROR',
@@ -73,24 +62,18 @@ export const errorHandler = (
     timestamp: apiError.timestamp || new Date().toISOString(),
     path: apiError.path || req.originalUrl
   };
-
   if (process.env.NODE_ENV === 'development' && error.stack) {
     responseData.stack = error.stack;
   }
-
   res.status(apiError.statusCode || 500).json(responseData);
 };
-
 export const notFoundHandler = (req: ExtendedRequest, res: Response): void => {
   const apiError = ApiError.notFound(`${req.originalUrl} endpoint'i bulunamadı`);
   apiError.path = req.originalUrl;
-  
-  // 404 logu
   logger.warn('404 Not Found', {
     ...getRequestContext(req),
     endpoint: req.originalUrl
   });
-  
   const responseData = {
     success: false,
     type: apiError.type,
@@ -99,6 +82,5 @@ export const notFoundHandler = (req: ExtendedRequest, res: Response): void => {
     timestamp: apiError.timestamp,
     path: apiError.path
   };
-  
   res.status(404).json(responseData);
 }; 

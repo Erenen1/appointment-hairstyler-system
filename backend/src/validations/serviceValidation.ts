@@ -1,8 +1,4 @@
 import Joi from 'joi';
-
-/**
- * Hizmet oluşturma validation schema
- */
 export const createServiceSchema = Joi.object({
   name: Joi.string().min(2).max(255).required().messages({
     'string.empty': 'Hizmet adı boş olamaz',
@@ -35,10 +31,6 @@ export const createServiceSchema = Joi.object({
   isActive: Joi.boolean().optional().default(true),
   images: Joi.array().items(Joi.string().uri()).optional().default([])
 });
-
-/**
- * Hizmet güncelleme validation schema
- */
 export const updateServiceSchema = Joi.object({
   name: Joi.string().min(2).max(255).optional(),
   description: Joi.string().max(1000).allow('').optional(),
@@ -49,10 +41,6 @@ export const updateServiceSchema = Joi.object({
   isActive: Joi.boolean().optional(),
   images: Joi.array().items(Joi.string().uri()).optional()
 });
-
-/**
- * Hizmet kategori oluşturma validation schema
- */
 export const createServiceCategorySchema = Joi.object({
   name: Joi.string().min(2).max(100).required().messages({
     'string.empty': 'Kategori adı boş olamaz',
@@ -67,10 +55,6 @@ export const createServiceCategorySchema = Joi.object({
   }),
   isActive: Joi.boolean().optional().default(true)
 });
-
-/**
- * Hizmet kategori güncelleme validation schema
- */
 export const updateServiceCategorySchema = Joi.object({
   name: Joi.string().min(2).max(100).optional(),
   description: Joi.string().max(500).allow('').optional(),
@@ -78,10 +62,6 @@ export const updateServiceCategorySchema = Joi.object({
   color: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).optional(),
   isActive: Joi.boolean().optional()
 });
-
-/**
- * Hizmet listesi query validation schema
- */
 export const serviceListQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).optional().default(1),
   limit: Joi.number().integer().min(1).max(100).optional().default(20),
@@ -96,10 +76,6 @@ export const serviceListQuerySchema = Joi.object({
   sortBy: Joi.string().valid('name', 'price', 'duration', 'createdAt', 'popularity').optional().default('name'),
   sortOrder: Joi.string().valid('asc', 'desc').optional().default('asc')
 });
-
-/**
- * Kategori listesi query validation schema
- */
 export const categoryListQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).optional().default(1),
   limit: Joi.number().integer().min(1).max(100).optional().default(20),
@@ -108,10 +84,6 @@ export const categoryListQuerySchema = Joi.object({
   sortBy: Joi.string().valid('name', 'createdAt').optional().default('name'),
   sortOrder: Joi.string().valid('asc', 'desc').optional().default('asc')
 });
-
-/**
- * Service ID validation schema
- */
 export const serviceIdSchema = Joi.object({
   id: Joi.number().integer().positive().required().messages({
     'number.base': 'Hizmet ID sayısal değer olmalıdır',
@@ -120,10 +92,6 @@ export const serviceIdSchema = Joi.object({
     'any.required': 'Hizmet ID gereklidir'
   })
 });
-
-/**
- * Category ID validation schema
- */
 export const categoryIdSchema = Joi.object({
   id: Joi.number().integer().positive().required().messages({
     'number.base': 'Kategori ID sayısal değer olmalıdır',
@@ -132,18 +100,15 @@ export const categoryIdSchema = Joi.object({
     'any.required': 'Kategori ID gereklidir'
   })
 });
-
 const beforeAfterImageSchema = Joi.object({
   before: Joi.string().uri().required(),
   after: Joi.string().uri().required(),
   caption: Joi.string().required()
 });
-
 const faqSchema = Joi.object({
   question: Joi.string().required(),
   answer: Joi.string().required()
 });
-
 export const serviceSchema = Joi.object({
   categoryId: Joi.number().integer().required(),
   slug: Joi.string().required(),
@@ -165,10 +130,8 @@ export const serviceSchema = Joi.object({
   beforeAfterImages: Joi.array().items(beforeAfterImageSchema).required(),
   faqs: Joi.array().items(faqSchema).required()
 });
-
 export const validateService = (data: any) => {
   const result = serviceSchema.validate(data, { abortEarly: false });
-  
   if (result.error) {
     return {
       success: false,
@@ -178,13 +141,11 @@ export const validateService = (data: any) => {
       }))
     };
   }
-
   return {
     success: true,
     data: result.value
   };
 };
-
 export const serviceQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),

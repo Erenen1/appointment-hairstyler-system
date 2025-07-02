@@ -1,26 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import logger from '../config/logger';
-
-/**
- * Log dosyalarını temizleme utility'si
- */
 export class LogManager {
-  
-  /**
-   * Belirli günden eski log dosyalarını sil
-   */
   static async cleanOldLogs(daysToKeep: number = 30): Promise<void> {
     try {
       const logDir = path.join(process.cwd(), 'logs');
       const files = await fs.promises.readdir(logDir);
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
-
       for (const file of files) {
         const filePath = path.join(logDir, file);
         const stats = await fs.promises.stat(filePath);
-        
         if (stats.mtime < cutoffDate) {
           await fs.promises.unlink(filePath);
           logger.info('Old log file deleted', { file, deletedAt: new Date() });
@@ -30,32 +20,22 @@ export class LogManager {
       logger.error('Error cleaning old logs', { error });
     }
   }
-
-  /**
-   * Log dizininin disk kullanımını kontrol et
-   */
   static async getLogDirectorySize(): Promise<number> {
     try {
       const logDir = path.join(process.cwd(), 'logs');
       const files = await fs.promises.readdir(logDir);
       let totalSize = 0;
-
       for (const file of files) {
         const filePath = path.join(logDir, file);
         const stats = await fs.promises.stat(filePath);
         totalSize += stats.size;
       }
-
       return totalSize;
     } catch (error) {
       logger.error('Error calculating log directory size', { error });
       return 0;
     }
   }
-
-  /**
-   * Log dizini oluştur (yoksa)
-   */
   static async ensureLogDirectory(): Promise<void> {
     try {
       const logDir = path.join(process.cwd(), 'logs');
@@ -65,32 +45,23 @@ export class LogManager {
     }
   }
 }
-
-/**
- * Performance tracking için yardımcı sınıf
- */
 export class PerformanceTracker {
   private startTime: number;
   private label: string;
-
   constructor(label: string) {
     this.label = label;
     this.startTime = Date.now();
   }
-
   end(meta?: any): number {
     const duration = Date.now() - this.startTime;
-    
     logger.info('Performance Measurement', {
       type: 'performance',
       label: this.label,
       duration: `${duration}ms`,
       ...meta
     });
-
     return duration;
   }
-
   static track<T>(label: string, operation: () => Promise<T>): Promise<T> {
     return new Promise(async (resolve, reject) => {
       const tracker = new PerformanceTracker(label);

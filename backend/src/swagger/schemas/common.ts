@@ -1,64 +1,3 @@
-/**
- * @swagger
- * components:
- *   schemas:
- *     SuccessResponse:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *           example: true
- *         message:
- *           type: string
- *           example: İşlem başarılı
- *         data:
- *           type: object
- *     
- *     ErrorResponse:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *           example: false
- *         message:
- *           type: string
- *           example: Bir hata oluştu
- *         error:
- *           type: string
- *     
- *     PaginationMeta:
- *       type: object
- *       properties:
- *         total:
- *           type: integer
- *           example: 100
- *         page:
- *           type: integer
- *           example: 1
- *         limit:
- *           type: integer
- *           example: 10
- *         totalPages:
- *           type: integer
- *           example: 10
- *     
- *     PaginatedResponse:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *           example: true
- *         data:
- *           type: array
- *           items: {}
- *         meta:
- *           $ref: '#/components/schemas/PaginationMeta'
- */ 
-
-/**
- * Common Swagger Schemas
- */
-
 export const commonSchemas = {
   ApiResponse: {
     type: 'object',
@@ -69,7 +8,6 @@ export const commonSchemas = {
       timestamp: { type: 'string', format: 'date-time' }
     }
   },
-
   ErrorResponse: {
     type: 'object',
     properties: {
@@ -79,7 +17,6 @@ export const commonSchemas = {
       timestamp: { type: 'string', format: 'date-time' }
     }
   },
-
   PaginationInfo: {
     type: 'object',
     properties: {
@@ -91,7 +28,6 @@ export const commonSchemas = {
       hasPrevPage: { type: 'boolean', example: false }
     }
   },
-
   ValidationErrorResponse: {
     type: 'object',
     properties: {
@@ -111,7 +47,6 @@ export const commonSchemas = {
     }
   }
 };
-
 export const commonResponses = {
   UnauthorizedError: {
     description: 'Yetkisiz erişim',
@@ -121,7 +56,6 @@ export const commonResponses = {
       }
     }
   },
-
   ForbiddenError: {
     description: 'Yetkisiz işlem',
     content: {
@@ -130,7 +64,6 @@ export const commonResponses = {
       }
     }
   },
-
   ValidationError: {
     description: 'Doğrulama hatası',
     content: {
@@ -139,7 +72,6 @@ export const commonResponses = {
       }
     }
   },
-
   InternalError: {
     description: 'Sunucu hatası',
     content: {

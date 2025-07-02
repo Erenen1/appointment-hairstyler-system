@@ -1,18 +1,12 @@
 import { Sequelize } from 'sequelize';
 import { Enum } from './env';
 import logger from './logger';
-
-/**
- * Error tipini güvenli şekilde handle eden yardımcı fonksiyon
- */
 const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
     return error.message;
   }
   return 'Bilinmeyen hata';
 };
-
-// Database konfigürasyonu
 const config: any = {
   database: Enum.DB_NAME,
   username: Enum.DB_USER,
@@ -29,21 +23,13 @@ const config: any = {
   },
   define: {
     timestamps: true,
-    underscored: false, // camelCase field names
+    underscored: false, 
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   }
 };
-
-// Production ortamında SSL kullan
-
 console.log(config);
-// Sequelize instance oluştur
 export const sequelize = new Sequelize(config);
-
-/**
- * Database bağlantısını test et
- */
 export const testConnection = async (): Promise<boolean> => {
   try {
     await sequelize.authenticate();
@@ -62,24 +48,15 @@ export const testConnection = async (): Promise<boolean> => {
     return false;
   }
 };
-
-/**
- * Uygulama başlatıldığında tabloları oluştur/güncelle
- */
 export const initializeAndSyncDatabase = async (): Promise<void> => {
   try {
     await testConnection();
-    
-    // Development'ta tabloları yeniden oluştur, production'da sadece güncelle
     const forceSync = true;
-    
     logger.info('Initializing database tables', { 
       forceSync, 
       environment: Enum.NODE_ENV 
     });
-    
     await sequelize.sync({ force: forceSync });
-    
     logger.info('Database tables initialized successfully');
   } catch (error) {
     logger.error('Database initialization failed', {
@@ -88,16 +65,11 @@ export const initializeAndSyncDatabase = async (): Promise<void> => {
     throw error;
   }
 };
-
-/**
- * Database sağlık kontrolü
- */
 export const healthCheck = async () => {
   try {
     const startTime = Date.now();
     await sequelize.authenticate();
     const responseTime = Date.now() - startTime;
-    
     return {
       status: 'healthy',
       responseTime: `${responseTime}ms`,
@@ -113,10 +85,6 @@ export const healthCheck = async () => {
     };
   }
 };
-
-/**
- * Database bağlantısını kapat
- */
 export const closeConnection = async (): Promise<void> => {
   try {
     await sequelize.close();
@@ -128,5 +96,4 @@ export const closeConnection = async (): Promise<void> => {
     throw error;
   }
 };
-
 export default sequelize; 

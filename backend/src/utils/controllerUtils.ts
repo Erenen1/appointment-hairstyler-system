@@ -1,10 +1,5 @@
 import { Response } from 'express';
 import { ApiError } from './ApiError';
-
-/**
- * Controller error handling utility
- * Tekrar eden error handling kodlarını tek yerde toplar
- */
 export const handleControllerError = (
   error: unknown, 
   res: Response, 
@@ -16,7 +11,6 @@ export const handleControllerError = (
     res.status(500).json(ApiError.internal(defaultMessage).toJSON());
   }
 };
-
 export const getPaginationOptions = (page: number, limit: number) => {
   const offset = (page - 1) * limit;
   return {
@@ -24,7 +18,6 @@ export const getPaginationOptions = (page: number, limit: number) => {
     limit
   };
 };
-
 export const formatPaginationResponse = (totalItems: number, currentPage: number, itemsPerPage: number) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   return {
@@ -36,4 +29,3 @@ export const formatPaginationResponse = (totalItems: number, currentPage: number
     hasPrev: currentPage > 1
   };
 };
-

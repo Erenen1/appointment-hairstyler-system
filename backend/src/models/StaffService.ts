@@ -12,7 +12,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     serviceId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-    },
+    }
   }, {
     tableName: 'staff_services',
     timestamps: true,
@@ -23,8 +23,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         unique: true,
         fields: ['staffId', 'serviceId']
       }
-    ],
+    ]
   });
-
   return StaffService;
 }; 

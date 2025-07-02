@@ -1,8 +1,4 @@
 import Joi from 'joi';
-
-/**
- * Unified login validation schema - admin ve staff için tek endpoint
- */
 export const loginSchema = Joi.object({
   identifier: Joi.string()
     .trim()
@@ -24,10 +20,6 @@ export const loginSchema = Joi.object({
       'any.required': 'Şifre gereklidir'
     })
 });
-
-/**
- * Admin login validation schema (backward compatibility)
- */
 export const adminLoginSchema = Joi.object({
   username: Joi.string()
     .trim()
@@ -49,10 +41,6 @@ export const adminLoginSchema = Joi.object({
       'any.required': 'Şifre gereklidir'
     })
 });
-
-/**
- * Staff login validation schema (backward compatibility)
- */
 export const staffLoginSchema = Joi.object({
   email: Joi.string()
     .email()
@@ -73,10 +61,6 @@ export const staffLoginSchema = Joi.object({
       'any.required': 'Şifre gereklidir'
     })
 });
-
-/**
- * Password change validation schema
- */
 export const passwordChangeSchema = Joi.object({
   currentPassword: Joi.string()
     .required()
@@ -104,10 +88,6 @@ export const passwordChangeSchema = Joi.object({
       'any.required': 'Şifre tekrarı gereklidir'
     })
 });
-
-/**
- * Admin creation validation schema
- */
 export const adminCreateSchema = Joi.object({
   username: Joi.string()
     .trim()

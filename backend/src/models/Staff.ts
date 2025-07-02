@@ -66,6 +66,5 @@ module.exports = (sequelize: any, DataTypes: any) => {
     tableName: 'staff',
     timestamps: true,
   });
-
   return Staff;
 }; 

@@ -2,16 +2,11 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { Express } from 'express';
 import { Enum } from '../config/env';
-
-// Schemas import
 import { dashboardSchemas } from '../swagger/schemas/dashboard';
 import { appointmentSchemas } from '../swagger/schemas/appointment';
 import { commonSchemas, commonResponses } from '../swagger/schemas/common';
-
-// Paths import
 import { dashboardPaths } from '../swagger/paths/dashboard';
 import { appointmentPaths } from '../swagger/paths/appointment';
-
 const options = {
   definition: {
     openapi: '3.0.0',
@@ -25,16 +20,16 @@ const options = {
       },
       license: {
         name: 'MIT',
-        url: 'https://opensource.org/licenses/MIT'
+        url: 'https://kuafor.com/api/v1'
       }
     },
     servers: [
       {
-        url: 'http://localhost:3001',
+        url: 'http://localhost:3001/api/v1',
         description: 'Development Server'
       },
       {
-        url: 'https://api.kuafor.com',
+        url: 'https://api.kuafor.com/api/v1',
         description: 'Production Server'
       }
     ],
@@ -83,25 +78,10 @@ const options = {
       }
     ]
   },
-  apis: ['./src/routes/*.ts', './src/controllers/*.ts']
 };
 
-const specs = swaggerJSDoc(options);
+const swaggerSpec = swaggerJSDoc(options);
 
-export const setupSwagger = (app: Express): void => {
-  if (process.env.NODE_ENV !== 'production') {
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
-      explorer: true,
-      customCss: '.swagger-ui .topbar { display: none }',
-      customSiteTitle: 'Kuaför API Dokümantasyonu'
-    }));
-    
-    // JSON endpoint for the API docs
-    app.get('/api-docs.json', (req, res) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.send(specs);
-    });
-
-    console.log(`📚 Swagger documentation available at: http://localhost:${Enum.PORT}/api-docs`);
-  }
-}; 
+export const setupSwagger = (app: Express) => {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+};

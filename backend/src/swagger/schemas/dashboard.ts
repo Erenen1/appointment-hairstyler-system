@@ -1,7 +1,3 @@
-/**
- * Dashboard API Schemas
- */
-
 export const dashboardSchemas = {
   DashboardStats: {
     type: 'object',
@@ -41,7 +37,6 @@ export const dashboardSchemas = {
       }
     }
   },
-
   RevenueChartData: {
     type: 'object',
     properties: {
@@ -70,7 +65,6 @@ export const dashboardSchemas = {
       }
     }
   },
-
   PopularService: {
     type: 'object',
     properties: {
@@ -81,7 +75,6 @@ export const dashboardSchemas = {
       percentage: { type: 'number', example: 35 }
     }
   },
-
   RecentAppointment: {
     type: 'object',
     properties: {

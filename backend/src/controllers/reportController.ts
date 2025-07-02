@@ -8,10 +8,8 @@ import {
   popularServicesReportQuerySchema,
   staffPerformanceReportQuerySchema
 } from '../validations/reportValidation';
-
 const db = require('../models');
 const { Appointment, Customer, Staff, Service, ServiceCategory } = db;
-
 interface AuthenticatedRequest extends Request {
   user?: {
     id: number;
@@ -19,38 +17,25 @@ interface AuthenticatedRequest extends Request {
     role: string;
   };
 }
-
-/**
- * Gelir raporu
- * GET /api/v1/reports/revenue
- */
 export const getRevenueReport = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    // Query parametrelerini validate et
     const { error, value } = revenueReportQuerySchema.validate(req.query);
     if (error) {
       throw ApiError.fromJoi(error);
     }
-
     const { startDate, endDate, groupBy, staffId, serviceId } = value;
-
-    // Filtreleme koşulları
     const whereConditions: any = {
       appointmentDate: {
         [Op.between]: [startDate, endDate]
       },
       status: 'completed'
     };
-
     if (staffId) {
       whereConditions.staffId = staffId;
     }
-
     if (serviceId) {
       whereConditions.serviceId = serviceId;
     }
-
-    // Gruplama formatı belirleme
     let dateFormat: string;
     switch (groupBy) {
       case 'day':
@@ -65,8 +50,6 @@ export const getRevenueReport = async (req: AuthenticatedRequest, res: Response)
       default:
         dateFormat = '%Y-%m-%d';
     }
-
-    // Gelir verilerini getir
     const revenueData = await Appointment.findAll({
       attributes: [
         [fn('DATE_FORMAT', col('appointmentDate'), dateFormat), 'period'],
@@ -79,8 +62,6 @@ export const getRevenueReport = async (req: AuthenticatedRequest, res: Response)
       order: [[fn('DATE_FORMAT', col('appointmentDate'), dateFormat), 'ASC']],
       raw: true
     });
-
-    // Toplam özet bilgileri
     const totalStats = await Appointment.findOne({
       attributes: [
         [fn('SUM', col('totalPrice')), 'totalRevenue'],
@@ -90,8 +71,6 @@ export const getRevenueReport = async (req: AuthenticatedRequest, res: Response)
       where: whereConditions,
       raw: true
     });
-
-    // En çok gelir getiren hizmetler
     const topServices = await Appointment.findAll({
       attributes: [
         [fn('SUM', col('totalPrice')), 'revenue'],
@@ -109,7 +88,6 @@ export const getRevenueReport = async (req: AuthenticatedRequest, res: Response)
       order: [[fn('SUM', col('totalPrice')), 'DESC']],
       limit: 10
     });
-
     res.json(new ApiSuccess('Gelir raporu başarıyla getirildi', {
       summary: {
         totalRevenue: parseFloat(totalStats.totalRevenue) || 0,
@@ -128,7 +106,6 @@ export const getRevenueReport = async (req: AuthenticatedRequest, res: Response)
         count: parseInt(item.count) || 0
       }))
     }));
-
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
@@ -136,49 +113,32 @@ export const getRevenueReport = async (req: AuthenticatedRequest, res: Response)
     throw ApiError.internal('Gelir raporu getirilirken hata oluştu');
   }
 };
-
-/**
- * Randevu raporu
- * GET /api/v1/reports/appointments
- */
 export const getAppointmentReport = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    // Query parametrelerini validate et
     const { error, value } = appointmentReportQuerySchema.validate(req.query);
     if (error) {
       throw ApiError.fromJoi(error);
     }
-
     const { startDate, endDate, staffId, serviceId, status } = value;
-
-    // Filtreleme koşulları
     const whereConditions: any = {
       appointmentDate: {
         [Op.between]: [startDate, endDate]
       }
     };
-
     if (staffId) whereConditions.staffId = staffId;
     if (serviceId) whereConditions.serviceId = serviceId;
     if (status) whereConditions.status = status;
-
-    // Genel istatistikler
     const totalAppointments = await Appointment.count({
       where: whereConditions
     });
-
     const completedAppointments = await Appointment.count({
       where: { ...whereConditions, status: 'completed' }
     });
-
     const cancelledAppointments = await Appointment.count({
       where: { ...whereConditions, status: 'cancelled' }
     });
-
     const completionRate = totalAppointments > 0 ? 
       ((completedAppointments / totalAppointments) * 100) : 0;
-
-    // Yoğun saatler analizi
     const busyHours = await Appointment.findAll({
       attributes: [
         [fn('HOUR', col('startTime')), 'hour'],
@@ -189,8 +149,6 @@ export const getAppointmentReport = async (req: AuthenticatedRequest, res: Respo
       order: [[fn('COUNT', col('id')), 'DESC']],
       raw: true
     });
-
-    // Yoğun günler analizi
     const busyDays = await Appointment.findAll({
       attributes: [
         [fn('DAYNAME', col('appointmentDate')), 'day'],
@@ -201,8 +159,6 @@ export const getAppointmentReport = async (req: AuthenticatedRequest, res: Respo
       order: [[fn('COUNT', col('id')), 'DESC']],
       raw: true
     });
-
-    // Durum dağılımı
     const statusDistribution = await Appointment.findAll({
       attributes: [
         'status',
@@ -212,7 +168,6 @@ export const getAppointmentReport = async (req: AuthenticatedRequest, res: Respo
       group: ['status'],
       raw: true
     });
-
     res.json(new ApiSuccess('Randevu raporu başarıyla getirildi', {
       summary: {
         totalAppointments,
@@ -234,7 +189,6 @@ export const getAppointmentReport = async (req: AuthenticatedRequest, res: Respo
         percentage: Math.round((parseInt(item.count) / totalAppointments) * 100)
       }))
     }));
-
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
@@ -242,33 +196,20 @@ export const getAppointmentReport = async (req: AuthenticatedRequest, res: Respo
     throw ApiError.internal('Randevu raporu getirilirken hata oluştu');
   }
 };
-
-/**
- * Müşteri raporu
- * GET /api/v1/reports/customers
- */
 export const getCustomerReport = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    // Query parametrelerini validate et
     const { error, value } = customerReportQuerySchema.validate(req.query);
     if (error) {
       throw ApiError.fromJoi(error);
     }
-
     const { startDate, endDate, groupBy, includeInactive } = value;
-
-    // Müşteri filtreleme
     const customerWhere: any = {};
     if (!includeInactive) {
       customerWhere.isActive = true;
     }
-
-    // Toplam müşteri sayısı
     const totalCustomers = await Customer.count({
       where: customerWhere
     });
-
-    // Yeni müşteriler (belirtilen tarih aralığında)
     const newCustomers = await Customer.count({
       where: {
         ...customerWhere,
@@ -277,8 +218,6 @@ export const getCustomerReport = async (req: AuthenticatedRequest, res: Response
         }
       }
     });
-
-    // Dönen müşteriler (birden fazla randevusu olan)
     const returningCustomers = await Customer.count({
       where: customerWhere,
       include: [
@@ -294,8 +233,6 @@ export const getCustomerReport = async (req: AuthenticatedRequest, res: Response
       group: ['Customer.id'],
       distinct: true
     });
-
-    // En çok harcama yapan müşteriler
     const topCustomers = await Customer.findAll({
       attributes: [
         'firstName',
@@ -322,8 +259,6 @@ export const getCustomerReport = async (req: AuthenticatedRequest, res: Response
       limit: 10,
       having: literal('COUNT(appointments.id) > 0')
     });
-
-    // Müşteri büyümesi (aylık)
     let dateFormat: string;
     switch (groupBy) {
       case 'day':
@@ -338,7 +273,6 @@ export const getCustomerReport = async (req: AuthenticatedRequest, res: Response
       default:
         dateFormat = '%Y-%m';
     }
-
     const customerGrowth = await Customer.findAll({
       attributes: [
         [fn('DATE_FORMAT', col('createdAt'), dateFormat), 'period'],
@@ -354,7 +288,6 @@ export const getCustomerReport = async (req: AuthenticatedRequest, res: Response
       order: [[fn('DATE_FORMAT', col('createdAt'), dateFormat), 'ASC']],
       raw: true
     });
-
     res.json(new ApiSuccess('Müşteri raporu başarıyla getirildi', {
       summary: {
         totalCustomers,
@@ -373,7 +306,6 @@ export const getCustomerReport = async (req: AuthenticatedRequest, res: Response
         newCustomers: parseInt(item.newCustomers) || 0
       }))
     }));
-
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
@@ -381,36 +313,24 @@ export const getCustomerReport = async (req: AuthenticatedRequest, res: Response
     throw ApiError.internal('Müşteri raporu getirilirken hata oluştu');
   }
 };
-
-/**
- * Popüler hizmetler raporu
- * GET /api/v1/reports/popular-services
- */
 export const getPopularServicesReport = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    // Query parametrelerini validate et
     const { error, value } = popularServicesReportQuerySchema.validate(req.query);
     if (error) {
       throw ApiError.fromJoi(error);
     }
-
     const { startDate, endDate, limit, categoryId } = value;
-
-    // Filtreleme koşulları
     const whereConditions: any = {
       appointmentDate: {
         [Op.between]: [startDate, endDate]
       },
       status: 'completed'
     };
-
-    // Hizmet filtreleme
     const serviceInclude: any = {
       model: Service,
       as: 'service',
       attributes: ['name', 'price', 'duration']
     };
-
     if (categoryId) {
       serviceInclude.where = { categoryId };
       serviceInclude.include = [
@@ -421,8 +341,6 @@ export const getPopularServicesReport = async (req: AuthenticatedRequest, res: R
         }
       ];
     }
-
-    // Popüler hizmetler
     const popularServices = await Appointment.findAll({
       attributes: [
         [fn('COUNT', col('Appointment.id')), 'appointmentCount'],
@@ -435,17 +353,13 @@ export const getPopularServicesReport = async (req: AuthenticatedRequest, res: R
       order: [[fn('COUNT', col('Appointment.id')), 'DESC']],
       limit
     });
-
-    // Toplam randevu sayısı (yüzde hesabı için)
     const totalAppointments = await Appointment.count({
       where: whereConditions
     });
-
     res.json(new ApiSuccess('Popüler hizmetler raporu başarıyla getirildi', {
       services: popularServices.map((item: any) => {
         const appointmentCount = parseInt(item.getDataValue('appointmentCount'));
         const totalRevenue = parseFloat(item.getDataValue('totalRevenue'));
-        
         return {
           serviceName: item.service.name,
           appointmentCount,
@@ -462,7 +376,6 @@ export const getPopularServicesReport = async (req: AuthenticatedRequest, res: R
         totalServices: popularServices.length
       }
     }));
-
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
@@ -470,22 +383,13 @@ export const getPopularServicesReport = async (req: AuthenticatedRequest, res: R
     throw ApiError.internal('Popüler hizmetler raporu getirilirken hata oluştu');
   }
 };
-
-/**
- * Personel performans raporu
- * GET /api/v1/reports/staff-performance
- */
 export const getStaffPerformanceReport = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    // Query parametrelerini validate et
     const { error, value } = staffPerformanceReportQuerySchema.validate(req.query);
     if (error) {
       throw ApiError.fromJoi(error);
     }
-
     const { startDate, endDate, staffId, includeInactive } = value;
-
-    // Personel filtreleme
     const staffWhere: any = {};
     if (!includeInactive) {
       staffWhere.isActive = true;
@@ -493,16 +397,12 @@ export const getStaffPerformanceReport = async (req: AuthenticatedRequest, res: 
     if (staffId) {
       staffWhere.id = staffId;
     }
-
-    // Randevu filtreleme
     const appointmentWhere: any = {
       appointmentDate: {
         [Op.between]: [startDate, endDate]
       },
       status: 'completed'
     };
-
-    // Personel performans verileri
     const staffPerformance = await Staff.findAll({
       attributes: [
         'id',
@@ -526,14 +426,10 @@ export const getStaffPerformanceReport = async (req: AuthenticatedRequest, res: 
       order: [[fn('SUM', col('appointments.totalPrice')), 'DESC']],
       having: literal('COUNT(appointments.id) > 0')
     });
-
-    // Genel istatistikler
     const totalRevenue = staffPerformance.reduce((sum: number, staff: any) => 
       sum + (parseFloat(staff.getDataValue('totalRevenue')) || 0), 0);
-    
     const totalAppointments = staffPerformance.reduce((sum: number, staff: any) => 
       sum + (parseInt(staff.getDataValue('totalAppointments')) || 0), 0);
-
     res.json(new ApiSuccess('Personel performans raporu başarıyla getirildi', {
       summary: {
         totalStaff: staffPerformance.length,
@@ -545,7 +441,6 @@ export const getStaffPerformanceReport = async (req: AuthenticatedRequest, res: 
       staffPerformance: staffPerformance.map((staff: any) => {
         const revenue = parseFloat(staff.getDataValue('totalRevenue')) || 0;
         const appointments = parseInt(staff.getDataValue('totalAppointments')) || 0;
-        
         return {
           staffId: staff.id,
           staffName: `${staff.firstName} ${staff.lastName}`,
@@ -560,7 +455,6 @@ export const getStaffPerformanceReport = async (req: AuthenticatedRequest, res: 
         };
       })
     }));
-
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;

@@ -93,6 +93,5 @@ module.exports = (sequelize: any, DataTypes: any) => {
     tableName: 'services',
     timestamps: true,
   });
-
   return Service;
 }; 

@@ -32,6 +32,5 @@ module.exports = (sequelize: any, DataTypes: any) => {
     tableName: 'customers',
     timestamps: true,
   });
-
   return Customer;
 }; 

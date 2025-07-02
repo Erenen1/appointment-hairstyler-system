@@ -1,7 +1,3 @@
-/**
- * Appointment API Schemas
- */
-
 export const appointmentSchemas = {
   Customer: {
     type: 'object',
@@ -14,7 +10,6 @@ export const appointmentSchemas = {
       fullName: { type: 'string', example: 'Ayşe Demir' }
     }
   },
-
   Staff: {
     type: 'object',
     properties: {
@@ -25,7 +20,6 @@ export const appointmentSchemas = {
       fullName: { type: 'string', example: 'Zeynep Yılmaz' }
     }
   },
-
   Service: {
     type: 'object',
     properties: {
@@ -35,7 +29,6 @@ export const appointmentSchemas = {
       duration: { type: 'number', example: 60 }
     }
   },
-
   AppointmentStatus: {
     type: 'object',
     properties: {
@@ -44,7 +37,6 @@ export const appointmentSchemas = {
       displayName: { type: 'string', example: 'Bekliyor' }
     }
   },
-
   Appointment: {
     type: 'object',
     properties: {
@@ -67,7 +59,6 @@ export const appointmentSchemas = {
       updatedAt: { type: 'string', format: 'date-time' }
     }
   },
-
   CreateAppointmentRequest: {
     type: 'object',
     required: ['customer', 'serviceId', 'staffId', 'appointmentDate', 'startTime'],
@@ -89,7 +80,6 @@ export const appointmentSchemas = {
       notes: { type: 'string', maxLength: 500, example: 'Özel istek notları' }
     }
   },
-
   UpdateAppointmentStatusRequest: {
     type: 'object',
     required: ['status'],
@@ -102,7 +92,6 @@ export const appointmentSchemas = {
       notes: { type: 'string', maxLength: 500, example: 'Randevu onaylandı' }
     }
   },
-
   CalendarEvent: {
     type: 'object',
     properties: {

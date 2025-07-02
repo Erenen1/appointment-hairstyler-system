@@ -23,6 +23,5 @@ module.exports = (sequelize: any, DataTypes: any) => {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
   });
-
   return GalleryCategory;
 }; 

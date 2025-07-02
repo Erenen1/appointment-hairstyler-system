@@ -1,7 +1,3 @@
-/**
- * Error handling utilities
- */
-
 export const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
     return error.message;
@@ -14,7 +10,6 @@ export const getErrorMessage = (error: unknown): string => {
   }
   return 'Bilinmeyen hata';
 };
-
 export const getErrorDetails = (error: unknown): {
   message: string;
   name?: string;
@@ -27,12 +22,10 @@ export const getErrorDetails = (error: unknown): {
       stack: error.stack
     };
   }
-  
   return {
     message: getErrorMessage(error)
   };
 };
-
 export const isError = (error: unknown): error is Error => {
   return error instanceof Error;
 }; 

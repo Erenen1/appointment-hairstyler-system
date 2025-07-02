@@ -1,8 +1,4 @@
 import Joi from 'joi';
-
-/**
- * Randevu oluşturma validation schema
- */
 export const createAppointmentSchema = Joi.object({
   customer: Joi.object({
     firstName: Joi.string().min(2).max(50).required().messages({
@@ -54,10 +50,6 @@ export const createAppointmentSchema = Joi.object({
     'string.max': 'Notlar en fazla 500 karakter olabilir'
   })
 });
-
-/**
- * Randevu listesi query parametreleri validation
- */
 export const appointmentListQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
@@ -70,25 +62,13 @@ export const appointmentListQuerySchema = Joi.object({
   sortBy: Joi.string().valid('appointmentDate', 'createdAt', 'customer_name', 'service_name').default('appointmentDate'),
   sortOrder: Joi.string().valid('asc', 'desc').default('desc')
 });
-
-/**
- * Randevu durumu güncelleme validation
- */
 export const updateAppointmentStatusSchema = Joi.object({
   status: Joi.string().valid('pending', 'confirmed', 'completed', 'cancelled').required(),
   notes: Joi.string().max(500).allow('').optional()
 });
-
-/**
- * Randevu ID parameter validation
- */
 export const appointmentIdSchema = Joi.object({
   id: Joi.number().integer().positive().required()
 });
-
-/**
- * Takvim parametreleri validation
- */
 export const calendarQuerySchema = Joi.object({
   startDate: Joi.date().required(),
   endDate: Joi.date().required(),

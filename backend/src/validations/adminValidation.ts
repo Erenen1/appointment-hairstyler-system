@@ -1,6 +1,4 @@
 import Joi from 'joi';
-
-
 export const createAdminSchema = Joi.object({
   username: Joi.string()
     .trim()
@@ -59,10 +57,6 @@ export const createAdminSchema = Joi.object({
       'boolean.base': 'Aktiflik durumu true veya false olmalıdır'
     })
 });
-
-/**
- * Admin güncelleme validation schema
- */
 export const updateAdminSchema = Joi.object({
   username: Joi.string()
     .trim()
@@ -110,10 +104,6 @@ export const updateAdminSchema = Joi.object({
 }).min(1).messages({
   'object.min': 'En az bir alan güncellenmelidir'
 });
-
-/**
- * Şifre değiştirme validation schema
- */
 export const changePasswordSchema = Joi.object({
   newPassword: Joi.string()
     .min(6)
@@ -135,10 +125,6 @@ export const changePasswordSchema = Joi.object({
       'any.required': 'Şifre tekrarı gereklidir'
     })
 });
-
-/**
- * Admin ID parameter validation
- */
 export const adminIdSchema = Joi.object({
   id: Joi.number()
     .integer()
@@ -151,10 +137,6 @@ export const adminIdSchema = Joi.object({
       'any.required': 'Admin ID gereklidir'
     })
 });
-
-/**
- * Admin listesi query validation schema
- */
 export const adminListQuerySchema = Joi.object({
   page: Joi.number()
     .integer()

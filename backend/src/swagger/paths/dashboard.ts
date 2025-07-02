@@ -1,7 +1,3 @@
-/**
- * Dashboard API Paths
- */
-
 export const dashboardPaths = {
   '/api/v1/dashboard/stats': {
     get: {
@@ -53,7 +49,6 @@ export const dashboardPaths = {
       }
     }
   },
-
   '/api/v1/dashboard/revenue-chart': {
     get: {
       tags: ['Dashboard'],
@@ -98,7 +93,6 @@ export const dashboardPaths = {
       }
     }
   },
-
   '/api/v1/dashboard/popular-services': {
     get: {
       tags: ['Dashboard'],
@@ -146,7 +140,6 @@ export const dashboardPaths = {
       }
     }
   },
-
   '/api/v1/dashboard/recent-appointments': {
     get: {
       tags: ['Dashboard'],

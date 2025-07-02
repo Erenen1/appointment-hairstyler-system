@@ -9,11 +9,8 @@ import {
   appointmentIdSchema,
   calendarQuerySchema
 } from '../validations/appointmentValidation';
-
 const db = require('../models');
 const { Appointment, Customer, Service, Staff, AppointmentStatus, AppointmentHistory } = db;
-
-// User session tipini genişletme
 interface AuthenticatedRequest extends Request {
   user?: {
     id: number;
@@ -21,17 +18,12 @@ interface AuthenticatedRequest extends Request {
     userType: 'admin' | 'staff';
   };
 }
-
-/**
- * Randevu listesi
- */
 export const getAppointments = async (req: Request, res: Response): Promise<void> => {
   try {
     const { error, value } = appointmentListQuerySchema.validate(req.query);
     if (error) {
       throw ApiError.fromJoi(error);
     }
-
     const { 
       page, 
       limit, 
@@ -44,22 +36,15 @@ export const getAppointments = async (req: Request, res: Response): Promise<void
       sortBy, 
       sortOrder 
     } = value;
-
     const whereConditions: any = {};
-
-    // Tarih filtreleri
     if (startDate || endDate) {
       whereConditions.appointmentDate = {};
       if (startDate) whereConditions.appointmentDate[Op.gte] = startDate;
       if (endDate) whereConditions.appointmentDate[Op.lte] = endDate;
     }
-
-    // Diğer filtreler
     if (staffId) whereConditions.staffId = staffId;
     if (customerId) whereConditions.customerId = customerId;
     if (serviceId) whereConditions.serviceId = serviceId;
-
-    // Status filtresi
     const includeConditions: any = [
       {
         model: Customer,
@@ -83,7 +68,6 @@ export const getAppointments = async (req: Request, res: Response): Promise<void
         ...(status && { where: { name: status } })
       }
     ];
-
     const offset = (page - 1) * limit;
     const { count, rows: appointments } = await Appointment.findAndCountAll({
       where: whereConditions,
@@ -95,8 +79,6 @@ export const getAppointments = async (req: Request, res: Response): Promise<void
               sortBy, sortOrder.toUpperCase()]],
       distinct: true
     });
-
-    // Response formatı
     const formattedAppointments = appointments.map((appointment: any) => ({
       id: appointment.id,
       customerId: appointment.customerId,
@@ -138,7 +120,6 @@ export const getAppointments = async (req: Request, res: Response): Promise<void
       createdAt: appointment.createdAt,
       updatedAt: appointment.updatedAt
     }));
-
     const totalPages = Math.ceil(count / limit);
     const paginationInfo = {
       currentPage: page,
@@ -148,7 +129,6 @@ export const getAppointments = async (req: Request, res: Response): Promise<void
       hasNextPage: page < totalPages,
       hasPrevPage: page > 1
     };
-
     res.json(ApiSuccess.list(formattedAppointments, paginationInfo, 'Randevu listesi başarıyla getirildi'));
   } catch (error) {
     if (error instanceof ApiError) {
@@ -158,38 +138,25 @@ export const getAppointments = async (req: Request, res: Response): Promise<void
     }
   }
 };
-
-/**
- * Yeni randevu oluşturma
- */
 export const createAppointment = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { error, value } = createAppointmentSchema.validate(req.body);
     if (error) {
       throw ApiError.fromJoi(error);
     }
-
     const { customer: customerData, serviceId, staffId, appointmentDate, startTime, notes } = value;
-
-    // Hizmet bilgilerini al
     const service = await Service.findByPk(serviceId);
     if (!service) {
       throw ApiError.notFound('Hizmet bulunamadı');
     }
-
-    // Personel bilgilerini al
     const staff = await Staff.findByPk(staffId);
     if (!staff || !staff.isActive) {
       throw ApiError.notFound('Personel bulunamadı veya aktif değil');
     }
-
-    // Bitiş saatini hesapla - parseISO yerine Date constructor kullanıyoruz
     const appointmentDateStr = format(new Date(appointmentDate), 'yyyy-MM-dd');
     const startDateTime = new Date(`${appointmentDateStr}T${startTime}:00`);
     const endDateTime = addMinutes(startDateTime, service.duration);
     const endTime = format(endDateTime, 'HH:mm');
-
-    // Zaman çakışması kontrolü
     const conflictingAppointment = await Appointment.findOne({
       where: {
         staffId: staffId,
@@ -197,17 +164,14 @@ export const createAppointment = async (req: AuthenticatedRequest, res: Response
         [Op.and]: [
           {
             [Op.or]: [
-              // Yeni randevu mevcut randevunun içinde başlıyor
               {
                 startTime: { [Op.lte]: startTime },
                 endTime: { [Op.gt]: startTime }
               },
-              // Yeni randevu mevcut randevunun içinde bitiyor
               {
                 startTime: { [Op.lt]: endTime },
                 endTime: { [Op.gte]: endTime }
               },
-              // Yeni randevu mevcut randevuyu kapsıyor
               {
                 startTime: { [Op.gte]: startTime },
                 endTime: { [Op.lte]: endTime }
@@ -224,12 +188,9 @@ export const createAppointment = async (req: AuthenticatedRequest, res: Response
         }
       }]
     });
-
     if (conflictingAppointment) {
       throw ApiError.conflict('Bu saatte başka bir randevu mevcut');
     }
-
-    // Müşteri kontrolü (varsa getir, yoksa oluştur)
     let customer = await Customer.findOne({
       where: {
         [Op.or]: [
@@ -238,7 +199,6 @@ export const createAppointment = async (req: AuthenticatedRequest, res: Response
         ]
       }
     });
-
     if (!customer) {
       customer = await Customer.create({
         firstName: customerData.firstName,
@@ -247,14 +207,10 @@ export const createAppointment = async (req: AuthenticatedRequest, res: Response
         phone: customerData.phone
       });
     }
-
-    // Pending status'ını al
     const pendingStatus = await AppointmentStatus.findOne({ where: { name: 'pending' } });
     if (!pendingStatus) {
       throw ApiError.internal('Randevu durumu bulunamadı');
     }
-
-    // Randevu oluştur
     const appointment = await Appointment.create({
       customerId: customer.id,
       staffId: staffId,
@@ -268,16 +224,12 @@ export const createAppointment = async (req: AuthenticatedRequest, res: Response
       notes: notes || '',
       createdByAdmin: req.user?.userType === 'admin' ? req.user.id : null
     });
-
-    // Randevu geçmişi kaydet
     await AppointmentHistory.create({
       appointment_id: appointment.id,
       status_id: pendingStatus.id,
       notes: 'Randevu oluşturuldu',
       created_by_admin: req.user?.userType === 'admin' ? req.user.id : null
     });
-
-    // Tam randevu bilgilerini getir
     const fullAppointment = await Appointment.findByPk(appointment.id, {
       include: [
         {
@@ -302,7 +254,6 @@ export const createAppointment = async (req: AuthenticatedRequest, res: Response
         }
       ]
     });
-
     res.status(201).json(ApiSuccess.created(fullAppointment, 'Randevu başarıyla oluşturuldu'));
   } catch (error) {
     if (error instanceof ApiError) {
@@ -312,48 +263,34 @@ export const createAppointment = async (req: AuthenticatedRequest, res: Response
     }
   }
 };
-
-/**
- * Randevu durumu güncelleme
- */
 export const updateAppointmentStatus = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { error: idError, value: idValue } = appointmentIdSchema.validate(req.params);
     if (idError) {
       throw ApiError.fromJoi(idError);
     }
-
     const { error: bodyError, value: bodyValue } = updateAppointmentStatusSchema.validate(req.body);
     if (bodyError) {
       throw ApiError.fromJoi(bodyError);
     }
-
     const appointment = await Appointment.findByPk(idValue.id);
     if (!appointment) {
       throw ApiError.notFound('Randevu bulunamadı');
     }
-
-    // Yeni status'ı al
     const newStatus = await AppointmentStatus.findOne({ where: { name: bodyValue.status } });
     if (!newStatus) {
       throw ApiError.badRequest('Geçersiz randevu durumu');
     }
-
-    // Randevu durumunu güncelle
     await appointment.update({
       statusId: newStatus.id,
       notes: bodyValue.notes || appointment.notes
     });
-
-    // Randevu geçmişi kaydet
     await AppointmentHistory.create({
       appointment_id: appointment.id,
       status_id: newStatus.id,
       notes: bodyValue.notes || `Durum güncellendi: ${newStatus.display_name}`,
       created_by_admin: req.user?.userType === 'admin' ? req.user.id : null
     });
-
-    // Güncellenmiş randevu bilgilerini getir
     const updatedAppointment = await Appointment.findByPk(idValue.id, {
       include: [
         {
@@ -378,7 +315,6 @@ export const updateAppointmentStatus = async (req: AuthenticatedRequest, res: Re
         }
       ]
     });
-
     res.json(ApiSuccess.updated(updatedAppointment, 'Randevu durumu başarıyla güncellendi'));
   } catch (error) {
     if (error instanceof ApiError) {
@@ -388,29 +324,21 @@ export const updateAppointmentStatus = async (req: AuthenticatedRequest, res: Re
     }
   }
 };
-
-/**
- * Takvim görünümü için randevular
- */
 export const getCalendarAppointments = async (req: Request, res: Response): Promise<void> => {
   try {
     const { error, value } = calendarQuerySchema.validate(req.query);
     if (error) {
       throw ApiError.fromJoi(error);
     }
-
     const { startDate, endDate, staffId } = value;
-
     const whereConditions: any = {
       appointmentDate: {
         [Op.between]: [startDate, endDate]
       }
     };
-
     if (staffId) {
       whereConditions.staffId = staffId;
     }
-
     const appointments = await Appointment.findAll({
       where: whereConditions,
       include: [
@@ -437,13 +365,9 @@ export const getCalendarAppointments = async (req: Request, res: Response): Prom
       ],
       order: [['appointmentDate', 'ASC'], ['startTime', 'ASC']]
     });
-
-    // Takvim formatında düzenle
     const calendarEvents = appointments.map((appointment: any) => {
       const startDateTime = `${appointment.appointmentDate}T${appointment.startTime}:00`;
       const endDateTime = `${appointment.appointmentDate}T${appointment.endTime}:00`;
-      
-      // Status'a göre renk belirleme
       const getStatusColor = (status: string) => {
         switch (status) {
           case 'pending': return { backgroundColor: '#ffc107', borderColor: '#ffc107' };
@@ -453,9 +377,7 @@ export const getCalendarAppointments = async (req: Request, res: Response): Prom
           default: return { backgroundColor: '#6c757d', borderColor: '#6c757d' };
         }
       };
-
       const colors = getStatusColor(appointment.status.name);
-
       return {
         id: appointment.id,
         title: `${appointment.customer.firstName} ${appointment.customer.lastName} - ${appointment.service.name}`,
@@ -477,7 +399,6 @@ export const getCalendarAppointments = async (req: Request, res: Response): Prom
         }
       };
     });
-
     res.json(ApiSuccess.item(calendarEvents, 'Takvim randevuları başarıyla getirildi'));
   } catch (error) {
     if (error instanceof ApiError) {
@@ -487,17 +408,12 @@ export const getCalendarAppointments = async (req: Request, res: Response): Prom
     }
   }
 };
-
-/**
- * Randevu detayı
- */
 export const getAppointmentById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { error, value } = appointmentIdSchema.validate(req.params);
     if (error) {
       throw ApiError.fromJoi(error);
     }
-
     const appointment = await Appointment.findByPk(value.id, {
       include: [
         {
@@ -534,11 +450,9 @@ export const getAppointmentById = async (req: Request, res: Response): Promise<v
         }
       ]
     });
-
     if (!appointment) {
       throw ApiError.notFound('Randevu bulunamadı');
     }
-
     res.json(ApiSuccess.item(appointment, 'Randevu detayı başarıyla getirildi'));
   } catch (error) {
     if (error instanceof ApiError) {

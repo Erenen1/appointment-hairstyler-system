@@ -1,7 +1,3 @@
-/**
- * Appointment API Paths
- */
-
 export const appointmentPaths = {
   '/api/v1/appointments': {
     get: {
@@ -122,7 +118,6 @@ export const appointmentPaths = {
         500: { $ref: '#/components/responses/InternalError' }
       }
     },
-
     post: {
       tags: ['Appointments'],
       summary: 'Yeni randevu oluştur',
@@ -189,7 +184,6 @@ export const appointmentPaths = {
       }
     }
   },
-
   '/api/v1/appointments/calendar': {
     get: {
       tags: ['Appointments'],
@@ -246,7 +240,6 @@ export const appointmentPaths = {
       }
     }
   },
-
   '/api/v1/appointments/{id}': {
     get: {
       tags: ['Appointments'],
@@ -294,7 +287,6 @@ export const appointmentPaths = {
       }
     }
   },
-
   '/api/v1/appointments/{id}/status': {
     put: {
       tags: ['Appointments'],

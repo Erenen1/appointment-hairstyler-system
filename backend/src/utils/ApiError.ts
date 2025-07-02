@@ -1,6 +1,3 @@
-/**
- * Hata türleri enum'u
- */
 export enum ErrorType {
   VALIDATION = 'VALIDATION_ERROR',
   AUTHENTICATION = 'AUTHENTICATION_ERROR',
@@ -12,19 +9,11 @@ export enum ErrorType {
   RATE_LIMIT = 'RATE_LIMIT_EXCEEDED',
   DATABASE = 'DATABASE_ERROR'
 }
-
-/**
- * Hata detayları interface'i
- */
 export interface ErrorDetail {
   field?: string;
   message: string;
   code?: string;
 }
-
-/**
- * API hataları için standardize edilmiş sınıf
- */
 export class ApiError extends Error {
   public success: boolean;
   public type: ErrorType;
@@ -32,7 +21,6 @@ export class ApiError extends Error {
   public errors?: ErrorDetail[];
   public timestamp: string;
   public path?: string;
-
   constructor(
     message: string,
     type: ErrorType,
@@ -49,109 +37,64 @@ export class ApiError extends Error {
     this.timestamp = new Date().toISOString();
     this.path = path;
   }
-
-  /**
-   * Validation hatası
-   */
   static validation(
     message: string = 'Validation hatası',
     errors?: ErrorDetail[]
   ): ApiError {
     return new ApiError(message, ErrorType.VALIDATION, 400, errors);
   }
-
-  /**
-   * Authentication hatası
-   */
   static authentication(
     message: string = 'Kimlik doğrulama hatası'
   ): ApiError {
     return new ApiError(message, ErrorType.AUTHENTICATION, 401);
   }
-
-  /**
-   * Authorization hatası
-   */
   static authorization(
     message: string = 'Yetkilendirme hatası'
   ): ApiError {
     return new ApiError(message, ErrorType.AUTHORIZATION, 403);
   }
-
-  /**
-   * Not found hatası
-   */
   static notFound(
     message: string = 'Kayıt bulunamadı'
   ): ApiError {
     return new ApiError(message, ErrorType.NOT_FOUND, 404);
   }
-
-  /**
-   * Conflict hatası
-   */
   static conflict(
     message: string = 'Çakışma hatası'
   ): ApiError {
     return new ApiError(message, ErrorType.CONFLICT, 409);
   }
-
-  /**
-   * Bad request hatası
-   */
   static badRequest(
     message: string = 'Geçersiz istek',
     errors?: ErrorDetail[]
   ): ApiError {
     return new ApiError(message, ErrorType.BAD_REQUEST, 400, errors);
   }
-
-  /**
-   * Internal server hatası
-   */
   static internal(
     message: string = 'Sunucu hatası'
   ): ApiError {
     return new ApiError(message, ErrorType.INTERNAL, 500);
   }
-
-  /**
-   * Database hatası
-   */
   static database(
     message: string = 'Veritabanı hatası'
   ): ApiError {
     return new ApiError(message, ErrorType.DATABASE, 500);
   }
-
-  /**
-   * Rate limit hatası
-   */
   static rateLimit(
     message: string = 'Çok fazla istek gönderildi'
   ): ApiError {
     return new ApiError(message, ErrorType.RATE_LIMIT, 429);
   }
-
-  /**
-   * Too many requests hatası (alias for rateLimit)
-   */
   static tooManyRequests(
     message: string = 'Çok fazla istek gönderildi'
   ): ApiError {
     return new ApiError(message, ErrorType.RATE_LIMIT, 429);
   }
-
-  /**
-   * Joi validation hatalarını ApiError formatına çevir
-   */
   static fromJoi(joiError: any): ApiError {
     const errors: ErrorDetail[] = joiError.details.map((detail: any) => ({
       field: detail.path.join('.'),
       message: detail.message,
       code: detail.type
     }));
-
     return new ApiError(
       'Validation hatası',
       ErrorType.VALIDATION,
@@ -159,10 +102,6 @@ export class ApiError extends Error {
       errors
     );
   }
-
-  /**
-   * Sequelize hatalarını ApiError formatına çevir
-   */
   static fromSequelize(sequelizeError: any): ApiError {
     if (sequelizeError.name === 'SequelizeValidationError') {
       const errors: ErrorDetail[] = sequelizeError.errors.map((error: any) => ({
@@ -170,7 +109,6 @@ export class ApiError extends Error {
         message: error.message,
         code: error.type || error.validatorKey
       }));
-
       return new ApiError(
         'Validation hatası',
         ErrorType.VALIDATION,
@@ -178,14 +116,12 @@ export class ApiError extends Error {
         errors
       );
     }
-
     if (sequelizeError.name === 'SequelizeUniqueConstraintError') {
       const errors: ErrorDetail[] = sequelizeError.errors.map((error: any) => ({
         field: error.path,
         message: `${error.path} zaten kullanımda`,
         code: 'unique_violation'
       }));
-
       return new ApiError(
         'Benzersizlik hatası',
         ErrorType.CONFLICT,
@@ -193,7 +129,6 @@ export class ApiError extends Error {
         errors
       );
     }
-
     if (sequelizeError.name === 'SequelizeForeignKeyConstraintError') {
       return new ApiError(
         'Geçersiz referans',
@@ -201,17 +136,12 @@ export class ApiError extends Error {
         400
       );
     }
-
     return new ApiError(
       'Veritabanı hatası',
       ErrorType.DATABASE,
       500
     );
   }
-
-  /**
-   * JSON formatında hata döndür
-   */
   toJSON() {
     return {
       success: this.success,

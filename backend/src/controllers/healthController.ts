@@ -3,10 +3,6 @@ import { ApiSuccess, ApiError } from '../utils';
 import { healthCheck } from '../config/database';
 import { Enum } from '../config/env';
 import logger from '../config/logger';
-
-/**
- * Error tipini güvenli şekilde handle eden yardımcı fonksiyon
- */
 const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
     return error.message;
@@ -16,19 +12,10 @@ const getErrorMessage = (error: unknown): string => {
   }
   return 'Bilinmeyen hata';
 };
-
-/**
- * Health Check Controller
- */
 export class HealthController {
-
-  /**
-   * Genel sistem sağlık durumu
-   */
   static async getSystemHealth(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const dbHealth = await healthCheck();
-      
       const systemHealth = {
         status: dbHealth.status === 'healthy' ? 'OK' : 'ERROR',
         timestamp: new Date().toISOString(),
@@ -43,7 +30,6 @@ export class HealthController {
         },
         database: dbHealth
       };
-
       if (dbHealth.status === 'healthy') {
         const response = ApiSuccess.item(systemHealth, 'Sistem sağlıklı çalışıyor');
         res.json(response);
@@ -58,14 +44,9 @@ export class HealthController {
       next(ApiError.internal('Sağlık kontrolü yapılamadı'));
     }
   }
-
-  /**
-   * Database sağlık durumu
-   */
   static async getDatabaseHealth(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const health = await healthCheck();
-      
       if (health.status === 'healthy') {
         const response = ApiSuccess.item(health, 'Database bağlantısı sağlıklı');
         res.json(response);
@@ -80,10 +61,6 @@ export class HealthController {
       next(ApiError.database('Database sağlık kontrolü yapılamadı'));
     }
   }
-
-  /**
-   * Server bilgileri
-   */
   static async getServerInfo(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const serverInfo = {
@@ -113,7 +90,6 @@ export class HealthController {
           port: Enum.DB_PORT
         }
       };
-
       const response = ApiSuccess.item(serverInfo, 'Server bilgileri getirildi');
       res.json(response);
     } catch (error) {
@@ -122,21 +98,12 @@ export class HealthController {
       next(ApiError.internal('Server bilgileri alınamadı'));
     }
   }
-
-  /**
-   * Liveness probe (Kubernetes için)
-   */
   static async liveness(req: Request, res: Response): Promise<void> {
     res.status(200).json({ status: 'alive', timestamp: new Date().toISOString() });
   }
-
-  /**
-   * Readiness probe (Kubernetes için)
-   */
   static async readiness(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const dbHealth = await healthCheck();
-      
       if (dbHealth.status === 'healthy') {
         res.status(200).json({ 
           status: 'ready', 
