@@ -1,24 +1,24 @@
-FROM node:18-alpine AS anasayfa-builder
-WORKDIR /app/main
+# FROM node:18-alpine AS anasayfa-builder
+# WORKDIR /app/main
 
-COPY frontend-anasayfa/package*.json ./
-RUN npm ci
+# COPY frontend-anasayfa/package*.json ./
+# RUN npm ci
 
-COPY frontend-anasayfa/. .
-RUN npm run build
+# COPY frontend-anasayfa/. .
+# RUN npm run build
 
-FROM node:18-alpine AS admin-panel-builder
-WORKDIR /app/admin
+# FROM node:18-alpine AS admin-panel-builder
+# WORKDIR /app/admin
 
-COPY frontend-admin-panel/package*.json ./
-RUN npm ci
+# COPY frontend-admin-panel/package*.json ./
+# RUN npm ci
 
-COPY frontend-admin-panel/. .
-RUN npm run build
+# COPY frontend-admin-panel/. .
+# RUN npm run build
 
 FROM nginx:alpine
 
-COPY ./nginx/nginx.dev.conf /etc/nginx/conf.d/default.conf
+# COPY ./nginx/nginx.dev.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=anasayfa-builder /app/main/out /usr/share/nginx/html/main
-COPY --from=admin-panel-builder /app/admin/out /usr/share/nginx/html/admin 
+# COPY --from=anasayfa-builder /app/main/out /usr/share/nginx/html/main
+# COPY --from=admin-panel-builder /app/admin/out /usr/share/nginx/html/admin 
