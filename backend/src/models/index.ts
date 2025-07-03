@@ -13,7 +13,6 @@ const AppointmentHistory = require('./AppointmentHistory')(sequelize, DataTypes)
 const ContactMessage = require('./ContactMessage')(sequelize, DataTypes);
 const GalleryCategory = require('./GalleryCategory')(sequelize, DataTypes);
 const GalleryImage = require('./GalleryImage')(sequelize, DataTypes);
-const EmailTemplate = require('./EmailTemplate')(sequelize, DataTypes);
 
 const setupAssociations = () => {
   ServiceCategory.hasMany(Service, { foreignKey: 'categoryId', as: 'services' });
@@ -55,6 +54,5 @@ const db = {
   ContactMessage,
   GalleryCategory,
   GalleryImage,
-  EmailTemplate,
 };
 export default db; 
