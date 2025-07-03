@@ -1,14 +1,14 @@
-FROM node:18-alpine AS main-builder
+# FROM node:18-alpine AS main-builder
 
-WORKDIR /app/main
+# WORKDIR /app/main
 
-COPY frontend-main/package*.json ./
+# COPY frontend-main/package*.json ./
 
-RUN npm ci
+# RUN npm ci
 
-COPY frontend-main/. .
+# COPY frontend-main/. .
 
-RUN npm run build
+# RUN npm run build
 
 # FROM node:18-alpine AS admin-panel-builder
 
@@ -24,7 +24,8 @@ RUN npm run build
 
 FROM nginx:alpine
 
+WORKDIR /app
 
-COPY --from=main-builder /app/main/out /usr/share/nginx/html/main
+# COPY --from=main-builder /app/main/out /usr/share/nginx/html/main
 
 #COPY --from=admin-panel-builder /app/admin/out /usr/share/nginx/html/admin 

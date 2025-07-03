@@ -15,6 +15,7 @@ export interface Config {
   RATE_LIMIT_WINDOW_MS: number;
   RATE_LIMIT_MAX_REQUESTS: number;
   DOMAIN: string;
+  FRONTEND_DOMAIN: string;
   LOG_LEVEL: string;
 }
 

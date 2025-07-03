@@ -1,10 +1,10 @@
 export const dashboardPaths = {
-  '/api/v1/dashboard/stats': {
+  '/dashboard/stats': {
     get: {
       tags: ['Dashboard'],
       summary: 'Dashboard istatistikleri',
-      description: 'Ana dashboard sayfası için gerekli tüm istatistikleri getirir',
-      security: [{ bearerAuth: [] }],
+      description: 'Günlük, aylık ve genel istatistikleri getirir',
+      security: [{ sessionAuth: [] }],
       responses: {
         200: {
           description: 'Dashboard istatistikleri başarıyla getirildi',
@@ -22,52 +22,24 @@ export const dashboardPaths = {
             }
           }
         },
-        401: {
-          description: 'Yetkisiz erişim',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        403: {
-          description: 'Admin yetkisi gerekli',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        500: {
-          description: 'Sunucu hatası',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        }
+        401: { $ref: '#/components/responses/UnauthorizedError' },
+        403: { $ref: '#/components/responses/ForbiddenError' },
+        500: { $ref: '#/components/responses/InternalError' }
       }
     }
   },
-  '/api/v1/dashboard/revenue-chart': {
+  '/dashboard/revenue-chart': {
     get: {
       tags: ['Dashboard'],
-      summary: 'Gelir grafiği verileri',
-      description: 'Aylık gelir analizi için grafik verilerini getirir',
-      security: [{ bearerAuth: [] }],
+      summary: 'Gelir grafiği',
+      description: 'Aylık gelir grafiği verilerini getirir',
+      security: [{ sessionAuth: [] }],
       parameters: [
         {
           name: 'months',
           in: 'query',
-          description: 'Kaç aylık veri getirileceği',
-          required: false,
-          schema: {
-            type: 'number',
-            minimum: 1,
-            maximum: 12,
-            default: 6,
-            example: 6
-          }
+          schema: { type: 'integer', default: 6, minimum: 1, maximum: 12 },
+          description: 'Kaç aylık veri gösterileceği'
         }
       ],
       responses: {
@@ -80,7 +52,7 @@ export const dashboardPaths = {
                 properties: {
                   success: { type: 'boolean', example: true },
                   message: { type: 'string', example: 'Gelir grafiği verileri başarıyla getirildi' },
-                  data: { $ref: '#/components/schemas/RevenueChartData' },
+                  data: { $ref: '#/components/schemas/RevenueChart' },
                   timestamp: { type: 'string', format: 'date-time' }
                 }
               }
@@ -93,25 +65,18 @@ export const dashboardPaths = {
       }
     }
   },
-  '/api/v1/dashboard/popular-services': {
+  '/dashboard/popular-services': {
     get: {
       tags: ['Dashboard'],
       summary: 'Popüler hizmetler',
       description: 'En çok tercih edilen hizmetleri getirir',
-      security: [{ bearerAuth: [] }],
+      security: [{ sessionAuth: [] }],
       parameters: [
         {
           name: 'limit',
           in: 'query',
-          description: 'Kaç tane hizmet getirileceği',
-          required: false,
-          schema: {
-            type: 'number',
-            minimum: 1,
-            maximum: 20,
-            default: 5,
-            example: 5
-          }
+          schema: { type: 'integer', default: 5, minimum: 1, maximum: 20 },
+          description: 'Kaç hizmet gösterileceği'
         }
       ],
       responses: {
@@ -140,25 +105,18 @@ export const dashboardPaths = {
       }
     }
   },
-  '/api/v1/dashboard/recent-appointments': {
+  '/dashboard/recent-appointments': {
     get: {
       tags: ['Dashboard'],
       summary: 'Son randevular',
       description: 'En son oluşturulan randevuları getirir',
-      security: [{ bearerAuth: [] }],
+      security: [{ sessionAuth: [] }],
       parameters: [
         {
           name: 'limit',
           in: 'query',
-          description: 'Kaç tane randevu getirileceği',
-          required: false,
-          schema: {
-            type: 'number',
-            minimum: 1,
-            maximum: 50,
-            default: 10,
-            example: 10
-          }
+          schema: { type: 'integer', default: 10, minimum: 1, maximum: 50 },
+          description: 'Kaç randevu gösterileceği'
         }
       ],
       responses: {

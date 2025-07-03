@@ -1,21 +1,6 @@
 version: '3.8'
 
 services:
-  nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    container_name: gizemsaloon-nginx-prod
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/letsencrypt:ro
-    networks:
-      - app-network
-
   db:
     image: postgres:15-alpine
     container_name: kuafor_db
@@ -36,10 +21,10 @@ services:
       timeout: 5s
       retries: 5
 
-  app:
+  backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     container_name: kuafor_app
     restart: unless-stopped
     env_file:
@@ -53,10 +38,30 @@ services:
       db:
         condition: service_healthy
     networks:
-      - kuafor_network
+      - app-network
     volumes:
       - ./backend/logs:/app/logs
       - ./backend/uploads:/app/uploads
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: appointment-hairstyler-system-nginx-prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - app-network
+
+# sudo certbot --nginx -d erencelik.info -d admin.erencelik.info -d api.erencelik.info -d www.erencelik.info --register-unsafely-without-email
+volumes:
+  postgres_data:
+    driver: local
 
 networks:
   app-network:

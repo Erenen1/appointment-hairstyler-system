@@ -1,10 +1,11 @@
 export const commonSchemas = {
-  ApiResponse: {
+  ApiSuccessResponse: {
     type: 'object',
     properties: {
-      success: { type: 'boolean' },
-      message: { type: 'string' },
+      success: { type: 'boolean', example: true },
+      message: { type: 'string', example: 'İşlem başarılı' },
       data: { type: 'object' },
+      pagination: { $ref: '#/components/schemas/Pagination' },
       timestamp: { type: 'string', format: 'date-time' }
     }
   },
@@ -12,9 +13,44 @@ export const commonSchemas = {
     type: 'object',
     properties: {
       success: { type: 'boolean', example: false },
-      message: { type: 'string', example: 'Hata mesajı' },
-      error: { type: 'string', example: 'VALIDATION_ERROR' },
-      timestamp: { type: 'string', format: 'date-time' }
+      type: {
+        type: 'string',
+        enum: [
+          'VALIDATION_ERROR',
+          'AUTHENTICATION_ERROR',
+          'AUTHORIZATION_ERROR',
+          'NOT_FOUND',
+          'CONFLICT',
+          'INTERNAL_SERVER_ERROR',
+          'BAD_REQUEST',
+          'RATE_LIMIT_EXCEEDED',
+          'DATABASE_ERROR'
+        ]
+      },
+      message: { type: 'string' },
+      errors: {
+        type: 'array',
+        items: { $ref: '#/components/schemas/ErrorDetail' }
+      },
+      timestamp: { type: 'string', format: 'date-time' },
+      path: { type: 'string' }
+    }
+  },
+  ErrorDetail: {
+    type: 'object',
+    properties: {
+      field: { type: 'string' },
+      message: { type: 'string' },
+      code: { type: 'string' }
+    }
+  },
+  Pagination: {
+    type: 'object',
+    properties: {
+      currentPage: { type: 'integer', example: 1 },
+      totalPages: { type: 'integer', example: 10 },
+      totalItems: { type: 'integer', example: 100 },
+      itemsPerPage: { type: 'integer', example: 10 }
     }
   },
   PaginationInfo: {
@@ -27,26 +63,9 @@ export const commonSchemas = {
       hasNextPage: { type: 'boolean', example: true },
       hasPrevPage: { type: 'boolean', example: false }
     }
-  },
-  ValidationErrorResponse: {
-    type: 'object',
-    properties: {
-      success: { type: 'boolean', example: false },
-      message: { type: 'string', example: 'Validation error' },
-      errors: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            field: { type: 'string', example: 'email' },
-            message: { type: 'string', example: 'Geçerli bir e-posta adresi girin' }
-          }
-        }
-      },
-      timestamp: { type: 'string', format: 'date-time' }
-    }
   }
 };
+
 export const commonResponses = {
   UnauthorizedError: {
     description: 'Yetkisiz erişim',
@@ -68,7 +87,7 @@ export const commonResponses = {
     description: 'Doğrulama hatası',
     content: {
       'application/json': {
-        schema: { $ref: '#/components/schemas/ValidationErrorResponse' }
+        schema: { $ref: '#/components/schemas/ErrorResponse' }
       }
     }
   },

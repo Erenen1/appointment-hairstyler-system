@@ -22,6 +22,7 @@ export const config: Config = {
     RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10),
     RATE_LIMIT_MAX_REQUESTS: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10),
     DOMAIN: process.env.DOMAIN || 'localhost',
+    FRONTEND_DOMAIN: process.env.FRONTEND_DOMAIN || 'http://localhost:3000',
     LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 };
 
