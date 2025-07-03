@@ -16,7 +16,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - kuafor_network
+      - app-dev-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d kuafor_db"]
       interval: 10s
@@ -41,7 +41,7 @@ services:
       db:
         condition: service_healthy
     networks:
-      - kuafor_network
+      - app-dev-network
     volumes:
       - ./backend/logs:/app/logs
       - ./backend/uploads:/app/uploads
@@ -58,11 +58,24 @@ services:
     ports:
       - "5050:80"
     networks:
-      - kuafor_network
+      - app-dev-network
     depends_on:
       - db
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: appointment-hairstyler-system-nginx-dev
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - app-dev-network
 
 # Volumes
 volumes:
@@ -73,5 +86,5 @@ volumes:
 
 # Networks
 networks:
-  kuafor_network:
+  app-dev-network:
     driver: bridge
