@@ -1,4 +1,3 @@
-// Import schemas
 import { commonSchemas, commonResponses } from './schemas/common';
 import { healthSchemas } from './schemas/health';
 import { authSchemas } from './schemas/auth';
@@ -11,7 +10,6 @@ import { contentSchemas } from './schemas/content';
 import { contactSchemas } from './schemas/contact';
 import { dashboardSchemas } from './schemas/dashboard';
 
-// Import paths
 import { healthPaths } from './paths/health';
 import { authPaths } from './paths/auth';
 import { adminPaths } from './paths/admin';
@@ -23,7 +21,6 @@ import { contentPaths } from './paths/content';
 import { contactPaths } from './paths/contact';
 import { dashboardPaths } from './paths/dashboard';
 
-// Combine all schemas
 export const allSchemas = {
   ...commonSchemas,
   ...healthSchemas,
@@ -38,7 +35,6 @@ export const allSchemas = {
   ...dashboardSchemas
 };
 
-// Combine all paths
 export const allPaths = {
   ...healthPaths,
   ...authPaths,
@@ -52,10 +48,8 @@ export const allPaths = {
   ...dashboardPaths
 };
 
-// Export responses
 export const allResponses = commonResponses;
 
-// Main swagger configuration
 export const swaggerConfig = {
   openapi: '3.0.3',
   info: {
