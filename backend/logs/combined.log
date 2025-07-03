@@ -1,0 +1,12 @@
+{"database":{"host":"db","name":"kuafor_db","port":5432},"environment":"development","event":"Application Started","level":"info","message":"System Event","nodeVersion":"v18.20.8","port":8000,"service":"kuafor-backend","timestamp":"2025-07-03 14:14:48","type":"system"}
+{"database":"kuafor_db","environment":"development","host":"db","level":"info","message":"Database connection established successfully","service":"kuafor-backend","timestamp":"2025-07-03 14:14:48"}
+{"environment":"development","forceSync":true,"level":"info","message":"Initializing database tables","service":"kuafor-backend","timestamp":"2025-07-03 14:14:48"}
+{"environment":"development","level":"info","message":"Database tables initialized successfully","service":"kuafor-backend","timestamp":"2025-07-03 14:14:48"}
+{"environment":"development","level":"info","message":"Server is running on port 8000","service":"kuafor-backend","timestamp":"2025-07-03 14:14:48"}
+{"auth":"/api/v1/auth","database":"/health/database","environment":"development","health":"/health","level":"info","liveness":"/health/liveness","message":"Available endpoints:","readiness":"/health/readiness","server":"/health/server","service":"kuafor-backend","timestamp":"2025-07-03 14:14:48"}
+{"database":{"host":"db","name":"kuafor_db","port":5432},"environment":"development","event":"Application Started","level":"info","message":"System Event","nodeVersion":"v18.20.8","port":8000,"service":"kuafor-backend","timestamp":"2025-07-03 14:17:13","type":"system"}
+{"database":"kuafor_db","environment":"development","host":"db","level":"info","message":"Database connection established successfully","service":"kuafor-backend","timestamp":"2025-07-03 14:17:13"}
+{"environment":"development","forceSync":true,"level":"info","message":"Initializing database tables","service":"kuafor-backend","timestamp":"2025-07-03 14:17:13"}
+{"environment":"development","level":"info","message":"Database tables initialized successfully","service":"kuafor-backend","timestamp":"2025-07-03 14:17:13"}
+{"environment":"development","level":"info","message":"Server is running on port 8000","service":"kuafor-backend","timestamp":"2025-07-03 14:17:13"}
+{"auth":"/api/v1/auth","database":"/health/database","environment":"development","health":"/health","level":"info","liveness":"/health/liveness","message":"Available endpoints:","readiness":"/health/readiness","server":"/health/server","service":"kuafor-backend","timestamp":"2025-07-03 14:17:13"}

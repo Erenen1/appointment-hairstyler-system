@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiSuccess, ApiError } from '../utils';
 import { healthCheck } from '../config/database';
-import { Enum } from '../config/env';
+import Enum  from '../config/env';
 import logger from '../config/logger';
+
 const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
     return error.message;
@@ -12,6 +13,7 @@ const getErrorMessage = (error: unknown): string => {
   }
   return 'Bilinmeyen hata';
 };
+
 export class HealthController {
   static async getSystemHealth(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -31,36 +33,32 @@ export class HealthController {
         database: dbHealth
       };
       if (dbHealth.status === 'healthy') {
-        const response = ApiSuccess.item(systemHealth, 'Sistem sağlıklı çalışıyor');
-        res.json(response);
+        res.status(200).json(ApiSuccess.item(systemHealth, 'Sistem sağlıklı çalışıyor'));
       } else {
-        res.status(503).json(
-          ApiError.internal('Sistem sağlık kontrolünde sorun tespit edildi').toJSON()
-        );
+        throw ApiError.internal('Sistem sağlık kontrolünde sorun tespit edildi');
       }
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       logger.error('System health check failed', { error: errorMessage });
-      next(ApiError.internal('Sağlık kontrolü yapılamadı'));
+      next(error);
     }
   }
+
   static async getDatabaseHealth(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const health = await healthCheck();
       if (health.status === 'healthy') {
-        const response = ApiSuccess.item(health, 'Database bağlantısı sağlıklı');
-        res.json(response);
+        res.json(ApiSuccess.item(health, 'Database bağlantısı sağlıklı'));
       } else {
-        res.status(503).json(
-          ApiError.database('Database bağlantısında sorun var').toJSON()
-        );
+        throw ApiError.database('Database bağlantısında sorun var');
       }
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       logger.error('Database health check failed', { error: errorMessage });
-      next(ApiError.database('Database sağlık kontrolü yapılamadı'));
+      next(error);
     }
   }
+
   static async getServerInfo(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const serverInfo = {
@@ -90,17 +88,22 @@ export class HealthController {
           port: Enum.DB_PORT
         }
       };
-      const response = ApiSuccess.item(serverInfo, 'Server bilgileri getirildi');
-      res.json(response);
+      res.json(ApiSuccess.item(serverInfo, 'Server bilgileri getirildi'));
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       logger.error('Server info failed', { error: errorMessage });
-      next(ApiError.internal('Server bilgileri alınamadı'));
+      next(error);
     }
   }
-  static async liveness(req: Request, res: Response): Promise<void> {
-    res.status(200).json({ status: 'alive', timestamp: new Date().toISOString() });
+
+  static async liveness(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      res.status(200).json({ status: 'alive', timestamp: new Date().toISOString() });
+    } catch (error) {
+      next(error);
+    }
   }
+
   static async readiness(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const dbHealth = await healthCheck();
@@ -113,21 +116,10 @@ export class HealthController {
           }
         });
       } else {
-        res.status(503).json({ 
-          status: 'not ready', 
-          timestamp: new Date().toISOString(),
-          checks: {
-            database: 'unhealthy'
-          }
-        });
+        throw ApiError.internal('Database is not ready');
       }
     } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      res.status(503).json({ 
-        status: 'not ready', 
-        timestamp: new Date().toISOString(),
-        error: errorMessage 
-      });
+      next(error);
     }
   }
-} 
+}

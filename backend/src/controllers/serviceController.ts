@@ -1,22 +1,20 @@
-import { Request, Response } from 'express';
-import { ApiError, ApiSuccess, handleControllerError } from '../utils';
-import { AuthenticatedRequest } from '../types/express';
+import { Request, Response, NextFunction } from 'express';
+import { ApiError, ApiSuccess } from '../utils';
 import { Op } from 'sequelize';
 import { 
   createServiceSchema, 
   updateServiceSchema,
-  createServiceCategorySchema,
-  updateServiceCategorySchema,
-  serviceListQuerySchema,
-  categoryListQuerySchema,
   serviceIdSchema,
+  categoryListQuerySchema,
   categoryIdSchema
 } from '../validations/serviceValidation';
-import db from "../models"
 import { validateService } from '../validations/serviceValidation';
 import { getPaginationOptions, formatPaginationResponse } from '../utils/controllerUtils';
+
+import db from '../models/index';
 const { Service, ServiceCategory, ServiceImage, Staff } = db;
-export const getServices = async (req: Request, res: Response): Promise<void> => {
+
+export const getServices = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const {
       page = 1,
@@ -33,7 +31,7 @@ export const getServices = async (req: Request, res: Response): Promise<void> =>
     const where: any = {};
     if (search) {
       where[Op.or] = [
-        { name: { [Op.iLike]: `%${search}%` } },
+        { title: { [Op.iLike]: `%${search}%` } },
         { description: { [Op.iLike]: `%${search}%` } }
       ];
     }
@@ -59,7 +57,7 @@ export const getServices = async (req: Request, res: Response): Promise<void> =>
         {
           model: Staff,
           as: 'staff',
-          attributes: ['id', 'firstName', 'lastName', 'profileImage', 'specialties'],
+          attributes: ['id', 'fullName', 'avatar'],
           where: { isActive: true },
           required: false
         }
@@ -86,23 +84,13 @@ export const getServices = async (req: Request, res: Response): Promise<void> =>
       };
     });
     const pagination = formatPaginationResponse(count, Number(page), Number(limit));
-    res.status(200).json({
-      success: true,
-      message: 'Hizmetler başarıyla getirildi',
-      data: {
-        services: formattedServices,
-        pagination
-      }
-    });
+    res.status(200).json(ApiSuccess.list(formattedServices, pagination, 'Hizmetler başarıyla getirildi'));
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Hizmetler getirilirken bir hata oluştu',
-      error: error instanceof Error ? error.message : 'Bilinmeyen hata'
-    });
+    next(error);
   }
 };
-export const getServiceById = async (req: Request, res: Response): Promise<void> => {
+
+export const getServiceById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = serviceIdSchema.validate(req.params);
     if (error) {
@@ -125,7 +113,7 @@ export const getServiceById = async (req: Request, res: Response): Promise<void>
           model: Staff,
           as: 'staff',
           through: { attributes: [] },
-          attributes: ['id', 'firstName', 'lastName', 'profileImage', 'specialties'],
+          attributes: ['id', 'fullName', 'profileImage'],
           where: { isActive: true },
           required: false
         }
@@ -134,164 +122,111 @@ export const getServiceById = async (req: Request, res: Response): Promise<void>
     if (!service) {
       throw ApiError.notFound('Hizmet bulunamadı');
     }
-    res.json(new ApiSuccess('Hizmet detayları başarıyla getirildi', service));
+    res.json(ApiSuccess.item(service, 'Hizmet detayları başarıyla getirildi'));
   } catch (error) {
-    if (error instanceof ApiError) {
-      res.status(error.statusCode).json(error.toJSON());
-    } else {
-      res.status(500).json(ApiError.internal('Hizmet detayları getirilirken hata oluştu').toJSON());
-    }
+    next(error);
   }
 };
-export const createService = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const createService = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const validationResult = validateService(req.body);
     if (!validationResult.success) {
-      res.status(400).json({
-        success: false,
-        message: 'Validasyon hatası',
-        errors: validationResult.errors
-      });
-      return;
+      throw ApiError.badRequest('Validasyon hatası', validationResult.errors);
     }
     const service = await Service.create(req.body);
-    res.status(201).json({
-      success: true,
-      message: 'Hizmet başarıyla oluşturuldu',
-      data: service
-    });
+    res.status(201).json(ApiSuccess.created(service, 'Hizmet başarıyla oluşturuldu'));
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Hizmet oluşturulurken bir hata oluştu',
-      error: error instanceof Error ? error.message : 'Bilinmeyen hata'
-    });
+    next(error);
   }
 };
-export const updateService = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const updateService = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
     const validationResult = validateService(req.body);
     if (!validationResult.success) {
-      res.status(400).json({
-        success: false,
-        message: 'Validasyon hatası',
-        errors: validationResult.errors
-      });
-      return;
+      throw ApiError.badRequest('Validasyon hatası', validationResult.errors);
     }
     const service = await Service.findByPk(id);
     if (!service) {
-      res.status(404).json({
-        success: false,
-        message: 'Hizmet bulunamadı'
-      });
-      return;
+      throw ApiError.notFound('Hizmet bulunamadı');
     }
     await service.update(req.body);
-    res.status(200).json({
-      success: true,
-      message: 'Hizmet başarıyla güncellendi',
-      data: service
-    });
+    res.status(200).json(ApiSuccess.updated(service, 'Hizmet başarıyla güncellendi'));
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Hizmet güncellenirken bir hata oluştu',
-      error: error instanceof Error ? error.message : 'Bilinmeyen hata'
-    });
+    next(error);
   }
 };
-export const deleteService = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const deleteService = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
     const service = await Service.findByPk(id);
     if (!service) {
-      res.status(404).json({
-        success: false,
-        message: 'Hizmet bulunamadı'
-      });
-      return;
+      throw ApiError.notFound('Hizmet bulunamadı');
     }
     await service.destroy();
-    res.status(200).json({
-      success: true,
-      message: 'Hizmet başarıyla silindi'
-    });
+    res.status(200).json(ApiSuccess.deleted('Hizmet başarıyla silindi'));
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Hizmet silinirken bir hata oluştu',
-      error: error instanceof Error ? error.message : 'Bilinmeyen hata'
-    });
+    next(error);
   }
 };
-export const getServiceCategories = async (req: Request, res: Response): Promise<void> => {
+
+export const getServiceCategories = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = categoryListQuerySchema.validate(req.query);
     if (error) {
       throw ApiError.fromJoi(error);
     }
     const { page, limit, search, isActive, sortBy, sortOrder } = value;
-    const whereConditions: any = {};
+    const where: any = {};
     if (search) {
-      whereConditions[Op.or] = [
+      where[Op.or] = [
         { name: { [Op.iLike]: `%${search}%` } },
         { description: { [Op.iLike]: `%${search}%` } }
       ];
     }
-    if (typeof isActive === 'boolean') {
-      whereConditions.isActive = isActive;
-    }
-    const offset = (page - 1) * limit;
-    const { count, rows } = await ServiceCategory.findAndCountAll({
-      where: whereConditions,
-      attributes: [
-        'id', 'name', 'description', 'isActive', 'createdAt',
-        [db.sequelize.fn('COUNT', db.sequelize.col('services.id')), 'servicesCount']
-      ],
+    if (isActive !== undefined) where.isActive = isActive;
+    const { offset, limit: limitOption } = getPaginationOptions(page, limit);
+    const { count, rows: categories } = await ServiceCategory.findAndCountAll({
+      where,
       include: [
         {
           model: Service,
           as: 'services',
-          attributes: [],
-          where: { isActive: true },
+          attributes: ['id'],
           required: false
         }
       ],
-      group: ['ServiceCategory.id'],
       order: [[sortBy, sortOrder.toUpperCase()]],
-      limit,
       offset,
-      subQuery: false
+      limit: limitOption
     });
-    const totalPages = Math.ceil(count.length / limit);
-    res.json(new ApiSuccess('Kategoriler başarıyla getirildi', {
-      categories: rows,
-      pagination: {
-        currentPage: page,
-        totalPages,
-        totalItems: count.length,
-        itemsPerPage: limit,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
-      }
+    const formattedCategories = categories.map(category => ({
+      id: category.id,
+      name: category.name,
+      description: category.description,
+      imagePath: category.imagePath,
+      orderIndex: category.orderIndex,
+      isActive: category.isActive,
+      serviceCount: category.services?.length || 0,
+      createdAt: category.createdAt,
+      updatedAt: category.updatedAt
     }));
+    const pagination = formatPaginationResponse(count, page, limit);
+    res.status(200).json(ApiSuccess.list(formattedCategories, pagination, 'Hizmet kategorileri başarıyla getirildi'));
   } catch (error) {
-    if (error instanceof ApiError) {
-      res.status(error.statusCode).json(error.toJSON());
-    } else {
-      res.status(500).json(ApiError.internal('Kategoriler getirilirken hata oluştu').toJSON());
-    }
+    next(error);
   }
 };
-export const createServiceCategory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const createServiceCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = createServiceCategorySchema.validate(req.body);
-    if (error) {
-      throw ApiError.fromJoi(error);
+    const { name, description, imagePath, orderIndex, isActive } = req.body;
+    if (!name) {
+      throw ApiError.badRequest('Kategori adı gereklidir');
     }
-    const { name, description, isActive } = value;
     const existingCategory = await ServiceCategory.findOne({
       where: { name: { [Op.iLike]: name } }
     });
@@ -301,37 +236,32 @@ export const createServiceCategory = async (req: AuthenticatedRequest, res: Resp
     const category = await ServiceCategory.create({
       name,
       description,
-      isActive: isActive
+      imagePath,
+      orderIndex: orderIndex || 0,
+      isActive: isActive !== undefined ? isActive : true
     });
-    res.status(201).json(new ApiSuccess('Kategori başarıyla oluşturuldu', category));
+    res.status(201).json(ApiSuccess.created(category, 'Hizmet kategorisi başarıyla oluşturuldu'));
   } catch (error) {
-    if (error instanceof ApiError) {
-      res.status(error.statusCode).json(error.toJSON());
-    } else {
-      res.status(500).json(ApiError.internal('Kategori oluşturulurken hata oluştu').toJSON());
-    }
+    next(error);
   }
 };
-export const updateServiceCategory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const updateServiceCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error: paramsError, value: paramsValue } = categoryIdSchema.validate(req.params);
-    if (paramsError) {
-      throw ApiError.fromJoi(paramsError);
+    const { error, value } = categoryIdSchema.validate(req.params);
+    if (error) {
+      throw ApiError.fromJoi(error);
     }
-    const { error: bodyError, value: bodyValue } = updateServiceCategorySchema.validate(req.body);
-    if (bodyError) {
-      throw ApiError.fromJoi(bodyError);
-    }
-    const { id } = paramsValue;
-    const updateData = bodyValue;
+    const { id } = value;
+    const { name, description, imagePath, orderIndex, isActive } = req.body;
     const category = await ServiceCategory.findByPk(id);
     if (!category) {
-      throw ApiError.notFound('Kategori bulunamadı');
+      throw ApiError.notFound('Hizmet kategorisi bulunamadı');
     }
-    if (updateData.name && updateData.name !== category.name) {
+    if (name && name !== category.name) {
       const existingCategory = await ServiceCategory.findOne({
         where: { 
-          name: { [Op.iLike]: updateData.name },
+          name: { [Op.iLike]: name },
           id: { [Op.ne]: id }
         }
       });
@@ -339,17 +269,20 @@ export const updateServiceCategory = async (req: AuthenticatedRequest, res: Resp
         throw ApiError.conflict('Bu isimde bir kategori zaten mevcut');
       }
     }
-    await category.update(updateData);
-    res.json(new ApiSuccess('Kategori başarıyla güncellendi', category));
+    await category.update({
+      name: name || category.name,
+      description: description !== undefined ? description : category.description,
+      imagePath: imagePath !== undefined ? imagePath : category.imagePath,
+      orderIndex: orderIndex !== undefined ? orderIndex : category.orderIndex,
+      isActive: isActive !== undefined ? isActive : category.isActive
+    });
+    res.status(200).json(ApiSuccess.updated(category, 'Hizmet kategorisi başarıyla güncellendi'));
   } catch (error) {
-    if (error instanceof ApiError) {
-      res.status(error.statusCode).json(error.toJSON());
-    } else {
-      res.status(500).json(ApiError.internal('Kategori güncellenirken hata oluştu').toJSON());
-    }
+    next(error);
   }
 };
-export const deleteServiceCategory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const deleteServiceCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = categoryIdSchema.validate(req.params);
     if (error) {
@@ -358,21 +291,17 @@ export const deleteServiceCategory = async (req: AuthenticatedRequest, res: Resp
     const { id } = value;
     const category = await ServiceCategory.findByPk(id);
     if (!category) {
-      throw ApiError.notFound('Kategori bulunamadı');
+      throw ApiError.notFound('Hizmet kategorisi bulunamadı');
     }
-    const servicesCount = await Service.count({
-      where: { categoryId: id, isActive: true }
+    const serviceCount = await Service.count({
+      where: { categoryId: id }
     });
-    if (servicesCount > 0) {
-      throw ApiError.badRequest('Bu kategoriye ait aktif hizmetler bulunmaktadır. Önce hizmetleri başka kategoriye taşıyın.');
+    if (serviceCount > 0) {
+      throw ApiError.badRequest('Bu kategoriye ait hizmetler bulunduğu için kategori silinemez');
     }
-    await category.update({ isActive: false });
-    res.json(new ApiSuccess('Kategori başarıyla silindi', null));
+    await category.destroy();
+    res.status(200).json(ApiSuccess.deleted('Hizmet kategorisi başarıyla silindi'));
   } catch (error) {
-    if (error instanceof ApiError) {
-      res.status(error.statusCode).json(error.toJSON());
-    } else {
-      res.status(500).json(ApiError.internal('Kategori silinirken hata oluştu').toJSON());
-    }
+    next(error);
   }
 }; 

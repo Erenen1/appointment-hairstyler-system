@@ -1,41 +1,38 @@
 module.exports = (sequelize: any, DataTypes: any) => {
   const Admin = sequelize.define('Admin', {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      autoIncrement: true,
     },
     fullName: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING,
       allowNull: false,
     },
     email: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING,
       allowNull: false,
       unique: true,
       validate: {
         isEmail: true,
       },
     },
-    phone: {
-      type: DataTypes.STRING(20),
-      allowNull: true,
-    },
     password: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING,
       allowNull: false,
     },
-    lastLogin: {
-      type: DataTypes.DATE,
-      allowNull: true,
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
   }, {
-    tableName: 'admin',
-    timestamps: true,
+    tableName: 'admins',
+    paranoid: true,
   });
+
   return Admin;
 }; 

@@ -6,20 +6,34 @@ module.exports = (sequelize: any, DataTypes: any) => {
       autoIncrement: true,
     },
     customerId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: 'customers',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     staffId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: 'staff',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     serviceId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-    },
-    statusId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
+      references: {
+        model: 'services',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     appointmentDate: {
       type: DataTypes.DATEONLY,
@@ -43,8 +57,14 @@ module.exports = (sequelize: any, DataTypes: any) => {
       comment: 'Randevu sırasındaki hizmet fiyatı (sabit)',
     },
     createdByAdmin: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: true,
+      references: {
+        model: 'admins',
+        key: 'id',
+      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
   }, {
     tableName: 'appointments',

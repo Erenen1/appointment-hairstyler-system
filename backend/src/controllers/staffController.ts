@@ -1,6 +1,5 @@
-import { Request, Response } from 'express';
-import { ApiError, ApiSuccess, handleControllerError } from '../utils';
-import { AuthenticatedRequest } from '../types/express';
+import { Request, Response, NextFunction } from 'express';
+import { ApiError, ApiSuccess } from '../utils';
 import { Op } from 'sequelize';
 import { 
   createStaffSchema, 
@@ -9,9 +8,11 @@ import {
   staffIdSchema,
   availableSlotsQuerySchema
 } from '../validations/staffValidation';
-const db = require('../models');
-const { Staff, Service,} = db;
-export const getStaff = async (req: Request, res: Response): Promise<void> => {
+
+import db from '../models/index';
+const { Staff, Service } = db;
+
+export const getStaff = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = staffListQuerySchema.validate(req.query);
     if (error) {
@@ -25,7 +26,7 @@ export const getStaff = async (req: Request, res: Response): Promise<void> => {
     const offset = (page - 1) * limit;
     const orderBy: any[] = [];
     if (sortBy === 'name') {
-      orderBy.push(['firstName', sortOrder.toUpperCase()], ['lastName', sortOrder.toUpperCase()]);
+      orderBy.push(['fullName', sortOrder.toUpperCase()]);
     } else {
       orderBy.push([sortBy, sortOrder.toUpperCase()]);
     }
@@ -36,7 +37,7 @@ export const getStaff = async (req: Request, res: Response): Promise<void> => {
           model: Service,
           as: 'services',
           through: { attributes: [] },
-          attributes: ['id', 'name', 'price', 'duration']
+          attributes: ['id', 'title', 'price', 'duration']
         }
       ],
       order: orderBy,
@@ -45,22 +46,21 @@ export const getStaff = async (req: Request, res: Response): Promise<void> => {
       distinct: true
     });
     const totalPages = Math.ceil(count / limit);
-          res.json(new ApiSuccess('Personeller başarıyla getirildi', {
-        staff: rows,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalItems: count,
-          itemsPerPage: limit,
-          hasNext: page < totalPages,
-          hasPrev: page > 1
-        }
-      }));
+    const paginationInfo = {
+      currentPage: page,
+      totalPages,
+      totalItems: count,
+      itemsPerPage: limit,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1
+    };
+    res.json(ApiSuccess.list(rows, paginationInfo, 'Personeller başarıyla getirildi'));
   } catch (error) {
-    handleControllerError(error, res, 'Personeller getirilirken hata oluştu');
+    next(error);
   }
 };
-export const getStaffById = async (req: Request, res: Response): Promise<void> => {
+
+export const getStaffById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = staffIdSchema.validate(req.params);
     if (error) {
@@ -73,29 +73,26 @@ export const getStaffById = async (req: Request, res: Response): Promise<void> =
           model: Service,
           as: 'services',
           through: { attributes: [] },
-          attributes: ['id', 'name', 'price', 'duration']
+          attributes: ['id', 'title', 'price', 'duration']
         }
       ]
     });
     if (!staff) {
       throw ApiError.notFound('Personel bulunamadı');
     }
-    res.json(new ApiSuccess('Personel detayları başarıyla getirildi', staff));
+    res.json(ApiSuccess.item(staff, 'Personel detayları başarıyla getirildi'));
   } catch (error) {
-    if (error instanceof ApiError) {
-      res.status(error.statusCode).json(error.toJSON());
-    } else {
-      res.status(500).json(ApiError.internal('Personel detayları getirilirken hata oluştu').toJSON());
-    }
+    next(error);
   }
 };
-export const createStaff = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const createStaff = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = createStaffSchema.validate(req.body);
     if (error) {
       throw ApiError.fromJoi(error);
     }
-    const { firstName, lastName, email, phone, specialization, bio, profileImage, serviceIds } = value;
+    const { fullName, email, phone, specialties, avatar, serviceIds } = value;
     const existingStaff = await Staff.findOne({
       where: { email: { [Op.iLike]: email } }
     });
@@ -103,13 +100,11 @@ export const createStaff = async (req: AuthenticatedRequest, res: Response): Pro
       throw ApiError.conflict('Bu email adresi ile kayıtlı personel zaten mevcut');
     }
     const staff = await Staff.create({
-      firstName: firstName,
-      lastName: lastName,
+      fullName,
       email,
       phone,
-      specialties: specialization,
-      bio,
-      profileImage: profileImage,
+      specialties,
+      avatar,
       isActive: true
     });
     if (serviceIds && serviceIds.length > 0) {
@@ -121,21 +116,17 @@ export const createStaff = async (req: AuthenticatedRequest, res: Response): Pro
           model: Service,
           as: 'services',
           through: { attributes: [] },
-          attributes: ['id', 'name', 'price', 'duration']
+          attributes: ['id', 'title', 'price', 'duration']
         }
       ]
     });
-    res.status(201).json(new ApiSuccess('Personel başarıyla oluşturuldu', createdStaff));
+    res.status(201).json(ApiSuccess.created(createdStaff, 'Personel başarıyla oluşturuldu'));
   } catch (error) {
-    console.error('Staff create error:', error);
-    if (error instanceof ApiError) {
-      res.status(error.statusCode).json(error.toJSON());
-    } else {
-      res.status(500).json(ApiError.internal('Personel oluşturulurken hata oluştu').toJSON());
-    }
+    next(error);
   }
 };
-export const updateStaff = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const updateStaff = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error: paramsError, value: paramsValue } = staffIdSchema.validate(req.params);
     if (paramsError) {
@@ -173,21 +164,17 @@ export const updateStaff = async (req: AuthenticatedRequest, res: Response): Pro
           model: Service,
           as: 'services',
           through: { attributes: [] },
-          attributes: ['id', 'name', 'price', 'duration']
+          attributes: ['id', 'title', 'price', 'duration']
         }
       ]
     });
-    res.json(new ApiSuccess('Personel başarıyla güncellendi', updatedStaff));
+    res.json(ApiSuccess.updated(updatedStaff, 'Personel başarıyla güncellendi'));
   } catch (error) {
-    console.error('Staff update error:', error);
-    if (error instanceof ApiError) {
-      res.status(error.statusCode).json(error.toJSON());
-    } else {
-      res.status(500).json(ApiError.internal('Personel güncellenirken hata oluştu').toJSON());
-    }
+    next(error);
   }
 };
-export const getAvailableSlots = async (req: Request, res: Response): Promise<void> => {
+
+export const getAvailableSlots = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error: paramsError, value: paramsValue } = staffIdSchema.validate(req.params);
     if (paramsError) {
@@ -209,25 +196,14 @@ export const getAvailableSlots = async (req: Request, res: Response): Promise<vo
     if (!service) {
       throw ApiError.notFound('Hizmet bulunamadı');
     }
-    const availableSlots = [
-      { startTime: '09:00', endTime: '09:30', isAvailable: true },
-      { startTime: '09:30', endTime: '10:00', isAvailable: true },
-      { startTime: '10:00', endTime: '10:30', isAvailable: true },
-      { startTime: '10:30', endTime: '11:00', isAvailable: false },
-      { startTime: '11:00', endTime: '11:30', isAvailable: true },
-      { startTime: '14:00', endTime: '14:30', isAvailable: true },
-      { startTime: '14:30', endTime: '15:00', isAvailable: true },
-      { startTime: '15:00', endTime: '15:30', isAvailable: true },
-      { startTime: '15:30', endTime: '16:00', isAvailable: false },
-      { startTime: '16:00', endTime: '16:30', isAvailable: true }
+    // Basit slot hesaplama - gerçek implementasyon iş saatleri ve mevcut randevulara göre olmalı
+    const slots = [
+      '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+      '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+      '16:00', '16:30', '17:00', '17:30'
     ];
-    res.json(new ApiSuccess('Müsait saatler başarıyla getirildi', { availableSlots }));
+    res.json(ApiSuccess.item(slots, 'Müsait saatler başarıyla getirildi'));
   } catch (error) {
-    console.error('Available slots error:', error);
-    if (error instanceof ApiError) {
-      res.status(error.statusCode).json(error.toJSON());
-    } else {
-      res.status(500).json(ApiError.internal('Müsait saatler getirilirken hata oluştu').toJSON());
-    }
+    next(error);
   }
 }; 

@@ -1,3 +1,5 @@
+import { ErrorDetail } from '../types/api';
+
 export enum ErrorType {
   VALIDATION = 'VALIDATION_ERROR',
   AUTHENTICATION = 'AUTHENTICATION_ERROR',
@@ -9,11 +11,7 @@ export enum ErrorType {
   RATE_LIMIT = 'RATE_LIMIT_EXCEEDED',
   DATABASE = 'DATABASE_ERROR'
 }
-export interface ErrorDetail {
-  field?: string;
-  message: string;
-  code?: string;
-}
+
 export class ApiError extends Error {
   public success: boolean;
   public type: ErrorType;

@@ -13,7 +13,6 @@ services:
       - "5432"
     volumes:
       - postgres_test_data:/var/lib/postgresql/data
-      - ./backend/database.sql:/docker-entrypoint-initdb.d/01-schema.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U test_user -d kuafor_test"]
       interval: 5s

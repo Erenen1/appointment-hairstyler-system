@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { HealthController } from '../controllers/healthController';
 const router = Router();
+
 router.get('/', HealthController.getSystemHealth);
 router.get('/database', HealthController.getDatabaseHealth);
 router.get('/server', HealthController.getServerInfo);
 router.get('/liveness', HealthController.liveness);
 router.get('/readiness', HealthController.readiness);
-import '../swagger/paths/health';
+
 export default router; 

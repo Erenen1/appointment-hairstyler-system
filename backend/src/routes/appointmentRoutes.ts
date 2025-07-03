@@ -1,10 +1,9 @@
 import { Router } from 'express';
-import { requireStaffOrAdmin } from '../middleware/authMiddleware';
 import * as appointmentController from '../controllers/appointmentController';
+import { requireAdmin } from '../middleware/authMiddleware';
 const router = Router();
-router.get('/', requireStaffOrAdmin, appointmentController.getAppointments);
-router.post('/', requireStaffOrAdmin, appointmentController.createAppointment);
-router.get('/calendar', requireStaffOrAdmin, appointmentController.getCalendarAppointments);
-router.get('/:id', requireStaffOrAdmin, appointmentController.getAppointmentById);
-router.put('/:id/status', requireStaffOrAdmin, appointmentController.updateAppointmentStatus);
+router.get('/', appointmentController.getAppointments);
+router.post('/', appointmentController.createAppointment);
+router.get('/calendar', appointmentController.getCalendarAppointments);
+router.get('/:id', appointmentController.getAppointmentById);
 export default router; 

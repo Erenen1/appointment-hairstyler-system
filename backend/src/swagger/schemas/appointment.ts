@@ -3,28 +3,24 @@ export const appointmentSchemas = {
     type: 'object',
     properties: {
       id: { type: 'number', example: 1 },
-      firstName: { type: 'string', example: 'Ayşe' },
-      lastName: { type: 'string', example: 'Demir' },
+      fullName: { type: 'string', example: 'Ayşe Demir' },
       email: { type: 'string', format: 'email', example: 'ayse.demir@email.com' },
-      phone: { type: 'string', example: '+90 555 123 4567' },
-      fullName: { type: 'string', example: 'Ayşe Demir' }
+      phone: { type: 'string', example: '+90 555 123 4567' }
     }
   },
   Staff: {
     type: 'object',
     properties: {
       id: { type: 'number', example: 1 },
-      firstName: { type: 'string', example: 'Zeynep' },
-      lastName: { type: 'string', example: 'Yılmaz' },
-      specialization: { type: 'string', example: 'Saç Kesimi, Boyama' },
-      fullName: { type: 'string', example: 'Zeynep Yılmaz' }
+      fullName: { type: 'string', example: 'Zeynep Yılmaz' },
+      specialties: { type: 'string', example: 'Saç Kesimi, Boyama' }
     }
   },
   Service: {
     type: 'object',
     properties: {
       id: { type: 'number', example: 1 },
-      name: { type: 'string', example: 'Saç Kesimi' },
+      title: { type: 'string', example: 'Saç Kesimi' },
       price: { type: 'number', example: 250.00 },
       duration: { type: 'number', example: 60 }
     }
@@ -65,10 +61,9 @@ export const appointmentSchemas = {
     properties: {
       customer: {
         type: 'object',
-        required: ['firstName', 'lastName', 'email', 'phone'],
+        required: ['fullName', 'email', 'phone'],
         properties: {
-          firstName: { type: 'string', minLength: 2, maxLength: 50, example: 'Ayşe' },
-          lastName: { type: 'string', minLength: 2, maxLength: 50, example: 'Demir' },
+          fullName: { type: 'string', minLength: 2, maxLength: 100, example: 'Ayşe Demir' },
           email: { type: 'string', format: 'email', example: 'ayse.demir@email.com' },
           phone: { type: 'string', pattern: '^[0-9+\\-\\s()]+$', example: '+90 555 123 4567' }
         }
@@ -99,8 +94,8 @@ export const appointmentSchemas = {
       title: { type: 'string', example: 'Ayşe Demir - Saç Kesimi' },
       start: { type: 'string', format: 'date-time', example: '2024-12-15T14:30:00' },
       end: { type: 'string', format: 'date-time', example: '2024-12-15T15:30:00' },
-      backgroundColor: { type: 'string', example: '#ffc107' },
-      borderColor: { type: 'string', example: '#ffc107' },
+      backgroundColor: { type: 'string', example: '#3b82f6' },
+      borderColor: { type: 'string', example: '#1d4ed8' },
       extendedProps: {
         type: 'object',
         properties: {
@@ -108,11 +103,7 @@ export const appointmentSchemas = {
           serviceName: { type: 'string', example: 'Saç Kesimi' },
           staffName: { type: 'string', example: 'Zeynep Yılmaz' },
           phone: { type: 'string', example: '+90 555 123 4567' },
-          status: { type: 'string', example: 'Bekliyor' },
-          statusName: { type: 'string', example: 'pending' },
           price: { type: 'number', example: 250.00 },
-          discountAmount: { type: 'number', example: 0.00 },
-          totalPrice: { type: 'number', example: 250.00 },
           notes: { type: 'string', example: 'Özel istek notları' }
         }
       }

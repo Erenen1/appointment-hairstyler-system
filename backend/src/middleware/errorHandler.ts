@@ -2,10 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../utils';
 import logger from '../config/logger';
 import { getRequestContext } from './requestLogger';
+
 interface ExtendedRequest extends Request {
   id?: string;
   startTime?: number;
 }
+
 export const errorHandler = (
   error: any,
   req: ExtendedRequest,
@@ -67,6 +69,7 @@ export const errorHandler = (
   }
   res.status(apiError.statusCode || 500).json(responseData);
 };
+
 export const notFoundHandler = (req: ExtendedRequest, res: Response): void => {
   const apiError = ApiError.notFound(`${req.originalUrl} endpoint'i bulunamadı`);
   apiError.path = req.originalUrl;

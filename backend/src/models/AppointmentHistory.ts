@@ -8,18 +8,26 @@ module.exports = (sequelize: any, DataTypes: any) => {
     appointmentId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-    },
-    statusId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
+      references: {
+        model: 'appointments',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     notes: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
     createdByAdmin: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: true,
+      references: {
+        model: 'admins',
+        key: 'id',
+      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
   }, {
     tableName: 'appointment_history',

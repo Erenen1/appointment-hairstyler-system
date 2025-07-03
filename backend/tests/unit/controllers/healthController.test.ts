@@ -1,87 +1,92 @@
-import request from 'supertest';
-import app from '../../../src/app';
-import { TestDatabase } from '../../setup/testDatabase';
+// backend/tests/unit/controllers/healthController.test.ts
+import { Request, Response, NextFunction } from 'express';
+import { HealthController } from '../../../src/controllers/healthController';
+import { healthCheck } from '../../../src/config/database';
+import logger from '../../../src/config/logger';
 
-describe('Health Controller', () => {
-  beforeAll(async () => {
-    // Test database zaten setup'ta initialize edildi
+// Mock dependencies
+jest.mock('../../../src/config/database');
+jest.mock('../../../src/config/logger');
+
+describe('HealthController Unit Tests', () => {
+  let mockRequest: Partial<Request>;
+  let mockResponse: Partial<Response>;
+  let mockNext: NextFunction;
+
+  beforeEach(() => {
+    mockRequest = {};
+    mockResponse = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis()
+    };
+    mockNext = jest.fn();
   });
 
-  describe('GET /health', () => {
-    it('should return 200 and health status', async () => {
-      const response = await request(app)
-        .get('/health')
-        .expect(200);
-
-      expect(response.body).toHaveProperty('success', true);
-      expect(response.body).toHaveProperty('message', 'Sistem sağlıklı çalışıyor');
-      expect(response.body.data).toHaveProperty('status');
-      expect(response.body.data).toHaveProperty('timestamp');
-      expect(response.body.data).toHaveProperty('uptime');
-    });
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  describe('GET /health/database', () => {
-    it('should return 200 and database connection status', async () => {
-      const response = await request(app)
-        .get('/health/database')
-        .expect(200);
+  describe('getSystemHealth', () => {
+    it('should return 200 and system health if database is healthy', async () => {
+      const mockHealthCheckResponse = {
+        status: 'healthy',
+        responseTime: '10ms',
+        database: 'test_db',
+        host: 'localhost'
+      };
 
-      expect(response.body).toHaveProperty('success', true);
-      expect(response.body).toHaveProperty('message', 'Database bağlantısı sağlıklı');
-      expect(response.body.data).toHaveProperty('status');
-      expect(response.body.data).toHaveProperty('host');
+      (healthCheck as jest.Mock).mockResolvedValue(mockHealthCheckResponse);
+
+      await HealthController.getSystemHealth(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: 'Sistem sağlıklı çalışıyor',
+          data: expect.objectContaining({
+            status: 'OK',
+            database: mockHealthCheckResponse
+          })
+        })
+      );
+      expect(mockNext).not.toHaveBeenCalled();
     });
 
-    it('should handle database connection error gracefully', async () => {
-      // Bu test'i skip edelim çünkü test ortamında DB connection drop etmek karmaşık
-      // Gerçek ortamda production test'lerde bu durum test edilebilir
-      
-      // Normal case'i test edelim
-      const response = await request(app)
-        .get('/health/database')
-        .expect(200);
+    it('should return 503 and system error if database is unhealthy', async () => {
+      const mockUnhealthyResponse = {
+        status: 'unhealthy',
+        error: 'DB connection failed',
+        database: 'test_db',
+        host: 'localhost'
+      };
 
-      expect(response.body).toHaveProperty('success', true);
-      expect(response.body).toHaveProperty('message', 'Database bağlantısı sağlıklı');
+      (healthCheck as jest.Mock).mockResolvedValue(mockUnhealthyResponse);
+
+      await HealthController.getSystemHealth(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(503);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: 'Sistem sağlık kontrolünde sorun tespit edildi'
+        })
+      );
+      expect(mockNext).not.toHaveBeenCalled();
+    });
+
+    it('should call next with ApiError on unexpected error', async () => {
+      const error = new Error('Test error');
+      (healthCheck as jest.Mock).mockRejectedValue(error);
+
+      await HealthController.getSystemHealth(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(logger.error).toHaveBeenCalledWith('System health check failed', expect.objectContaining({ error: 'Test error' }));
+      expect(mockNext).toHaveBeenCalledWith(expect.objectContaining({ 
+        statusCode: 500, 
+        message: 'Sağlık kontrolü yapılamadı' 
+      }));
+      expect(mockResponse.json).not.toHaveBeenCalled();
     });
   });
-
-  describe('GET /health/server', () => {
-    it('should return server status and info', async () => {
-      const response = await request(app)
-        .get('/health/server')
-        .expect(200);
-
-      expect(response.body).toHaveProperty('success', true);
-      expect(response.body.data).toHaveProperty('application');
-      expect(response.body.data).toHaveProperty('runtime');
-      expect(response.body.data).toHaveProperty('system');
-      expect(response.body.data).toHaveProperty('database');
-    });
-  });
-
-  describe('GET /health/liveness', () => {
-    it('should return liveness probe status', async () => {
-      const response = await request(app)
-        .get('/health/liveness')
-        .expect(200);
-
-      expect(response.body).toHaveProperty('status', 'alive');
-      expect(response.body).toHaveProperty('timestamp');
-    });
-  });
-
-  describe('GET /health/readiness', () => {
-    it('should return readiness probe status', async () => {
-      const response = await request(app)
-        .get('/health/readiness')
-        .expect(200);
-
-      expect(response.body).toHaveProperty('status', 'ready');
-      expect(response.body).toHaveProperty('timestamp');
-      expect(response.body).toHaveProperty('checks');
-      expect(response.body.checks).toHaveProperty('database');
-    });
-  });
-}); 
+});

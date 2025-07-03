@@ -1,0 +1,1876 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Kuaför Salonu Yönetim Sistemi API",
+    "description": "Kuaför salonu için randevu yönetimi, müşteri takibi, hizmet yönetimi ve daha fazlasını içeren kapsamlı API",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Desteği",
+      "email": "support@kuafor.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api/v1",
+      "description": "Development Server"
+    },
+    {
+      "url": "https://api.kuafor.com/v1",
+      "description": "Production Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Sistem sağlık kontrolleri"
+    },
+    {
+      "name": "Authentication",
+      "description": "Kimlik doğrulama işlemleri"
+    },
+    {
+      "name": "Admin",
+      "description": "Admin yönetimi"
+    },
+    {
+      "name": "Appointments",
+      "description": "Randevu yönetimi"
+    },
+    {
+      "name": "Services",
+      "description": "Hizmet yönetimi"
+    },
+    {
+      "name": "Customers",
+      "description": "Müşteri yönetimi"
+    },
+    {
+      "name": "Staff",
+      "description": "Personel yönetimi"
+    },
+    {
+      "name": "Content",
+      "description": "İçerik yönetimi"
+    },
+    {
+      "name": "Contact",
+      "description": "İletişim yönetimi"
+    },
+    {
+      "name": "Dashboard",
+      "description": "Dashboard istatistikleri"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Sistem sağlık durumu",
+        "description": "Sistemin genel sağlık durumunu kontrol eder",
+        "responses": {
+          "200": {
+            "description": "Sistem sağlıklı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/database": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Veritabanı sağlık durumu",
+        "responses": {
+          "200": {
+            "description": "Veritabanı sağlıklı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/server": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Server bilgileri",
+        "responses": {
+          "200": {
+            "description": "Server bilgileri",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/liveness": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Liveness probe",
+        "responses": {
+          "200": {
+            "description": "Service alive",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "alive"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/readiness": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Readiness probe",
+        "responses": {
+          "200": {
+            "description": "Service ready",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ready"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "database": {
+                          "type": "string",
+                          "example": "healthy"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/admin/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Admin girişi",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "admin"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Giriş başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Geçersiz kimlik bilgileri",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Çıkış yap",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Çıkış başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/profile": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Mevcut kullanıcı bilgisi",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kullanıcı bilgileri",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/appointments": {
+      "get": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "Randevuları listele",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "staffId",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Randevular başarıyla listelendi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "Yeni randevu oluştur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "customerName",
+                  "customerPhone",
+                  "appointmentDate",
+                  "serviceId",
+                  "staffId"
+                ],
+                "properties": {
+                  "customerName": {
+                    "type": "string",
+                    "example": "Ahmet Yılmaz"
+                  },
+                  "customerPhone": {
+                    "type": "string",
+                    "example": "+90 555 123 4567"
+                  },
+                  "customerEmail": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "appointmentDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "serviceId": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "staffId": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "notes": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Randevu başarıyla oluşturuldu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/appointments/calendar": {
+      "get": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "Takvim randevuları",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Takvim randevuları",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/appointments/{id}": {
+      "get": {
+        "tags": [
+          "Appointments"
+        ],
+        "summary": "Randevu detayı",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Randevu detayı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services": {
+      "get": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "Hizmetleri listele",
+        "responses": {
+          "200": {
+            "description": "Hizmetler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "Yeni hizmet oluştur",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Hizmet oluşturuldu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/categories": {
+      "get": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "Hizmet kategorilerini listele",
+        "responses": {
+          "200": {
+            "description": "Kategoriler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "Yeni kategori oluştur",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Kategori oluşturuldu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{id}": {
+      "get": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "Hizmet detayı",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "reuired": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hizmet detayı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "Hizmet güncelle",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hizmet güncellendi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "Hizmet sil",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hizmet silindi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/categories/{id}": {
+      "put": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "Kategori güncelle",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kategori güncellendi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "Kategori sil",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kategori silindi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Müşterileri listele",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Müşteriler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Yeni müşteri oluştur",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Müşteri oluşturuldu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers/{id}": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Müşteri detayı",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Müşteri detayı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Müşteri güncelle",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Müşteri güncellendi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Müşteri sil",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Müşteri silindi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/staff": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Personelleri listele",
+        "responses": {
+          "200": {
+            "description": "Personeller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Yeni personel oluştur",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Personel oluşturuldu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/staff/{id}": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Personel detayı",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Personel detayı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Personel güncelle",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Personel güncellendi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/staff/{id}/available-slots": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "summary": "Personel müsait saatleri",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Müsait saatler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/content/gallery": {
+      "get": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Galeri resimlerini listele",
+        "responses": {
+          "200": {
+            "description": "Galeri resimleri",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Content"
+        ],
+        "summary": "Yeni galeri resmi ekle",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Galeri resmi eklendi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/messages": {
+      "get": {
+        "tags": [
+          "Contact"
+        ],
+        "summary": "İletişim mesajlarını listele",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "İletişim mesajları",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/messages/{id}": {
+      "get": {
+        "tags": [
+          "Contact"
+        ],
+        "summary": "İletişim mesajı detayı",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mesaj detayı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Contact"
+        ],
+        "summary": "İletişim mesajını sil",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mesaj silindi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contact/stats": {
+      "get": {
+        "tags": [
+          "Contact"
+        ],
+        "summary": "İletişim istatistikleri",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "İletişim istatistikleri",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/stats": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Dashboard istatistikleri",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard istatistikleri",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/revenue-chart": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Gelir grafiği",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gelir grafiği verileri",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/popular-services": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Popüler hizmetler",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Popüler hizmetler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/recent-appointments": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Son randevular",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Son randevular",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/super/create": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Super admin ile admin oluştur",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Admin oluşturuldu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "İşlem başarılı"
+          },
+          "data": {
+            "type": "object"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "VALIDATION_ERROR",
+              "AUTHENTICATION_ERROR",
+              "AUTHORIZATION_ERROR",
+              "NOT_FOUND",
+              "CONFLICT",
+              "INTERNAL_SERVER_ERROR",
+              "BAD_REQUEST",
+              "RATE_LIMIT_EXCEEDED",
+              "DATABASE_ERROR"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorDetail"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorDetail": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "currentPage": {
+            "type": "integer",
+            "example": 1
+          },
+          "totalPages": {
+            "type": "integer",
+            "example": 10
+          },
+          "totalItems": {
+            "type": "integer",
+            "example": 100
+          },
+          "itemsPerPage": {
+            "type": "integer",
+            "example": 10
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Sistem sağlıklı çalışıyor"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "example": "OK"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "uptime": {
+                "type": "number",
+                "example": 3600.5
+              },
+              "environment": {
+                "type": "string",
+                "example": "development"
+              },
+              "version": {
+                "type": "string",
+                "example": "v18.17.0"
+              },
+              "platform": {
+                "type": "string",
+                "example": "linux"
+              },
+              "memory": {
+                "type": "object",
+                "properties": {
+                  "used": {
+                    "type": "integer",
+                    "example": 45
+                  },
+                  "total": {
+                    "type": "integer",
+                    "example": 128
+                  },
+                  "external": {
+                    "type": "integer",
+                    "example": 12
+                  }
+                }
+              },
+              "database": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "example": "healthy"
+                  },
+                  "responseTime": {
+                    "type": "number",
+                    "example": 15.5
+                  }
+                }
+              }
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ServerInfoResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Server bilgileri getirildi"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "application": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Kuaför Backend API"
+                  },
+                  "version": {
+                    "type": "string",
+                    "example": "1.0.0"
+                  },
+                  "environment": {
+                    "type": "string",
+                    "example": "development"
+                  },
+                  "port": {
+                    "type": "integer",
+                    "example": 3000
+                  },
+                  "startTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Admin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "username": {
+            "type": "string",
+            "example": "admin"
+          },
+          "fullName": {
+            "type": "string",
+            "example": "Admin User"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "admin@example.com"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "lastLogin": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Appointment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "customerName": {
+            "type": "string",
+            "example": "Ahmet Yılmaz"
+          },
+          "customerPhone": {
+            "type": "string",
+            "example": "+90 555 123 4567"
+          },
+          "customerEmail": {
+            "type": "string",
+            "format": "email",
+            "example": "ahmet@example.com"
+          },
+          "appointmentDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-15T14:30:00Z"
+          },
+          "serviceId": {
+            "type": "integer",
+            "example": 1
+          },
+          "staffId": {
+            "type": "integer",
+            "example": 1
+          },
+          "price": {
+            "type": "number",
+            "format": "decimal",
+            "example": 150
+          },
+          "notes": {
+            "type": "string",
+            "example": "Özel istek: Kısa kesim"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Service": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Saç Kesimi"
+          },
+          "description": {
+            "type": "string",
+            "example": "Profesyonel saç kesimi hizmeti"
+          },
+          "price": {
+            "type": "number",
+            "format": "decimal",
+            "example": 100
+          },
+          "duration": {
+            "type": "integer",
+            "example": 60,
+            "description": "Dakika cinsinden süre"
+          },
+          "categoryId": {
+            "type": "integer",
+            "example": 1
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ServiceCategory": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Saç Bakımı"
+          },
+          "description": {
+            "type": "string",
+            "example": "Saç bakım hizmetleri"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Staff": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "fullName": {
+            "type": "string",
+            "example": "Mehmet Özkan"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+90 555 987 6543"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "mehmet@salon.com"
+          },
+          "specialization": {
+            "type": "string",
+            "example": "Saç Kesimi ve Boyama"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "fullName": {
+            "type": "string",
+            "example": "Ayşe Kaya"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+90 555 111 2233"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "ayse@example.com"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "1990-05-15"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Hassas cilt"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ContactMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Ali Veli"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "ali@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+90 555 444 3322"
+          },
+          "subject": {
+            "type": "string",
+            "example": "Randevu Talebi"
+          },
+          "message": {
+            "type": "string",
+            "example": "Merhaba, randevu almak istiyorum."
+          },
+          "isRead": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GalleryImage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "Saç Modeli 1"
+          },
+          "description": {
+            "type": "string",
+            "example": "Modern saç kesimi örneği"
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "/uploads/gallery/image1.jpg"
+          },
+          "categoryId": {
+            "type": "integer",
+            "example": 1
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "sessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "sessionid",
+        "description": "Session-based authentication"
+      },
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-KEY",
+        "description": "API Key for super admin operations"
+      }
+    }
+  },
+  "security": [
+    {
+      "sessionAuth": []
+    }
+  ]
+}

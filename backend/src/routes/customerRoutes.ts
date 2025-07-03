@@ -6,11 +6,12 @@ import {
   updateCustomer,
   deleteCustomer
 } from '../controllers/customerController';
-import { requireAuth, requireStaffOrAdmin } from '../middleware/authMiddleware';
+import { requireAdmin } from '../middleware/authMiddleware';
 const router = Router();
-router.get('/', requireAuth, requireStaffOrAdmin, getCustomers);
-router.get('/:id', requireAuth, requireStaffOrAdmin, getCustomerById);
-router.post('/', requireAuth, requireStaffOrAdmin, createCustomer);
-router.put('/:id', requireAuth, requireStaffOrAdmin, updateCustomer);
-router.delete('/:id', requireAuth, requireStaffOrAdmin, deleteCustomer);
+
+router.get('/', requireAdmin, getCustomers);
+router.get('/:id', requireAdmin, getCustomerById);
+router.post('/', requireAdmin, createCustomer);
+router.put('/:id', requireAdmin, updateCustomer);
+router.delete('/:id', requireAdmin, deleteCustomer);
 export default router; 

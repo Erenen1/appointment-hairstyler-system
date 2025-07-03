@@ -27,7 +27,7 @@ module.exports = {
       statements: 80
     }
   },
-  setupFilesAfterEnv: ['<rootDir>/tests/setup/jest.setup.ts'],
+  globalSetup: '<rootDir>/tests/setup/jest.setup.ts',
   globalTeardown: '<rootDir>/tests/setup/jest.teardown.ts',
   testTimeout: 30000,
   maxWorkers: 1, // Sequelize connection issues için
