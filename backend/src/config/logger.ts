@@ -1,11 +1,14 @@
 import winston from 'winston';
 import path from 'path';
+import Enum from './env';
+
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
   winston.format.json(),
   winston.format.prettyPrint()
 );
+
 const consoleFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp({ format: 'HH:mm:ss' }),
@@ -17,13 +20,14 @@ const consoleFormat = winston.format.combine(
     return `[${timestamp}] ${level}: ${message}${metaStr}`;
   })
 );
+
 const logDir = path.join(process.cwd(), 'logs');
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: Enum.LOG_LEVEL || 'info',
   format: logFormat,
   defaultMeta: { 
     service: 'kuafor-backend',
-    environment: process.env.NODE_ENV || 'development'
+    environment: Enum.NODE_ENV || 'development'
   },
   transports: [
     new winston.transports.File({
@@ -57,15 +61,15 @@ const logger = winston.createLogger({
     })
   ],
   exitOnError: false,
-  silent: process.env.NODE_ENV === 'test'
+  silent: Enum.NODE_ENV === 'test'
 });
-if (process.env.NODE_ENV !== 'production') {
+if (Enum.NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
     format: consoleFormat,
     level: 'debug'
   }));
 }
-if (process.env.NODE_ENV === 'production') {
+if (Enum.NODE_ENV === 'production') {
   logger.add(new winston.transports.Console({
     format: winston.format.combine(
       winston.format.timestamp(),

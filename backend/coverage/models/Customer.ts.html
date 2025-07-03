@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -112,23 +112,8 @@
 <a name='L47'></a><a href='#L47'>47</a>
 <a name='L48'></a><a href='#L48'>48</a>
 <a name='L49'></a><a href='#L49'>49</a>
-<a name='L50'></a><a href='#L50'>50</a>
-<a name='L51'></a><a href='#L51'>51</a>
-<a name='L52'></a><a href='#L52'>52</a>
-<a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a>
-<a name='L55'></a><a href='#L55'>55</a>
-<a name='L56'></a><a href='#L56'>56</a>
-<a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a>
-<a name='L60'></a><a href='#L60'>60</a>
-<a name='L61'></a><a href='#L61'>61</a>
-<a name='L62'></a><a href='#L62'>62</a>
-<a name='L63'></a><a href='#L63'>63</a>
-<a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L50'></a><a href='#L50'>50</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -175,86 +160,56 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">module.exports = (sequelize: any, DataTypes: any) =&gt; {
-  const Customer = sequelize.define('Customer', {
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >module.exports = <span class="fstat-no" title="function not covered" >(s</span>equelize: any, DataTypes: any) =&gt; {</span>
+  const Customer = <span class="cstat-no" title="statement not covered" >sequelize.define('Customer', {</span>
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      autoIncrement: true,
-    },
-    firstName: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-    },
-    lastName: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-    },
-    phone: {
-      type: DataTypes.STRING(20),
-      allowNull: false,
     },
     email: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
       validate: {
         isEmail: true,
       },
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    fullName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     birthDate: {
       type: DataTypes.DATEONLY,
       allowNull: true,
     },
-    address: {
-      type: DataTypes.TEXT,
+    gender: {
+      type: DataTypes.ENUM('male', 'female', 'other'),
       allowNull: true,
     },
-    city: {
-      type: DataTypes.STRING(100),
+    avatar: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
-    district: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-    },
-    loyaltyPoints: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-    },
-    hairType: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-    },
-    hairColor: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-    },
-    notes: {
-      type: DataTypes.TEXT,
-      allowNull: true,
+    status: {
+      type: DataTypes.ENUM('active', 'inactive', 'pending', 'deleted'),
+      defaultValue: 'pending',
     },
   }, {
     tableName: 'customers',
-    timestamps: true,
+    paranoid: true,
   });
 &nbsp;
-  return Customer;
+<span class="cstat-no" title="statement not covered" >  return Customer;</span>
 }; </pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -262,7 +217,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-23T20:29:45.672Z
+                at 2025-07-02T23:39:15.774Z
             </div>
         <script src="../prettify.js"></script>
         <script>

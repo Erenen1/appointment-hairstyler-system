@@ -13,7 +13,6 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # - ./backend/database.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     networks:
@@ -28,11 +27,11 @@ services:
   app:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: kuafor_app
     restart: unless-stopped
     env_file:
-      - ./backend/.env.production
+      - ./backend/.env.development
     environment:
       # Docker-specific overrides
       DB_HOST: db

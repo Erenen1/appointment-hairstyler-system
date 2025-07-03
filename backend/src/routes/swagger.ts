@@ -1,12 +1,13 @@
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { Express } from 'express';
-import { Enum } from '../config/env';
+import Enum  from '../config/env';
 import { dashboardSchemas } from '../swagger/schemas/dashboard';
 import { appointmentSchemas } from '../swagger/schemas/appointment';
 import { commonSchemas, commonResponses } from '../swagger/schemas/common';
 import { dashboardPaths } from '../swagger/paths/dashboard';
 import { appointmentPaths } from '../swagger/paths/appointment';
+
 const options = {
   definition: {
     openapi: '3.0.0',
@@ -20,16 +21,16 @@ const options = {
       },
       license: {
         name: 'MIT',
-        url: 'https://kuafor.com/api/v1'
+        url: `${Enum.DOMAIN}`
       }
     },
     servers: [
       {
-        url: 'http://localhost:3001/api/v1',
+        url: `${Enum.DOMAIN}`,
         description: 'Development Server'
       },
       {
-        url: 'https://api.kuafor.com/api/v1',
+        url: `${Enum.DOMAIN}`,
         description: 'Production Server'
       }
     ],
@@ -78,6 +79,7 @@ const options = {
       }
     ]
   },
+  apis: ['./routes/*.ts', '../swagger/**/*.ts'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);

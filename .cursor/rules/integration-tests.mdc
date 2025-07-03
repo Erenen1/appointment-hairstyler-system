@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Entegrasyon Test Kuralları (Integration Test Rules)
+
+Bu kurallar, farklı sistem bileşenleri arasındaki etkileşimleri test etmek için entegrasyon testlerinin yazımına odaklanmıştır.
+
+- Kapsamlı test senaryoları tasarlayarak entegrasyon noktalarını ve veri akışlarını doğrulayın.
+- Testleri DRY (Don't Repeat Yourself) tutarak yeniden kullanılabilir mantığı yardımcı fonksiyonlara ayıklayın.
+- Düzgün hata işleme ve testlerde açık başarısızlık mesajları sağlamak için günlük kaydı uygulayın.
+- `expect` eşleştiricilerini (`toEqual`, `toContain`, `toBeTruthy`, `toHaveLength`, vb.) kullanarak koşulları iddia edin.
+- Testlerin paylaşılan durum çakışmaları olmadan paralel olarak güvenilir bir şekilde çalışmasını sağlayın.
+- Sonuç kodunda yorum yapmaktan kaçının.
+- JSDoc yorumları ile yardımcı fonksiyonların amacını açıklayın.
+

@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
-import { Enum } from "./config/env";
-import { sessionConfig, corsConfig } from "./config/session";
+import Enum  from "./config/env";
+import { sessionConfig} from "./config/session";
+import { corsConfig } from "./config/cors";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { requestLogger } from "./middleware/requestLogger";
 import logger, { loggerHelpers } from "./config/logger";
@@ -9,6 +10,8 @@ import { LogManager } from "./utils/logUtils";
 import { initializeAndSyncDatabase } from "./config/database";
 import routes, { setupSwagger } from "./routes";
 const app = express();
+
+
 LogManager.ensureLogDirectory();
 app.use(requestLogger);
 app.use(sessionConfig);
@@ -16,6 +19,7 @@ app.use(express.json());
 app.use(cors(corsConfig));
 app.use('/', routes);
 setupSwagger(app);
+
 const initializeDatabase = async () => {
   try {
     await initializeAndSyncDatabase();
@@ -36,8 +40,10 @@ loggerHelpers.system('Application Started', {
     port: Enum.DB_PORT
   }
 });
+
 app.use(notFoundHandler);
 app.use(errorHandler);
+
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection', {
     reason,

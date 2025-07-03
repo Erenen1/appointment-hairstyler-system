@@ -1,20 +1,21 @@
 import { Sequelize } from 'sequelize';
-import { Enum } from './env';
+import Enum  from './env';
 import logger from './logger';
+
 const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
     return error.message;
   }
   return 'Bilinmeyen hata';
 };
-const config: any = {
+const config = {
   database: Enum.DB_NAME,
   username: Enum.DB_USER,
   password: Enum.DB_PASSWORD,
   host: Enum.DB_HOST,
   port: Enum.DB_PORT,
   dialect: 'postgres' as const,
-  logging: Enum.NODE_ENV === 'development' ? console.log : false,
+  logging: true,
   pool: {
     max: 5,
     min: 0,
@@ -28,8 +29,9 @@ const config: any = {
     updatedAt: 'updatedAt'
   }
 };
-console.log(config);
+
 export const sequelize = new Sequelize(config);
+
 export const testConnection = async (): Promise<boolean> => {
   try {
     await sequelize.authenticate();

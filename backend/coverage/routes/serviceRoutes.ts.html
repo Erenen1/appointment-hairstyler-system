@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>14/14</span>
+                <span class='fraction'>0/14</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>14/14</span>
+                <span class='fraction'>0/14</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -88,14 +88,9 @@
 <a name='L23'></a><a href='#L23'>23</a>
 <a name='L24'></a><a href='#L24'>24</a>
 <a name='L25'></a><a href='#L25'>25</a>
-<a name='L26'></a><a href='#L26'>26</a>
-<a name='L27'></a><a href='#L27'>27</a>
-<a name='L28'></a><a href='#L28'>28</a>
-<a name='L29'></a><a href='#L29'>29</a>
-<a name='L30'></a><a href='#L30'>30</a>
-<a name='L31'></a><a href='#L31'>31</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L26'></a><a href='#L26'>26</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -106,26 +101,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import { Router } from 'express';
-import { requireAuth } from '../middleware/authMiddleware';
-import {
+<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { Router } from 'express';</span>
+<span class="cstat-no" title="statement not covered" >import { requireAdmin } from '../middleware/authMiddleware';</span>
+<span class="cstat-no" title="statement not covered" >import {</span>
   getServices,
   getServiceById,
   createService,
@@ -136,31 +126,26 @@ import {
   updateServiceCategory,
   deleteServiceCategory
 } from '../controllers/serviceController';
+const router = <span class="cstat-no" title="statement not covered" >Router();</span>
 &nbsp;
-const router = Router();
+<span class="cstat-no" title="statement not covered" >router.get('/', getServices); </span>
+<span class="cstat-no" title="statement not covered" >router.get('/categories', getServiceCategories); </span>
+<span class="cstat-no" title="statement not covered" >router.get('/:id', getServiceById); </span>
+<span class="cstat-no" title="statement not covered" >router.post('/', requireAdmin, createService);</span>
+<span class="cstat-no" title="statement not covered" >router.put('/:id', requireAdmin, updateService);</span>
+<span class="cstat-no" title="statement not covered" >router.delete('/:id', requireAdmin, deleteService);</span>
+<span class="cstat-no" title="statement not covered" >router.post('/categories', requireAdmin, createServiceCategory);</span>
+<span class="cstat-no" title="statement not covered" >router.put('/categories/:id', requireAdmin, updateServiceCategory);</span>
+<span class="cstat-no" title="statement not covered" >router.delete('/categories/:id', requireAdmin, deleteServiceCategory);</span>
 &nbsp;
-// Hizmet yönetimi rotaları
-router.get('/', getServices); // Herkese açık - frontend için
-router.get('/categories', getServiceCategories); // Herkese açık - frontend için
-router.get('/:id', getServiceById); // Herkese açık - frontend için
-&nbsp;
-// Admin only routes
-router.post('/', requireAuth, createService);
-router.put('/:id', requireAuth, updateService);
-router.delete('/:id', requireAuth, deleteService);
-&nbsp;
-router.post('/categories', requireAuth, createServiceCategory);
-router.put('/categories/:id', requireAuth, updateServiceCategory);
-router.delete('/categories/:id', requireAuth, deleteServiceCategory);
-&nbsp;
-export default router; </pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" >export default router; </span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-23T20:29:45.672Z
+                at 2025-07-02T23:39:15.774Z
             </div>
         <script src="../prettify.js"></script>
         <script>

@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { ApiError, ApiSuccess, handleControllerError } from '../utils';
+import { Request, Response, NextFunction } from 'express';
+import { ApiError, ApiSuccess } from '../utils';
 import { Op, fn, col } from 'sequelize';
 import { 
   createCustomerSchema, 
@@ -7,10 +7,11 @@ import {
   customerListQuerySchema,
   customerIdSchema
 } from '../validations/customerValidation';
-import { AuthenticatedRequest } from '../types/express';
-const db = require('../models');
-const { Customer, Appointment, Service, Staff, AppointmentStatus } = db;
-export const getCustomers = async (req: Request, res: Response): Promise<void> => {
+
+import db from '../models/index';
+const { Customer, Appointment, Service, Staff } = db;
+
+export const getCustomers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = customerListQuerySchema.validate(req.query);
     if (error) {
@@ -20,8 +21,7 @@ export const getCustomers = async (req: Request, res: Response): Promise<void> =
     const whereConditions: any = {};
     if (search) {
       whereConditions[Op.or] = [
-        { firstName: { [Op.iLike]: `%${search}%` } },
-        { lastName: { [Op.iLike]: `%${search}%` } },
+        { fullName: { [Op.iLike]: `%${search}%` } },
         { email: { [Op.iLike]: `%${search}%` } },
         { phone: { [Op.iLike]: `%${search}%` } }
       ];
@@ -29,9 +29,9 @@ export const getCustomers = async (req: Request, res: Response): Promise<void> =
     const offset = (page - 1) * limit;
     const orderBy: any[] = [];
     if (sortBy === 'name') {
-      orderBy.push(['firstName', sortOrder.toUpperCase()], ['lastName', sortOrder.toUpperCase()]);
+      orderBy.push(['fullName', sortOrder.toUpperCase()]);
     } else if (sortBy === 'totalSpent') {
-      orderBy.push([fn('SUM', col('appointments.totalPrice')), sortOrder.toUpperCase()]);
+      orderBy.push([fn('SUM', col('appointments.price')), sortOrder.toUpperCase()]);
     } else if (sortBy === 'lastVisit') {
       orderBy.push([fn('MAX', col('appointments.appointmentDate')), sortOrder.toUpperCase()]);
     } else {
@@ -40,9 +40,9 @@ export const getCustomers = async (req: Request, res: Response): Promise<void> =
     const { count, rows } = await Customer.findAndCountAll({
       where: whereConditions,
       attributes: [
-        'id', 'firstName', 'lastName', 'email', 'phone', 'createdAt',
+        'id', 'fullName', 'email', 'phone', 'createdAt',
         [fn('COUNT', col('appointments.id')), 'visitCount'],
-        [fn('SUM', col('appointments.totalPrice')), 'totalSpent'],
+        [fn('SUM', col('appointments.price')), 'totalSpent'],
         [fn('MAX', col('appointments.appointmentDate')), 'lastVisit']
       ],
       include: [
@@ -50,12 +50,6 @@ export const getCustomers = async (req: Request, res: Response): Promise<void> =
           model: Appointment,
           as: 'appointments',
           attributes: [],
-          include: [{
-            model: AppointmentStatus,
-            as: 'status',
-            where: { name: 'completed' },
-            attributes: []
-          }],
           required: false
         }
       ],
@@ -67,22 +61,21 @@ export const getCustomers = async (req: Request, res: Response): Promise<void> =
       distinct: true
     });
     const totalPages = Math.ceil(count.length / limit);
-    res.json(new ApiSuccess('Müşteriler başarıyla getirildi', {
-      customers: rows,
-      pagination: {
-        currentPage: page,
-        totalPages,
-        totalItems: count.length,
-        itemsPerPage: limit,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
-      }
-    }));
+    const paginationInfo = {
+      currentPage: page,
+      totalPages,
+      totalItems: count.length,
+      itemsPerPage: limit,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1
+    };
+    res.json(ApiSuccess.list(rows, paginationInfo, 'Müşteriler başarıyla getirildi'));
   } catch (error) {
-    handleControllerError(error, res, 'Müşteriler getirilirken hata oluştu');
+    next(error);
   }
 };
-export const getCustomerById = async (req: Request, res: Response): Promise<void> => {
+
+export const getCustomerById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = customerIdSchema.validate(req.params);
     if (error) {
@@ -98,17 +91,12 @@ export const getCustomerById = async (req: Request, res: Response): Promise<void
             {
               model: Service,
               as: 'service',
-              attributes: ['id', 'name', 'price']
+              attributes: ['id', 'title', 'price']
             },
             {
               model: Staff,
               as: 'staff',
-              attributes: ['id', 'firstName', 'lastName']
-            },
-            {
-              model: AppointmentStatus,
-              as: 'status',
-              attributes: ['id', 'name', 'displayName']
+              attributes: ['id', 'fullName']
             }
           ],
           order: [['appointmentDate', 'DESC']]
@@ -118,18 +106,16 @@ export const getCustomerById = async (req: Request, res: Response): Promise<void
     if (!customer) {
       throw ApiError.notFound('Müşteri bulunamadı');
     }
-    const completedAppointments = customer.appointments.filter(
-      (apt: any) => apt.status?.name === 'completed'
-    );
+    const completedAppointments = customer.appointments;
     const totalSpent = completedAppointments.reduce(
-      (sum: number, apt: any) => sum + (apt.totalPrice || 0), 0
+      (sum: number, apt: any) => sum + (apt.price || 0), 0
     );
     const averageSpent = completedAppointments.length > 0 
       ? totalSpent / completedAppointments.length 
       : 0;
     const serviceCount: any = {};
     completedAppointments.forEach((apt: any) => {
-      const serviceName = apt.service?.name;
+      const serviceName = apt.service?.title;
       if (serviceName) {
         serviceCount[serviceName] = (serviceCount[serviceName] || 0) + 1;
       }
@@ -145,18 +131,19 @@ export const getCustomerById = async (req: Request, res: Response): Promise<void
       averageSpent: Math.round(averageSpent * 100) / 100,
       favoriteServices
     };
-    res.json(new ApiSuccess('Müşteri detayları başarıyla getirildi', customerDetail));
+    res.json(ApiSuccess.item(customerDetail, 'Müşteri detayları başarıyla getirildi'));
   } catch (error) {
-    handleControllerError(error, res, 'Müşteri detayları getirilirken hata oluştu');
+    next(error);
   }
 };
-export const createCustomer = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const createCustomer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = createCustomerSchema.validate(req.body);
     if (error) {
       throw ApiError.fromJoi(error);
     }
-    const { firstName, lastName, email, phone, notes } = value;
+    const { fullName, email, phone, notes } = value;
     const existingCustomer = await Customer.findOne({
       where: {
         [Op.or]: [
@@ -174,18 +161,18 @@ export const createCustomer = async (req: AuthenticatedRequest, res: Response): 
       }
     }
     const customer = await Customer.create({
-      firstName,
-      lastName,
+      fullName,
       email,
       phone,
       notes
     });
-    res.status(201).json(new ApiSuccess('Müşteri başarıyla oluşturuldu', customer));
+    res.status(201).json(ApiSuccess.created(customer, 'Müşteri başarıyla oluşturuldu'));
   } catch (error) {
-    handleControllerError(error, res, 'Müşteri oluşturulurken hata oluştu');
+    next(error);
   }
 };
-export const updateCustomer = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const updateCustomer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error: paramsError, value: paramsValue } = customerIdSchema.validate(req.params);
     if (paramsError) {
@@ -228,12 +215,13 @@ export const updateCustomer = async (req: AuthenticatedRequest, res: Response): 
       }
     }
     await customer.update(updateData);
-    res.json(new ApiSuccess('Müşteri başarıyla güncellendi', customer));
+    res.json(ApiSuccess.updated(customer, 'Müşteri başarıyla güncellendi'));
   } catch (error) {
-    handleControllerError(error, res, 'Müşteri güncellenirken hata oluştu');
+    next(error);
   }
 };
-export const deleteCustomer = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const deleteCustomer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = customerIdSchema.validate(req.params);
     if (error) {
@@ -246,16 +234,15 @@ export const deleteCustomer = async (req: AuthenticatedRequest, res: Response): 
     }
     const activeAppointments = await Appointment.count({
       where: {
-        customerId: id,
-        statusId: { [Op.in]: [1, 2] } 
+        customerId: id
       }
     });
     if (activeAppointments > 0) {
-      throw ApiError.badRequest('Müşterinin aktif randevuları olduğu için silinemez');
+      throw ApiError.badRequest('Müşterinin randevuları olduğu için silinemez');
     }
     await customer.destroy();
-    res.json(new ApiSuccess('Müşteri başarıyla silindi'));
+    res.json(ApiSuccess.deleted('Müşteri başarıyla silindi'));
   } catch (error) {
-    handleControllerError(error, res, 'Müşteri silinirken hata oluştu');
+    next(error);
   }
 }; 

@@ -1,36 +1,38 @@
 module.exports = (sequelize: any, DataTypes: any) => {
   const Customer = sequelize.define('Customer', {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      autoIncrement: true,
-    },
-    fullName: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-    },
-    phone: {
-      type: DataTypes.STRING(20),
-      allowNull: false,
     },
     email: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
       validate: {
         isEmail: true,
       },
     },
-    loyaltyPoints: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
+    fullName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     notes: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: true,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
     },
   }, {
     tableName: 'customers',
-    timestamps: true,
+    paranoid: true,
   });
+
   return Customer;
 }; 

@@ -3,13 +3,12 @@ import {
   adminLogin, 
   logout, 
   getCurrentUser, 
-  checkSession 
 } from '../controllers/authController';
-import { requireAuth } from '../middleware/authMiddleware';
+import { requireAdmin } from '../middleware/authMiddleware';
 const router = Router();
+
 router.post('/admin/login', adminLogin);
-router.post('/logout', requireAuth, logout);
-router.get('/me', getCurrentUser);
-router.get('/check', checkSession);
-import '../swagger/paths/auth';
+router.post('/logout', requireAdmin, logout);
+router.get('/profile',requireAdmin, getCurrentUser);
+
 export default router; 

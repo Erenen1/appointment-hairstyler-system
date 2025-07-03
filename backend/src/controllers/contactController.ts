@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ApiError, ApiSuccess } from '../utils';
 import { Op, fn, col } from 'sequelize';
 import { 
@@ -6,269 +6,173 @@ import {
   contactMessageIdSchema,
   updateContactMessageStatusSchema
 } from '../validations/contactValidation';
-const db = require('../models');
+
+import db from '../models/index';
 const { ContactMessage } = db;
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: number;
-    email: string;
-    role: string;
-  };
-}
-export const getContactMessages = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+const buildWhereConditions = (filters: any) => {
+  const { search, category, startDate, endDate } = filters;
+  const conditions: any = {};
+
+  if (search) {
+    conditions[Op.or] = ['fullName', 'email', 'subject', 'message'].map(field => ({
+      [field]: { [Op.like]: `%${search}%` }
+    }));
+  }
+
+  if (category) conditions.category = category;
+  if (startDate || endDate) {
+    conditions.createdAt = {};
+    if (startDate) conditions.createdAt[Op.gte] = startDate;
+    if (endDate) conditions.createdAt[Op.lte] = endDate;
+  }
+
+  return conditions;
+};
+
+export const getContactMessages = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = contactMessagesListQuerySchema.validate(req.query);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const { page, limit, search, category, status, sortBy, sortOrder, startDate, endDate } = value;
-    const whereConditions: any = {};
-    if (search) {
-      whereConditions[Op.or] = [
-        { name: { [Op.like]: `%${search}%` } },
-        { email: { [Op.like]: `%${search}%` } },
-        { subject: { [Op.like]: `%${search}%` } },
-        { message: { [Op.like]: `%${search}%` } }
-      ];
-    }
-    if (category) {
-      whereConditions.category = category;
-    }
-    if (status) {
-      whereConditions.status = status;
-    }
-    if (startDate && endDate) {
-      whereConditions.createdAt = {
-        [Op.between]: [startDate, endDate]
-      };
-    } else if (startDate) {
-      whereConditions.createdAt = {
-        [Op.gte]: startDate
-      };
-    } else if (endDate) {
-      whereConditions.createdAt = {
-        [Op.lte]: endDate
-      };
-    }
+    if (error) throw ApiError.fromJoi(error);
+
+    const { page, limit, sortBy, sortOrder, ...filters } = value;
+    const whereConditions = buildWhereConditions(filters);
     const offset = (page - 1) * limit;
-    const orderBy: any[] = [];
-    if (sortBy === 'name') {
-      orderBy.push(['name', sortOrder.toUpperCase()]);
-    } else {
-      orderBy.push([sortBy, sortOrder.toUpperCase()]);
-    }
+    const orderBy = [[sortBy === 'name' ? 'fullName' : sortBy, sortOrder.toUpperCase()]];
+
     const { count, rows } = await ContactMessage.findAndCountAll({
       where: whereConditions,
       order: orderBy,
       limit,
       offset,
-      attributes: {
-        exclude: ['ipAddress', 'userAgent'] 
-      }
+      attributes: { exclude: ['ipAddress', 'userAgent'] }
     });
+
     const totalPages = Math.ceil(count / limit);
-    const stats = await ContactMessage.findAll({
-      attributes: [
-        'status',
-        [fn('COUNT', col('id')), 'count']
-      ],
-      group: ['status'],
-      raw: true
-    });
-    const statusStats = stats.reduce((acc: any, stat: any) => {
-      acc[stat.status] = parseInt(stat.count);
-      return acc;
-    }, {});
-    res.json(new ApiSuccess('İletişim mesajları başarıyla getirildi', {
-      messages: rows,
-      pagination: {
-        currentPage: page,
-        totalPages,
-        totalItems: count,
-        itemsPerPage: limit,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
-      },
-      stats: {
-        total: count,
-        new: statusStats.new || 0,
-        read: statusStats.read || 0,
-        replied: statusStats.replied || 0,
-        closed: statusStats.closed || 0
-      }
-    }));
+    const paginationInfo = {
+      currentPage: page,
+      totalPages,
+      totalItems: count,
+      itemsPerPage: limit,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1
+    };
+    res.json(ApiSuccess.list(rows, paginationInfo, 'İletişim mesajları başarıyla getirildi'));
   } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-    throw ApiError.internal('İletişim mesajları getirilirken hata oluştu');
+    next(error);
   }
 };
-export const getContactMessageById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const getContactMessageById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = contactMessageIdSchema.validate(req.params);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const { id } = value;
-    const message = await ContactMessage.findByPk(id);
-    if (!message) {
-      throw ApiError.notFound('İletişim mesajı bulunamadı');
-    }
-    if (message.status === 'new') {
+    if (error) throw ApiError.fromJoi(error);
+
+    const message = await ContactMessage.findByPk(value.id);
+    if (!message) throw ApiError.notFound('İletişim mesajı bulunamadı');
+
+    if (!message.isRead) {
       await message.update({
-        status: 'read',
-        readAt: new Date(),
-        readBy: req.user?.id
+        isRead: true
       });
     }
-    res.json(new ApiSuccess('İletişim mesajı başarıyla getirildi', { message }));
+
+    res.json(ApiSuccess.item(message, 'İletişim mesajı başarıyla getirildi'));
   } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-    throw ApiError.internal('İletişim mesajı getirilirken hata oluştu');
+    next(error);
   }
 };
-export const updateContactMessageStatus = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+const STATUS_TRANSITIONS = {
+  'new': ['read', 'replied', 'closed'],
+  'read': ['replied', 'closed'],
+  'replied': ['closed'],
+  'closed': []
+};
+
+const getStatusUpdateData = (status: string, userId: string) => {
+  const updateData: any = { status, updatedBy: userId };
+  
+  const statusActions = {
+    'read': { readAt: new Date(), readBy: userId },
+    'replied': { repliedAt: new Date(), repliedBy: userId },
+    'closed': { closedAt: new Date(), closedBy: userId }
+  };
+
+  return { ...updateData, ...statusActions[status] };
+};
+
+export const updateContactMessageStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error: paramsError, value: paramsValue } = contactMessageIdSchema.validate(req.params);
-    if (paramsError) {
-      throw ApiError.fromJoi(paramsError);
-    }
     const { error: bodyError, value: bodyValue } = updateContactMessageStatusSchema.validate(req.body);
-    if (bodyError) {
-      throw ApiError.fromJoi(bodyError);
-    }
-    const { id } = paramsValue;
+    if (paramsError || bodyError) throw ApiError.fromJoi(paramsError || bodyError);
+
+    const message = await ContactMessage.findByPk(paramsValue.id);
+    if (!message) throw ApiError.notFound('İletişim mesajı bulunamadı');
+
     const { status, adminNotes } = bodyValue;
-    const message = await ContactMessage.findByPk(id);
-    if (!message) {
-      throw ApiError.notFound('İletişim mesajı bulunamadı');
-    }
-    const validTransitions: { [key: string]: string[] } = {
-      'new': ['read', 'replied', 'closed'],
-      'read': ['replied', 'closed'],
-      'replied': ['closed'],
-      'closed': [] 
-    };
-    if (!validTransitions[message.status].includes(status)) {
+    if (!STATUS_TRANSITIONS[message.status].includes(status)) {
       throw ApiError.badRequest(`${message.status} durumundan ${status} durumuna geçiş yapılamaz`);
     }
-    const updateData: any = {
-      status,
-      adminNotes,
-      updatedBy: req.user?.id
+
+    const updateData = {
+      ...getStatusUpdateData(status, req.user?.id),
+      adminNotes
     };
-    if (status === 'read' && message.status === 'new') {
-      updateData.readAt = new Date();
-      updateData.readBy = req.user?.id;
-    }
-    if (status === 'replied') {
-      updateData.repliedAt = new Date();
-      updateData.repliedBy = req.user?.id;
-    }
-    if (status === 'closed') {
-      updateData.closedAt = new Date();
-      updateData.closedBy = req.user?.id;
-    }
+
     await message.update(updateData);
     res.json(new ApiSuccess(`Mesaj durumu "${status}" olarak güncellendi`, { message }));
   } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-    throw ApiError.internal('Mesaj durumu güncellenirken hata oluştu');
+    next(error);
   }
 };
-export const deleteContactMessage = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const deleteContactMessage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { error, value } = contactMessageIdSchema.validate(req.params);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const { id } = value;
-    const message = await ContactMessage.findByPk(id);
-    if (!message) {
-      throw ApiError.notFound('İletişim mesajı bulunamadı');
-    }
-    await message.update({
-      isDeleted: true,
-      deletedAt: new Date(),
-      deletedBy: req.user?.id
-    });
-    res.json(new ApiSuccess('İletişim mesajı başarıyla silindi'));
+    if (error) throw ApiError.fromJoi(error);
+
+    const message = await ContactMessage.findByPk(value.id);
+    if (!message) throw ApiError.notFound('İletişim mesajı bulunamadı');
+
+    await message.destroy();
+
+    res.json(ApiSuccess.deleted('İletişim mesajı başarıyla silindi'));
   } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-    throw ApiError.internal('İletişim mesajı silinirken hata oluştu');
+    next(error);
   }
 };
-export const getContactStats = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+export const getContactStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const totalMessages = await ContactMessage.count({
-      where: { isDeleted: { [Op.ne]: true } }
-    });
-    const newMessages = await ContactMessage.count({
-      where: { 
-        status: 'new',
-        isDeleted: { [Op.ne]: true }
-      }
-    });
-    const messagesThisMonth = await ContactMessage.count({
-      where: {
-        createdAt: { [Op.gte]: thirtyDaysAgo },
-        isDeleted: { [Op.ne]: true }
-      }
-    });
-    const categoryStats = await ContactMessage.findAll({
-      attributes: [
-        'category',
-        [fn('COUNT', col('id')), 'count']
-      ],
-      where: { isDeleted: { [Op.ne]: true } },
-      group: ['category'],
-      raw: true
-    });
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const dailyStats = await ContactMessage.findAll({
-      attributes: [
-        [fn('DATE', col('createdAt')), 'date'],
-        [fn('COUNT', col('id')), 'count']
-      ],
-      where: {
-        createdAt: { [Op.gte]: sevenDaysAgo },
-        isDeleted: { [Op.ne]: true }
-      },
-      group: [fn('DATE', col('createdAt'))],
-      order: [[fn('DATE', col('createdAt')), 'ASC']],
-      raw: true
-    });
-    res.json(new ApiSuccess('İletişim istatistikleri başarıyla getirildi', {
+
+    const [totalMessages, unreadMessages, messagesThisMonth, dailyStats] = await Promise.all([
+      ContactMessage.count(),
+      ContactMessage.count({ where: { isRead: false } }),
+      ContactMessage.count({ where: { createdAt: { [Op.gte]: thirtyDaysAgo } } }),
+      ContactMessage.findAll({
+        attributes: [[fn('DATE', col('createdAt')), 'date'], [fn('COUNT', col('id')), 'count']],
+        where: { createdAt: { [Op.gte]: sevenDaysAgo } },
+        group: [fn('DATE', col('createdAt'))],
+        order: [[fn('DATE', col('createdAt')), 'ASC']],
+        raw: true
+      })
+    ]);
+
+    const statsData = {
       summary: {
         totalMessages,
-        newMessages,
+        unreadMessages,
         messagesThisMonth,
-        responseRate: totalMessages > 0 ? 
-          Math.round(((totalMessages - newMessages) / totalMessages) * 100) : 0
+        responseRate: totalMessages > 0 ? Math.round(((totalMessages - unreadMessages) / totalMessages) * 100) : 0
       },
-      categoryDistribution: categoryStats.map((stat: any) => ({
-        category: stat.category,
-        count: parseInt(stat.count),
-        percentage: totalMessages > 0 ? 
-          Math.round((parseInt(stat.count) / totalMessages) * 100) : 0
-      })),
-      dailyActivity: dailyStats.map((stat: any) => ({
-        date: stat.date,
-        count: parseInt(stat.count)
-      }))
-    }));
+      dailyStats
+    };
+    res.json(ApiSuccess.item(statsData, 'İletişim istatistikleri başarıyla getirildi'));
   } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-    throw ApiError.internal('İletişim istatistikleri getirilirken hata oluştu');
+    next(error);
   }
 }; 

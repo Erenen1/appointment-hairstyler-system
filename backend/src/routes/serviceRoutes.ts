@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/authMiddleware';
+import { requireAdmin } from '../middleware/authMiddleware';
 import {
   getServices,
   getServiceById,
@@ -12,13 +12,15 @@ import {
   deleteServiceCategory
 } from '../controllers/serviceController';
 const router = Router();
+
 router.get('/', getServices); 
 router.get('/categories', getServiceCategories); 
 router.get('/:id', getServiceById); 
-router.post('/', requireAuth, createService);
-router.put('/:id', requireAuth, updateService);
-router.delete('/:id', requireAuth, deleteService);
-router.post('/categories', requireAuth, createServiceCategory);
-router.put('/categories/:id', requireAuth, updateServiceCategory);
-router.delete('/categories/:id', requireAuth, deleteServiceCategory);
+router.post('/', requireAdmin, createService);
+router.put('/:id', requireAdmin, updateService);
+router.delete('/:id', requireAdmin, deleteService);
+router.post('/categories', requireAdmin, createServiceCategory);
+router.put('/categories/:id', requireAdmin, updateServiceCategory);
+router.delete('/categories/:id', requireAdmin, deleteServiceCategory);
+
 export default router; 

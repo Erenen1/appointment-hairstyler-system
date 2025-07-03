@@ -1,32 +1,36 @@
 import { Request, Response, NextFunction } from 'express';
-const db = require('../models');
 import { ApiError, ApiSuccess, HashUtils } from '../utils';
-import { adminLoginSchema } from '../validations/authValidation';
+import { loginSchema } from '../validations/authValidation';
 import logger from '../config/logger';
+import { LoginCredentials } from '../types/auth';
+import Joi from 'joi';
+
+import db from '../models/index';
+const { Admin } = db;
+
 export const adminLogin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { error, value } = adminLoginSchema.validate(req.body);
+    const { error, value }: { error: Joi.ValidationError, value: LoginCredentials } = loginSchema.validate(req.body);
     if (error) {
       throw ApiError.fromJoi(error);
     }
-    const { username, password } = value;
-    const admin = await db.Admin.findOne({
-      where: { 
-        username,
-        isActive: true 
+    const { email, password } = value;
+    const admin = await Admin.findOne({
+      where: {
+        email,
+        isActive: true
       }
     });
     if (!admin) {
-      throw ApiError.authentication('Kullanıcı adı veya şifre hatalı');
+      throw ApiError.authentication('Email veya şifre hatalı');
     }
     const isPasswordValid = HashUtils.verifyPassword(password, admin.password);
     if (!isPasswordValid) {
-      throw ApiError.authentication('Kullanıcı adı veya şifre hatalı');
+      throw ApiError.authentication('Email veya şifre hatalı');
     }
     await admin.update({ lastLogin: new Date() });
     req.session.user = {
       id: admin.id,
-      username: admin.username,
       email: admin.email,
       userType: 'admin',
       fullName: admin.fullName
@@ -55,7 +59,7 @@ export const logout = (req: Request, res: Response, next: NextFunction) => {
       if (err) {
         throw ApiError.internal('Çıkış işlemi sırasında hata oluştu');
       }
-      res.clearCookie('kuafor.sid'); 
+      res.clearCookie('sessionid');
       res.json(ApiSuccess.message('Çıkış başarılı'));
     });
   } catch (error) {
@@ -64,9 +68,6 @@ export const logout = (req: Request, res: Response, next: NextFunction) => {
 };
 export const getCurrentUser = (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (!req.session.user) {
-      throw ApiError.authentication('Oturum bulunamadı');
-    }
     res.json(ApiSuccess.item({
       user: req.session.user
     }, 'Kullanıcı bilgileri getirildi'));
@@ -74,14 +75,3 @@ export const getCurrentUser = (req: Request, res: Response, next: NextFunction) 
     next(error);
   }
 };
-export const checkSession = (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const isAuthenticated = !!req.session.user;
-    res.json(ApiSuccess.item({
-      isAuthenticated,
-      user: isAuthenticated ? req.session.user : null
-    }, 'Session durumu'));
-  } catch (error) {
-    next(error);
-  }
-}; 
