@@ -4,6 +4,7 @@ import { CorsOptions } from 'cors';
 export const corsConfig: CorsOptions = {
     origin: [
       Enum.DOMAIN,
+      Enum.FRONTEND_DOMAIN,
       "kaancetin.com",
       'http://localhost:3000',
       'http://localhost:3001'
