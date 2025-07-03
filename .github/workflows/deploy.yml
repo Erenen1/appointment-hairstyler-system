@@ -27,11 +27,11 @@ jobs:
           script: |
             set -euo pipefail
 
-            APP_DIR="$HOME/erencelik-app"     # ↙ tüm işlem buraya
+            APP_DIR="$HOME/appointment-hairstyler-system"     # ↙ tüm işlem buraya
 
             # İlk kez çalışıyorsak klonla
             if [ ! -d "$APP_DIR/.git" ]; then
-              git clone https://${GH_PAT}@github.com/Erenen1/saloongizem.com.git "$APP_DIR"
+              git clone https://${GH_PAT}@github.com/Erenen1/appointment-hairstyler-system.git "$APP_DIR"
             fi
 
             cd "$APP_DIR"
