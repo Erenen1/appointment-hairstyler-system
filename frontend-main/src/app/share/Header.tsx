@@ -4,6 +4,7 @@ const Header = () => {
     return (
         <div>
             Header
+            {/* Geist Fontu yüklenecek */}
         </div>
     )
 }
