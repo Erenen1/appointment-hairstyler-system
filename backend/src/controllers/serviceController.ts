@@ -23,10 +23,6 @@ export const getServices = async (req: Request, res: Response, next: NextFunctio
       categoryId,
       isActive,
       isPopular,
-      minPrice,
-      maxPrice,
-      sortBy = 'orderIndex',
-      sortOrder = 'asc'
     } = req.query;
     const where: any = {};
     if (search) {
@@ -38,8 +34,6 @@ export const getServices = async (req: Request, res: Response, next: NextFunctio
     if (categoryId) where.categoryId = categoryId;
     if (isActive !== undefined) where.isActive = isActive === 'true';
     if (isPopular !== undefined) where.isPopular = isPopular === 'true';
-    if (minPrice) where.price = { ...where.price, [Op.gte]: minPrice };
-    if (maxPrice) where.price = { ...where.price, [Op.lte]: maxPrice };
     const { offset, limit: limitOption } = getPaginationOptions(Number(page), Number(limit));
     const { count, rows: services } = await Service.findAndCountAll({
       where,
@@ -52,17 +46,9 @@ export const getServices = async (req: Request, res: Response, next: NextFunctio
         {
           model: ServiceImage,
           as: 'images',
-          attributes: ['id', 'imagePath', 'isMain', 'orderIndex']
-        },
-        {
-          model: Staff,
-          as: 'staff',
-          attributes: ['id', 'fullName', 'avatar'],
-          where: { isActive: true },
-          required: false
+          attributes: ['id', 'imagePath']
         }
       ],
-      order: [[sortBy as string, sortOrder as string]],
       offset,
       limit: limitOption
     });
@@ -73,18 +59,16 @@ export const getServices = async (req: Request, res: Response, next: NextFunctio
         id: service.id,
         slug: service.slug,
         title: service.title,
-        shortDescription: service.shortDescription,
+        description: service.description,
         price: service.price,
         image: mainImage,
-        icon: service.icon,
         duration: service.duration,
         category: service.category,
         isPopular: service.isPopular,
         isActive: service.isActive
       };
     });
-    const pagination = formatPaginationResponse(count, Number(page), Number(limit));
-    res.status(200).json(ApiSuccess.list(formattedServices, pagination, 'Hizmetler başarıyla getirildi'));
+    res.status(200).json(ApiSuccess.list(formattedServices, null ,'Hizmetler başarıyla getirildi'));
   } catch (error) {
     next(error);
   }
@@ -108,17 +92,9 @@ export const getServiceById = async (req: Request, res: Response, next: NextFunc
           model: ServiceImage,
           as: 'images',
           attributes: ['id', 'imagePath']
-        },
-        {
-          model: Staff,
-          as: 'staff',
-          through: { attributes: [] },
-          attributes: ['id', 'fullName', 'profileImage'],
-          where: { isActive: true },
-          required: false
         }
       ]
-    });
+    }); 
     if (!service) {
       throw ApiError.notFound('Hizmet bulunamadı');
     }

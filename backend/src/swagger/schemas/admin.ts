@@ -5,6 +5,7 @@ export const adminSchemas = {
       id: { type: 'integer', example: 1 },
       fullName: { type: 'string', example: 'Admin User' },
       email: { type: 'string', format: 'email', example: 'admin@example.com' },
+      phone: { type: 'string', example: '1234567890' },
       isActive: { type: 'boolean', example: true },
       lastLogin: { type: 'string', format: 'date-time', nullable: true },
       createdAt: { type: 'string', format: 'date-time' },
@@ -17,7 +18,8 @@ export const adminSchemas = {
     properties: {
       password: { type: 'string', minLength: 6, maxLength: 100, example: 'password123' },
       fullName: { type: 'string', minLength: 2, maxLength: 100, example: 'Admin User' },
-      email: { type: 'string', format: 'email', example: 'admin@example.com' }
+      email: { type: 'string', format: 'email', example: 'admin@example.com' },
+      phone: { type: 'string', example: '1234567890' }
     }
   },
   CreateAdminResponse: {

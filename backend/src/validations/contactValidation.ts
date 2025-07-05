@@ -1,17 +1,18 @@
 import Joi from 'joi';
 export const createContactMessageSchema = Joi.object({
-  name: Joi.string().trim().min(2).max(100).required()
+  fullName: Joi.string().trim().min(2).max(100).required()
     .messages({
-      'string.empty': 'Ad alanı boş olamaz',
-      'string.min': 'Ad en az 2 karakter olmalıdır',
-      'string.max': 'Ad en fazla 100 karakter olabilir',
-      'any.required': 'Ad alanı zorunludur'
+      'string.empty': 'Ad soyad alanı boş bırakılamaz',
+      'string.min': 'Ad soyad en az 2 karakter olmalıdır',
+      'string.max': 'Ad soyad en fazla 100 karakter olabilir',
+      'any.required': 'Ad soyad alanı zorunludur'
     }),
-  email: Joi.string().email().trim().lowercase().required()
+  email: Joi.string().email().trim().max(255).required()
     .messages({
-      'string.email': 'Geçerli bir email adresi giriniz',
-      'string.empty': 'Email alanı boş olamaz',
-      'any.required': 'Email alanı zorunludur'
+      'string.empty': 'E-posta adresi boş bırakılamaz',
+      'string.email': 'Geçerli bir e-posta adresi giriniz',
+      'string.max': 'E-posta adresi en fazla 255 karakter olabilir',
+      'any.required': 'E-posta adresi zorunludur'
     }),
   phone: Joi.string().pattern(/^[0-9+\-\s()]+$/).min(10).max(20).optional()
     .messages({
@@ -19,23 +20,23 @@ export const createContactMessageSchema = Joi.object({
       'string.min': 'Telefon numarası en az 10 karakter olmalıdır',
       'string.max': 'Telefon numarası en fazla 20 karakter olabilir'
     }),
-  subject: Joi.string().trim().min(3).max(255).required()
+  subject: Joi.string().trim().min(2).max(200).required()
     .messages({
-      'string.empty': 'Konu alanı boş olamaz',
-      'string.min': 'Konu en az 3 karakter olmalıdır',
-      'string.max': 'Konu en fazla 255 karakter olabilir',
+      'string.empty': 'Konu alanı boş bırakılamaz',
+      'string.min': 'Konu en az 2 karakter olmalıdır',
+      'string.max': 'Konu en fazla 200 karakter olabilir',
       'any.required': 'Konu alanı zorunludur'
     }),
   message: Joi.string().trim().min(10).max(2000).required()
     .messages({
-      'string.empty': 'Mesaj alanı boş olamaz',
+      'string.empty': 'Mesaj alanı boş bırakılamaz',
       'string.min': 'Mesaj en az 10 karakter olmalıdır',
       'string.max': 'Mesaj en fazla 2000 karakter olabilir',
       'any.required': 'Mesaj alanı zorunludur'
     }),
-  category: Joi.string().valid('general', 'appointment', 'complaint', 'suggestion', 'other').default('general')
+  category: Joi.string().trim().valid('general', 'support', 'feedback', 'business').default('general')
     .messages({
-      'any.only': 'Kategori general, appointment, complaint, suggestion veya other olmalıdır'
+      'any.only': 'Geçersiz kategori seçimi'
     }),
   preferredContactMethod: Joi.string().valid('email', 'phone', 'both').default('email')
     .messages({
@@ -45,16 +46,12 @@ export const createContactMessageSchema = Joi.object({
 export const contactMessagesListQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
-  search: Joi.string().trim().allow('').optional(),
-  category: Joi.string().valid('general', 'appointment', 'complaint', 'suggestion', 'other').optional(),
-  status: Joi.string().valid('new', 'read', 'replied', 'closed').optional(),
-  sortBy: Joi.string().valid('createdAt', 'name', 'subject', 'category').default('createdAt'),
+  sortBy: Joi.string().valid('createdAt', 'name', 'email', 'subject', 'status').default('createdAt'),
   sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
-  startDate: Joi.date().optional(),
-  endDate: Joi.date().min(Joi.ref('startDate')).optional()
-    .messages({
-      'date.min': 'Bitiş tarihi başlangıç tarihinden büyük olmalıdır'
-    })
+  search: Joi.string().trim().allow(''),
+  category: Joi.string().trim().allow(''),
+  startDate: Joi.date().iso(),
+  endDate: Joi.date().iso().min(Joi.ref('startDate'))
 });
 export const contactMessageIdSchema = Joi.object({
   id: Joi.number().integer().positive().required()

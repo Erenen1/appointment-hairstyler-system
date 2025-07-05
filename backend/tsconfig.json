@@ -1,29 +1,17 @@
 {
     "compilerOptions": {
-        "target": "ES2020",
-        "module": "CommonJS",
-        "moduleResolution": "node",
-        "rootDir": "src",
-        "outDir": "dist",
+        "module": "commonjs",
+        "noImplicitAny": false,
+        "removeComments": true,
+        "preserveConstEnums": true,
         "sourceMap": true,
+        "outDir":"./dist",
+        "target":"es6",
+        "jsx": "react",
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "resolveJsonModule": true,
-        "strict": false,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "baseUrl": "src",
-        "paths": {
-            "@/*": ["./*"],
-            "@/types/*": ["types/*"],
-            "@/models/*": ["models/*"],
-            "@/controllers/*": ["controllers/*"],
-            "@/middleware/*": ["middleware/*"],
-            "@/utils/*": ["utils/*"],
-            "@/config/*": ["config/*"]
-        },
-        "types": ["node"]
+        "skipLibCheck": true
     },
-    "include": ["src/**/*"],
-    "exclude": ["dist", "node_modules", "coverage", "tests"]
+    "include": [
+        "./src/**/*"
+    ],
 }

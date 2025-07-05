@@ -169,7 +169,8 @@ export const createAppointment = async (req: Request, res: Response, next: NextF
       customer = await Customer.create({
         fullName: customerData.fullName,
         email: customerData.email,
-        phone: customerData.phone
+        phone: customerData.phone,
+        notes: customerData.notes
       });
     }
     const appointment = await Appointment.create({

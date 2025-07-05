@@ -19,9 +19,10 @@ export const authSchemas = {
             type: 'object',
             properties: {
               id: { type: 'integer', example: 1 },
-              username: { type: 'string', example: 'admin' },
               fullName: { type: 'string', example: 'Admin User' },
               email: { type: 'string', format: 'email', example: 'admin@example.com' },
+              userType: { type: 'string', example: 'admin' },
+              phone: { type: 'string', example: '1234567890' },
               isActive: { type: 'boolean', example: true },
               lastLogin: { type: 'string', format: 'date-time', nullable: true }
             }
@@ -40,13 +41,9 @@ export const authSchemas = {
         type: 'object',
         properties: {
           id: { type: 'integer', example: 1 },
-          username: { type: 'string', example: 'admin' },
           fullName: { type: 'string', example: 'Admin User' },
           email: { type: 'string', format: 'email', example: 'admin@example.com' },
-          isActive: { type: 'boolean', example: true },
-          lastLogin: { type: 'string', format: 'date-time', nullable: true },
-          createdAt: { type: 'string', format: 'date-time' },
-          updatedAt: { type: 'string', format: 'date-time' }
+          userType: { type: 'string', example: 'admin' },
         }
       },
       timestamp: { type: 'string', format: 'date-time' }

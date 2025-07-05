@@ -4,7 +4,8 @@ import { Op, fn, col } from 'sequelize';
 import { 
   contactMessagesListQuerySchema,
   contactMessageIdSchema,
-  updateContactMessageStatusSchema
+  updateContactMessageStatusSchema,
+  createContactMessageSchema
 } from '../validations/contactValidation';
 
 import db from '../models/index';
@@ -172,6 +173,32 @@ export const getContactStats = async (req: Request, res: Response, next: NextFun
       dailyStats
     };
     res.json(ApiSuccess.item(statsData, 'İletişim istatistikleri başarıyla getirildi'));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createContact = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { error, value } = createContactMessageSchema.validate(req.body);
+    if (error) throw ApiError.fromJoi(error);
+
+    const clientInfo = {
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent']
+    };
+
+    const contactMessage = await ContactMessage.create({
+      ...value,
+      ...clientInfo,
+      status: 'new',
+      isRead: false
+    });
+
+    res.status(201).json(ApiSuccess.created(
+      contactMessage,
+      'İletişim mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.'
+    ));
   } catch (error) {
     next(error);
   }

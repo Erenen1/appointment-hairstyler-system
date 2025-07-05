@@ -6,7 +6,6 @@ export const customerSchemas = {
       fullName: { type: 'string', example: 'Ayşe Kaya' },
       phone: { type: 'string', example: '+90 555 111 2233' },
       email: { type: 'string', format: 'email', example: 'ayse@example.com' },
-      birthDate: { type: 'string', format: 'date', nullable: true, example: '1990-05-15' },
       notes: { type: 'string', example: 'Hassas cilt' },
       createdAt: { type: 'string', format: 'date-time' },
       updatedAt: { type: 'string', format: 'date-time' }
@@ -19,7 +18,6 @@ export const customerSchemas = {
       fullName: { type: 'string', minLength: 2, maxLength: 100, example: 'Ayşe Kaya' },
       phone: { type: 'string', pattern: '^[0-9+\\-\\s()]+$', example: '+90 555 111 2233' },
       email: { type: 'string', format: 'email', example: 'ayse@example.com' },
-      birthDate: { type: 'string', format: 'date', example: '1990-05-15' },
       notes: { type: 'string', maxLength: 500, example: 'Hassas cilt' }
     }
   },
@@ -29,7 +27,6 @@ export const customerSchemas = {
       fullName: { type: 'string', minLength: 2, maxLength: 100, example: 'Ayşe Kaya' },
       phone: { type: 'string', pattern: '^[0-9+\\-\\s()]+$', example: '+90 555 111 2233' },
       email: { type: 'string', format: 'email', example: 'ayse@example.com' },
-      birthDate: { type: 'string', format: 'date', example: '1990-05-15' },
       notes: { type: 'string', maxLength: 500, example: 'Hassas cilt' }
     }
   },

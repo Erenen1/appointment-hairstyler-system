@@ -195,13 +195,6 @@ export const staffPaths = {
           in: 'query',
           required: true,
           schema: { type: 'string', format: 'date' }
-        },
-        {
-          name: 'serviceId',
-          in: 'query',
-          description: 'Hizmet süresine göre müsait saatleri hesaplar',
-          required: false,
-          schema: { type: 'integer' }
         }
       ],
       responses: {

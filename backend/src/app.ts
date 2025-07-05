@@ -30,6 +30,7 @@ const initializeDatabase = async () => {
     process.exit(1);
   }
 };
+console.log(Enum.NODE_ENV);
 loggerHelpers.system('Application Started', {
   port: Enum.PORT,
   environment: Enum.NODE_ENV,

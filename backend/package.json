@@ -6,7 +6,7 @@
     "start": "node dist/app.js",
     "start:prod": "NODE_ENV=production && node dist/app.js",
     "start:dev": "cross-env NODE_ENV=development nodemon src/app.ts",
-    "dev": "cross-env NODE_ENV=development nodemon src/app.ts",
+    "dev": "nodemon -e ts --exec 'tsc -p ./tsconfig.json && node ./dist/app.js'",
     "build": "tsc",
     "build:prod": "NODE_ENV=production tsc",
     "test": "cross-env NODE_ENV=test jest",

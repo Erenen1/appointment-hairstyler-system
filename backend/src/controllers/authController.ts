@@ -43,10 +43,12 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
     res.json(ApiSuccess.item({
       user: {
         id: admin.id,
-        username: admin.username,
         email: admin.email,
         fullName: admin.fullName,
-        userType: 'admin'
+        userType: 'admin',
+        phone: admin.phone,
+        isActive: admin.isActive,
+        lastLogin: admin.lastLogin
       }
     }, 'Giriş başarılı'));
   } catch (error) {

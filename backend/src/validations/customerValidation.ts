@@ -7,22 +7,15 @@ export const customerListQuerySchema = Joi.object({
   sortOrder: Joi.string().valid('asc', 'desc').default('desc')
 });
 export const customerIdSchema = Joi.object({
-  id: Joi.number().integer().positive().required()
+  id: Joi.string().uuid().required()
 });
 export const createCustomerSchema = Joi.object({
-  firstName: Joi.string().trim().min(2).max(50).required()
+  fullName: Joi.string().trim().min(2).max(50).required()
     .messages({
       'string.empty': 'Ad alanı boş olamaz',
       'string.min': 'Ad en az 2 karakter olmalıdır',
       'string.max': 'Ad en fazla 50 karakter olabilir',
       'any.required': 'Ad alanı zorunludur'
-    }),
-  lastName: Joi.string().trim().min(2).max(50).required()
-    .messages({
-      'string.empty': 'Soyad alanı boş olamaz',
-      'string.min': 'Soyad en az 2 karakter olmalıdır',
-      'string.max': 'Soyad en fazla 50 karakter olabilir',
-      'any.required': 'Soyad alanı zorunludur'
     }),
   email: Joi.string().email().trim().lowercase().required()
     .messages({
@@ -44,17 +37,11 @@ export const createCustomerSchema = Joi.object({
     })
 });
 export const updateCustomerSchema = Joi.object({
-  firstName: Joi.string().trim().min(2).max(50).optional()
+  fullName: Joi.string().trim().min(2).max(50).optional()
     .messages({
       'string.empty': 'Ad alanı boş olamaz',
       'string.min': 'Ad en az 2 karakter olmalıdır',
       'string.max': 'Ad en fazla 50 karakter olabilir'
-    }),
-  lastName: Joi.string().trim().min(2).max(50).optional()
-    .messages({
-      'string.empty': 'Soyad alanı boş olamaz',
-      'string.min': 'Soyad en az 2 karakter olmalıdır',
-      'string.max': 'Soyad en fazla 50 karakter olabilir'
     }),
   email: Joi.string().email().trim().lowercase().optional()
     .messages({

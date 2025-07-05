@@ -11,12 +11,8 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
+      "url": "http://api.erencelik.info",
       "description": "Development Server"
-    },
-    {
-      "url": "https://api.kuafor.com",
-      "description": "Production Server"
     }
   ],
   "tags": [
@@ -2847,7 +2843,23 @@
       }
     }
   },
+  "security": [{ "sessionAuth": [] }],
   "components": {
+    "securitySchemes": {
+      "sessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "sessionid",
+        "description": "Session-based authentication"
+      },
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-KEY",
+        "description": "API Key for super admin operations",
+        "x-example": "ee2bc83f-ac23-46a7-b3c4-1be0fe84a7b9"
+      }
+    },
     "schemas": {
       "ApiSuccessResponse": {
         "type": "object",
