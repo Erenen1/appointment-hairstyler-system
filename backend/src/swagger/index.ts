@@ -63,7 +63,7 @@ export const swaggerConfig = {
   },
   servers: [
     {
-      url: 'http://localhost:3000',
+      url: 'http://localhost:8000',
       description: 'Development Server'
     },
     {

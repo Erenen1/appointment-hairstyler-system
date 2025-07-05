@@ -111,14 +111,14 @@ export const appointmentPaths = {
       security: [{ sessionAuth: [] }],
       parameters: [
         {
-          name: 'start',
+          name: 'startDate',
           in: 'query',
           required: true,
           schema: { type: 'string', format: 'date' },
           description: 'Başlangıç tarihi'
         },
         {
-          name: 'end',
+          name: 'endDate',
           in: 'query',
           required: true,
           schema: { type: 'string', format: 'date' },

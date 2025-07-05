@@ -14,12 +14,12 @@ export const serviceSchemas = {
     type: 'object',
     properties: {
       id: { type: 'integer', example: 1 },
-      name: { type: 'string', example: 'Saç Kesimi' },
-      description: { type: 'string', example: 'Profesyonel saç kesimi hizmeti' },
-      price: { type: 'number', format: 'decimal', example: 100 },
-      duration: { type: 'integer', example: 60, description: 'Dakika cinsinden süre' },
       categoryId: { type: 'integer', example: 1 },
-      category: { $ref: '#/components/schemas/ServiceCategory' },
+      slug: { type: 'string', example: 'sac-kesimi' },
+      title: { type: 'string', example: 'Saç Kesimi' },
+      description: { type: 'string', example: 'Profesyonel saç kesimi hizmeti' },
+      duration: { type: 'string', example: '60' },
+      price: { type: 'string', example: '100' },
       isActive: { type: 'boolean', example: true },
       createdAt: { type: 'string', format: 'date-time' },
       updatedAt: { type: 'string', format: 'date-time' }
@@ -27,24 +27,26 @@ export const serviceSchemas = {
   },
   CreateServiceRequest: {
     type: 'object',
-    required: ['name', 'price', 'duration', 'categoryId'],
+    required: ['categoryId', 'title', 'duration', 'price'],
     properties: {
-      name: { type: 'string', minLength: 2, maxLength: 100, example: 'Saç Kesimi' },
+      slug: { type: 'string', minLength: 2, maxLength: 100, example: 'sac-kesimi' },
+      categoryId: { type: 'integer', minimum: 1, example: 1 },
+      title: { type: 'string', minLength: 2, maxLength: 100, example: 'Saç Kesimi' },
       description: { type: 'string', maxLength: 500, example: 'Profesyonel saç kesimi hizmeti' },
-      price: { type: 'number', minimum: 0, example: 100 },
-      duration: { type: 'integer', minimum: 1, example: 60 },
-      categoryId: { type: 'integer', minimum: 1, example: 1 }
+      duration: { type: 'string', example: '60' },
+      price: { type: 'string', example: '100' },
     }
   },
   UpdateServiceRequest: {
     type: 'object',
     properties: {
-      name: { type: 'string', minLength: 2, maxLength: 100, example: 'Saç Kesimi' },
-      description: { type: 'string', maxLength: 500, example: 'Profesyonel saç kesimi hizmeti' },
-      price: { type: 'number', minimum: 0, example: 100 },
-      duration: { type: 'integer', minimum: 1, example: 60 },
       categoryId: { type: 'integer', minimum: 1, example: 1 },
-      isActive: { type: 'boolean', example: true }
+      slug: { type: 'string', minLength: 2, maxLength: 100, example: 'sac-kesimi' },
+      title: { type: 'string', minLength: 2, maxLength: 100, example: 'Saç Kesimi' },
+      description: { type: 'string', maxLength: 500, example: 'Profesyonel saç kesimi hizmeti' },
+      duration: { type: 'string', example: '60' },
+      price: { type: 'string', example: '100' },
+      isActive: { type: 'boolean', example: true },
     }
   },
   CreateCategoryRequest: {
