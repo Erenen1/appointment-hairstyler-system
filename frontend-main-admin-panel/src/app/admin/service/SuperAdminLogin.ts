@@ -12,7 +12,7 @@ export const loginAdmin = async (adminData: LoginAdminRequest) => {
                 'Content-Type': 'application/json',
                 'x-api-key': APIKEY,
             },
-            body: JSON.stringify(adminData)
+            body: JSON.stringify(adminData),
         });
         const data = await res.json()
         console.log('super admin başarıyla giriş yaptı', data);

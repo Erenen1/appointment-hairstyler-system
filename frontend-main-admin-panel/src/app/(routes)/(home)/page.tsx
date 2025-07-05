@@ -1,14 +1,16 @@
+'use client';
+import AdminHome from '@/app/admin/page'
+import { redirect } from 'next/navigation'
 import React from 'react'
-// import AdminRegister from '../../admin/components/AdminRegisterForm'
-import AdminLoginForm from '../../admin/components/AdminLoginForm'
 
-const AdminHome = () => {
+
+const Home = () => {
+    redirect('/admin')
     return (
         <div>
-            {/* <AdminRegister /> */}
-            <AdminLoginForm />
+            <AdminHome />
         </div>
     )
 }
 
-export default AdminHome
+export default Home

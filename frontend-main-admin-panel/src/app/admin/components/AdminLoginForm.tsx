@@ -1,7 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { loginAdmin } from '../service/SuperAdminLogin';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 export default function AdminLoginForm() {
+
+    const router = useRouter();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -12,8 +16,29 @@ export default function AdminLoginForm() {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        await loginAdmin(formData);
+        try {
+            e.preventDefault();
+            const res = await loginAdmin(formData);
+            if (res.message === 'Giriş başarılı') {
+                toast.success('Admin Girişi Yapıldı! 🎉');
+                await new Promise(resolve => setTimeout(resolve, 2000))
+                router.push('/randevu-takvimi');
+            } else if (res.message === 'Email veya şifre hatalı') {
+                toast.error('Email veya şifre hatalı! ❌')
+            } else if (res.message === 'Doğrulama Hatası') {
+                toast.error('Doğrulama Hatası! ❌')
+            }
+            else if (res.message === 'Geçersiz kimlik bilgileri') {
+                toast.error('Geçersiz kimlik bilgileri! ❌')
+            }
+            else if (res.message === 'Sunucu hatası') {
+                toast.error('Sunucu hatası! ❌')
+            }
+        } catch (error) {
+            console.error('Beklenmeyen bir hata oluştu', error)
+            toast.error('Sunucu hatası oluştu!')
+        }
+        // {'Başarısız ise giriş yapamaması lazım!'}
     };
 
     return (
