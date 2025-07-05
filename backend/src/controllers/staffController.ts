@@ -18,29 +18,13 @@ export const getStaff = async (req: Request, res: Response, next: NextFunction):
     if (error) {
       throw ApiError.fromJoi(error);
     }
-    const { page, limit, isActive, sortBy, sortOrder } = value;
+    const { page, limit, isActive } = value;
     const whereConditions: any = {};
     if (typeof isActive === 'boolean') {
       whereConditions.isActive = isActive;
     }
     const offset = (page - 1) * limit;
-    const orderBy: any[] = [];
-    if (sortBy === 'name') {
-      orderBy.push(['fullName', sortOrder.toUpperCase()]);
-    } else {
-      orderBy.push([sortBy, sortOrder.toUpperCase()]);
-    }
     const { count, rows } = await Staff.findAndCountAll({
-      where: whereConditions,
-      include: [
-        {
-          model: Service,
-          as: 'services',
-          through: { attributes: [] },
-          attributes: ['id', 'title', 'price', 'duration']
-        }
-      ],
-      order: orderBy,
       limit,
       offset,
       distinct: true
@@ -67,16 +51,7 @@ export const getStaffById = async (req: Request, res: Response, next: NextFuncti
       throw ApiError.fromJoi(error);
     }
     const { id } = value;
-    const staff = await Staff.findByPk(id, {
-      include: [
-        {
-          model: Service,
-          as: 'services',
-          through: { attributes: [] },
-          attributes: ['id', 'title', 'price', 'duration']
-        }
-      ]
-    });
+    const staff = await Staff.findByPk(id);
     if (!staff) {
       throw ApiError.notFound('Personel bulunamadı');
     }
@@ -92,7 +67,7 @@ export const createStaff = async (req: Request, res: Response, next: NextFunctio
     if (error) {
       throw ApiError.fromJoi(error);
     }
-    const { fullName, email, phone, specialties, avatar, serviceIds } = value;
+    const { fullName, email, phone, specialties, avatar } = value;
     const existingStaff = await Staff.findOne({
       where: { email: { [Op.iLike]: email } }
     });
@@ -107,19 +82,8 @@ export const createStaff = async (req: Request, res: Response, next: NextFunctio
       avatar,
       isActive: true
     });
-    if (serviceIds && serviceIds.length > 0) {
-      await staff.setServices(serviceIds);
-    }
-    const createdStaff = await Staff.findByPk(staff.id, {
-      include: [
-        {
-          model: Service,
-          as: 'services',
-          through: { attributes: [] },
-          attributes: ['id', 'title', 'price', 'duration']
-        }
-      ]
-    });
+    const createdStaff = await staff.toJSON();
+
     res.status(201).json(ApiSuccess.created(createdStaff, 'Personel başarıyla oluşturuldu'));
   } catch (error) {
     next(error);
@@ -154,20 +118,8 @@ export const updateStaff = async (req: Request, res: Response, next: NextFunctio
       }
     }
     const { serviceIds, ...staffUpdateData } = updateData;
-    await staff.update(staffUpdateData);
-    if (serviceIds !== undefined) {
-      await staff.setServices(serviceIds);
-    }
-    const updatedStaff = await Staff.findByPk(id, {
-      include: [
-        {
-          model: Service,
-          as: 'services',
-          through: { attributes: [] },
-          attributes: ['id', 'title', 'price', 'duration']
-        }
-      ]
-    });
+    const updatedStaff = await staff.update(staffUpdateData);
+
     res.json(ApiSuccess.updated(updatedStaff, 'Personel başarıyla güncellendi'));
   } catch (error) {
     next(error);
@@ -185,18 +137,14 @@ export const getAvailableSlots = async (req: Request, res: Response, next: NextF
       throw ApiError.fromJoi(queryError);
     }
     const { id } = paramsValue;
-    const { date, serviceId } = queryValue;
+    const { date } = queryValue;
     const staff = await Staff.findByPk(id, {
       where: { isActive: true }
     });
     if (!staff) {
       throw ApiError.notFound('Personel bulunamadı veya aktif değil');
     }
-    const service = await Service.findByPk(serviceId);
-    if (!service) {
-      throw ApiError.notFound('Hizmet bulunamadı');
-    }
-    // Basit slot hesaplama - gerçek implementasyon iş saatleri ve mevcut randevulara göre olmalı
+    // burası gelecekte implemente edilecek
     const slots = [
       '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
       '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',

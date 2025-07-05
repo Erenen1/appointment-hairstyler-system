@@ -33,7 +33,7 @@ export class HealthController {
         database: dbHealth
       };
       if (dbHealth.status === 'healthy') {
-        res.status(200).json(ApiSuccess.item(systemHealth, 'Sistem sağlıklı çalışıyor'));
+        res.status(200).json(ApiSuccess.item(systemHealth, 'Sistem sağlıklı çalışıyorr'));
       } else {
         throw ApiError.internal('Sistem sağlık kontrolünde sorun tespit edildi');
       }
