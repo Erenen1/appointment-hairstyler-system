@@ -1,10 +1,10 @@
 import Joi from 'joi';
 export const createServiceSchema = Joi.object({
   name: Joi.string().min(2).max(255).required().messages({
-    'string.empty': 'Hizmet adı boş olamaz',
-    'string.min': 'Hizmet adı en az 2 karakter olmalıdır',
-    'string.max': 'Hizmet adı en fazla 255 karakter olabilir',
-    'any.required': 'Hizmet adı gereklidir'
+    'string.empty': 'Hizmet başlığı boş olamaz',
+    'string.min': 'Hizmet başlığı en az 2 karakter olmalıdır',
+    'string.max': 'Hizmet başlığı en fazla 255 karakter olabilir',
+    'any.required': 'Hizmet başlığı gereklidir'
   }),
   description: Joi.string().max(1000).allow('').optional().messages({
     'string.max': 'Açıklama en fazla 1000 karakter olabilir'
@@ -99,7 +99,7 @@ export const categoryIdSchema = Joi.object({
     'number.positive': 'Kategori ID 0\'dan büyük olmalıdır',
     'any.required': 'Kategori ID gereklidir'
   })
-});
+}); 
 const beforeAfterImageSchema = Joi.object({
   before: Joi.string().uri().required(),
   after: Joi.string().uri().required(),
@@ -110,25 +110,14 @@ const faqSchema = Joi.object({
   answer: Joi.string().required()
 });
 export const serviceSchema = Joi.object({
-  categoryId: Joi.number().integer().required(),
+   categoryId: Joi.number().integer().required(),
   slug: Joi.string().required(),
-  name: Joi.string().required(),
   title: Joi.string().required(),
-  shortDescription: Joi.string().required(),
   description: Joi.string().allow('', null),
-  fullDescription: Joi.string().required(),
-  duration: Joi.string().required(),
-  price: Joi.string().required(),
-  discountPrice: Joi.string().allow('', null),
-  icon: Joi.string().required(),
+  duration: Joi.number().required(),
+  price: Joi.number().required(),
   isActive: Joi.boolean().default(true),
   isPopular: Joi.boolean().default(false),
-  orderIndex: Joi.number().integer().default(0),
-  benefits: Joi.array().items(Joi.string()).required(),
-  includes: Joi.array().items(Joi.string()).required(),
-  recommendedFor: Joi.array().items(Joi.string()).required(),
-  beforeAfterImages: Joi.array().items(beforeAfterImageSchema).required(),
-  faqs: Joi.array().items(faqSchema).required()
 });
 export const validateService = (data: any) => {
   const result = serviceSchema.validate(data, { abortEarly: false });

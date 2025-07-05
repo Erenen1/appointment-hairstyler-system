@@ -1,17 +1,11 @@
 import Joi from 'joi';
 export const createAppointmentSchema = Joi.object({
   customer: Joi.object({
-    firstName: Joi.string().min(2).max(50).required().messages({
+    fullName: Joi.string().min(2).max(50).required().messages({
       'string.empty': 'Müşteri adı boş olamaz',
       'string.min': 'Müşteri adı en az 2 karakter olmalıdır',
       'string.max': 'Müşteri adı en fazla 50 karakter olabilir',
       'any.required': 'Müşteri adı gereklidir'
-    }),
-    lastName: Joi.string().min(2).max(50).required().messages({
-      'string.empty': 'Müşteri soyadı boş olamaz',
-      'string.min': 'Müşteri soyadı en az 2 karakter olmalıdır',
-      'string.max': 'Müşteri soyadı en fazla 50 karakter olabilir',
-      'any.required': 'Müşteri soyadı gereklidir'
     }),
     email: Joi.string().email().required().messages({
       'string.empty': 'E-posta boş olamaz',

@@ -8,22 +8,15 @@ export const staffListQuerySchema = Joi.object({
   sortOrder: Joi.string().valid('asc', 'desc').default('asc')
 });
 export const staffIdSchema = Joi.object({
-  id: Joi.number().integer().positive().required()
+  id: Joi.string().uuid().required()
 });
 export const createStaffSchema = Joi.object({
-  firstName: Joi.string().trim().min(2).max(50).required()
+  fullName: Joi.string().trim().min(2).max(50).required()
     .messages({
       'string.empty': 'Ad alanı boş olamaz',
       'string.min': 'Ad en az 2 karakter olmalıdır',
       'string.max': 'Ad en fazla 50 karakter olabilir',
       'any.required': 'Ad alanı zorunludur'
-    }),
-  lastName: Joi.string().trim().min(2).max(50).required()
-    .messages({
-      'string.empty': 'Soyad alanı boş olamaz',
-      'string.min': 'Soyad en az 2 karakter olmalıdır',
-      'string.max': 'Soyad en fazla 50 karakter olabilir',
-      'any.required': 'Soyad alanı zorunludur'
     }),
   email: Joi.string().email().trim().lowercase().required()
     .messages({
@@ -39,39 +32,24 @@ export const createStaffSchema = Joi.object({
       'string.empty': 'Telefon numarası boş olamaz',
       'any.required': 'Telefon numarası zorunludur'
     }),
-  specialization: Joi.string().trim().min(2).max(100).required()
+  specialties: Joi.string().trim().min(2).max(100).required()
     .messages({
       'string.empty': 'Uzmanlık alanı boş olamaz',
       'string.min': 'Uzmanlık alanı en az 2 karakter olmalıdır',
       'string.max': 'Uzmanlık alanı en fazla 100 karakter olabilir',
       'any.required': 'Uzmanlık alanı zorunludur'
     }),
-  bio: Joi.string().trim().max(1000).allow('').optional()
-    .messages({
-      'string.max': 'Biyografi en fazla 1000 karakter olabilir'
-    }),
-  profileImage: Joi.string().uri().allow('').optional()
+  avatar: Joi.string().uri().allow('').optional()
     .messages({
       'string.uri': 'Geçerli bir URL giriniz'
     }),
-  serviceIds: Joi.array().items(Joi.number().integer().positive()).optional()
-    .messages({
-      'array.base': 'Hizmet ID\'leri bir dizi olmalıdır',
-      'number.positive': 'Hizmet ID\'leri pozitif sayı olmalıdır'
-    })
 });
 export const updateStaffSchema = Joi.object({
-  firstName: Joi.string().trim().min(2).max(50).optional()
+  fullName: Joi.string().trim().min(2).max(50).optional()
     .messages({
       'string.empty': 'Ad alanı boş olamaz',
       'string.min': 'Ad en az 2 karakter olmalıdır',
       'string.max': 'Ad en fazla 50 karakter olabilir'
-    }),
-  lastName: Joi.string().trim().min(2).max(50).optional()
-    .messages({
-      'string.empty': 'Soyad alanı boş olamaz',
-      'string.min': 'Soyad en az 2 karakter olmalıdır',
-      'string.max': 'Soyad en fazla 50 karakter olabilir'
     }),
   email: Joi.string().email().trim().lowercase().optional()
     .messages({
@@ -85,26 +63,17 @@ export const updateStaffSchema = Joi.object({
       'string.max': 'Telefon numarası en fazla 20 karakter olabilir',
       'string.empty': 'Telefon numarası boş olamaz'
     }),
-  specialization: Joi.string().trim().min(2).max(100).optional()
+  specialties: Joi.string().trim().min(2).max(100).optional()
     .messages({
       'string.empty': 'Uzmanlık alanı boş olamaz',
       'string.min': 'Uzmanlık alanı en az 2 karakter olmalıdır',
       'string.max': 'Uzmanlık alanı en fazla 100 karakter olabilir'
     }),
-  bio: Joi.string().trim().max(1000).allow('').optional()
-    .messages({
-      'string.max': 'Biyografi en fazla 1000 karakter olabilir'
-    }),
-  profileImage: Joi.string().uri().allow('').optional()
+  avatar: Joi.string().uri().allow('').optional()
     .messages({
       'string.uri': 'Geçerli bir URL giriniz'
     }),
   isActive: Joi.boolean().optional(),
-  serviceIds: Joi.array().items(Joi.number().integer().positive()).optional()
-    .messages({
-      'array.base': 'Hizmet ID\'leri bir dizi olmalıdır',
-      'number.positive': 'Hizmet ID\'leri pozitif sayı olmalıdır'
-    })
 }).min(1).messages({
   'object.min': 'En az bir alan güncellenmelidir'
 });
@@ -114,11 +83,5 @@ export const availableSlotsQuerySchema = Joi.object({
       'date.base': 'Geçerli bir tarih giriniz',
       'date.min': 'Geçmiş tarih seçilemez',
       'any.required': 'Tarih alanı zorunludur'
-    }),
-  serviceId: Joi.number().integer().positive().required()
-    .messages({
-      'number.base': 'Hizmet ID sayı olmalıdır',
-      'number.positive': 'Hizmet ID pozitif sayı olmalıdır',
-      'any.required': 'Hizmet ID zorunludur'
     })
 }); 
