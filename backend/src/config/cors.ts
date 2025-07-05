@@ -7,7 +7,8 @@ export const corsConfig: CorsOptions = {
       Enum.FRONTEND_DOMAIN,
       "kaancetin.com",
       'http://localhost:3000',
-      'http://localhost:3001'
+      'http://localhost:3001',
+      "*"
     ],
     credentials: true, 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

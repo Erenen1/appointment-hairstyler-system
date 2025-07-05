@@ -58,7 +58,7 @@ export const initializeAndSyncDatabase = async (): Promise<void> => {
       forceSync, 
       environment: Enum.NODE_ENV 
     });
-    await sequelize.sync({ force: forceSync });
+    await sequelize.sync();
     logger.info('Database tables initialized successfully');
   } catch (error) {
     logger.error('Database initialization failed', {

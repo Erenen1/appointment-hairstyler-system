@@ -1,32 +1,14 @@
 # Node.js base image
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci
+
+RUN npm install
 
 COPY . .
 
-# Build the application
-RUN npm run build
-
-# Production image
-FROM node:18-alpine
-WORKDIR /app
-
-ENV NODE_ENV development
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nodejs
-
-# Copy built application
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
-
-USER nodejs
-
 EXPOSE 8000
-
-CMD ["npm", "run", "start"] 
+# Build the application
+CMD ["npm", "run", "dev"]

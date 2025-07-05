@@ -39,30 +39,18 @@ module.exports = (sequelize: any, DataTypes: any) => {
       allowNull: false,
       defaultValue: true,
     },
-    orderIndex: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-    },
-    benefits: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-    includes: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-    recommendedFor: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-    beforeAfterImages: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
   }, {
     tableName: 'services',
     timestamps: true,
   });
+
+  Service.associate = (models: any) => {
+    Service.belongsToMany(models.Staff, {
+      through: 'staff_services',
+      foreignKey: 'serviceId',
+      otherKey: 'staffId'
+    });
+  };
+
   return Service;
 }; 

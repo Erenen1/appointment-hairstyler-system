@@ -7,9 +7,9 @@ export const sessionConfig = session({
   saveUninitialized: false,
   cookie: {
     secure: false, 
-    httpOnly: true,
+    httpOnly: false,
     maxAge: 24 * 60 * 60 * 1000, 
-    sameSite: 'lax',
+    sameSite: 'none',
   },
   name: 'sessionid', 
   rolling: true 
