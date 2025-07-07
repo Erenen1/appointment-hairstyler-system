@@ -18,7 +18,7 @@ const sequelize_1 = require("sequelize");
 const date_fns_1 = require("date-fns");
 const appointmentValidation_1 = require("../validations/appointmentValidation");
 const index_1 = __importDefault(require("../models/index"));
-const { Appointment, Customer, Service, Staff, AppointmentHistory } = index_1.default;
+const { Appointment, Customer, Service, Staff, AppointmentHistory, StaffService } = index_1.default;
 const getAppointments = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { error, value } = appointmentValidation_1.appointmentListQuerySchema.validate(req.query);
@@ -129,6 +129,16 @@ const createAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         const staff = yield Staff.findByPk(staffId);
         if (!staff || !staff.isActive) {
             throw utils_1.ApiError.notFound('Personel bulunamadı veya aktif değil');
+        }
+        const staffService = yield StaffService.findOne({
+            where: {
+                staffId: staffId,
+                serviceId: serviceId,
+                isActive: true
+            }
+        });
+        if (!staffService) {
+            throw utils_1.ApiError.badRequest('Bu personel seçilen hizmeti veremiyor');
         }
         const appointmentDateStr = (0, date_fns_1.format)(new Date(appointmentDate), 'yyyy-MM-dd');
         const startDateTime = new Date(`${appointmentDateStr}T${startTime}:00`);

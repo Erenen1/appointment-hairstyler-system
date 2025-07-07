@@ -91,7 +91,7 @@ exports.staffPaths = {
                     name: 'id',
                     in: 'path',
                     required: true,
-                    schema: { type: 'integer' }
+                    schema: { type: 'string', format: 'uuid' }
                 }
             ],
             responses: {
@@ -131,7 +131,7 @@ exports.staffPaths = {
                     name: 'id',
                     in: 'path',
                     required: true,
-                    schema: { type: 'integer' }
+                    schema: { type: 'string', format: 'uuid' }
                 }
             ],
             requestBody: {
@@ -191,7 +191,7 @@ exports.staffPaths = {
                     name: 'id',
                     in: 'path',
                     required: true,
-                    schema: { type: 'integer' }
+                    schema: { type: 'string', format: 'uuid' }
                 },
                 {
                     name: 'date',

@@ -33,6 +33,12 @@ exports.createServiceSchema = joi_1.default.object({
         'number.positive': 'Kategori ID 0\'dan büyük olmalıdır',
         'any.required': 'Kategori seçimi gereklidir'
     }),
+    staffIds: joi_1.default.array().items(joi_1.default.string().uuid()).min(0).optional().default([]).messages({
+        'array.base': 'Personel listesi dizi formatında olmalıdır',
+        'string.guid': 'Personel ID geçerli UUID formatında olmalıdır'
+    }),
+    slug: joi_1.default.string().min(2).max(255).optional(),
+    title: joi_1.default.string().min(2).max(255).optional(),
     isPopular: joi_1.default.boolean().optional().default(false),
     isActive: joi_1.default.boolean().optional().default(true),
     images: joi_1.default.array().items(joi_1.default.string().uri()).optional().default([])
@@ -43,6 +49,12 @@ exports.updateServiceSchema = joi_1.default.object({
     price: joi_1.default.number().positive().precision(2).optional(),
     duration: joi_1.default.number().integer().min(15).max(480).optional(),
     categoryId: joi_1.default.number().integer().positive().optional(),
+    staffIds: joi_1.default.array().items(joi_1.default.string().uuid()).min(0).optional().messages({
+        'array.base': 'Personel listesi dizi formatında olmalıdır',
+        'string.guid': 'Personel ID geçerli UUID formatında olmalıdır'
+    }),
+    slug: joi_1.default.string().min(2).max(255).optional(),
+    title: joi_1.default.string().min(2).max(255).optional(),
     isPopular: joi_1.default.boolean().optional(),
     isActive: joi_1.default.boolean().optional(),
     images: joi_1.default.array().items(joi_1.default.string().uri()).optional()
@@ -106,17 +118,9 @@ exports.categoryIdSchema = joi_1.default.object({
         'any.required': 'Kategori ID gereklidir'
     })
 });
-const beforeAfterImageSchema = joi_1.default.object({
-    before: joi_1.default.string().uri().required(),
-    after: joi_1.default.string().uri().required(),
-    caption: joi_1.default.string().required()
-});
-const faqSchema = joi_1.default.object({
-    question: joi_1.default.string().required(),
-    answer: joi_1.default.string().required()
-});
 exports.serviceSchema = joi_1.default.object({
     categoryId: joi_1.default.number().integer().required(),
+    staffIds: joi_1.default.array().items(joi_1.default.string().uuid()).required(),
     slug: joi_1.default.string().required(),
     title: joi_1.default.string().required(),
     description: joi_1.default.string().allow('', null),

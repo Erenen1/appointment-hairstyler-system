@@ -27,6 +27,12 @@ export const createServiceSchema = Joi.object({
     'number.positive': 'Kategori ID 0\'dan büyük olmalıdır',
     'any.required': 'Kategori seçimi gereklidir'
   }),
+  staffIds: Joi.array().items(Joi.string().uuid()).min(0).optional().default([]).messages({
+    'array.base': 'Personel listesi dizi formatında olmalıdır',
+    'string.guid': 'Personel ID geçerli UUID formatında olmalıdır'
+  }),
+  slug: Joi.string().min(2).max(255).optional(),
+  title: Joi.string().min(2).max(255).optional(),
   isPopular: Joi.boolean().optional().default(false),
   isActive: Joi.boolean().optional().default(true),
   images: Joi.array().items(Joi.string().uri()).optional().default([])
@@ -37,6 +43,12 @@ export const updateServiceSchema = Joi.object({
   price: Joi.number().positive().precision(2).optional(),
   duration: Joi.number().integer().min(15).max(480).optional(),
   categoryId: Joi.number().integer().positive().optional(),
+  staffIds: Joi.array().items(Joi.string().uuid()).min(0).optional().messages({
+    'array.base': 'Personel listesi dizi formatında olmalıdır',
+    'string.guid': 'Personel ID geçerli UUID formatında olmalıdır'
+  }),
+  slug: Joi.string().min(2).max(255).optional(),
+  title: Joi.string().min(2).max(255).optional(),
   isPopular: Joi.boolean().optional(),
   isActive: Joi.boolean().optional(),
   images: Joi.array().items(Joi.string().uri()).optional()
@@ -99,18 +111,10 @@ export const categoryIdSchema = Joi.object({
     'number.positive': 'Kategori ID 0\'dan büyük olmalıdır',
     'any.required': 'Kategori ID gereklidir'
   })
-}); 
-const beforeAfterImageSchema = Joi.object({
-  before: Joi.string().uri().required(),
-  after: Joi.string().uri().required(),
-  caption: Joi.string().required()
-});
-const faqSchema = Joi.object({
-  question: Joi.string().required(),
-  answer: Joi.string().required()
 });
 export const serviceSchema = Joi.object({
-   categoryId: Joi.number().integer().required(),
+  categoryId: Joi.number().integer().required(),
+  staffIds: Joi.array().items(Joi.string().uuid()).required(),
   slug: Joi.string().required(),
   title: Joi.string().required(),
   description: Joi.string().allow('', null),

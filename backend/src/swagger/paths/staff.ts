@@ -88,7 +88,7 @@ export const staffPaths = {
           name: 'id',
           in: 'path',
           required: true,
-          schema: { type: 'integer' }
+          schema: { type: 'string', format: 'uuid' }
         }
       ],
       responses: {
@@ -128,7 +128,7 @@ export const staffPaths = {
           name: 'id',
           in: 'path',
           required: true,
-          schema: { type: 'integer' }
+          schema: { type: 'string', format: 'uuid' }
         }
       ],
       requestBody: {
@@ -188,7 +188,7 @@ export const staffPaths = {
           name: 'id',
           in: 'path',
           required: true,
-          schema: { type: 'integer' }
+          schema: { type: 'string', format: 'uuid' }
         },
         {
           name: 'date',

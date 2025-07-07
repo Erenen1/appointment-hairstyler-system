@@ -13,6 +13,8 @@ const AppointmentHistory = require('./AppointmentHistory')(sequelize, DataTypes)
 const ContactMessage = require('./ContactMessage')(sequelize, DataTypes);
 const GalleryCategory = require('./GalleryCategory')(sequelize, DataTypes);
 const GalleryImage = require('./GalleryImage')(sequelize, DataTypes);
+const StaffService = require('./StaffService')(sequelize, DataTypes);
+const StaffAvailability = require('./StaffAvailability')(sequelize, DataTypes);
 
 const setupAssociations = () => {
   ServiceCategory.hasMany(Service, { foreignKey: 'categoryId', as: 'services' });
@@ -35,6 +37,20 @@ const setupAssociations = () => {
   ContactMessage.belongsTo(Admin, { foreignKey: 'repliedByAdmin', as: 'repliedBy' });
   GalleryCategory.hasMany(GalleryImage, { foreignKey: 'categoryId', as: 'images' });
   GalleryImage.belongsTo(GalleryCategory, { foreignKey: 'categoryId', as: 'category' });
+
+  // Staff-Service many-to-many ilişkisi
+  Staff.belongsToMany(Service, { through: StaffService, foreignKey: 'staffId', otherKey: 'serviceId', as: 'services' });
+  Service.belongsToMany(Staff, { through: StaffService, foreignKey: 'serviceId', otherKey: 'staffId', as: 'staffMembers' });
+
+  // StaffService ile Staff ve Service arasındaki direkt ilişkiler
+  StaffService.belongsTo(Staff, { foreignKey: 'staffId', as: 'staff' });
+  StaffService.belongsTo(Service, { foreignKey: 'serviceId', as: 'service' });
+  Staff.hasMany(StaffService, { foreignKey: 'staffId', as: 'staffServices' });
+  Service.hasMany(StaffService, { foreignKey: 'serviceId', as: 'serviceStaff' });
+
+  // StaffAvailability ilişkileri
+  Staff.hasMany(StaffAvailability, { foreignKey: 'staffId', as: 'availability' });
+  StaffAvailability.belongsTo(Staff, { foreignKey: 'staffId', as: 'staff' });
 };
 
 setupAssociations();
@@ -54,5 +70,7 @@ const db = {
   ContactMessage,
   GalleryCategory,
   GalleryImage,
+  StaffService,
+  StaffAvailability,
 };
 export default db; 

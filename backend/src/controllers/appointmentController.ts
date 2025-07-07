@@ -10,7 +10,7 @@ import {
 } from '../validations/appointmentValidation';
 
 import db from '../models/index';
-const { Appointment, Customer, Service, Staff, AppointmentHistory } = db;
+const { Appointment, Customer, Service, Staff, AppointmentHistory, StaffService } = db;
 
 export const getAppointments = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -125,6 +125,18 @@ export const createAppointment = async (req: Request, res: Response, next: NextF
     const staff = await Staff.findByPk(staffId);
     if (!staff || !staff.isActive) {
       throw ApiError.notFound('Personel bulunamadı veya aktif değil');
+    }
+
+    // Personelin bu hizmeti verip veremeyeceğini kontrol et
+    const staffService = await StaffService.findOne({
+      where: {
+        staffId: staffId,
+        serviceId: serviceId,
+        isActive: true
+      }
+    });
+    if (!staffService) {
+      throw ApiError.badRequest('Bu personel seçilen hizmeti veremiyor');
     }
     const appointmentDateStr = format(new Date(appointmentDate), 'yyyy-MM-dd');
     const startDateTime = new Date(`${appointmentDateStr}T${startTime}:00`);

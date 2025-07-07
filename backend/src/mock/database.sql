@@ -98,8 +98,6 @@ CREATE TABLE service_images (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-
-
 -- ============================================
 -- RANDEVULAR TABLOSU
 -- ============================================
@@ -283,3 +281,47 @@ CREATE TRIGGER update_special_days_updated_at BEFORE UPDATE ON special_days FOR 
 CREATE TRIGGER update_contact_messages_updated_at BEFORE UPDATE ON contact_messages FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_gallery_categories_updated_at BEFORE UPDATE ON gallery_categories FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_gallery_images_updated_at BEFORE UPDATE ON gallery_images FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Staff Services tablosu
+CREATE TABLE IF NOT EXISTS staff_services (
+  id SERIAL PRIMARY KEY,
+  staff_id UUID NOT NULL REFERENCES staff(id) ON DELETE CASCADE,
+  service_id INTEGER NOT NULL REFERENCES services(id) ON DELETE CASCADE,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(staff_id, service_id)
+);
+
+-- StaffAvailability tablosunu ekle
+CREATE TABLE IF NOT EXISTS staff_availability (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    staffId TEXT NOT NULL,
+    date TEXT NOT NULL,
+    dayOfWeek INTEGER NOT NULL CHECK (dayOfWeek >= 1 AND dayOfWeek <= 7),
+    startTime TEXT NOT NULL,
+    endTime TEXT NOT NULL,
+    lunchBreakStart TEXT,
+    lunchBreakEnd TEXT,
+    isAvailable BOOLEAN NOT NULL DEFAULT 1,
+    type TEXT NOT NULL DEFAULT 'default' CHECK (type IN ('default', 'custom', 'off')),
+    notes TEXT,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (staffId) REFERENCES staff(id),
+    UNIQUE(staffId, date)
+);
+
+-- StaffAvailability trigger'ları
+CREATE TRIGGER staff_availability_updated_at
+    AFTER UPDATE ON staff_availability
+    FOR EACH ROW
+BEGIN
+    UPDATE staff_availability SET updatedAt = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+-- StaffAvailability indexleri
+CREATE INDEX IF NOT EXISTS idx_staff_availability_staff_id ON staff_availability(staffId);
+CREATE INDEX IF NOT EXISTS idx_staff_availability_date ON staff_availability(date);
+CREATE INDEX IF NOT EXISTS idx_staff_availability_day_of_week ON staff_availability(dayOfWeek);
+CREATE INDEX IF NOT EXISTS idx_staff_availability_is_available ON staff_availability(isAvailable);

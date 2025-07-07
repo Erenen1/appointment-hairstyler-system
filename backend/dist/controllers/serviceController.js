@@ -12,17 +12,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteServiceCategory = exports.updateServiceCategory = exports.createServiceCategory = exports.getServiceCategories = exports.deleteService = exports.updateService = exports.createService = exports.getServiceById = exports.getServices = void 0;
+exports.getServiceStaff = exports.deleteServiceCategory = exports.updateServiceCategory = exports.createServiceCategory = exports.getServiceCategories = exports.deleteService = exports.updateService = exports.createService = exports.getServiceById = exports.getServices = void 0;
 const utils_1 = require("../utils");
 const sequelize_1 = require("sequelize");
 const serviceValidation_1 = require("../validations/serviceValidation");
 const serviceValidation_2 = require("../validations/serviceValidation");
 const controllerUtils_1 = require("../utils/controllerUtils");
 const index_1 = __importDefault(require("../models/index"));
-const { Service, ServiceCategory, ServiceImage, Staff } = index_1.default;
+const { Service, ServiceCategory, ServiceImage, StaffService, Staff } = index_1.default;
 const getServices = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { page = 1, limit = 10, search, categoryId, isActive, isPopular, } = req.query;
+        const { page = 1, limit = 10, search, categoryId, isActive, } = req.query;
         const where = {};
         if (search) {
             where[sequelize_1.Op.or] = [
@@ -34,8 +34,6 @@ const getServices = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             where.categoryId = categoryId;
         if (isActive !== undefined)
             where.isActive = isActive === 'true';
-        if (isPopular !== undefined)
-            where.isPopular = isPopular === 'true';
         const { offset, limit: limitOption } = (0, controllerUtils_1.getPaginationOptions)(Number(page), Number(limit));
         const { count, rows: services } = yield Service.findAndCountAll({
             where,
@@ -49,13 +47,18 @@ const getServices = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     model: ServiceImage,
                     as: 'images',
                     attributes: ['id', 'imagePath']
+                },
+                {
+                    model: Staff,
+                    as: 'staffMembers',
+                    attributes: ['id', 'fullName', 'isActive']
                 }
             ],
             offset,
             limit: limitOption
         });
         const formattedServices = services.map(service => {
-            var _a, _b, _c, _d;
+            var _a, _b, _c, _d, _e, _f;
             const mainImage = ((_b = (_a = service.images) === null || _a === void 0 ? void 0 : _a.find(img => img.isMain)) === null || _b === void 0 ? void 0 : _b.imagePath) ||
                 ((_d = (_c = service.images) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.imagePath);
             return {
@@ -67,8 +70,11 @@ const getServices = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 image: mainImage,
                 duration: service.duration,
                 category: service.category,
-                isPopular: service.isPopular,
-                isActive: service.isActive
+                isActive: service.isActive,
+                staffMembers: ((_f = (_e = service.staffMembers) === null || _e === void 0 ? void 0 : _e.filter(staff => staff.isActive)) === null || _f === void 0 ? void 0 : _f.map(staff => ({
+                    id: staff.id,
+                    fullName: staff.fullName
+                }))) || []
             };
         });
         res.status(200).json(utils_1.ApiSuccess.list(formattedServices, null, 'Hizmetler başarıyla getirildi'));
@@ -79,6 +85,7 @@ const getServices = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.getServices = getServices;
 const getServiceById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     try {
         const { error, value } = serviceValidation_1.serviceIdSchema.validate(req.params);
         if (error) {
@@ -96,13 +103,28 @@ const getServiceById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                     model: ServiceImage,
                     as: 'images',
                     attributes: ['id', 'imagePath']
+                },
+                {
+                    model: Staff,
+                    as: 'staffMembers',
+                    through: {
+                        model: StaffService,
+                        attributes: ['isActive']
+                    },
+                    attributes: ['id', 'firstName', 'lastName', 'isActive']
                 }
             ]
         });
         if (!service) {
             throw utils_1.ApiError.notFound('Hizmet bulunamadı');
         }
-        res.json(utils_1.ApiSuccess.item(service, 'Hizmet detayları başarıyla getirildi'));
+        const formattedService = Object.assign(Object.assign({}, service.toJSON()), { staffMembers: ((_b = (_a = service.staffMembers) === null || _a === void 0 ? void 0 : _a.filter(staff => staff.isActive)) === null || _b === void 0 ? void 0 : _b.map(staff => ({
+                id: staff.id,
+                firstName: staff.firstName,
+                lastName: staff.lastName,
+                fullName: `${staff.firstName} ${staff.lastName}`
+            }))) || [] });
+        res.json(utils_1.ApiSuccess.item(formattedService, 'Hizmet detayları başarıyla getirildi'));
     }
     catch (error) {
         next(error);
@@ -116,7 +138,33 @@ const createService = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             throw utils_1.ApiError.badRequest('Validasyon hatası', validationResult.errors);
         }
         const service = yield Service.create(req.body);
-        res.status(201).json(utils_1.ApiSuccess.created(service, 'Hizmet başarıyla oluşturuldu'));
+        const staffIds = req.body.staffIds;
+        if (staffIds && staffIds.length > 0) {
+            yield Promise.all(staffIds.map(staffId => StaffService.create({
+                staffId: staffId,
+                serviceId: service.id,
+                isActive: true
+            })));
+        }
+        const serviceWithStaff = yield Service.findByPk(service.id, {
+            include: [
+                {
+                    model: ServiceCategory,
+                    as: 'category',
+                    attributes: ['id', 'name']
+                },
+                {
+                    model: Staff,
+                    as: 'staffMembers',
+                    through: {
+                        model: StaffService,
+                        attributes: ['isActive']
+                    },
+                    attributes: ['id', 'fullName']
+                }
+            ]
+        });
+        res.status(201).json(utils_1.ApiSuccess.created(serviceWithStaff, 'Hizmet başarıyla oluşturuldu'));
     }
     catch (error) {
         next(error);
@@ -135,7 +183,38 @@ const updateService = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             throw utils_1.ApiError.notFound('Hizmet bulunamadı');
         }
         yield service.update(req.body);
-        res.status(200).json(utils_1.ApiSuccess.updated(service, 'Hizmet başarıyla güncellendi'));
+        const staffIds = req.body.staffIds;
+        if (staffIds && Array.isArray(staffIds)) {
+            yield StaffService.destroy({
+                where: { serviceId: id }
+            });
+            if (staffIds.length > 0) {
+                yield Promise.all(staffIds.map(staffId => StaffService.create({
+                    staffId: staffId,
+                    serviceId: id,
+                    isActive: true
+                })));
+            }
+        }
+        const updatedServiceWithStaff = yield Service.findByPk(id, {
+            include: [
+                {
+                    model: ServiceCategory,
+                    as: 'category',
+                    attributes: ['id', 'name']
+                },
+                {
+                    model: Staff,
+                    as: 'staffMembers',
+                    through: {
+                        model: StaffService,
+                        attributes: ['isActive']
+                    },
+                    attributes: ['id', 'firstName', 'lastName']
+                }
+            ]
+        });
+        res.status(200).json(utils_1.ApiSuccess.updated(updatedServiceWithStaff, 'Hizmet başarıyla güncellendi'));
     }
     catch (error) {
         next(error);
@@ -298,4 +377,44 @@ const deleteServiceCategory = (req, res, next) => __awaiter(void 0, void 0, void
     }
 });
 exports.deleteServiceCategory = deleteServiceCategory;
+const getServiceStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { error, value } = serviceValidation_1.serviceIdSchema.validate(req.params);
+        if (error) {
+            throw utils_1.ApiError.fromJoi(error);
+        }
+        const { id } = value;
+        const service = yield Service.findByPk(id);
+        if (!service) {
+            throw utils_1.ApiError.notFound('Hizmet bulunamadı');
+        }
+        const staffServices = yield StaffService.findAll({
+            where: {
+                serviceId: id,
+                isActive: true
+            },
+            include: [
+                {
+                    model: Staff,
+                    as: 'staff',
+                    where: { isActive: true },
+                    attributes: ['id', 'fullName', 'specialties', 'avatar']
+                }
+            ],
+            order: [[{ model: Staff, as: 'staff' }, 'fullName', 'ASC']]
+        });
+        const formattedStaff = staffServices.map(staffService => ({
+            id: staffService.staff.id,
+            fullName: staffService.staff.fullName,
+            specialties: staffService.staff.specialties,
+            avatar: staffService.staff.avatar,
+            canProvideService: staffService.isActive
+        }));
+        res.json(utils_1.ApiSuccess.list(formattedStaff, null, 'Hizmeti veren personeller başarıyla getirildi'));
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getServiceStaff = getServiceStaff;
 //# sourceMappingURL=serviceController.js.map
