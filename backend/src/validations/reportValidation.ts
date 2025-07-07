@@ -15,15 +15,15 @@ export const revenueReportQuerySchema = Joi.object({
     .messages({
       'any.only': 'Gruplama değeri day, week veya month olmalıdır'
     }),
-  staffId: Joi.number().integer().positive().optional()
+  staffId: Joi.string().uuid().optional()
     .messages({
-      'number.base': 'Personel ID sayı olmalıdır',
-      'number.positive': 'Personel ID pozitif sayı olmalıdır'
+      'string.base': 'Personel ID string olmalıdır',
+      'string.guid': 'Personel ID geçerli UUID formatında olmalıdır'
     }),
-  serviceId: Joi.number().integer().positive().optional()
+  serviceId: Joi.string().uuid().optional()
     .messages({
-      'number.base': 'Hizmet ID sayı olmalıdır',
-      'number.positive': 'Hizmet ID pozitif sayı olmalıdır'
+      'string.base': 'Hizmet ID string olmalıdır',
+      'string.guid': 'Hizmet ID geçerli UUID formatında olmalıdır'
     })
 });
 export const appointmentReportQuerySchema = Joi.object({
@@ -38,15 +38,15 @@ export const appointmentReportQuerySchema = Joi.object({
       'date.min': 'Bitiş tarihi başlangıç tarihinden büyük olmalıdır',
       'any.required': 'Bitiş tarihi zorunludur'
     }),
-  staffId: Joi.number().integer().positive().optional()
+  staffId: Joi.string().uuid().optional()
     .messages({
-      'number.base': 'Personel ID sayı olmalıdır',
-      'number.positive': 'Personel ID pozitif sayı olmalıdır'
+      'string.base': 'Personel ID string olmalıdır',
+      'string.guid': 'Personel ID geçerli UUID formatında olmalıdır'
     }),
-  serviceId: Joi.number().integer().positive().optional()
+  serviceId: Joi.string().uuid().optional()
     .messages({
-      'number.base': 'Hizmet ID sayı olmalıdır',
-      'number.positive': 'Hizmet ID pozitif sayı olmalıdır'
+      'string.base': 'Hizmet ID string olmalıdır',
+      'string.guid': 'Hizmet ID geçerli UUID formatında olmalıdır'
     }),
   status: Joi.string().valid('pending', 'confirmed', 'completed', 'cancelled').optional()
     .messages({
@@ -89,10 +89,10 @@ export const popularServicesReportQuerySchema = Joi.object({
       'number.min': 'Limit en az 1 olmalıdır',
       'number.max': 'Limit en fazla 20 olabilir'
     }),
-  categoryId: Joi.number().integer().positive().optional()
+  categoryId: Joi.string().uuid().optional()
     .messages({
-      'number.base': 'Kategori ID sayı olmalıdır',
-      'number.positive': 'Kategori ID pozitif sayı olmalıdır'
+      'string.base': 'Kategori ID string olmalıdır',
+      'string.guid': 'Kategori ID geçerli UUID formatında olmalıdır'
     })
 });
 export const staffPerformanceReportQuerySchema = Joi.object({
@@ -107,10 +107,10 @@ export const staffPerformanceReportQuerySchema = Joi.object({
       'date.min': 'Bitiş tarihi başlangıç tarihinden büyük olmalıdır',
       'any.required': 'Bitiş tarihi zorunludur'
     }),
-  staffId: Joi.number().integer().positive().optional()
+  staffId: Joi.string().uuid().optional()
     .messages({
-      'number.base': 'Personel ID sayı olmalıdır',
-      'number.positive': 'Personel ID pozitif sayı olmalıdır'
+      'string.base': 'Personel ID string olmalıdır',
+      'string.guid': 'Personel ID geçerli UUID formatında olmalıdır'
     }),
   includeInactive: Joi.boolean().default(false)
 }); 

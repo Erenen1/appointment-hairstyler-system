@@ -213,10 +213,10 @@ export const updateSmsTemplateSchema = Joi.object({
   isActive: Joi.boolean().default(true)
 });
 export const settingsIdSchema = Joi.object({
-  id: Joi.number().integer().positive().required()
+  id: Joi.string().uuid().required()
     .messages({
-      'number.base': 'ID sayı olmalıdır',
-      'number.positive': 'ID pozitif sayı olmalıdır',
+      'string.base': 'ID string olmalıdır',
+      'string.guid': 'ID geçerli UUID formatında olmalıdır',
       'any.required': 'ID zorunludur'
     })
 }); 

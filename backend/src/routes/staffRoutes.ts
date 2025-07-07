@@ -4,7 +4,8 @@ import {
   getStaffById,
   createStaff,
   updateStaff,
-  getAvailableSlots
+  getAvailableSlots,
+  getAvailableSlotsRange
 } from '../controllers/staffController';
 import { requireAdmin } from '../middleware/authMiddleware';
 
@@ -15,5 +16,6 @@ router.get('/:id', getStaffById);
 router.post('/', requireAdmin, createStaff);
 router.put('/:id', requireAdmin, updateStaff);
 router.get('/:id/available-slots', getAvailableSlots);
+router.get('/:id/available-slots-range', getAvailableSlotsRange);
 
 export default router; 

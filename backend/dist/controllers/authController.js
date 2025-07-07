@@ -48,19 +48,22 @@ const adminLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         req.session.save((err) => {
             if (err) {
                 logger_1.default.error('Session save error:', err);
+                next(err);
+                return;
             }
+            res.json(utils_1.ApiSuccess.item({
+                sessionId: req.session.id,
+                user: {
+                    id: admin.id,
+                    email: admin.email,
+                    fullName: admin.fullName,
+                    userType: 'admin',
+                    phone: admin.phone,
+                    isActive: admin.isActive,
+                    lastLogin: admin.lastLogin
+                }
+            }, 'Giriş başarılı'));
         });
-        res.json(utils_1.ApiSuccess.item({
-            user: {
-                id: admin.id,
-                email: admin.email,
-                fullName: admin.fullName,
-                userType: 'admin',
-                phone: admin.phone,
-                isActive: admin.isActive,
-                lastLogin: admin.lastLogin
-            }
-        }, 'Giriş başarılı'));
     }
     catch (error) {
         next(error);

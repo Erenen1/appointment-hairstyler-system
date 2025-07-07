@@ -59,6 +59,7 @@ const availabilityPaths = {
   }
 };
 
+// Tüm şemalar
 export const allSchemas = {
   ...commonSchemas,
   ...healthSchemas,
@@ -74,6 +75,7 @@ export const allSchemas = {
   ...availabilitySchemas
 };
 
+// Tüm path'ler
 export const allPaths = {
   ...healthPaths,
   ...authPaths,
@@ -88,13 +90,62 @@ export const allPaths = {
   ...availabilityPaths
 };
 
+// PUBLIC API için path'ler (Anasayfa kullanımı için)
+export const publicPaths = {
+  ...healthPaths,
+  // Sadece services GET işlemleri
+  '/services': {
+    get: servicePaths['/services']?.get
+  },
+  '/services/{id}': {
+    get: servicePaths['/services/{id}']?.get
+  },
+  '/services/{id}/staff-availability': servicePaths['/services/{id}/staff-availability'],
+  // Sadece staff GET işlemleri
+  '/staff': {
+    get: staffPaths['/staff']?.get
+  },
+  '/staff/{id}': {
+    get: staffPaths['/staff/{id}']?.get
+  },
+  '/staff/{id}/available-slots': staffPaths['/staff/{id}/available-slots'],
+  '/staff/{id}/available-slots-range': staffPaths['/staff/{id}/available-slots-range'],
+  // Contact işlemleri (sadece POST)
+  '/contact': {
+    post: contactPaths['/contact']?.post
+  },
+  // Müşteri randevu alma (sadece POST)
+  '/appointments': {
+    post: appointmentPaths['/appointments']?.post
+  }
+};
+
+// PUBLIC API için şemalar
+export const publicSchemas = {
+  ...commonSchemas,
+  ...healthSchemas,
+  ...serviceSchemas,
+  ...staffSchemas,
+  ...contactSchemas,
+  Service: serviceSchemas.Service,
+  ServiceCategory: serviceSchemas.ServiceCategory,
+  Staff: staffSchemas.Staff,
+  StaffBasic: staffSchemas.StaffBasic,
+  StaffAvailability: availabilitySchemas.StaffAvailability,
+  ContactMessage: contactSchemas.ContactMessage,
+  CreateContactMessageRequest: contactSchemas.CreateContactMessageRequest,
+  CreateAppointmentRequest: appointmentSchemas.CreateAppointmentRequest,
+  Appointment: appointmentSchemas.Appointment
+};
+
 export const allResponses = commonResponses;
 
-export const swaggerConfig = {
+// ADMIN API Konfigürasyonu (Tam erişim)
+export const adminSwaggerConfig = {
   openapi: '3.0.3',
   info: {
-    title: 'Kuaför Salonu Yönetim Sistemi API',
-    description: 'Kuaför salonu için randevu yönetimi, müşteri takibi, hizmet yönetimi ve daha fazlasını içeren kapsamlı API',
+    title: 'Kuaför Salonu Yönetim Sistemi - Admin API',
+    description: 'Admin paneli için kapsamlı API - tüm CRUD işlemleri, raporlar ve yönetim fonksiyonları',
     version: '1.0.0',
     contact: {
       name: 'API Desteği',
@@ -113,13 +164,13 @@ export const swaggerConfig = {
   ],
   tags: [
     { name: 'Health', description: 'Sistem sağlık kontrolleri' },
-    { name: 'Authentication', description: 'Kimlik doğrulama işlemleri' },
+    { name: 'Authentication', description: 'Admin kimlik doğrulama' },
     { name: 'Admin', description: 'Admin yönetimi' },
-    { name: 'Appointments', description: 'Randevu yönetimi' },
-    { name: 'Services', description: 'Hizmet yönetimi' },
-    { name: 'Customers', description: 'Müşteri yönetimi' },
-    { name: 'Staff', description: 'Personel yönetimi' },
-    { name: 'Content', description: 'İçerik yönetimi' },
+    { name: 'Appointments', description: 'Randevu yönetimi (CRUD)' },
+    { name: 'Services', description: 'Hizmet yönetimi (CRUD)' },
+    { name: 'Customers', description: 'Müşteri yönetimi (CRUD)' },
+    { name: 'Staff', description: 'Personel yönetimi (CRUD)' },
+    { name: 'Content', description: 'İçerik yönetimi (CRUD)' },
     { name: 'Contact', description: 'İletişim yönetimi' },
     { name: 'Dashboard', description: 'Dashboard istatistikleri' },
     { name: 'Availability', description: 'Personel müsaitlik yönetimi' }
@@ -133,7 +184,7 @@ export const swaggerConfig = {
         type: 'apiKey',
         in: 'cookie',
         name: 'sessionid',
-        description: 'Session-based authentication'
+        description: 'Admin session authentication'
       },
       apiKeyAuth: {
         type: 'apiKey',
@@ -144,4 +195,51 @@ export const swaggerConfig = {
     }
   },
   security: [{ sessionAuth: [] }]
-}; 
+};
+
+// PUBLIC API Konfigürasyonu (Sınırlı erişim)
+export const publicSwaggerConfig = {
+  openapi: '3.0.3',
+  info: {
+    title: 'Kuaför Salonu - Public API',
+    description: 'Anasayfa ve müşteri işlemleri için public API - hizmet görüntüleme, personel bilgileri, randevu alma ve iletişim',
+    version: '1.0.0',
+    contact: {
+      name: 'API Desteği',
+      email: 'support@kuafor.com'
+    }
+  },
+  servers: [
+    {
+      url: 'http://api.erencelik.info',
+      description: 'Development Server'
+    },
+    {
+      url: 'https://api.kuafor.com',
+      description: 'Production Server'
+    }
+  ],
+  tags: [
+    { name: 'Health', description: 'Sistem sağlık kontrolleri' },
+    { name: 'Services', description: 'Hizmet bilgileri (sadece okuma)' },
+    { name: 'Staff', description: 'Personel bilgileri ve müsaitlik (sadece okuma)' },
+    { name: 'Contact', description: 'İletişim mesajları gönderme' },
+    { name: 'Appointments', description: 'Randevu alma (sadece oluşturma)' }
+  ],
+  paths: publicPaths,
+  components: {
+    schemas: publicSchemas,
+    responses: allResponses,
+    securitySchemes: {
+      apiKeyAuth: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'X-API-KEY',
+        description: 'API Key for public operations'
+      }
+    }
+  }
+};
+
+// Backward compatibility için
+export const swaggerConfig = adminSwaggerConfig; 

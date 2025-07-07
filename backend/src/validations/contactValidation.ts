@@ -54,12 +54,12 @@ export const contactMessagesListQuerySchema = Joi.object({
   endDate: Joi.date().iso().min(Joi.ref('startDate'))
 });
 export const contactMessageIdSchema = Joi.object({
-  id: Joi.number().integer().positive().required()
-    .messages({
-      'number.base': 'ID sayı olmalıdır',
-      'number.positive': 'ID pozitif sayı olmalıdır',
-      'any.required': 'ID zorunludur'
-    })
+    id: Joi.string().uuid().required()
+      .messages({
+        'string.base': 'ID string olmalıdır',
+        'string.guid': 'ID geçerli UUID formatında olmalıdır',
+        'any.required': 'ID zorunludur'
+      })
 });
 export const updateContactMessageStatusSchema = Joi.object({
   status: Joi.string().valid('new', 'read', 'replied', 'closed').required()

@@ -1,9 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
     const StaffAvailability = sequelize.define('StaffAvailability', {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
         },
         staffId: {
             type: DataTypes.UUID,
@@ -63,6 +63,8 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: 'staff_availability',
         timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
         indexes: [
             {
                 unique: true,

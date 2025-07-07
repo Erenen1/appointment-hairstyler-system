@@ -1,13 +1,18 @@
 module.exports = (sequelize: any, DataTypes: any) => {
   const GalleryImage = sequelize.define('GalleryImage', {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       primaryKey: true,
-      autoIncrement: true,
+      defaultValue: DataTypes.UUIDV4,
     },
     categoryId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: 'gallery_categories',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
     },
     title: {
       type: DataTypes.STRING(255),
@@ -32,8 +37,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
   }, {
     tableName: 'gallery_images',
     timestamps: true,
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
   });
   return GalleryImage;
 }; 

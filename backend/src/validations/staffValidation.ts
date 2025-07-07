@@ -96,4 +96,22 @@ export const availableSlotsQuerySchema = Joi.object({
       'date.min': 'Geçmiş tarih seçilemez',
       'any.required': 'Tarih alanı zorunludur'
     })
+});
+export const availableSlotsRangeQuerySchema = Joi.object({
+  startDate: Joi.date().min('now').required()
+    .messages({
+      'date.base': 'Geçerli bir başlangıç tarihi giriniz',
+      'date.min': 'Geçmiş tarih seçilemez',
+      'any.required': 'Başlangıç tarihi zorunludur'
+    }),
+  endDate: Joi.date().min(Joi.ref('startDate')).required()
+    .messages({
+      'date.base': 'Geçerli bir bitiş tarihi giriniz',
+      'date.min': 'Bitiş tarihi başlangıç tarihinden önce olamaz',
+      'any.required': 'Bitiş tarihi zorunludur'
+    }),
+  serviceId: Joi.string().uuid().optional()
+    .messages({
+      'string.guid': 'Geçerli bir hizmet ID giriniz'
+    })
 }); 

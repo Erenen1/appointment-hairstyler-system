@@ -35,22 +35,26 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
       userType: 'admin',
       fullName: admin.fullName
     };
+
     req.session.save((err) => {
       if (err) {
         logger.error('Session save error:', err);
+        next(err);
+        return;
       }
+      res.json(ApiSuccess.item({
+        sessionId: req.session.id,
+        user: {
+          id: admin.id,
+          email: admin.email,
+          fullName: admin.fullName,
+          userType: 'admin',
+          phone: admin.phone,
+          isActive: admin.isActive,
+          lastLogin: admin.lastLogin
+        }
+      }, 'Giriş başarılı'));
     });
-    res.json(ApiSuccess.item({
-      user: {
-        id: admin.id,
-        email: admin.email,
-        fullName: admin.fullName,
-        userType: 'admin',
-        phone: admin.phone,
-        isActive: admin.isActive,
-        lastLogin: admin.lastLogin
-      }
-    }, 'Giriş başarılı'));
   } catch (error) {
     next(error);
   }

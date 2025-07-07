@@ -20,10 +20,10 @@ exports.createGalleryImageSchema = joi_1.default.object({
         .messages({
         'string.max': 'Açıklama en fazla 1000 karakter olabilir'
     }),
-    categoryId: joi_1.default.number().integer().positive().required()
+    categoryId: joi_1.default.string().uuid().required()
         .messages({
-        'number.base': 'Kategori ID sayı olmalıdır',
-        'number.positive': 'Kategori ID pozitif sayı olmalıdır',
+        'string.base': 'Kategori ID string olmalıdır',
+        'string.guid': 'Kategori ID geçerli UUID formatında olmalıdır',
         'any.required': 'Kategori seçimi zorunludur'
     }),
     tags: joi_1.default.array().items(joi_1.default.string().trim().min(2).max(50)).max(10).optional(),
@@ -69,16 +69,16 @@ exports.contentListQuerySchema = joi_1.default.object({
     page: joi_1.default.number().integer().min(1).default(1),
     limit: joi_1.default.number().integer().min(1).max(100).default(10),
     search: joi_1.default.string().trim().allow('').optional(),
-    categoryId: joi_1.default.number().integer().positive().optional(),
+    categoryId: joi_1.default.string().uuid().optional(),
     isActive: joi_1.default.boolean().optional(),
     sortBy: joi_1.default.string().valid('title', 'createdAt', 'updatedAt').default('createdAt'),
     sortOrder: joi_1.default.string().valid('asc', 'desc').default('desc')
 });
 exports.contentIdSchema = joi_1.default.object({
-    id: joi_1.default.number().integer().positive().required()
+    id: joi_1.default.string().uuid().required()
         .messages({
-        'number.base': 'ID sayı olmalıdır',
-        'number.positive': 'ID pozitif sayı olmalıdır',
+        'string.base': 'ID string olmalıdır',
+        'string.guid': 'ID geçerli UUID formatında olmalıdır',
         'any.required': 'ID zorunludur'
     })
 });

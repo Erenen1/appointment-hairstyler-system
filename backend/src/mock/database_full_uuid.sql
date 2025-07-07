@@ -1,5 +1,5 @@
 -- ============================================
--- KUAFÖR SALONU VERİTABANI ŞEMASI
+-- KUAFÖR SALONU VERİTABANI ŞEMASI (FULL UUID)
 -- ============================================
 
 -- UUID extension'ı etkinleştir (PostgreSQL için)
@@ -52,10 +52,10 @@ CREATE TABLE staff (
 );
 
 -- ============================================
--- HİZMET KATEGORİLERİ TABLOSU
+-- HİZMET KATEGORİLERİ TABLOSU (UUID)
 -- ============================================
 CREATE TABLE service_categories (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100) NOT NULL,
     description TEXT,
     image_path VARCHAR(255),
@@ -66,11 +66,11 @@ CREATE TABLE service_categories (
 );
 
 -- ============================================
--- HİZMETLER TABLOSU
+-- HİZMETLER TABLOSU (UUID)
 -- ============================================
 CREATE TABLE services (
-    id SERIAL PRIMARY KEY,
-    category_id INTEGER NOT NULL REFERENCES service_categories(id),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    category_id UUID NOT NULL REFERENCES service_categories(id),
     slug VARCHAR(255) NOT NULL UNIQUE,
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -87,11 +87,11 @@ CREATE TABLE services (
 );
 
 -- ============================================
--- HİZMET RESİMLERİ TABLOSU
+-- HİZMET RESİMLERİ TABLOSU (UUID)
 -- ============================================
 CREATE TABLE service_images (
-    id SERIAL PRIMARY KEY,
-    service_id INTEGER NOT NULL REFERENCES services(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    service_id UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
     image_path VARCHAR(255) NOT NULL,
     is_main BOOLEAN DEFAULT FALSE,
     order_index INTEGER DEFAULT 0,
@@ -99,13 +99,38 @@ CREATE TABLE service_images (
 );
 
 -- ============================================
--- RANDEVULAR TABLOSU
+-- PERSONEL-HİZMET İLİŞKİ TABLOSU
+-- ============================================
+CREATE TABLE staff_services (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    staff_id UUID NOT NULL REFERENCES staff(id) ON DELETE CASCADE,
+    service_id UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(staff_id, service_id)
+);
+
+-- ============================================
+-- PERSONEL MÜSAIT ZAMANLARI TABLOSU (UUID)
+-- ============================================
+CREATE TABLE staff_availability (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    staff_id UUID NOT NULL REFERENCES staff(id) ON DELETE CASCADE,
+    day_of_week INTEGER NOT NULL CHECK (day_of_week >= 1 AND day_of_week <= 7),
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    is_available BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================
+-- RANDEVULAR TABLOSU (UUID)
 -- ============================================
 CREATE TABLE appointments (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE ON UPDATE CASCADE,
     staff_id UUID NOT NULL REFERENCES staff(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    service_id INTEGER NOT NULL REFERENCES services(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    service_id UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE ON UPDATE CASCADE,
     appointment_date DATE NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
@@ -117,21 +142,21 @@ CREATE TABLE appointments (
 );
 
 -- ============================================
--- RANDEVU GEÇMİŞİ TABLOSU
+-- RANDEVU GEÇMİŞİ TABLOSU (UUID)
 -- ============================================
 CREATE TABLE appointment_history (
-    id SERIAL PRIMARY KEY,
-    appointment_id INTEGER NOT NULL REFERENCES appointments(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    appointment_id UUID NOT NULL REFERENCES appointments(id) ON DELETE CASCADE ON UPDATE CASCADE,
     notes TEXT,
     created_by_admin UUID REFERENCES admins(id) ON DELETE SET NULL ON UPDATE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================
--- İŞ SAATLERİ TABLOSU
+-- İŞ SAATLERİ TABLOSU (UUID)
 -- ============================================
 CREATE TABLE business_hours (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     day_of_week SMALLINT NOT NULL UNIQUE CHECK (day_of_week >= 1 AND day_of_week <= 7),
     open_time TIME,
     close_time TIME,
@@ -141,10 +166,10 @@ CREATE TABLE business_hours (
 );
 
 -- ============================================
--- ÖZEL GÜNLER TABLOSU
+-- ÖZEL GÜNLER TABLOSU (UUID)
 -- ============================================
 CREATE TABLE special_days (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     date DATE NOT NULL UNIQUE,
     description VARCHAR(255) NOT NULL,
     is_closed BOOLEAN DEFAULT TRUE,
@@ -155,10 +180,10 @@ CREATE TABLE special_days (
 );
 
 -- ============================================
--- İLETİŞİM MESAJLARI TABLOSU
+-- İLETİŞİM MESAJLARI TABLOSU (UUID)
 -- ============================================
 CREATE TABLE contact_messages (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     fullName VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL,
     subject VARCHAR(255) NOT NULL,
@@ -169,10 +194,10 @@ CREATE TABLE contact_messages (
 );
 
 -- ============================================
--- GALERİ KATEGORİLERİ TABLOSU
+-- GALERİ KATEGORİLERİ TABLOSU (UUID)
 -- ============================================
 CREATE TABLE gallery_categories (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100) NOT NULL,
     description TEXT,
     order_index INTEGER DEFAULT 0,
@@ -181,11 +206,11 @@ CREATE TABLE gallery_categories (
 );
 
 -- ============================================
--- GALERİ RESİMLERİ TABLOSU
+-- GALERİ RESİMLERİ TABLOSU (UUID)
 -- ============================================
 CREATE TABLE gallery_images (
-    id SERIAL PRIMARY KEY,
-    category_id INTEGER NOT NULL REFERENCES gallery_categories(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    category_id UUID NOT NULL REFERENCES gallery_categories(id) ON DELETE CASCADE,
     title VARCHAR(255),
     description TEXT,
     image_path VARCHAR(255) NOT NULL,
@@ -196,71 +221,63 @@ CREATE TABLE gallery_images (
 );
 
 -- ============================================
--- E-POSTA ŞABLONLARI TABLOSU
+-- İNDEXLER
 -- ============================================
-CREATE TABLE email_templates (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    subject VARCHAR(255) NOT NULL,
-    body TEXT NOT NULL,
-    variables JSON,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- ============================================
--- SMS ŞABLONLARI TABLOSU
--- ============================================
-
--- Admin tablosu indeksleri
+-- Admin indexes
 CREATE INDEX idx_admins_email ON admins(email);
 CREATE INDEX idx_admins_is_active ON admins(is_active);
 
--- Müşteri tablosu indeksleri
+-- Customer indexes
 CREATE INDEX idx_customers_email ON customers(email);
 CREATE INDEX idx_customers_phone ON customers(phone);
 CREATE INDEX idx_customers_is_active ON customers(is_active);
 
--- Personel tablosu indeksleri
+-- Staff indexes
 CREATE INDEX idx_staff_email ON staff(email);
 CREATE INDEX idx_staff_is_active ON staff(is_active);
 
--- Hizmet kategorileri indeksleri
+-- Service category indexes
 CREATE INDEX idx_service_categories_is_active ON service_categories(is_active);
 CREATE INDEX idx_service_categories_order_index ON service_categories(order_index);
 
--- Hizmetler tablosu indeksleri
+-- Service indexes
 CREATE INDEX idx_services_category_id ON services(category_id);
 CREATE INDEX idx_services_slug ON services(slug);
 CREATE INDEX idx_services_is_active ON services(is_active);
 CREATE INDEX idx_services_order_index ON services(order_index);
 
--- Randevular tablosu indeksleri
+-- Staff services indexes
+CREATE INDEX idx_staff_services_staff_id ON staff_services(staff_id);
+CREATE INDEX idx_staff_services_service_id ON staff_services(service_id);
+
+-- Staff availability indexes
+CREATE INDEX idx_staff_availability_staff_id ON staff_availability(staff_id);
+CREATE INDEX idx_staff_availability_day_of_week ON staff_availability(day_of_week);
+CREATE INDEX idx_staff_availability_is_available ON staff_availability(is_available);
+
+-- Appointment indexes
 CREATE INDEX idx_appointments_customer_id ON appointments(customer_id);
 CREATE INDEX idx_appointments_staff_id ON appointments(staff_id);
 CREATE INDEX idx_appointments_service_id ON appointments(service_id);
 CREATE INDEX idx_appointments_date ON appointments(appointment_date);
 CREATE INDEX idx_appointments_date_time ON appointments(appointment_date, start_time);
 
--- Randevu geçmişi indeksleri
+-- Appointment history indexes
 CREATE INDEX idx_appointment_history_appointment_id ON appointment_history(appointment_id);
 CREATE INDEX idx_appointment_history_created_at ON appointment_history(created_at);
 
--- İletişim mesajları indeksleri
+-- Contact message indexes
 CREATE INDEX idx_contact_messages_is_read ON contact_messages(isRead);
 CREATE INDEX idx_contact_messages_created_at ON contact_messages(created_at);
 
--- Galeri resimleri indeksleri
+-- Gallery indexes
 CREATE INDEX idx_gallery_images_category_id ON gallery_images(category_id);
 CREATE INDEX idx_gallery_images_is_visible ON gallery_images(is_visible);
 CREATE INDEX idx_gallery_images_order_index ON gallery_images(order_index);
 
 -- ============================================
--- TRIGGER'LAR (Updated_at otomatik güncelleme)
+-- TRİGGERLER İÇİN FONKSİYON
 -- ============================================
-
--- Updated_at trigger fonksiyonu
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -269,59 +286,18 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Trigger'ları tablolara ekle
+-- ============================================
+-- TRİGGERLER
+-- ============================================
 CREATE TRIGGER update_admins_updated_at BEFORE UPDATE ON admins FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_customers_updated_at BEFORE UPDATE ON customers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_staff_updated_at BEFORE UPDATE ON staff FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_service_categories_updated_at BEFORE UPDATE ON service_categories FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_services_updated_at BEFORE UPDATE ON services FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_staff_availability_updated_at BEFORE UPDATE ON staff_availability FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_appointments_updated_at BEFORE UPDATE ON appointments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_business_hours_updated_at BEFORE UPDATE ON business_hours FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_special_days_updated_at BEFORE UPDATE ON special_days FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_contact_messages_updated_at BEFORE UPDATE ON contact_messages FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_gallery_categories_updated_at BEFORE UPDATE ON gallery_categories FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_gallery_images_updated_at BEFORE UPDATE ON gallery_images FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Staff Services tablosu
-CREATE TABLE IF NOT EXISTS staff_services (
-  id SERIAL PRIMARY KEY,
-  staff_id UUID NOT NULL REFERENCES staff(id) ON DELETE CASCADE,
-  service_id INTEGER NOT NULL REFERENCES services(id) ON DELETE CASCADE,
-  is_active BOOLEAN NOT NULL DEFAULT true,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(staff_id, service_id)
-);
-
--- StaffAvailability tablosunu ekle
-CREATE TABLE IF NOT EXISTS staff_availability (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    staffId TEXT NOT NULL,
-    date TEXT NOT NULL,
-    dayOfWeek INTEGER NOT NULL CHECK (dayOfWeek >= 1 AND dayOfWeek <= 7),
-    startTime TEXT NOT NULL,
-    endTime TEXT NOT NULL,
-    lunchBreakStart TEXT,
-    lunchBreakEnd TEXT,
-    isAvailable BOOLEAN NOT NULL DEFAULT 1,
-    type TEXT NOT NULL DEFAULT 'default' CHECK (type IN ('default', 'custom', 'off')),
-    notes TEXT,
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (staffId) REFERENCES staff(id),
-    UNIQUE(staffId, date)
-);
-
--- StaffAvailability trigger'ları
-CREATE TRIGGER staff_availability_updated_at
-    AFTER UPDATE ON staff_availability
-    FOR EACH ROW
-BEGIN
-    UPDATE staff_availability SET updatedAt = CURRENT_TIMESTAMP WHERE id = NEW.id;
-END;
-
--- StaffAvailability indexleri
-CREATE INDEX IF NOT EXISTS idx_staff_availability_staff_id ON staff_availability(staffId);
-CREATE INDEX IF NOT EXISTS idx_staff_availability_date ON staff_availability(date);
-CREATE INDEX IF NOT EXISTS idx_staff_availability_day_of_week ON staff_availability(dayOfWeek);
-CREATE INDEX IF NOT EXISTS idx_staff_availability_is_available ON staff_availability(isAvailable);
+CREATE TRIGGER update_gallery_images_updated_at BEFORE UPDATE ON gallery_images FOR EACH ROW EXECUTE FUNCTION update_updated_at_column(); 

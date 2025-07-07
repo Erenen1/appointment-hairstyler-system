@@ -12,9 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getServiceStaff = exports.deleteServiceCategory = exports.updateServiceCategory = exports.createServiceCategory = exports.getServiceCategories = exports.deleteService = exports.updateService = exports.createService = exports.getServiceById = exports.getServices = void 0;
+exports.getServiceStaffAvailability = exports.getServiceStaff = exports.deleteServiceCategory = exports.updateServiceCategory = exports.createServiceCategory = exports.getServiceCategories = exports.deleteService = exports.updateService = exports.createService = exports.getServiceById = exports.getServices = void 0;
 const utils_1 = require("../utils");
 const sequelize_1 = require("sequelize");
+const date_fns_1 = require("date-fns");
+const eachDayOfInterval_1 = require("date-fns/eachDayOfInterval");
 const serviceValidation_1 = require("../validations/serviceValidation");
 const serviceValidation_2 = require("../validations/serviceValidation");
 const controllerUtils_1 = require("../utils/controllerUtils");
@@ -51,6 +53,10 @@ const getServices = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 {
                     model: Staff,
                     as: 'staffMembers',
+                    through: {
+                        model: StaffService,
+                        attributes: ['isActive']
+                    },
                     attributes: ['id', 'fullName', 'isActive']
                 }
             ],
@@ -111,7 +117,7 @@ const getServiceById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                         model: StaffService,
                         attributes: ['isActive']
                     },
-                    attributes: ['id', 'firstName', 'lastName', 'isActive']
+                    attributes: ['id', 'fullName', 'isActive']
                 }
             ]
         });
@@ -417,4 +423,194 @@ const getServiceStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 exports.getServiceStaff = getServiceStaff;
+const getServiceStaffAvailability = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { error: paramsError, value: paramsValue } = serviceValidation_1.serviceIdSchema.validate(req.params);
+        if (paramsError) {
+            throw utils_1.ApiError.fromJoi(paramsError);
+        }
+        const { error: queryError, value: queryValue } = serviceValidation_1.serviceStaffAvailabilityQuerySchema.validate(req.query);
+        if (queryError) {
+            throw utils_1.ApiError.fromJoi(queryError);
+        }
+        const { id } = paramsValue;
+        const { startDate, endDate } = queryValue;
+        const service = yield Service.findByPk(id);
+        if (!service) {
+            throw utils_1.ApiError.notFound('Hizmet bulunamadı');
+        }
+        const staffServices = yield StaffService.findAll({
+            where: {
+                serviceId: id,
+                isActive: true
+            },
+            include: [
+                {
+                    model: Staff,
+                    as: 'staff',
+                    where: { isActive: true },
+                    attributes: ['id', 'fullName', 'specialties', 'avatar']
+                }
+            ],
+            order: [[{ model: Staff, as: 'staff' }, 'fullName', 'ASC']]
+        });
+        if (staffServices.length === 0) {
+            res.json(utils_1.ApiSuccess.list([], null, 'Bu hizmeti verebilen aktif personel bulunamadı'));
+            return;
+        }
+        const businessHours = yield index_1.default.BusinessHours.findAll({
+            order: [['dayOfWeek', 'ASC']]
+        });
+        const dates = (0, eachDayOfInterval_1.eachDayOfInterval)({ start: startDate, end: endDate });
+        const staffAvailabilities = yield Promise.all(staffServices.map((staffService) => __awaiter(void 0, void 0, void 0, function* () {
+            const staffId = staffService.staff.id;
+            const staffAvailabilityRecords = yield index_1.default.StaffAvailability.findAll({
+                where: {
+                    staffId,
+                    date: {
+                        [sequelize_1.Op.between]: [(0, date_fns_1.format)(startDate, 'yyyy-MM-dd'), (0, date_fns_1.format)(endDate, 'yyyy-MM-dd')]
+                    }
+                }
+            });
+            const appointments = yield index_1.default.Appointment.findAll({
+                where: {
+                    staffId,
+                    appointmentDate: {
+                        [sequelize_1.Op.between]: [(0, date_fns_1.format)(startDate, 'yyyy-MM-dd'), (0, date_fns_1.format)(endDate, 'yyyy-MM-dd')]
+                    }
+                },
+                attributes: ['appointmentDate', 'startTime', 'endTime']
+            });
+            const dailyAvailability = dates.map(date => {
+                const dateStr = (0, date_fns_1.format)(date, 'yyyy-MM-dd');
+                const dayOfWeek = date.getDay() || 7;
+                const staffAvailability = staffAvailabilityRecords.find(sa => sa.date === dateStr);
+                const businessHour = businessHours.find(bh => bh.dayOfWeek === dayOfWeek);
+                const dayAppointments = appointments.filter(apt => apt.appointmentDate === dateStr);
+                let workingHours;
+                let isAvailable = true;
+                let reason = null;
+                if (staffAvailability) {
+                    if (!staffAvailability.isAvailable) {
+                        isAvailable = false;
+                        reason = staffAvailability.notes || 'Personel bu tarihte müsait değil';
+                    }
+                    else {
+                        workingHours = {
+                            start: staffAvailability.startTime,
+                            end: staffAvailability.endTime,
+                            lunchBreak: staffAvailability.lunchBreakStart && staffAvailability.lunchBreakEnd ? {
+                                start: staffAvailability.lunchBreakStart,
+                                end: staffAvailability.lunchBreakEnd
+                            } : null
+                        };
+                    }
+                }
+                else if (businessHour && !businessHour.isClosed) {
+                    workingHours = {
+                        start: businessHour.openTime,
+                        end: businessHour.closeTime,
+                        lunchBreak: {
+                            start: '12:00:00',
+                            end: '13:00:00'
+                        }
+                    };
+                }
+                else {
+                    isAvailable = false;
+                    reason = 'Salon bu gün kapalı';
+                }
+                let availableSlots = [];
+                if (isAvailable && workingHours) {
+                    const startHour = parseInt(workingHours.start.split(':')[0]);
+                    const startMinute = parseInt(workingHours.start.split(':')[1]);
+                    const endHour = parseInt(workingHours.end.split(':')[0]);
+                    const endMinute = parseInt(workingHours.end.split(':')[1]);
+                    const allSlots = [];
+                    let currentHour = startHour;
+                    let currentMinute = startMinute;
+                    while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
+                        const timeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+                        allSlots.push(timeStr);
+                        currentMinute += 30;
+                        if (currentMinute >= 60) {
+                            currentMinute = 0;
+                            currentHour += 1;
+                        }
+                    }
+                    availableSlots = allSlots.filter(slot => {
+                        if (workingHours.lunchBreak) {
+                            const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+                            const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+                            if (slot >= lunchStart && slot < lunchEnd) {
+                                return false;
+                            }
+                        }
+                        return !dayAppointments.some(appointment => {
+                            const appointmentStart = appointment.startTime.substring(0, 5);
+                            const appointmentEnd = appointment.endTime.substring(0, 5);
+                            return slot >= appointmentStart && slot < appointmentEnd;
+                        });
+                    }).map(slot => ({
+                        time: slot,
+                        displayTime: slot,
+                        available: true
+                    }));
+                }
+                return {
+                    date: dateStr,
+                    dayOfWeek,
+                    isAvailable,
+                    reason,
+                    availableSlots,
+                    totalSlots: availableSlots.length,
+                    workingHours: workingHours ? {
+                        start: workingHours.start.substring(0, 5),
+                        end: workingHours.end.substring(0, 5),
+                        lunchBreak: workingHours.lunchBreak ?
+                            `${workingHours.lunchBreak.start.substring(0, 5)} - ${workingHours.lunchBreak.end.substring(0, 5)}` :
+                            null
+                    } : null
+                };
+            });
+            const totalAvailableSlots = dailyAvailability.reduce((total, day) => total + day.totalSlots, 0);
+            const availableDays = dailyAvailability.filter(day => day.isAvailable && day.totalSlots > 0).length;
+            return {
+                staff: {
+                    id: staffService.staff.id,
+                    fullName: staffService.staff.fullName,
+                    specialties: staffService.staff.specialties,
+                    avatar: staffService.staff.avatar
+                },
+                summary: {
+                    totalDays: dailyAvailability.length,
+                    availableDays,
+                    totalAvailableSlots,
+                    averageSlotsPerDay: availableDays > 0 ? Math.round(totalAvailableSlots / availableDays) : 0
+                },
+                dailyAvailability
+            };
+        })));
+        staffAvailabilities.sort((a, b) => b.summary.totalAvailableSlots - a.summary.totalAvailableSlots);
+        const response = {
+            service: {
+                id: service.id,
+                title: service.title,
+                duration: service.duration,
+                price: service.price
+            },
+            dateRange: {
+                startDate: (0, date_fns_1.format)(startDate, 'yyyy-MM-dd'),
+                endDate: (0, date_fns_1.format)(endDate, 'yyyy-MM-dd'),
+                totalDays: dates.length
+            },
+            staffAvailabilities
+        };
+        res.json(utils_1.ApiSuccess.item(response, 'Hizmet personellerinin müsaitlik durumları başarıyla getirildi'));
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getServiceStaffAvailability = getServiceStaffAvailability;
 //# sourceMappingURL=serviceController.js.map

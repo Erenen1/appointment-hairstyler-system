@@ -72,7 +72,7 @@ const initializeAndSyncDatabase = () => __awaiter(void 0, void 0, void 0, functi
             forceSync,
             environment: env_1.default.NODE_ENV
         });
-        yield exports.sequelize.sync();
+        yield exports.sequelize.sync({ force: false });
         logger_1.default.info('Database tables initialized successfully');
     }
     catch (error) {

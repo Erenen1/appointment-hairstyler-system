@@ -23,9 +23,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAvailableSlots = exports.updateStaff = exports.createStaff = exports.getStaffById = exports.getStaff = void 0;
+exports.getAvailableSlotsRange = exports.getAvailableSlots = exports.updateStaff = exports.createStaff = exports.getStaffById = exports.getStaff = void 0;
 const utils_1 = require("../utils");
 const sequelize_1 = require("sequelize");
+const date_fns_1 = require("date-fns");
 const staffValidation_1 = require("../validations/staffValidation");
 const index_1 = __importDefault(require("../models/index"));
 const { Staff, StaffService, Service, ServiceCategory } = index_1.default;
@@ -415,4 +416,168 @@ const getAvailableSlots = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.getAvailableSlots = getAvailableSlots;
+const getAvailableSlotsRange = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { error: paramsError, value: paramsValue } = staffValidation_1.staffIdSchema.validate(req.params);
+        if (paramsError) {
+            throw utils_1.ApiError.fromJoi(paramsError);
+        }
+        const { error: queryError, value: queryValue } = staffValidation_1.availableSlotsRangeQuerySchema.validate(req.query);
+        if (queryError) {
+            throw utils_1.ApiError.fromJoi(queryError);
+        }
+        const { id } = paramsValue;
+        const { startDate, endDate, serviceId } = queryValue;
+        const staff = yield Staff.findByPk(id, {
+            where: { isActive: true }
+        });
+        if (!staff) {
+            throw utils_1.ApiError.notFound('Personel bulunamadı veya aktif değil');
+        }
+        if (serviceId) {
+            const staffService = yield index_1.default.StaffService.findOne({
+                where: {
+                    staffId: id,
+                    serviceId: serviceId,
+                    isActive: true
+                }
+            });
+            if (!staffService) {
+                throw utils_1.ApiError.badRequest('Bu personel seçilen hizmeti veremiyor');
+            }
+        }
+        const { eachDayOfInterval } = require('date-fns');
+        const dates = eachDayOfInterval({ start: startDate, end: endDate });
+        const businessHours = yield index_1.default.BusinessHours.findAll({
+            order: [['dayOfWeek', 'ASC']]
+        });
+        const staffAvailabilities = yield index_1.default.StaffAvailability.findAll({
+            where: {
+                staffId: id,
+                date: {
+                    [sequelize_1.Op.between]: [(0, date_fns_1.format)(startDate, 'yyyy-MM-dd'), (0, date_fns_1.format)(endDate, 'yyyy-MM-dd')]
+                }
+            }
+        });
+        const appointments = yield index_1.default.Appointment.findAll({
+            where: {
+                staffId: id,
+                appointmentDate: {
+                    [sequelize_1.Op.between]: [(0, date_fns_1.format)(startDate, 'yyyy-MM-dd'), (0, date_fns_1.format)(endDate, 'yyyy-MM-dd')]
+                }
+            },
+            attributes: ['appointmentDate', 'startTime', 'endTime']
+        });
+        const dailyAvailability = yield Promise.all(dates.map((date) => __awaiter(void 0, void 0, void 0, function* () {
+            const dateStr = (0, date_fns_1.format)(date, 'yyyy-MM-dd');
+            const dayOfWeek = date.getDay() || 7;
+            const staffAvailability = staffAvailabilities.find(sa => sa.date === dateStr);
+            const businessHour = businessHours.find(bh => bh.dayOfWeek === dayOfWeek);
+            const dayAppointments = appointments.filter(apt => apt.appointmentDate === dateStr);
+            let workingHours;
+            let isAvailable = true;
+            let reason = null;
+            if (staffAvailability) {
+                if (!staffAvailability.isAvailable) {
+                    isAvailable = false;
+                    reason = staffAvailability.notes || 'Personel bu tarihte müsait değil';
+                }
+                else {
+                    workingHours = {
+                        start: staffAvailability.startTime,
+                        end: staffAvailability.endTime,
+                        lunchBreak: staffAvailability.lunchBreakStart && staffAvailability.lunchBreakEnd ? {
+                            start: staffAvailability.lunchBreakStart,
+                            end: staffAvailability.lunchBreakEnd
+                        } : null
+                    };
+                }
+            }
+            else if (businessHour && !businessHour.isClosed) {
+                workingHours = {
+                    start: businessHour.openTime,
+                    end: businessHour.closeTime,
+                    lunchBreak: {
+                        start: '12:00:00',
+                        end: '13:00:00'
+                    }
+                };
+            }
+            else {
+                isAvailable = false;
+                reason = 'Salon bu gün kapalı';
+            }
+            let availableSlots = [];
+            if (isAvailable && workingHours) {
+                const startHour = parseInt(workingHours.start.split(':')[0]);
+                const startMinute = parseInt(workingHours.start.split(':')[1]);
+                const endHour = parseInt(workingHours.end.split(':')[0]);
+                const endMinute = parseInt(workingHours.end.split(':')[1]);
+                const allSlots = [];
+                let currentHour = startHour;
+                let currentMinute = startMinute;
+                while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
+                    const timeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+                    allSlots.push(timeStr);
+                    currentMinute += 30;
+                    if (currentMinute >= 60) {
+                        currentMinute = 0;
+                        currentHour += 1;
+                    }
+                }
+                availableSlots = allSlots.filter(slot => {
+                    if (workingHours.lunchBreak) {
+                        const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+                        const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+                        if (slot >= lunchStart && slot < lunchEnd) {
+                            return false;
+                        }
+                    }
+                    return !dayAppointments.some(appointment => {
+                        const appointmentStart = appointment.startTime.substring(0, 5);
+                        const appointmentEnd = appointment.endTime.substring(0, 5);
+                        return slot >= appointmentStart && slot < appointmentEnd;
+                    });
+                }).map(slot => ({
+                    time: slot,
+                    displayTime: slot,
+                    available: true
+                }));
+            }
+            return {
+                date: dateStr,
+                dayOfWeek,
+                isAvailable,
+                reason,
+                availableSlots,
+                totalSlots: availableSlots.length,
+                workingHours: workingHours ? {
+                    start: workingHours.start.substring(0, 5),
+                    end: workingHours.end.substring(0, 5),
+                    lunchBreak: workingHours.lunchBreak ?
+                        `${workingHours.lunchBreak.start.substring(0, 5)} - ${workingHours.lunchBreak.end.substring(0, 5)}` :
+                        null
+                } : null,
+                existingAppointments: dayAppointments.map(apt => ({
+                    startTime: apt.startTime.substring(0, 5),
+                    endTime: apt.endTime.substring(0, 5)
+                }))
+            };
+        })));
+        const response = {
+            staffId: id,
+            staffName: staff.fullName,
+            startDate: (0, date_fns_1.format)(startDate, 'yyyy-MM-dd'),
+            endDate: (0, date_fns_1.format)(endDate, 'yyyy-MM-dd'),
+            totalDays: dailyAvailability.length,
+            availableDays: dailyAvailability.filter(day => day.isAvailable && day.totalSlots > 0).length,
+            dailyAvailability
+        };
+        res.json(utils_1.ApiSuccess.item(response, 'Personelin tarih aralığındaki müsait saatleri başarıyla getirildi'));
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getAvailableSlotsRange = getAvailableSlotsRange;
 //# sourceMappingURL=staffController.js.map

@@ -1,9 +1,9 @@
 module.exports = (sequelize: any, DataTypes: any) => {
   const Appointment = sequelize.define('Appointment', {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       primaryKey: true,
-      autoIncrement: true,
+      defaultValue: DataTypes.UUIDV4,
     },
     customerId: {
       type: DataTypes.UUID,
@@ -26,7 +26,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
       onUpdate: 'CASCADE',
     },
     serviceId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'services',
@@ -69,6 +69,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
   }, {
     tableName: 'appointments',
     timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
   });
   return Appointment;
 }; 

@@ -14,12 +14,12 @@ export const createGalleryImageSchema = Joi.object({
     .messages({
       'string.max': 'Açıklama en fazla 1000 karakter olabilir'
     }),
-  categoryId: Joi.number().integer().positive().required()
-    .messages({
-      'number.base': 'Kategori ID sayı olmalıdır',
-      'number.positive': 'Kategori ID pozitif sayı olmalıdır',
-      'any.required': 'Kategori seçimi zorunludur'
-    }),
+    categoryId: Joi.string().uuid().required()
+      .messages({
+        'string.base': 'Kategori ID string olmalıdır',
+        'string.guid': 'Kategori ID geçerli UUID formatında olmalıdır',
+        'any.required': 'Kategori seçimi zorunludur'
+      }),
   tags: Joi.array().items(Joi.string().trim().min(2).max(50)).max(10).optional(),
   isActive: Joi.boolean().default(true)
 });
@@ -63,16 +63,16 @@ export const contentListQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
   search: Joi.string().trim().allow('').optional(),
-  categoryId: Joi.number().integer().positive().optional(),
+  categoryId: Joi.string().uuid().optional(),
   isActive: Joi.boolean().optional(),
   sortBy: Joi.string().valid('title', 'createdAt', 'updatedAt').default('createdAt'),
   sortOrder: Joi.string().valid('asc', 'desc').default('desc')
 });
 export const contentIdSchema = Joi.object({
-  id: Joi.number().integer().positive().required()
-    .messages({
-      'number.base': 'ID sayı olmalıdır',
-      'number.positive': 'ID pozitif sayı olmalıdır',
-      'any.required': 'ID zorunludur'
-    })
+    id: Joi.string().uuid().required()
+      .messages({
+        'string.base': 'ID string olmalıdır',
+        'string.guid': 'ID geçerli UUID formatında olmalıdır',
+        'any.required': 'ID zorunludur'
+      })
 }); 

@@ -46,10 +46,9 @@ export const availabilityQuerySchema = Joi.object({
 });
 
 export const availabilityIdSchema = Joi.object({
-  id: Joi.number().integer().positive().required().messages({
-    'number.base': 'Müsaitlik ID sayısal değer olmalıdır',
-    'number.integer': 'Müsaitlik ID tam sayı olmalıdır',
-    'number.positive': 'Müsaitlik ID 0\'dan büyük olmalıdır',
+  id: Joi.string().uuid().required().messages({
+    'string.base': 'Müsaitlik ID string değer olmalıdır',
+    'string.guid': 'Müsaitlik ID geçerli UUID formatında olmalıdır',
     'any.required': 'Müsaitlik ID gereklidir'
   })
 });
@@ -80,7 +79,7 @@ export const dateRangeQuerySchema = Joi.object({
     'date.base': 'Geçerli bitiş tarihi giriniz',
     'any.required': 'Bitiş tarihi gereklidir'
   }),
-  serviceId: Joi.number().integer().positive().optional().messages({
-    'number.base': 'Hizmet ID sayısal değer olmalıdır'
+  serviceId: Joi.string().uuid().optional().messages({
+    'string.guid': 'Geçerli bir hizmet ID giriniz'
   })
 }); 
