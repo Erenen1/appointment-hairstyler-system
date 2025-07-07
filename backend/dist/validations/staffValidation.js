@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.availableSlotsQuerySchema = exports.updateStaffSchema = exports.createStaffSchema = exports.staffIdSchema = exports.staffListQuerySchema = void 0;
+exports.availableSlotsRangeQuerySchema = exports.availableSlotsQuerySchema = exports.updateStaffSchema = exports.createStaffSchema = exports.staffIdSchema = exports.staffListQuerySchema = void 0;
 const joi_1 = __importDefault(require("joi"));
 exports.staffListQuerySchema = joi_1.default.object({
     page: joi_1.default.number().integer().min(1).default(1),
@@ -101,6 +101,24 @@ exports.availableSlotsQuerySchema = joi_1.default.object({
         'date.base': 'Geçerli bir tarih giriniz',
         'date.min': 'Geçmiş tarih seçilemez',
         'any.required': 'Tarih alanı zorunludur'
+    })
+});
+exports.availableSlotsRangeQuerySchema = joi_1.default.object({
+    startDate: joi_1.default.date().min('now').required()
+        .messages({
+        'date.base': 'Geçerli bir başlangıç tarihi giriniz',
+        'date.min': 'Geçmiş tarih seçilemez',
+        'any.required': 'Başlangıç tarihi zorunludur'
+    }),
+    endDate: joi_1.default.date().min(joi_1.default.ref('startDate')).required()
+        .messages({
+        'date.base': 'Geçerli bir bitiş tarihi giriniz',
+        'date.min': 'Bitiş tarihi başlangıç tarihinden önce olamaz',
+        'any.required': 'Bitiş tarihi zorunludur'
+    }),
+    serviceId: joi_1.default.string().uuid().optional()
+        .messages({
+        'string.guid': 'Geçerli bir hizmet ID giriniz'
     })
 });
 //# sourceMappingURL=staffValidation.js.map

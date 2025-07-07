@@ -1,9 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
     const SpecialDays = sequelize.define('SpecialDays', {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
         },
         date: {
             type: DataTypes.DATEONLY,
@@ -29,8 +29,8 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: 'special_days',
         timestamps: true,
-        createdAt: 'createdAt',
-        updatedAt: 'updatedAt',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
     });
     return SpecialDays;
 };

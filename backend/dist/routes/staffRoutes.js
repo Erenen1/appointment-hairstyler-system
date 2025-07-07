@@ -9,5 +9,6 @@ router.get('/:id', staffController_1.getStaffById);
 router.post('/', authMiddleware_1.requireAdmin, staffController_1.createStaff);
 router.put('/:id', authMiddleware_1.requireAdmin, staffController_1.updateStaff);
 router.get('/:id/available-slots', staffController_1.getAvailableSlots);
+router.get('/:id/available-slots-range', staffController_1.getAvailableSlotsRange);
 exports.default = router;
 //# sourceMappingURL=staffRoutes.js.map

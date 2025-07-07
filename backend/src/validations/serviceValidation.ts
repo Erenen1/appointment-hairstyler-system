@@ -9,22 +9,21 @@ export const createServiceSchema = Joi.object({
   description: Joi.string().max(1000).allow('').optional().messages({
     'string.max': 'Açıklama en fazla 1000 karakter olabilir'
   }),
-  price: Joi.number().positive().precision(2).required().messages({
-    'number.base': 'Fiyat sayısal değer olmalıdır',
-    'number.positive': 'Fiyat 0\'dan büyük olmalıdır',
+  price: Joi.number().min(0).max(1000000).required().messages({
+    'string.empty': 'Fiyat boş olamaz',
+    'string.min': 'Fiyat en az 1 karakter olmalıdır',
+    'string.max': 'Fiyat en fazla 50 karakter olabilir',
     'any.required': 'Fiyat gereklidir'
   }),
-  duration: Joi.number().integer().min(15).max(480).required().messages({
-    'number.base': 'Süre sayısal değer olmalıdır',
-    'number.integer': 'Süre tam sayı olmalıdır',
-    'number.min': 'Süre en az 15 dakika olmalıdır',
-    'number.max': 'Süre en fazla 8 saat (480 dakika) olabilir',
+  duration: Joi.number().min(0).max(1000).required().messages({
+    'string.empty': 'Süre boş olamaz',
+    'string.min': 'Süre en az 1 karakter olmalıdır',
+    'string.max': 'Süre en fazla 50 karakter olabilir',
     'any.required': 'Süre gereklidir'
   }),
-  categoryId: Joi.number().integer().positive().required().messages({
-    'number.base': 'Kategori ID sayısal değer olmalıdır',
-    'number.integer': 'Kategori ID tam sayı olmalıdır',
-    'number.positive': 'Kategori ID 0\'dan büyük olmalıdır',
+  categoryId: Joi.string().uuid().required().messages({
+    'string.base': 'Kategori ID string değer olmalıdır',
+    'string.guid': 'Kategori ID geçerli UUID formatında olmalıdır',
     'any.required': 'Kategori seçimi gereklidir'
   }),
   staffIds: Joi.array().items(Joi.string().uuid()).min(0).optional().default([]).messages({
@@ -40,9 +39,9 @@ export const createServiceSchema = Joi.object({
 export const updateServiceSchema = Joi.object({
   name: Joi.string().min(2).max(255).optional(),
   description: Joi.string().max(1000).allow('').optional(),
-  price: Joi.number().positive().precision(2).optional(),
-  duration: Joi.number().integer().min(15).max(480).optional(),
-  categoryId: Joi.number().integer().positive().optional(),
+  price: Joi.number().min(0).max(1000000).optional(),
+  duration: Joi.number().min(0).max(1000).optional(),
+  categoryId: Joi.string().uuid().optional(),
   staffIds: Joi.array().items(Joi.string().uuid()).min(0).optional().messages({
     'array.base': 'Personel listesi dizi formatında olmalıdır',
     'string.guid': 'Personel ID geçerli UUID formatında olmalıdır'
@@ -78,7 +77,7 @@ export const serviceListQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).optional().default(1),
   limit: Joi.number().integer().min(1).max(100).optional().default(20),
   search: Joi.string().max(255).optional(),
-  categoryId: Joi.number().integer().positive().optional(),
+  categoryId: Joi.string().uuid().optional(),
   isActive: Joi.boolean().optional(),
   isPopular: Joi.boolean().optional(),
   minPrice: Joi.number().positive().optional(),
@@ -97,23 +96,21 @@ export const categoryListQuerySchema = Joi.object({
   sortOrder: Joi.string().valid('asc', 'desc').optional().default('asc')
 });
 export const serviceIdSchema = Joi.object({
-  id: Joi.number().integer().positive().required().messages({
-    'number.base': 'Hizmet ID sayısal değer olmalıdır',
-    'number.integer': 'Hizmet ID tam sayı olmalıdır',
-    'number.positive': 'Hizmet ID 0\'dan büyük olmalıdır',
+  id: Joi.string().uuid().required().messages({
+    'string.base': 'Hizmet ID string değer olmalıdır',
+    'string.guid': 'Hizmet ID geçerli UUID formatında olmalıdır',
     'any.required': 'Hizmet ID gereklidir'
   })
 });
 export const categoryIdSchema = Joi.object({
-  id: Joi.number().integer().positive().required().messages({
-    'number.base': 'Kategori ID sayısal değer olmalıdır',
-    'number.integer': 'Kategori ID tam sayı olmalıdır',
-    'number.positive': 'Kategori ID 0\'dan büyük olmalıdır',
+  id: Joi.string().uuid().required().messages({
+    'string.base': 'Kategori ID string değer olmalıdır',
+    'string.guid': 'Kategori ID geçerli UUID formatında olmalıdır',
     'any.required': 'Kategori ID gereklidir'
   })
 });
 export const serviceSchema = Joi.object({
-  categoryId: Joi.number().integer().required(),
+  categoryId: Joi.string().uuid().required(),
   staffIds: Joi.array().items(Joi.string().uuid()).required(),
   slug: Joi.string().required(),
   title: Joi.string().required(),
@@ -143,11 +140,26 @@ export const serviceQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
   search: Joi.string(),
-  categoryId: Joi.number().integer(),
+  categoryId: Joi.string().uuid(),
   isActive: Joi.boolean(),
   isPopular: Joi.boolean(),
   minPrice: Joi.number(),
   maxPrice: Joi.number(),
   sortBy: Joi.string().valid('orderIndex', 'name', 'price', 'duration', 'createdAt').default('orderIndex'),
   sortOrder: Joi.string().valid('asc', 'desc').default('asc')
+});
+
+export const serviceStaffAvailabilityQuerySchema = Joi.object({
+  startDate: Joi.date().min('now').required()
+    .messages({
+      'date.base': 'Geçerli bir başlangıç tarihi giriniz',
+      'date.min': 'Geçmiş tarih seçilemez',
+      'any.required': 'Başlangıç tarihi zorunludur'
+    }),
+  endDate: Joi.date().min(Joi.ref('startDate')).required()
+    .messages({
+      'date.base': 'Geçerli bir bitiş tarihi giriniz',
+      'date.min': 'Bitiş tarihi başlangıç tarihinden önce olamaz',
+      'any.required': 'Bitiş tarihi zorunludur'
+    })
 }); 

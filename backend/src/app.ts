@@ -16,7 +16,7 @@ LogManager.ensureLogDirectory();
 app.use(requestLogger);
 app.use(sessionConfig);
 app.use(express.json());
-app.use(cors(corsConfig));
+// app.use(cors(corsConfig));
 app.use('/', routes);
 setupSwagger(app);
 

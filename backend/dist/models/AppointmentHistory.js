@@ -1,12 +1,12 @@
 module.exports = (sequelize, DataTypes) => {
     const AppointmentHistory = sequelize.define('AppointmentHistory', {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
         },
         appointmentId: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             allowNull: false,
             references: {
                 model: 'appointments',
@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: 'appointment_history',
         timestamps: true,
-        createdAt: 'createdAt',
+        createdAt: 'created_at',
         updatedAt: false,
     });
     return AppointmentHistory;

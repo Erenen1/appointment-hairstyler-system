@@ -1,9 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
     const ContactMessage = sequelize.define('ContactMessage', {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
         },
         fullName: {
             type: DataTypes.STRING(100),

@@ -24,16 +24,14 @@ exports.createAppointmentSchema = joi_1.default.object({
             'any.required': 'Telefon numarası gereklidir'
         })
     }).required(),
-    serviceId: joi_1.default.number().integer().positive().required().messages({
-        'number.base': 'Hizmet ID sayı olmalıdır',
-        'number.integer': 'Hizmet ID tam sayı olmalıdır',
-        'number.positive': 'Hizmet ID pozitif sayı olmalıdır',
+    serviceId: joi_1.default.string().uuid().required().messages({
+        'string.base': 'Hizmet ID string değer olmalıdır',
+        'string.guid': 'Hizmet ID geçerli UUID formatında olmalıdır',
         'any.required': 'Hizmet seçimi gereklidir'
     }),
-    staffId: joi_1.default.number().integer().positive().required().messages({
-        'number.base': 'Personel ID sayı olmalıdır',
-        'number.integer': 'Personel ID tam sayı olmalıdır',
-        'number.positive': 'Personel ID pozitif sayı olmalıdır',
+    staffId: joi_1.default.string().uuid().required().messages({
+        'string.base': 'Personel ID string değer olmalıdır',
+        'string.guid': 'Personel ID geçerli UUID formatında olmalıdır',
         'any.required': 'Personel seçimi gereklidir'
     }),
     appointmentDate: joi_1.default.date().min('now').required().messages({
@@ -55,9 +53,9 @@ exports.appointmentListQuerySchema = joi_1.default.object({
     limit: joi_1.default.number().integer().min(1).max(100).default(10),
     startDate: joi_1.default.date().optional(),
     endDate: joi_1.default.date().optional(),
-    staffId: joi_1.default.number().integer().positive().optional(),
-    customerId: joi_1.default.number().integer().positive().optional(),
-    serviceId: joi_1.default.number().integer().positive().optional(),
+    staffId: joi_1.default.string().uuid().optional(),
+    customerId: joi_1.default.string().uuid().optional(),
+    serviceId: joi_1.default.string().uuid().optional(),
     status: joi_1.default.string().valid('pending', 'confirmed', 'completed', 'cancelled').optional(),
     sortBy: joi_1.default.string().valid('appointmentDate', 'createdAt', 'customer_name', 'service_name').default('appointmentDate'),
     sortOrder: joi_1.default.string().valid('asc', 'desc').default('desc')
@@ -67,11 +65,11 @@ exports.updateAppointmentStatusSchema = joi_1.default.object({
     notes: joi_1.default.string().max(500).allow('').optional()
 });
 exports.appointmentIdSchema = joi_1.default.object({
-    id: joi_1.default.number().integer().positive().required()
+    id: joi_1.default.string().uuid().required()
 });
 exports.calendarQuerySchema = joi_1.default.object({
     startDate: joi_1.default.date().required(),
     endDate: joi_1.default.date().required(),
-    staffId: joi_1.default.number().integer().positive().optional()
+    staffId: joi_1.default.string().uuid().optional()
 });
 //# sourceMappingURL=appointmentValidation.js.map

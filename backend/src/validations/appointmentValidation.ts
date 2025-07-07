@@ -18,16 +18,14 @@ export const createAppointmentSchema = Joi.object({
       'any.required': 'Telefon numarası gereklidir'
     })
   }).required(),
-  serviceId: Joi.number().integer().positive().required().messages({
-    'number.base': 'Hizmet ID sayı olmalıdır',
-    'number.integer': 'Hizmet ID tam sayı olmalıdır',
-    'number.positive': 'Hizmet ID pozitif sayı olmalıdır',
+  serviceId: Joi.string().uuid().required().messages({
+    'string.base': 'Hizmet ID string değer olmalıdır',
+    'string.guid': 'Hizmet ID geçerli UUID formatında olmalıdır',
     'any.required': 'Hizmet seçimi gereklidir'
   }),
-  staffId: Joi.number().integer().positive().required().messages({
-    'number.base': 'Personel ID sayı olmalıdır',
-    'number.integer': 'Personel ID tam sayı olmalıdır',
-    'number.positive': 'Personel ID pozitif sayı olmalıdır',
+  staffId: Joi.string().uuid().required().messages({
+    'string.base': 'Personel ID string değer olmalıdır',
+    'string.guid': 'Personel ID geçerli UUID formatında olmalıdır',
     'any.required': 'Personel seçimi gereklidir'
   }),
   appointmentDate: Joi.date().min('now').required().messages({
@@ -49,9 +47,9 @@ export const appointmentListQuerySchema = Joi.object({
   limit: Joi.number().integer().min(1).max(100).default(10),
   startDate: Joi.date().optional(),
   endDate: Joi.date().optional(),
-  staffId: Joi.number().integer().positive().optional(),
-  customerId: Joi.number().integer().positive().optional(),
-  serviceId: Joi.number().integer().positive().optional(),
+  staffId: Joi.string().uuid().optional(),
+  customerId: Joi.string().uuid().optional(),
+  serviceId: Joi.string().uuid().optional(),
   status: Joi.string().valid('pending', 'confirmed', 'completed', 'cancelled').optional(),
   sortBy: Joi.string().valid('appointmentDate', 'createdAt', 'customer_name', 'service_name').default('appointmentDate'),
   sortOrder: Joi.string().valid('asc', 'desc').default('desc')
@@ -61,10 +59,10 @@ export const updateAppointmentStatusSchema = Joi.object({
   notes: Joi.string().max(500).allow('').optional()
 });
 export const appointmentIdSchema = Joi.object({
-  id: Joi.number().integer().positive().required()
+  id: Joi.string().uuid().required()
 });
 export const calendarQuerySchema = Joi.object({
   startDate: Joi.date().required(),
   endDate: Joi.date().required(),
-  staffId: Joi.number().integer().positive().optional()
+  staffId: Joi.string().uuid().optional()
 }); 

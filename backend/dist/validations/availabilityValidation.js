@@ -48,10 +48,9 @@ exports.availabilityQuerySchema = joi_1.default.object({
     isAvailable: joi_1.default.boolean().optional()
 });
 exports.availabilityIdSchema = joi_1.default.object({
-    id: joi_1.default.number().integer().positive().required().messages({
-        'number.base': 'Müsaitlik ID sayısal değer olmalıdır',
-        'number.integer': 'Müsaitlik ID tam sayı olmalıdır',
-        'number.positive': 'Müsaitlik ID 0\'dan büyük olmalıdır',
+    id: joi_1.default.string().uuid().required().messages({
+        'string.base': 'Müsaitlik ID string değer olmalıdır',
+        'string.guid': 'Müsaitlik ID geçerli UUID formatında olmalıdır',
         'any.required': 'Müsaitlik ID gereklidir'
     })
 });
@@ -80,8 +79,8 @@ exports.dateRangeQuerySchema = joi_1.default.object({
         'date.base': 'Geçerli bitiş tarihi giriniz',
         'any.required': 'Bitiş tarihi gereklidir'
     }),
-    serviceId: joi_1.default.number().integer().positive().optional().messages({
-        'number.base': 'Hizmet ID sayısal değer olmalıdır'
+    serviceId: joi_1.default.string().uuid().optional().messages({
+        'string.guid': 'Geçerli bir hizmet ID giriniz'
     })
 });
 //# sourceMappingURL=availabilityValidation.js.map

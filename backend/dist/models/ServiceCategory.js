@@ -1,9 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
     const ServiceCategory = sequelize.define('ServiceCategory', {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
         },
         name: {
             type: DataTypes.STRING(100),
@@ -28,8 +28,8 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: 'service_categories',
         timestamps: true,
-        createdAt: 'createdAt',
-        updatedAt: 'updatedAt',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
     });
     return ServiceCategory;
 };

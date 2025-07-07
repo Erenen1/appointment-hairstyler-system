@@ -1,21 +1,23 @@
 module.exports = (sequelize, DataTypes) => {
     const StaffService = sequelize.define('StaffService', {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
         },
         staffId: {
             type: DataTypes.UUID,
             allowNull: false,
+            field: 'staff_id',
             references: {
                 model: 'staff',
                 key: 'id',
             },
         },
         serviceId: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             allowNull: false,
+            field: 'service_id',
             references: {
                 model: 'services',
                 key: 'id',
@@ -30,10 +32,12 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: 'staff_services',
         timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false,
         indexes: [
             {
                 unique: true,
-                fields: ['staffId', 'serviceId']
+                fields: ['staff_id', 'service_id']
             }
         ]
     });

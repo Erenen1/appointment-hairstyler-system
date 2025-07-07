@@ -1,9 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
     const BusinessHours = sequelize.define('BusinessHours', {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
         },
         dayOfWeek: {
             type: DataTypes.SMALLINT,
@@ -26,8 +26,8 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: 'business_hours',
         timestamps: true,
-        createdAt: 'createdAt',
-        updatedAt: 'updatedAt',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
     });
     return BusinessHours;
 };

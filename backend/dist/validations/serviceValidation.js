@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.serviceQuerySchema = exports.validateService = exports.serviceSchema = exports.categoryIdSchema = exports.serviceIdSchema = exports.categoryListQuerySchema = exports.serviceListQuerySchema = exports.updateServiceCategorySchema = exports.createServiceCategorySchema = exports.updateServiceSchema = exports.createServiceSchema = void 0;
+exports.serviceStaffAvailabilityQuerySchema = exports.serviceQuerySchema = exports.validateService = exports.serviceSchema = exports.categoryIdSchema = exports.serviceIdSchema = exports.categoryListQuerySchema = exports.serviceListQuerySchema = exports.updateServiceCategorySchema = exports.createServiceCategorySchema = exports.updateServiceSchema = exports.createServiceSchema = void 0;
 const joi_1 = __importDefault(require("joi"));
 exports.createServiceSchema = joi_1.default.object({
     name: joi_1.default.string().min(2).max(255).required().messages({
@@ -15,22 +15,21 @@ exports.createServiceSchema = joi_1.default.object({
     description: joi_1.default.string().max(1000).allow('').optional().messages({
         'string.max': 'Açıklama en fazla 1000 karakter olabilir'
     }),
-    price: joi_1.default.number().positive().precision(2).required().messages({
-        'number.base': 'Fiyat sayısal değer olmalıdır',
-        'number.positive': 'Fiyat 0\'dan büyük olmalıdır',
+    price: joi_1.default.number().min(0).max(1000000).required().messages({
+        'string.empty': 'Fiyat boş olamaz',
+        'string.min': 'Fiyat en az 1 karakter olmalıdır',
+        'string.max': 'Fiyat en fazla 50 karakter olabilir',
         'any.required': 'Fiyat gereklidir'
     }),
-    duration: joi_1.default.number().integer().min(15).max(480).required().messages({
-        'number.base': 'Süre sayısal değer olmalıdır',
-        'number.integer': 'Süre tam sayı olmalıdır',
-        'number.min': 'Süre en az 15 dakika olmalıdır',
-        'number.max': 'Süre en fazla 8 saat (480 dakika) olabilir',
+    duration: joi_1.default.number().min(0).max(1000).required().messages({
+        'string.empty': 'Süre boş olamaz',
+        'string.min': 'Süre en az 1 karakter olmalıdır',
+        'string.max': 'Süre en fazla 50 karakter olabilir',
         'any.required': 'Süre gereklidir'
     }),
-    categoryId: joi_1.default.number().integer().positive().required().messages({
-        'number.base': 'Kategori ID sayısal değer olmalıdır',
-        'number.integer': 'Kategori ID tam sayı olmalıdır',
-        'number.positive': 'Kategori ID 0\'dan büyük olmalıdır',
+    categoryId: joi_1.default.string().uuid().required().messages({
+        'string.base': 'Kategori ID string değer olmalıdır',
+        'string.guid': 'Kategori ID geçerli UUID formatında olmalıdır',
         'any.required': 'Kategori seçimi gereklidir'
     }),
     staffIds: joi_1.default.array().items(joi_1.default.string().uuid()).min(0).optional().default([]).messages({
@@ -46,9 +45,9 @@ exports.createServiceSchema = joi_1.default.object({
 exports.updateServiceSchema = joi_1.default.object({
     name: joi_1.default.string().min(2).max(255).optional(),
     description: joi_1.default.string().max(1000).allow('').optional(),
-    price: joi_1.default.number().positive().precision(2).optional(),
-    duration: joi_1.default.number().integer().min(15).max(480).optional(),
-    categoryId: joi_1.default.number().integer().positive().optional(),
+    price: joi_1.default.number().min(0).max(1000000).optional(),
+    duration: joi_1.default.number().min(0).max(1000).optional(),
+    categoryId: joi_1.default.string().uuid().optional(),
     staffIds: joi_1.default.array().items(joi_1.default.string().uuid()).min(0).optional().messages({
         'array.base': 'Personel listesi dizi formatında olmalıdır',
         'string.guid': 'Personel ID geçerli UUID formatında olmalıdır'
@@ -84,7 +83,7 @@ exports.serviceListQuerySchema = joi_1.default.object({
     page: joi_1.default.number().integer().min(1).optional().default(1),
     limit: joi_1.default.number().integer().min(1).max(100).optional().default(20),
     search: joi_1.default.string().max(255).optional(),
-    categoryId: joi_1.default.number().integer().positive().optional(),
+    categoryId: joi_1.default.string().uuid().optional(),
     isActive: joi_1.default.boolean().optional(),
     isPopular: joi_1.default.boolean().optional(),
     minPrice: joi_1.default.number().positive().optional(),
@@ -103,23 +102,21 @@ exports.categoryListQuerySchema = joi_1.default.object({
     sortOrder: joi_1.default.string().valid('asc', 'desc').optional().default('asc')
 });
 exports.serviceIdSchema = joi_1.default.object({
-    id: joi_1.default.number().integer().positive().required().messages({
-        'number.base': 'Hizmet ID sayısal değer olmalıdır',
-        'number.integer': 'Hizmet ID tam sayı olmalıdır',
-        'number.positive': 'Hizmet ID 0\'dan büyük olmalıdır',
+    id: joi_1.default.string().uuid().required().messages({
+        'string.base': 'Hizmet ID string değer olmalıdır',
+        'string.guid': 'Hizmet ID geçerli UUID formatında olmalıdır',
         'any.required': 'Hizmet ID gereklidir'
     })
 });
 exports.categoryIdSchema = joi_1.default.object({
-    id: joi_1.default.number().integer().positive().required().messages({
-        'number.base': 'Kategori ID sayısal değer olmalıdır',
-        'number.integer': 'Kategori ID tam sayı olmalıdır',
-        'number.positive': 'Kategori ID 0\'dan büyük olmalıdır',
+    id: joi_1.default.string().uuid().required().messages({
+        'string.base': 'Kategori ID string değer olmalıdır',
+        'string.guid': 'Kategori ID geçerli UUID formatında olmalıdır',
         'any.required': 'Kategori ID gereklidir'
     })
 });
 exports.serviceSchema = joi_1.default.object({
-    categoryId: joi_1.default.number().integer().required(),
+    categoryId: joi_1.default.string().uuid().required(),
     staffIds: joi_1.default.array().items(joi_1.default.string().uuid()).required(),
     slug: joi_1.default.string().required(),
     title: joi_1.default.string().required(),
@@ -150,12 +147,26 @@ exports.serviceQuerySchema = joi_1.default.object({
     page: joi_1.default.number().integer().min(1).default(1),
     limit: joi_1.default.number().integer().min(1).max(100).default(10),
     search: joi_1.default.string(),
-    categoryId: joi_1.default.number().integer(),
+    categoryId: joi_1.default.string().uuid(),
     isActive: joi_1.default.boolean(),
     isPopular: joi_1.default.boolean(),
     minPrice: joi_1.default.number(),
     maxPrice: joi_1.default.number(),
     sortBy: joi_1.default.string().valid('orderIndex', 'name', 'price', 'duration', 'createdAt').default('orderIndex'),
     sortOrder: joi_1.default.string().valid('asc', 'desc').default('asc')
+});
+exports.serviceStaffAvailabilityQuerySchema = joi_1.default.object({
+    startDate: joi_1.default.date().min('now').required()
+        .messages({
+        'date.base': 'Geçerli bir başlangıç tarihi giriniz',
+        'date.min': 'Geçmiş tarih seçilemez',
+        'any.required': 'Başlangıç tarihi zorunludur'
+    }),
+    endDate: joi_1.default.date().min(joi_1.default.ref('startDate')).required()
+        .messages({
+        'date.base': 'Geçerli bir bitiş tarihi giriniz',
+        'date.min': 'Bitiş tarihi başlangıç tarihinden önce olamaz',
+        'any.required': 'Bitiş tarihi zorunludur'
+    })
 });
 //# sourceMappingURL=serviceValidation.js.map

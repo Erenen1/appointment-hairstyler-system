@@ -21,15 +21,15 @@ exports.revenueReportQuerySchema = joi_1.default.object({
         .messages({
         'any.only': 'Gruplama değeri day, week veya month olmalıdır'
     }),
-    staffId: joi_1.default.number().integer().positive().optional()
+    staffId: joi_1.default.string().uuid().optional()
         .messages({
-        'number.base': 'Personel ID sayı olmalıdır',
-        'number.positive': 'Personel ID pozitif sayı olmalıdır'
+        'string.base': 'Personel ID string olmalıdır',
+        'string.guid': 'Personel ID geçerli UUID formatında olmalıdır'
     }),
-    serviceId: joi_1.default.number().integer().positive().optional()
+    serviceId: joi_1.default.string().uuid().optional()
         .messages({
-        'number.base': 'Hizmet ID sayı olmalıdır',
-        'number.positive': 'Hizmet ID pozitif sayı olmalıdır'
+        'string.base': 'Hizmet ID string olmalıdır',
+        'string.guid': 'Hizmet ID geçerli UUID formatında olmalıdır'
     })
 });
 exports.appointmentReportQuerySchema = joi_1.default.object({
@@ -44,15 +44,15 @@ exports.appointmentReportQuerySchema = joi_1.default.object({
         'date.min': 'Bitiş tarihi başlangıç tarihinden büyük olmalıdır',
         'any.required': 'Bitiş tarihi zorunludur'
     }),
-    staffId: joi_1.default.number().integer().positive().optional()
+    staffId: joi_1.default.string().uuid().optional()
         .messages({
-        'number.base': 'Personel ID sayı olmalıdır',
-        'number.positive': 'Personel ID pozitif sayı olmalıdır'
+        'string.base': 'Personel ID string olmalıdır',
+        'string.guid': 'Personel ID geçerli UUID formatında olmalıdır'
     }),
-    serviceId: joi_1.default.number().integer().positive().optional()
+    serviceId: joi_1.default.string().uuid().optional()
         .messages({
-        'number.base': 'Hizmet ID sayı olmalıdır',
-        'number.positive': 'Hizmet ID pozitif sayı olmalıdır'
+        'string.base': 'Hizmet ID string olmalıdır',
+        'string.guid': 'Hizmet ID geçerli UUID formatında olmalıdır'
     }),
     status: joi_1.default.string().valid('pending', 'confirmed', 'completed', 'cancelled').optional()
         .messages({
@@ -95,10 +95,10 @@ exports.popularServicesReportQuerySchema = joi_1.default.object({
         'number.min': 'Limit en az 1 olmalıdır',
         'number.max': 'Limit en fazla 20 olabilir'
     }),
-    categoryId: joi_1.default.number().integer().positive().optional()
+    categoryId: joi_1.default.string().uuid().optional()
         .messages({
-        'number.base': 'Kategori ID sayı olmalıdır',
-        'number.positive': 'Kategori ID pozitif sayı olmalıdır'
+        'string.base': 'Kategori ID string olmalıdır',
+        'string.guid': 'Kategori ID geçerli UUID formatında olmalıdır'
     })
 });
 exports.staffPerformanceReportQuerySchema = joi_1.default.object({
@@ -113,10 +113,10 @@ exports.staffPerformanceReportQuerySchema = joi_1.default.object({
         'date.min': 'Bitiş tarihi başlangıç tarihinden büyük olmalıdır',
         'any.required': 'Bitiş tarihi zorunludur'
     }),
-    staffId: joi_1.default.number().integer().positive().optional()
+    staffId: joi_1.default.string().uuid().optional()
         .messages({
-        'number.base': 'Personel ID sayı olmalıdır',
-        'number.positive': 'Personel ID pozitif sayı olmalıdır'
+        'string.base': 'Personel ID string olmalıdır',
+        'string.guid': 'Personel ID geçerli UUID formatında olmalıdır'
     }),
     includeInactive: joi_1.default.boolean().default(false)
 });

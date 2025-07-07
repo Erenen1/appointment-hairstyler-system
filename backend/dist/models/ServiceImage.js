@@ -1,30 +1,39 @@
 module.exports = (sequelize, DataTypes) => {
     const ServiceImage = sequelize.define('ServiceImage', {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
         },
         serviceId: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             allowNull: false,
+            field: 'service_id',
+            references: {
+                model: 'services',
+                key: 'id',
+            },
+            onDelete: 'CASCADE',
         },
         imagePath: {
             type: DataTypes.STRING(255),
             allowNull: false,
+            field: 'image_path',
         },
         isMain: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
+            field: 'is_main',
         },
         orderIndex: {
             type: DataTypes.INTEGER,
             defaultValue: 0,
+            field: 'order_index',
         },
     }, {
         tableName: 'service_images',
         timestamps: true,
-        createdAt: 'createdAt',
+        createdAt: 'created_at',
         updatedAt: false,
     });
     return ServiceImage;
