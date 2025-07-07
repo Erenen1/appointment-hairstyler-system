@@ -57,6 +57,7 @@ export const serviceSchemas = {
       description: { type: 'string', maxLength: 500, example: 'Profesyonel saç kesimi hizmeti' },
       duration: { type: 'integer', minimum: 15, maximum: 480, example: 60 },
       price: { type: 'number', format: 'decimal', minimum: 0, example: 100.00 },
+      imagePath: { type: 'string', format: 'uri', example: 'https://example.com/image.jpg' },
       staffIds: { 
         type: 'array', 
         items: { type: 'string', format: 'uuid' }, 
@@ -75,6 +76,7 @@ export const serviceSchemas = {
       title: { type: 'string', minLength: 2, maxLength: 100, example: 'Saç Kesimi' },
       description: { type: 'string', maxLength: 500, example: 'Profesyonel saç kesimi hizmeti' },
       duration: { type: 'integer', minimum: 15, maximum: 480, example: 60 },
+      imagePath: { type: 'string', format: 'uri', example: 'https://example.com/image.jpg' },
       price: { type: 'number', format: 'decimal', minimum: 0, example: 100.00 },
       staffIds: { 
         type: 'array', 

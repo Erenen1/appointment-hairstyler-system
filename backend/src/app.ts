@@ -12,11 +12,11 @@ import routes, { setupSwagger } from "./routes";
 const app = express();
 
 
+app.use(cors(corsConfig));
 LogManager.ensureLogDirectory();
 app.use(requestLogger);
 app.use(sessionConfig);
 app.use(express.json());
-// app.use(cors(corsConfig));
 app.use('/', routes);
 setupSwagger(app);
 
