@@ -46,8 +46,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const env_1 = __importDefault(require("./config/env"));
 const session_1 = require("./config/session");
+const cors_2 = require("./config/cors");
 const errorHandler_1 = require("./middleware/errorHandler");
 const requestLogger_1 = require("./middleware/requestLogger");
 const logger_1 = __importStar(require("./config/logger"));
@@ -55,6 +57,7 @@ const logUtils_1 = require("./utils/logUtils");
 const database_1 = require("./config/database");
 const routes_1 = __importStar(require("./routes"));
 const app = (0, express_1.default)();
+app.use((0, cors_1.default)(cors_2.corsConfig));
 logUtils_1.LogManager.ensureLogDirectory();
 app.use(requestLogger_1.requestLogger);
 app.use(session_1.sessionConfig);
