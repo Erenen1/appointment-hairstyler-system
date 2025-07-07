@@ -12,9 +12,10 @@ exports.sessionConfig = (0, express_session_1.default)({
     saveUninitialized: false,
     cookie: {
         secure: false,
-        httpOnly: false,
+        httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'none',
+        sameSite: 'strict',
+        partitioned: false,
     },
     name: 'sessionid',
     rolling: true

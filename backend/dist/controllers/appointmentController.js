@@ -184,7 +184,6 @@ const createAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
                 fullName: customerData.fullName,
                 email: customerData.email,
                 phone: customerData.phone,
-                notes: customerData.notes
             });
         }
         const appointment = yield Appointment.create({
