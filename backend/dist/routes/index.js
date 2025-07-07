@@ -15,6 +15,7 @@ const customerRoutes_1 = __importDefault(require("./customerRoutes"));
 const staffRoutes_1 = __importDefault(require("./staffRoutes"));
 const contentRoutes_1 = __importDefault(require("./contentRoutes"));
 const contactRoutes_1 = __importDefault(require("./contactRoutes"));
+const availabilityRoutes_1 = __importDefault(require("./availabilityRoutes"));
 const swagger_1 = require("./swagger");
 Object.defineProperty(exports, "setupSwagger", { enumerable: true, get: function () { return swagger_1.setupSwagger; } });
 const router = (0, express_1.Router)();
@@ -28,5 +29,6 @@ router.use(`/customers`, customerRoutes_1.default);
 router.use(`/staff`, staffRoutes_1.default);
 router.use(`/content`, contentRoutes_1.default);
 router.use(`/contact`, contactRoutes_1.default);
+router.use(`/availability`, availabilityRoutes_1.default);
 exports.default = router;
 //# sourceMappingURL=index.js.map

@@ -27,29 +27,23 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
         },
         duration: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER,
             allowNull: false,
+            comment: 'Duration in minutes'
         },
         price: {
-            type: DataTypes.STRING,
+            type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
         },
         isActive: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true,
-        },
+        }
     }, {
         tableName: 'services',
         timestamps: true,
     });
-    Service.associate = (models) => {
-        Service.belongsToMany(models.Staff, {
-            through: 'staff_services',
-            foreignKey: 'serviceId',
-            otherKey: 'staffId'
-        });
-    };
     return Service;
 };
 //# sourceMappingURL=Service.js.map

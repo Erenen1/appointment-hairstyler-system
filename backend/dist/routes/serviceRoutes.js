@@ -7,6 +7,7 @@ const router = (0, express_1.Router)();
 router.get('/', serviceController_1.getServices);
 router.get('/categories', serviceController_1.getServiceCategories);
 router.get('/:id', serviceController_1.getServiceById);
+router.get('/:id/staff', serviceController_1.getServiceStaff);
 router.post('/', authMiddleware_1.requireAdmin, serviceController_1.createService);
 router.put('/:id', authMiddleware_1.requireAdmin, serviceController_1.updateService);
 router.delete('/:id', authMiddleware_1.requireAdmin, serviceController_1.deleteService);

@@ -14,7 +14,7 @@ exports.appointmentSchemas = {
     Staff: {
         type: 'object',
         properties: {
-            id: { type: 'number', example: 1 },
+            id: { type: 'string', format: 'uuid', example: '123e4567-e89b-12d3-a456-426614174000' },
             fullName: { type: 'string', example: 'Zeynep Yılmaz' },
             specialties: { type: 'string', example: 'Saç Kesimi, Boyama' }
         }
@@ -42,7 +42,7 @@ exports.appointmentSchemas = {
             id: { type: 'number', example: 123 },
             customerId: { type: 'number', example: 1 },
             customer: { $ref: '#/components/schemas/Customer' },
-            staffId: { type: 'number', example: 1 },
+            staffId: { type: 'string', format: 'uuid', example: '123e4567-e89b-12d3-a456-426614174000' },
             staff: { $ref: '#/components/schemas/Staff' },
             serviceId: { type: 'number', example: 1 },
             service: { $ref: '#/components/schemas/Service' },
@@ -68,14 +68,15 @@ exports.appointmentSchemas = {
                 properties: {
                     fullName: { type: 'string', minLength: 2, maxLength: 100, example: 'Ayşe Demir' },
                     email: { type: 'string', format: 'email', example: 'ayse.demir@email.com' },
-                    phone: { type: 'string', pattern: '^[0-9+\\-\\s()]+$', example: '+90 555 123 4567' }
+                    phone: { type: 'string', pattern: '^[0-9+\\-\\s()]+$', example: '+90 555 123 4567' },
+                    notes: { type: 'string', maxLength: 500, example: 'Müşteri notları' }
                 }
             },
             serviceId: { type: 'number', minimum: 1, example: 1 },
-            staffId: { type: 'number', minimum: 1, example: 1 },
+            staffId: { type: 'string', format: 'uuid', example: '123e4567-e89b-12d3-a456-426614174000' },
             appointmentDate: { type: 'string', format: 'date', example: '2024-12-15' },
             startTime: { type: 'string', pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$', example: '14:30' },
-            notes: { type: 'string', maxLength: 500, example: 'Özel istek notları' }
+            notes: { type: 'string', maxLength: 500, example: 'Randevu notları' }
         }
     },
     UpdateAppointmentStatusRequest: {
@@ -107,7 +108,7 @@ exports.appointmentSchemas = {
                     staffName: { type: 'string', example: 'Zeynep Yılmaz' },
                     phone: { type: 'string', example: '+90 555 123 4567' },
                     price: { type: 'number', example: 250.00 },
-                    notes: { type: 'string', example: 'Özel istek notları' }
+                    notes: { type: 'string', example: 'Randevu notları' }
                 }
             }
         }

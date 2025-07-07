@@ -287,6 +287,52 @@ exports.servicePaths = {
             }
         }
     },
+    '/services/{id}/staff': {
+        get: {
+            tags: ['Services'],
+            summary: 'Hizmeti veren personelleri getir',
+            description: 'Belirli bir hizmeti verebilen aktif personelleri listeler',
+            parameters: [
+                {
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    description: 'Hizmet ID',
+                    schema: { type: 'integer', minimum: 1 }
+                }
+            ],
+            responses: {
+                200: {
+                    description: 'Hizmeti veren personeller başarıyla getirildi',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    success: { type: 'boolean', example: true },
+                                    message: { type: 'string', example: 'Hizmeti veren personeller başarıyla getirildi' },
+                                    data: {
+                                        type: 'array',
+                                        items: { $ref: '#/components/schemas/ServiceStaffMember' }
+                                    },
+                                    timestamp: { type: 'string', format: 'date-time' }
+                                }
+                            }
+                        }
+                    }
+                },
+                404: {
+                    description: 'Hizmet bulunamadı',
+                    content: {
+                        'application/json': {
+                            schema: { $ref: '#/components/schemas/ErrorResponse' }
+                        }
+                    }
+                },
+                500: { $ref: '#/components/responses/InternalError' }
+            }
+        }
+    },
     '/services/categories/{id}': {
         put: {
             tags: ['Services'],

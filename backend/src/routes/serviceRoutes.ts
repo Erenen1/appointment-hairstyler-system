@@ -9,13 +9,15 @@ import {
   getServiceCategories,
   createServiceCategory,
   updateServiceCategory,
-  deleteServiceCategory
+  deleteServiceCategory,
+  getServiceStaff
 } from '../controllers/serviceController';
 const router = Router();
 
 router.get('/', getServices); 
 router.get('/categories', getServiceCategories); 
 router.get('/:id', getServiceById); 
+router.get('/:id/staff', getServiceStaff);
 router.post('/', requireAdmin, createService);
 router.put('/:id', requireAdmin, updateService);
 router.delete('/:id', requireAdmin, deleteService);

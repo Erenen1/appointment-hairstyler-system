@@ -28,7 +28,7 @@ const utils_1 = require("../utils");
 const sequelize_1 = require("sequelize");
 const staffValidation_1 = require("../validations/staffValidation");
 const index_1 = __importDefault(require("../models/index"));
-const { Staff, Service } = index_1.default;
+const { Staff, StaffService, Service, ServiceCategory } = index_1.default;
 const getStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { error, value } = staffValidation_1.staffListQuerySchema.validate(req.query);
@@ -42,9 +42,49 @@ const getStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         }
         const offset = (page - 1) * limit;
         const { count, rows } = yield Staff.findAndCountAll({
+            where: whereConditions,
+            include: [
+                {
+                    model: Service,
+                    as: 'services',
+                    through: {
+                        model: StaffService,
+                        attributes: ['isActive']
+                    },
+                    attributes: ['id', 'title', 'price', 'duration'],
+                    include: [
+                        {
+                            model: ServiceCategory,
+                            as: 'category',
+                            attributes: ['id', 'name']
+                        }
+                    ]
+                }
+            ],
             limit,
             offset,
             distinct: true
+        });
+        const formattedStaff = rows.map(staff => {
+            var _a, _b;
+            return ({
+                id: staff.id,
+                fullName: staff.fullName,
+                email: staff.email,
+                phone: staff.phone,
+                specialties: staff.specialties,
+                avatar: staff.avatar,
+                isActive: staff.isActive,
+                services: ((_b = (_a = staff.services) === null || _a === void 0 ? void 0 : _a.filter(service => { var _a; return (_a = service.StaffService) === null || _a === void 0 ? void 0 : _a.isActive; })) === null || _b === void 0 ? void 0 : _b.map(service => ({
+                    id: service.id,
+                    title: service.title,
+                    price: service.price,
+                    duration: service.duration,
+                    category: service.category
+                }))) || [],
+                createdAt: staff.createdAt,
+                updatedAt: staff.updatedAt
+            });
         });
         const totalPages = Math.ceil(count / limit);
         const paginationInfo = {
@@ -55,7 +95,7 @@ const getStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             hasNextPage: page < totalPages,
             hasPrevPage: page > 1
         };
-        res.json(utils_1.ApiSuccess.list(rows, paginationInfo, 'Personeller başarıyla getirildi'));
+        res.json(utils_1.ApiSuccess.list(formattedStaff, paginationInfo, 'Personeller başarıyla getirildi'));
     }
     catch (error) {
         next(error);
@@ -63,17 +103,45 @@ const getStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
 });
 exports.getStaff = getStaff;
 const getStaffById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     try {
         const { error, value } = staffValidation_1.staffIdSchema.validate(req.params);
         if (error) {
             throw utils_1.ApiError.fromJoi(error);
         }
         const { id } = value;
-        const staff = yield Staff.findByPk(id);
+        const staff = yield Staff.findByPk(id, {
+            include: [
+                {
+                    model: Service,
+                    as: 'services',
+                    through: {
+                        model: StaffService,
+                        attributes: ['isActive']
+                    },
+                    attributes: ['id', 'title', 'description', 'price', 'duration'],
+                    include: [
+                        {
+                            model: ServiceCategory,
+                            as: 'category',
+                            attributes: ['id', 'name']
+                        }
+                    ]
+                }
+            ]
+        });
         if (!staff) {
             throw utils_1.ApiError.notFound('Personel bulunamadı');
         }
-        res.json(utils_1.ApiSuccess.item(staff, 'Personel detayları başarıyla getirildi'));
+        const formattedStaff = Object.assign(Object.assign({}, staff.toJSON()), { services: ((_b = (_a = staff.services) === null || _a === void 0 ? void 0 : _a.filter(service => { var _a; return (_a = service.StaffService) === null || _a === void 0 ? void 0 : _a.isActive; })) === null || _b === void 0 ? void 0 : _b.map(service => ({
+                id: service.id,
+                title: service.title,
+                description: service.description,
+                price: service.price,
+                duration: service.duration,
+                category: service.category
+            }))) || [] });
+        res.json(utils_1.ApiSuccess.item(formattedStaff, 'Personel detayları başarıyla getirildi'));
     }
     catch (error) {
         next(error);
@@ -86,7 +154,7 @@ const createStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         if (error) {
             throw utils_1.ApiError.fromJoi(error);
         }
-        const { fullName, email, phone, specialties, avatar } = value;
+        const { fullName, email, phone, specialties, avatar, serviceIds } = value;
         const existingStaff = yield Staff.findOne({
             where: { email: { [sequelize_1.Op.iLike]: email } }
         });
@@ -101,8 +169,34 @@ const createStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             avatar,
             isActive: true
         });
-        const createdStaff = yield staff.toJSON();
-        res.status(201).json(utils_1.ApiSuccess.created(createdStaff, 'Personel başarıyla oluşturuldu'));
+        if (serviceIds && serviceIds.length > 0) {
+            yield Promise.all(serviceIds.map(serviceId => StaffService.create({
+                staffId: staff.id,
+                serviceId: serviceId,
+                isActive: true
+            })));
+        }
+        const staffWithServices = yield Staff.findByPk(staff.id, {
+            include: [
+                {
+                    model: Service,
+                    as: 'services',
+                    through: {
+                        model: StaffService,
+                        attributes: ['isActive']
+                    },
+                    attributes: ['id', 'title', 'price', 'duration'],
+                    include: [
+                        {
+                            model: ServiceCategory,
+                            as: 'category',
+                            attributes: ['id', 'name']
+                        }
+                    ]
+                }
+            ]
+        });
+        res.status(201).json(utils_1.ApiSuccess.created(staffWithServices, 'Personel başarıyla oluşturuldu'));
     }
     catch (error) {
         next(error);
@@ -138,7 +232,39 @@ const updateStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         }
         const { serviceIds } = updateData, staffUpdateData = __rest(updateData, ["serviceIds"]);
         const updatedStaff = yield staff.update(staffUpdateData);
-        res.json(utils_1.ApiSuccess.updated(updatedStaff, 'Personel başarıyla güncellendi'));
+        if (serviceIds && Array.isArray(serviceIds)) {
+            yield StaffService.destroy({
+                where: { staffId: id }
+            });
+            if (serviceIds.length > 0) {
+                yield Promise.all(serviceIds.map(serviceId => StaffService.create({
+                    staffId: id,
+                    serviceId: serviceId,
+                    isActive: true
+                })));
+            }
+        }
+        const updatedStaffWithServices = yield Staff.findByPk(id, {
+            include: [
+                {
+                    model: Service,
+                    as: 'services',
+                    through: {
+                        model: StaffService,
+                        attributes: ['isActive']
+                    },
+                    attributes: ['id', 'title', 'price', 'duration'],
+                    include: [
+                        {
+                            model: ServiceCategory,
+                            as: 'category',
+                            attributes: ['id', 'name']
+                        }
+                    ]
+                }
+            ]
+        });
+        res.json(utils_1.ApiSuccess.updated(updatedStaffWithServices, 'Personel başarıyla güncellendi'));
     }
     catch (error) {
         next(error);
@@ -163,12 +289,126 @@ const getAvailableSlots = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         if (!staff) {
             throw utils_1.ApiError.notFound('Personel bulunamadı veya aktif değil');
         }
-        const slots = [
-            '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-            '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
-            '16:00', '16:30', '17:00', '17:30'
-        ];
-        res.json(utils_1.ApiSuccess.item(slots, 'Müsait saatler başarıyla getirildi'));
+        const dateStr = typeof date === 'string' ? date : date.toISOString().split('T')[0];
+        const targetDate = new Date(dateStr);
+        const dayOfWeek = targetDate.getDay() || 7;
+        const staffAvailability = yield index_1.default.StaffAvailability.findOne({
+            where: {
+                staffId: id,
+                date: dateStr
+            }
+        });
+        let workingHours;
+        if (staffAvailability) {
+            if (!staffAvailability.isAvailable) {
+                res.json(utils_1.ApiSuccess.item({
+                    date: dateStr,
+                    staffId: id,
+                    staffName: staff.fullName,
+                    isAvailable: false,
+                    reason: staffAvailability.notes || 'Personel bu tarihte müsait değil',
+                    availableSlots: [],
+                    totalSlots: 0
+                }, 'Personel bu tarihte müsait değil'));
+                return;
+            }
+            workingHours = {
+                start: staffAvailability.startTime,
+                end: staffAvailability.endTime,
+                lunchBreak: staffAvailability.lunchBreakStart && staffAvailability.lunchBreakEnd ? {
+                    start: staffAvailability.lunchBreakStart,
+                    end: staffAvailability.lunchBreakEnd
+                } : null
+            };
+        }
+        else {
+            const businessHour = yield index_1.default.BusinessHours.findOne({
+                where: { dayOfWeek }
+            });
+            if (!businessHour || businessHour.isClosed) {
+                res.json(utils_1.ApiSuccess.item({
+                    date: dateStr,
+                    staffId: id,
+                    staffName: staff.fullName,
+                    isAvailable: false,
+                    reason: 'Salon bu gün kapalı',
+                    availableSlots: [],
+                    totalSlots: 0
+                }, 'Salon bu gün kapalı'));
+                return;
+            }
+            workingHours = {
+                start: businessHour.openTime,
+                end: businessHour.closeTime,
+                lunchBreak: {
+                    start: '12:00:00',
+                    end: '13:00:00'
+                }
+            };
+        }
+        const existingAppointments = yield index_1.default.Appointment.findAll({
+            where: {
+                staffId: id,
+                appointmentDate: dateStr
+            },
+            attributes: ['startTime', 'endTime'],
+            order: [['startTime', 'ASC']]
+        });
+        const startHour = parseInt(workingHours.start.split(':')[0]);
+        const startMinute = parseInt(workingHours.start.split(':')[1]);
+        const endHour = parseInt(workingHours.end.split(':')[0]);
+        const endMinute = parseInt(workingHours.end.split(':')[1]);
+        const allSlots = [];
+        let currentHour = startHour;
+        let currentMinute = startMinute;
+        while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
+            const timeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+            allSlots.push(timeStr);
+            currentMinute += 30;
+            if (currentMinute >= 60) {
+                currentMinute = 0;
+                currentHour += 1;
+            }
+        }
+        const availableSlots = allSlots.filter(slot => {
+            if (workingHours.lunchBreak) {
+                const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+                const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+                if (slot >= lunchStart && slot < lunchEnd) {
+                    return false;
+                }
+            }
+            return !existingAppointments.some(appointment => {
+                const appointmentStart = appointment.startTime.substring(0, 5);
+                const appointmentEnd = appointment.endTime.substring(0, 5);
+                return slot >= appointmentStart && slot < appointmentEnd;
+            });
+        });
+        const formattedSlots = availableSlots.map(slot => ({
+            time: slot,
+            displayTime: slot,
+            available: true
+        }));
+        const response = {
+            date: dateStr,
+            staffId: id,
+            staffName: staff.fullName,
+            isAvailable: true,
+            availableSlots: formattedSlots,
+            totalSlots: formattedSlots.length,
+            workingHours: {
+                start: workingHours.start.substring(0, 5),
+                end: workingHours.end.substring(0, 5),
+                lunchBreak: workingHours.lunchBreak ?
+                    `${workingHours.lunchBreak.start.substring(0, 5)} - ${workingHours.lunchBreak.end.substring(0, 5)}` :
+                    null
+            },
+            existingAppointments: existingAppointments.map(apt => ({
+                startTime: apt.startTime.substring(0, 5),
+                endTime: apt.endTime.substring(0, 5)
+            }))
+        };
+        res.json(utils_1.ApiSuccess.item(response, 'Müsait saatler başarıyla getirildi'));
     }
     catch (error) {
         next(error);

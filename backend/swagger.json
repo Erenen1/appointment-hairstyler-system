@@ -13,6 +13,10 @@
     {
       "url": "http://api.erencelik.info",
       "description": "Development Server"
+    },
+    {
+      "url": "https://api.kuafor.com",
+      "description": "Production Server"
     }
   ],
   "tags": [
@@ -55,6 +59,10 @@
     {
       "name": "Dashboard",
       "description": "Dashboard istatistikleri"
+    },
+    {
+      "name": "Availability",
+      "description": "Personel müsaitlik yönetimi"
     }
   ],
   "paths": {
@@ -554,7 +562,7 @@
         ],
         "parameters": [
           {
-            "name": "start",
+            "name": "startDate",
             "in": "query",
             "required": true,
             "schema": {
@@ -564,7 +572,7 @@
             "description": "Başlangıç tarihi"
           },
           {
-            "name": "end",
+            "name": "endDate",
             "in": "query",
             "required": true,
             "schema": {
@@ -1125,6 +1133,72 @@
           },
           "409": {
             "description": "Hizmet aktif randevularda kullanılıyor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/services/{id}/staff": {
+      "get": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "Hizmeti veren personelleri getir",
+        "description": "Belirli bir hizmeti verebilen aktif personelleri listeler",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Hizmet ID",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hizmeti veren personeller başarıyla getirildi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Hizmeti veren personeller başarıyla getirildi"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ServiceStaffMember"
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hizmet bulunamadı",
             "content": {
               "application/json": {
                 "schema": {
@@ -1788,7 +1862,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -1851,7 +1926,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -1940,7 +2016,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string",
+              "format": "uuid"
             }
           },
           {
@@ -1950,15 +2027,6 @@
             "schema": {
               "type": "string",
               "format": "date"
-            }
-          },
-          {
-            "name": "serviceId",
-            "in": "query",
-            "description": "Hizmet süresine göre müsait saatleri hesaplar",
-            "required": false,
-            "schema": {
-              "type": "integer"
             }
           }
         ],
@@ -2841,25 +2909,461 @@
           }
         }
       }
-    }
-  },
-  "security": [{ "sessionAuth": [] }],
-  "components": {
-    "securitySchemes": {
-      "sessionAuth": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "sessionid",
-        "description": "Session-based authentication"
-      },
-      "apiKeyAuth": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-API-KEY",
-        "description": "API Key for super admin operations",
-        "x-example": "ee2bc83f-ac23-46a7-b3c4-1be0fe84a7b9"
+    },
+    "/availability/all": {
+      "get": {
+        "tags": [
+          "Availability"
+        ],
+        "summary": "Tüm personellerin müsaitlik durumlarını getir",
+        "description": "Belirli tarih aralığında tüm personellerin müsaitlik durumlarını ve randevularını getirir",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "description": "Başlangıç tarihi (YYYY-MM-DD)",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "description": "Bitiş tarihi (YYYY-MM-DD)",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "serviceId",
+            "in": "query",
+            "required": false,
+            "description": "Belirli hizmeti veren personelleri filtrele",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllStaffAvailabilityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Geçersiz parametreler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
+    "/availability": {
+      "get": {
+        "tags": [
+          "Availability"
+        ],
+        "summary": "Müsaitlik kayıtlarını getir",
+        "description": "Filtreleme ile müsaitlik kayıtlarını getirir",
+        "parameters": [
+          {
+            "name": "staffId",
+            "in": "query",
+            "required": false,
+            "description": "Personel ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "description": "Belirli tarih (YYYY-MM-DD)",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": false,
+            "description": "Başlangıç tarihi (YYYY-MM-DD)",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": false,
+            "description": "Bitiş tarihi (YYYY-MM-DD)",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "description": "Müsaitlik tipi",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "default",
+                "custom",
+                "off"
+              ]
+            }
+          },
+          {
+            "name": "isAvailable",
+            "in": "query",
+            "required": false,
+            "description": "Müsaitlik durumu",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Başarılı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Müsaitlik durumları başarıyla getirildi"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/StaffAvailability"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Availability"
+        ],
+        "summary": "Yeni müsaitlik kaydı oluştur",
+        "description": "Personel için yeni müsaitlik kaydı oluşturur (Sadece admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAvailability"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Müsaitlik kaydı başarıyla oluşturuldu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Müsaitlik kaydı başarıyla oluşturuldu"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StaffAvailability"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Geçersiz veri",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Bu tarih için zaten kayıt mevcut",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/availability/bulk": {
+      "post": {
+        "tags": [
+          "Availability"
+        ],
+        "summary": "Toplu müsaitlik kaydı oluştur",
+        "description": "Personel için belirli tarih aralığında toplu müsaitlik kaydı oluşturur (Sadece admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkCreateAvailability"
+              },
+              "examples": {
+                "weekdays": {
+                  "summary": "Hafta içi çalışma planı",
+                  "value": {
+                    "staffId": "uuid-string",
+                    "dateRange": {
+                      "startDate": "2024-01-01",
+                      "endDate": "2024-01-31"
+                    },
+                    "workingDays": [
+                      1,
+                      2,
+                      3,
+                      4,
+                      5
+                    ],
+                    "schedule": {
+                      "startTime": "09:00",
+                      "endTime": "18:00",
+                      "lunchBreakStart": "12:00",
+                      "lunchBreakEnd": "13:00"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Toplu müsaitlik kayıtları başarıyla oluşturuldu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "15 adet müsaitlik kaydı başarıyla oluşturuldu"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer",
+                          "example": 15
+                        },
+                        "records": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/StaffAvailability"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Geçersiz veri veya oluşturulacak kayıt bulunamadı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/availability/{id}": {
+      "put": {
+        "tags": [
+          "Availability"
+        ],
+        "summary": "Müsaitlik kaydını güncelle",
+        "description": "Mevcut müsaitlik kaydını günceller (Sadece admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Müsaitlik kaydı ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAvailability"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Müsaitlik kaydı başarıyla güncellendi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Müsaitlik kaydı başarıyla güncellendi"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StaffAvailability"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Müsaitlik kaydı bulunamadı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Availability"
+        ],
+        "summary": "Müsaitlik kaydını sil",
+        "description": "Müsaitlik kaydını siler (Sadece admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Müsaitlik kaydı ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Müsaitlik kaydı başarıyla silindi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Müsaitlik kaydı başarıyla silindi"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Müsaitlik kaydı bulunamadı",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
     "schemas": {
       "ApiSuccessResponse": {
         "type": "object",
@@ -3180,10 +3684,6 @@
                     "type": "integer",
                     "example": 1
                   },
-                  "username": {
-                    "type": "string",
-                    "example": "admin"
-                  },
                   "fullName": {
                     "type": "string",
                     "example": "Admin User"
@@ -3192,6 +3692,14 @@
                     "type": "string",
                     "format": "email",
                     "example": "admin@example.com"
+                  },
+                  "userType": {
+                    "type": "string",
+                    "example": "admin"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "1234567890"
                   },
                   "isActive": {
                     "type": "boolean",
@@ -3230,10 +3738,6 @@
                 "type": "integer",
                 "example": 1
               },
-              "username": {
-                "type": "string",
-                "example": "admin"
-              },
               "fullName": {
                 "type": "string",
                 "example": "Admin User"
@@ -3243,22 +3747,9 @@
                 "format": "email",
                 "example": "admin@example.com"
               },
-              "isActive": {
-                "type": "boolean",
-                "example": true
-              },
-              "lastLogin": {
+              "userType": {
                 "type": "string",
-                "format": "date-time",
-                "nullable": true
-              },
-              "createdAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updatedAt": {
-                "type": "string",
-                "format": "date-time"
+                "example": "admin"
               }
             }
           },
@@ -3292,10 +3783,6 @@
             "type": "integer",
             "example": 1
           },
-          "username": {
-            "type": "string",
-            "example": "admin"
-          },
           "fullName": {
             "type": "string",
             "example": "Admin User"
@@ -3304,6 +3791,10 @@
             "type": "string",
             "format": "email",
             "example": "admin@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "1234567890"
           },
           "isActive": {
             "type": "boolean",
@@ -3333,12 +3824,6 @@
           "email"
         ],
         "properties": {
-          "username": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 50,
-            "example": "admin"
-          },
           "password": {
             "type": "string",
             "minLength": 6,
@@ -3355,6 +3840,10 @@
             "type": "string",
             "format": "email",
             "example": "admin@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "1234567890"
           }
         }
       },
@@ -3398,12 +3887,6 @@
             "format": "email",
             "example": "ayse@example.com"
           },
-          "birthDate": {
-            "type": "string",
-            "format": "date",
-            "nullable": true,
-            "example": "1990-05-15"
-          },
           "notes": {
             "type": "string",
             "example": "Hassas cilt"
@@ -3422,29 +3905,73 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer",
-            "example": 1
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
           },
           "fullName": {
             "type": "string",
             "example": "Mehmet Özkan"
-          },
-          "phone": {
-            "type": "string",
-            "example": "+90 555 987 6543"
           },
           "email": {
             "type": "string",
             "format": "email",
             "example": "mehmet@salon.com"
           },
-          "specialization": {
+          "phone": {
+            "type": "string",
+            "example": "+90 555 987 6543"
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true,
+            "example": "https://example.com/avatar.jpg"
+          },
+          "specialties": {
             "type": "string",
             "example": "Saç Kesimi ve Boyama"
           },
           "isActive": {
             "type": "boolean",
             "example": true
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "title": {
+                  "type": "string",
+                  "example": "Saç Kesimi"
+                },
+                "price": {
+                  "type": "number",
+                  "format": "decimal",
+                  "example": 100
+                },
+                "duration": {
+                  "type": "integer",
+                  "example": 60
+                },
+                "category": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Saç Bakımı"
+                    }
+                  }
+                }
+              }
+            }
           },
           "createdAt": {
             "type": "string",
@@ -3463,7 +3990,15 @@
             "type": "integer",
             "example": 1
           },
-          "name": {
+          "categoryId": {
+            "type": "integer",
+            "example": 1
+          },
+          "slug": {
+            "type": "string",
+            "example": "sac-kesimi"
+          },
+          "title": {
             "type": "string",
             "example": "Saç Kesimi"
           },
@@ -3471,26 +4006,41 @@
             "type": "string",
             "example": "Profesyonel saç kesimi hizmeti"
           },
+          "duration": {
+            "type": "integer",
+            "example": 60
+          },
           "price": {
             "type": "number",
             "format": "decimal",
             "example": 100
           },
-          "duration": {
-            "type": "integer",
-            "example": 60,
-            "description": "Dakika cinsinden süre"
-          },
-          "categoryId": {
-            "type": "integer",
-            "example": 1
-          },
-          "category": {
-            "$ref": "#/components/schemas/ServiceCategory"
-          },
           "isActive": {
             "type": "boolean",
             "example": true
+          },
+          "isPopular": {
+            "type": "boolean",
+            "example": false
+          },
+          "category": {
+            "type": "object",
+            "properties": {
+              "id": {
+            "type": "integer",
+            "example": 1
+          },
+              "name": {
+                "type": "string",
+                "example": "Saç Bakımı"
+              }
+            }
+          },
+          "staffMembers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceStaffMember"
+            }
           },
           "createdAt": {
             "type": "string",
@@ -3534,8 +4084,9 @@
             "$ref": "#/components/schemas/Customer"
           },
           "staffId": {
-            "type": "number",
-            "example": 1
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
           },
           "staff": {
             "$ref": "#/components/schemas/Staff"
@@ -3622,6 +4173,11 @@
                 "type": "string",
                 "pattern": "^[0-9+\\-\\s()]+$",
                 "example": "+90 555 123 4567"
+              },
+              "notes": {
+                "type": "string",
+                "maxLength": 500,
+                "example": "Müşteri notları"
               }
             }
           },
@@ -3631,9 +4187,9 @@
             "example": 1
           },
           "staffId": {
-            "type": "number",
-            "minimum": 1,
-            "example": 1
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
           },
           "appointmentDate": {
             "type": "string",
@@ -3648,7 +4204,7 @@
           "notes": {
             "type": "string",
             "maxLength": 500,
-            "example": "Özel istek notları"
+            "example": "Randevu notları"
           }
         }
       },
@@ -3729,7 +4285,7 @@
               },
               "notes": {
                 "type": "string",
-                "example": "Özel istek notları"
+                "example": "Randevu notları"
               }
             }
           }
@@ -3764,16 +4320,54 @@
           }
         }
       },
+      "ServiceStaffMember": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "fullName": {
+            "type": "string",
+            "example": "Ahmet Yılmaz"
+          },
+          "specialties": {
+            "type": "string",
+            "example": "Saç kesimi, sakal tıraşı"
+          },
+          "avatar": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "canProvideService": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
       "CreateServiceRequest": {
         "type": "object",
         "required": [
-          "name",
-          "price",
+          "categoryId",
+          "title",
           "duration",
-          "categoryId"
+          "price"
         ],
         "properties": {
-          "name": {
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "sac-kesimi"
+          },
+          "categoryId": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "title": {
             "type": "string",
             "minLength": 2,
             "maxLength": 100,
@@ -3784,27 +4378,55 @@
             "maxLength": 500,
             "example": "Profesyonel saç kesimi hizmeti"
           },
+          "duration": {
+            "type": "integer",
+            "minimum": 15,
+            "maximum": 480,
+            "example": 60
+          },
           "price": {
             "type": "number",
+            "format": "decimal",
             "minimum": 0,
             "example": 100
           },
-          "duration": {
-            "type": "integer",
-            "minimum": 1,
-            "example": 60
+          "staffIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "minItems": 0,
+            "example": [
+              "123e4567-e89b-12d3-a456-426614174000",
+              "456e7890-e12b-34d5-a678-901234567890"
+            ]
           },
-          "categoryId": {
-            "type": "integer",
-            "minimum": 1,
-            "example": 1
+          "isPopular": {
+            "type": "boolean",
+            "example": false
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
           }
         }
       },
       "UpdateServiceRequest": {
         "type": "object",
         "properties": {
-          "name": {
+          "categoryId": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "sac-kesimi"
+          },
+          "title": {
             "type": "string",
             "minLength": 2,
             "maxLength": 100,
@@ -3815,20 +4437,33 @@
             "maxLength": 500,
             "example": "Profesyonel saç kesimi hizmeti"
           },
+          "duration": {
+            "type": "integer",
+            "minimum": 15,
+            "maximum": 480,
+            "example": 60
+          },
           "price": {
             "type": "number",
+            "format": "decimal",
             "minimum": 0,
             "example": 100
           },
-          "duration": {
-            "type": "integer",
-            "minimum": 1,
-            "example": 60
+          "staffIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "minItems": 0,
+            "example": [
+              "123e4567-e89b-12d3-a456-426614174000",
+              "456e7890-e12b-34d5-a678-901234567890"
+            ]
           },
-          "categoryId": {
-            "type": "integer",
-            "minimum": 1,
-            "example": 1
+          "isPopular": {
+            "type": "boolean",
+            "example": false
           },
           "isActive": {
             "type": "boolean",
@@ -3898,11 +4533,6 @@
             "format": "email",
             "example": "ayse@example.com"
           },
-          "birthDate": {
-            "type": "string",
-            "format": "date",
-            "example": "1990-05-15"
-          },
           "notes": {
             "type": "string",
             "maxLength": 500,
@@ -3928,11 +4558,6 @@
             "type": "string",
             "format": "email",
             "example": "ayse@example.com"
-          },
-          "birthDate": {
-            "type": "string",
-            "format": "date",
-            "example": "1990-05-15"
           },
           "notes": {
             "type": "string",
@@ -3967,12 +4592,32 @@
           }
         }
       },
+      "StaffBasic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "fullName": {
+            "type": "string",
+            "example": "Mehmet Özkan"
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true,
+            "example": "https://example.com/avatar.jpg"
+          }
+        }
+      },
       "CreateStaffRequest": {
         "type": "object",
         "required": [
           "fullName",
+          "email",
           "phone",
-          "specialization"
+          "specialties"
         ],
         "properties": {
           "fullName": {
@@ -3981,21 +4626,38 @@
             "maxLength": 100,
             "example": "Mehmet Özkan"
           },
-          "phone": {
-            "type": "string",
-            "pattern": "^[0-9+\\-\\s()]+$",
-            "example": "+90 555 987 6543"
-          },
           "email": {
             "type": "string",
             "format": "email",
             "example": "mehmet@salon.com"
           },
-          "specialization": {
+          "phone": {
+            "type": "string",
+            "pattern": "^[0-9+\\-\\s()]+$",
+            "example": "+90 555 987 6543"
+          },
+          "specialties": {
             "type": "string",
             "minLength": 2,
             "maxLength": 200,
             "example": "Saç Kesimi ve Boyama"
+          },
+          "serviceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 0,
+            "example": [
+              1,
+              2,
+              3
+            ]
+          },
+          "avatar": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/avatar.jpg"
           }
         }
       },
@@ -4008,21 +4670,38 @@
             "maxLength": 100,
             "example": "Mehmet Özkan"
           },
-          "phone": {
-            "type": "string",
-            "pattern": "^[0-9+\\-\\s()]+$",
-            "example": "+90 555 987 6543"
-          },
           "email": {
             "type": "string",
             "format": "email",
             "example": "mehmet@salon.com"
           },
-          "specialization": {
+          "phone": {
+            "type": "string",
+            "pattern": "^[0-9+\\-\\s()]+$",
+            "example": "+90 555 987 6543"
+          },
+          "specialties": {
             "type": "string",
             "minLength": 2,
             "maxLength": 200,
             "example": "Saç Kesimi ve Boyama"
+          },
+          "serviceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 0,
+            "example": [
+              1,
+              2,
+              3
+            ]
+          },
+          "avatar": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/avatar.jpg"
           },
           "isActive": {
             "type": "boolean",
@@ -4033,15 +4712,15 @@
       "AvailableSlot": {
         "type": "object",
         "properties": {
-          "startTime": {
+          "time": {
             "type": "string",
             "example": "09:00"
           },
-          "endTime": {
+          "displayTime": {
             "type": "string",
-            "example": "10:00"
+            "example": "09:00"
           },
-          "isAvailable": {
+          "available": {
             "type": "boolean",
             "example": true
           }
@@ -4056,7 +4735,7 @@
           },
           "message": {
             "type": "string",
-            "example": "Müsait saatler getirildi"
+            "example": "Müsait saatler başarıyla getirildi"
           },
           "data": {
             "type": "object",
@@ -4067,14 +4746,66 @@
                 "example": "2024-01-15"
               },
               "staffId": {
-                "type": "integer",
-                "example": 1
+                "type": "string",
+                "format": "uuid",
+                "example": "123e4567-e89b-12d3-a456-426614174000"
               },
-              "slots": {
+              "staffName": {
+                "type": "string",
+                "example": "Mehmet Özkan"
+              },
+              "isAvailable": {
+                "type": "boolean",
+                "example": true
+              },
+              "availableSlots": {
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/AvailableSlot"
                 }
+              },
+              "totalSlots": {
+                "type": "integer",
+                "example": 12
+              },
+              "workingHours": {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "string",
+                    "example": "09:00"
+                  },
+                  "end": {
+                    "type": "string",
+                    "example": "18:00"
+                  },
+                  "lunchBreak": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "12:00 - 13:00"
+                  }
+                }
+              },
+              "existingAppointments": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "startTime": {
+                      "type": "string",
+                      "example": "10:00"
+                    },
+                    "endTime": {
+                      "type": "string",
+                      "example": "11:00"
+                    }
+                  }
+                }
+              },
+              "reason": {
+                "type": "string",
+                "nullable": true,
+                "example": "Personel bu tarihte müsait değil"
               }
             }
           },
@@ -4620,6 +5351,385 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "StaffAvailability": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Müsaitlik kaydı ID"
+          },
+          "staffId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Personel ID"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "Müsaitlik tarihi (YYYY-MM-DD)"
+          },
+          "dayOfWeek": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 7,
+            "description": "Haftanın günü (1=Pazartesi, 7=Pazar)"
+          },
+          "startTime": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "description": "Çalışma başlangıç saati (HH:MM)"
+          },
+          "endTime": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "description": "Çalışma bitiş saati (HH:MM)"
+          },
+          "lunchBreakStart": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "nullable": true,
+            "description": "Öğle molası başlangıç saati (HH:MM)"
+          },
+          "lunchBreakEnd": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "nullable": true,
+            "description": "Öğle molası bitiş saati (HH:MM)"
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "description": "Personel bu tarihte müsait mi?"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "default",
+              "custom",
+              "off"
+            ],
+            "description": "Müsaitlik tipi (default: varsayılan iş saatleri, custom: özel saatler, off: izinli)"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true,
+            "description": "Özel notlar"
+          },
+          "staff": {
+            "$ref": "#/components/schemas/StaffBasic"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "staffId",
+          "date",
+          "dayOfWeek",
+          "startTime",
+          "endTime",
+          "isAvailable",
+          "type"
+        ]
+      },
+      "CreateAvailability": {
+        "type": "object",
+        "properties": {
+          "staffId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Personel ID"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "Müsaitlik tarihi (YYYY-MM-DD)"
+          },
+          "startTime": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "description": "Çalışma başlangıç saati (HH:MM)"
+          },
+          "endTime": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "description": "Çalışma bitiş saati (HH:MM)"
+          },
+          "lunchBreakStart": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "nullable": true,
+            "description": "Öğle molası başlangıç saati (HH:MM)"
+          },
+          "lunchBreakEnd": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "nullable": true,
+            "description": "Öğle molası bitiş saati (HH:MM)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "default",
+              "custom",
+              "off"
+            ],
+            "default": "default",
+            "description": "Müsaitlik tipi"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Özel notlar"
+          }
+        },
+        "required": [
+          "staffId",
+          "date",
+          "startTime",
+          "endTime"
+        ]
+      },
+      "UpdateAvailability": {
+        "type": "object",
+        "properties": {
+          "startTime": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "description": "Çalışma başlangıç saati (HH:MM)"
+          },
+          "endTime": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "description": "Çalışma bitiş saati (HH:MM)"
+          },
+          "lunchBreakStart": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "nullable": true,
+            "description": "Öğle molası başlangıç saati (HH:MM)"
+          },
+          "lunchBreakEnd": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "nullable": true,
+            "description": "Öğle molası bitiş saati (HH:MM)"
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "description": "Personel bu tarihte müsait mi?"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "default",
+              "custom",
+              "off"
+            ],
+            "description": "Müsaitlik tipi"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Özel notlar"
+          }
+        },
+        "minProperties": 1
+      },
+      "BulkCreateAvailability": {
+        "type": "object",
+        "properties": {
+          "staffId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Personel ID"
+          },
+          "dateRange": {
+            "type": "object",
+            "properties": {
+              "startDate": {
+                "type": "string",
+                "format": "date",
+                "description": "Başlangıç tarihi"
+              },
+              "endDate": {
+                "type": "string",
+                "format": "date",
+                "description": "Bitiş tarihi"
+              }
+            },
+            "required": [
+              "startDate",
+              "endDate"
+            ]
+          },
+          "workingDays": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 7
+            },
+            "minItems": 1,
+            "description": "Çalışma günleri (1=Pazartesi, 7=Pazar)"
+          },
+          "schedule": {
+            "type": "object",
+            "properties": {
+              "startTime": {
+                "type": "string",
+                "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+                "description": "Çalışma başlangıç saati (HH:MM)"
+              },
+              "endTime": {
+                "type": "string",
+                "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+                "description": "Çalışma bitiş saati (HH:MM)"
+              },
+              "lunchBreakStart": {
+                "type": "string",
+                "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+                "nullable": true,
+                "description": "Öğle molası başlangıç saati (HH:MM)"
+              },
+              "lunchBreakEnd": {
+                "type": "string",
+                "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+                "nullable": true,
+                "description": "Öğle molası bitiş saati (HH:MM)"
+              }
+            },
+            "required": [
+              "startTime",
+              "endTime"
+            ]
+          }
+        },
+        "required": [
+          "staffId",
+          "dateRange",
+          "workingDays",
+          "schedule"
+        ]
+      },
+      "StaffAvailabilityWithAppointments": {
+        "type": "object",
+        "properties": {
+          "staff": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "fullName": {
+                "type": "string"
+              },
+              "avatar": {
+                "type": "string",
+                "nullable": true
+              },
+              "specialties": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          },
+          "availability": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "dayOfWeek": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 7
+                },
+                "isAvailable": {
+                  "type": "boolean"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "custom",
+                    "off"
+                  ]
+                },
+                "workingHours": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "start": {
+                      "type": "string"
+                    },
+                    "end": {
+                      "type": "string"
+                    },
+                    "lunchBreak": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "start": {
+                          "type": "string"
+                        },
+                        "end": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "appointments": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "startTime": {
+                        "type": "string"
+                      },
+                      "endTime": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "notes": {
+                  "type": "string",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "AllStaffAvailabilityResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Tüm personel müsaitlik durumları başarıyla getirildi"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StaffAvailabilityWithAppointments"
+            }
           }
         }
       }

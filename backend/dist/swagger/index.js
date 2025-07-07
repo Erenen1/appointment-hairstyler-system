@@ -12,6 +12,7 @@ const staff_1 = require("./schemas/staff");
 const content_1 = require("./schemas/content");
 const contact_1 = require("./schemas/contact");
 const dashboard_1 = require("./schemas/dashboard");
+const availability_1 = require("./schemas/availability");
 const health_2 = require("./paths/health");
 const auth_2 = require("./paths/auth");
 const admin_2 = require("./paths/admin");
@@ -22,8 +23,23 @@ const staff_2 = require("./paths/staff");
 const content_2 = require("./paths/content");
 const contact_2 = require("./paths/contact");
 const dashboard_2 = require("./paths/dashboard");
-exports.allSchemas = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, common_1.commonSchemas), health_1.healthSchemas), auth_1.authSchemas), admin_1.adminSchemas), appointment_1.appointmentSchemas), service_1.serviceSchemas), customer_1.customerSchemas), staff_1.staffSchemas), content_1.contentSchemas), contact_1.contactSchemas), dashboard_1.dashboardSchemas);
-exports.allPaths = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, health_2.healthPaths), auth_2.authPaths), admin_2.adminPaths), appointment_2.appointmentPaths), service_2.servicePaths), customer_2.customerPaths), staff_2.staffPaths), content_2.contentPaths), contact_2.contactPaths), dashboard_2.dashboardPaths);
+const availability_2 = require("./paths/availability");
+const availabilitySchemas = {
+    StaffAvailability: availability_1.StaffAvailabilitySchema,
+    CreateAvailability: availability_1.CreateAvailabilitySchema,
+    UpdateAvailability: availability_1.UpdateAvailabilitySchema,
+    BulkCreateAvailability: availability_1.BulkCreateAvailabilitySchema,
+    StaffAvailabilityWithAppointments: availability_1.StaffAvailabilityWithAppointmentsSchema,
+    AllStaffAvailabilityResponse: availability_1.AllStaffAvailabilityResponseSchema
+};
+const availabilityPaths = {
+    '/availability/all': availability_2.getAllStaffAvailability,
+    '/availability': Object.assign(Object.assign({}, availability_2.getStaffAvailability), availability_2.createAvailability),
+    '/availability/bulk': availability_2.bulkCreateAvailability,
+    '/availability/{id}': Object.assign(Object.assign({}, availability_2.updateAvailability), availability_2.deleteAvailability)
+};
+exports.allSchemas = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, common_1.commonSchemas), health_1.healthSchemas), auth_1.authSchemas), admin_1.adminSchemas), appointment_1.appointmentSchemas), service_1.serviceSchemas), customer_1.customerSchemas), staff_1.staffSchemas), content_1.contentSchemas), contact_1.contactSchemas), dashboard_1.dashboardSchemas), availabilitySchemas);
+exports.allPaths = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, health_2.healthPaths), auth_2.authPaths), admin_2.adminPaths), appointment_2.appointmentPaths), service_2.servicePaths), customer_2.customerPaths), staff_2.staffPaths), content_2.contentPaths), contact_2.contactPaths), dashboard_2.dashboardPaths), availabilityPaths);
 exports.allResponses = common_1.commonResponses;
 exports.swaggerConfig = {
     openapi: '3.0.3',
@@ -38,7 +54,7 @@ exports.swaggerConfig = {
     },
     servers: [
         {
-            url: 'http://localhost:8000',
+            url: 'http://api.erencelik.info',
             description: 'Development Server'
         },
         {
@@ -56,7 +72,8 @@ exports.swaggerConfig = {
         { name: 'Staff', description: 'Personel yönetimi' },
         { name: 'Content', description: 'İçerik yönetimi' },
         { name: 'Contact', description: 'İletişim yönetimi' },
-        { name: 'Dashboard', description: 'Dashboard istatistikleri' }
+        { name: 'Dashboard', description: 'Dashboard istatistikleri' },
+        { name: 'Availability', description: 'Personel müsaitlik yönetimi' }
     ],
     paths: exports.allPaths,
     components: {

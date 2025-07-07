@@ -15,6 +15,8 @@ const AppointmentHistory = require('./AppointmentHistory')(database_1.sequelize,
 const ContactMessage = require('./ContactMessage')(database_1.sequelize, sequelize_1.DataTypes);
 const GalleryCategory = require('./GalleryCategory')(database_1.sequelize, sequelize_1.DataTypes);
 const GalleryImage = require('./GalleryImage')(database_1.sequelize, sequelize_1.DataTypes);
+const StaffService = require('./StaffService')(database_1.sequelize, sequelize_1.DataTypes);
+const StaffAvailability = require('./StaffAvailability')(database_1.sequelize, sequelize_1.DataTypes);
 const setupAssociations = () => {
     ServiceCategory.hasMany(Service, { foreignKey: 'categoryId', as: 'services' });
     Service.belongsTo(ServiceCategory, { foreignKey: 'categoryId', as: 'category' });
@@ -36,6 +38,14 @@ const setupAssociations = () => {
     ContactMessage.belongsTo(Admin, { foreignKey: 'repliedByAdmin', as: 'repliedBy' });
     GalleryCategory.hasMany(GalleryImage, { foreignKey: 'categoryId', as: 'images' });
     GalleryImage.belongsTo(GalleryCategory, { foreignKey: 'categoryId', as: 'category' });
+    Staff.belongsToMany(Service, { through: StaffService, foreignKey: 'staffId', otherKey: 'serviceId', as: 'services' });
+    Service.belongsToMany(Staff, { through: StaffService, foreignKey: 'serviceId', otherKey: 'staffId', as: 'staffMembers' });
+    StaffService.belongsTo(Staff, { foreignKey: 'staffId', as: 'staff' });
+    StaffService.belongsTo(Service, { foreignKey: 'serviceId', as: 'service' });
+    Staff.hasMany(StaffService, { foreignKey: 'staffId', as: 'staffServices' });
+    Service.hasMany(StaffService, { foreignKey: 'serviceId', as: 'serviceStaff' });
+    Staff.hasMany(StaffAvailability, { foreignKey: 'staffId', as: 'availability' });
+    StaffAvailability.belongsTo(Staff, { foreignKey: 'staffId', as: 'staff' });
 };
 setupAssociations();
 const db = {
@@ -53,6 +63,8 @@ const db = {
     ContactMessage,
     GalleryCategory,
     GalleryImage,
+    StaffService,
+    StaffAvailability,
 };
 exports.default = db;
 //# sourceMappingURL=index.js.map

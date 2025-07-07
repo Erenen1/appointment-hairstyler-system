@@ -9,6 +9,14 @@ import { staffSchemas } from './schemas/staff';
 import { contentSchemas } from './schemas/content';
 import { contactSchemas } from './schemas/contact';
 import { dashboardSchemas } from './schemas/dashboard';
+import { 
+  StaffAvailabilitySchema,
+  CreateAvailabilitySchema,
+  UpdateAvailabilitySchema,
+  BulkCreateAvailabilitySchema,
+  StaffAvailabilityWithAppointmentsSchema,
+  AllStaffAvailabilityResponseSchema
+} from './schemas/availability';
 
 import { healthPaths } from './paths/health';
 import { authPaths } from './paths/auth';
@@ -20,6 +28,36 @@ import { staffPaths } from './paths/staff';
 import { contentPaths } from './paths/content';
 import { contactPaths } from './paths/contact';
 import { dashboardPaths } from './paths/dashboard';
+import {
+  getAllStaffAvailability,
+  getStaffAvailability,
+  createAvailability,
+  bulkCreateAvailability,
+  updateAvailability,
+  deleteAvailability
+} from './paths/availability';
+
+const availabilitySchemas = {
+  StaffAvailability: StaffAvailabilitySchema,
+  CreateAvailability: CreateAvailabilitySchema,
+  UpdateAvailability: UpdateAvailabilitySchema,
+  BulkCreateAvailability: BulkCreateAvailabilitySchema,
+  StaffAvailabilityWithAppointments: StaffAvailabilityWithAppointmentsSchema,
+  AllStaffAvailabilityResponse: AllStaffAvailabilityResponseSchema
+};
+
+const availabilityPaths = {
+  '/availability/all': getAllStaffAvailability,
+  '/availability': {
+    ...getStaffAvailability,
+    ...createAvailability
+  },
+  '/availability/bulk': bulkCreateAvailability,
+  '/availability/{id}': {
+    ...updateAvailability,
+    ...deleteAvailability
+  }
+};
 
 export const allSchemas = {
   ...commonSchemas,
@@ -32,7 +70,8 @@ export const allSchemas = {
   ...staffSchemas,
   ...contentSchemas,
   ...contactSchemas,
-  ...dashboardSchemas
+  ...dashboardSchemas,
+  ...availabilitySchemas
 };
 
 export const allPaths = {
@@ -45,7 +84,8 @@ export const allPaths = {
   ...staffPaths,
   ...contentPaths,
   ...contactPaths,
-  ...dashboardPaths
+  ...dashboardPaths,
+  ...availabilityPaths
 };
 
 export const allResponses = commonResponses;
@@ -63,7 +103,7 @@ export const swaggerConfig = {
   },
   servers: [
     {
-      url: 'http://localhost:8000',
+      url: 'http://api.erencelik.info',
       description: 'Development Server'
     },
     {
@@ -81,7 +121,8 @@ export const swaggerConfig = {
     { name: 'Staff', description: 'Personel yönetimi' },
     { name: 'Content', description: 'İçerik yönetimi' },
     { name: 'Contact', description: 'İletişim yönetimi' },
-    { name: 'Dashboard', description: 'Dashboard istatistikleri' }
+    { name: 'Dashboard', description: 'Dashboard istatistikleri' },
+    { name: 'Availability', description: 'Personel müsaitlik yönetimi' }
   ],
   paths: allPaths,
   components: {
