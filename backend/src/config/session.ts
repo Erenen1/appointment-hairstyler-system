@@ -9,7 +9,7 @@ export const sessionConfig = session({
     secure: true, 
     httpOnly: false,
     maxAge: 24 * 60 * 60 * 1000, 
-    sameSite: 'none',
+    sameSite: 'strict',
     partitioned: false,
   },
   name: 'sessionid', 
