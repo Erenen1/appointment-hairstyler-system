@@ -1,1 +1,0 @@
-export const APIURL = 'https://api.erencelik.info'
