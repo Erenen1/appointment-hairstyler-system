@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "appointmentId": 1,
+    "statusId": 1,
+    "notes": "Randevu oluşturuldu",
+    "createdByAdmin": 1,
+    "createdAt": "2024-01-10T15:30:00.000Z"
+  },
+  {
+    "id": 2,
+    "appointmentId": 1,
+    "statusId": 2,
+    "notes": "Randevu onaylandı",
+    "createdByAdmin": 1,
+    "createdAt": "2024-01-10T16:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "appointmentId": 1,
+    "statusId": 3,
+    "notes": "Hizmet başlatıldı",
+    "createdByAdmin": null,
+    "createdAt": "2024-01-15T10:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "appointmentId": 1,
+    "statusId": 4,
+    "notes": "Hizmet tamamlandı, müşteri memnun",
+    "createdByAdmin": null,
+    "createdAt": "2024-01-15T11:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "appointmentId": 2,
+    "statusId": 1,
+    "notes": "Online randevu alındı",
+    "createdByAdmin": null,
+    "createdAt": "2024-01-12T09:45:00.000Z"
+  },
+  {
+    "id": 6,
+    "appointmentId": 2,
+    "statusId": 2,
+    "notes": "Randevu onaylandı",
+    "createdByAdmin": 1,
+    "createdAt": "2024-01-12T10:00:00.000Z"
+  },
+  {
+    "id": 7,
+    "appointmentId": 3,
+    "statusId": 1,
+    "notes": "Özel gün randevusu oluşturuldu",
+    "createdByAdmin": 1,
+    "createdAt": "2024-01-14T16:20:00.000Z"
+  },
+  {
+    "id": 8,
+    "appointmentId": 4,
+    "statusId": 1,
+    "notes": "Keratin tedavisi randevusu",
+    "createdByAdmin": null,
+    "createdAt": "2024-01-05T13:15:00.000Z"
+  },
+  {
+    "id": 9,
+    "appointmentId": 4,
+    "statusId": 2,
+    "notes": "Randevu onaylandı, ön hazırlık bilgisi verildi",
+    "createdByAdmin": 1,
+    "createdAt": "2024-01-15T09:00:00.000Z"
+  },
+  {
+    "id": 10,
+    "appointmentId": 7,
+    "statusId": 5,
+    "notes": "Müşteri kişisel nedenlerle iptal etti",
+    "createdByAdmin": null,
+    "createdAt": "2024-01-14T12:00:00.000Z"
+  }
+] 

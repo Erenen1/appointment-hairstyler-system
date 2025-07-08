@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "question": "Randevu almadan gelebilir miyim?",
+    "answer": "Evet, randevusuz müşterilerimizi de kabul ediyoruz. Ancak yoğunluk durumuna göre bekleme süresi olabilir. Randevu almanızı öneririz."
+  },
+  {
+    "id": 2,
+    "question": "Hangi saç boyası markalarını kullanıyorsunuz?",
+    "answer": "Dünyaca ünlü L'Oréal, Schwarzkopf ve Wella markalarının profesyonel serilerini kullanıyoruz."
+  },
+  {
+    "id": 3,
+    "question": "Saç kesimi ne kadar sürer?",
+    "answer": "Ortalama bir saç kesimi yaklaşık 30-45 dakika arasında sürmektedir. Bu süre istenilen stile göre değişebilir."
+  },
+  {
+    "id": 4,
+    "question": "Keratin bakımı ne kadar kalıcıdır?",
+    "answer": "Keratin bakımının etkisi saç tipinize bağlı olarak 2-4 ay sürebilir. Süreyi uzatmak için sülfatsız şampuan kullanmanızı öneriyoruz."
+  },
+  {
+    "id": 5,
+    "question": "Düğün ve özel günler için evde hizmet veriyor musunuz?",
+    "answer": "Evet, düğün ve özel günler için önceden randevu alınması durumunda evde ya da dış mekânda hizmet verebiliyoruz."
+  },
+  {
+    "id": 6,
+    "question": "Kredi kartı ile ödeme yapabilir miyim?",
+    "answer": "Evet, nakit ve tüm kredi kartları ile ödeme kabul ediyoruz."
+  },
+  {
+    "id": 7,
+    "question": "Ürünleriniz hayvanlar üzerinde test ediliyor mu?",
+    "answer": "Hayır, kullandığımız tüm ürünler cruelty-free yani hayvanlar üzerinde test edilmemiştir."
+  },
+  {
+    "id": 8,
+    "question": "İptal veya değişiklik nasıl yapılır?",
+    "answer": "Randevunuzu iptal etmek veya değiştirmek isterseniz en az 2 saat öncesine kadar bizimle iletişime geçmeniz yeterlidir."
+  }
+]

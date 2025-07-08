@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "name": "Saç Kesimi & Şekillendirme",
+    "description": "Profesyonel saç kesimi ve şekillendirme hizmetleri",
+    "imagePath": "/images/categories/sac-kesimi.jpg",
+    "orderIndex": 1,
+    "isActive": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "name": "Saç Boyama & Renklendirme",
+    "description": "Saç boyama, highlights, lowlights ve renk düzeltme",
+    "imagePath": "/images/categories/sac-boyama.jpg",
+    "orderIndex": 2,
+    "isActive": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "name": "Saç Bakımı & Tedavi",
+    "description": "Keratin, protein tedavisi ve saç bakım uygulamaları",
+    "imagePath": "/images/categories/sac-bakimi.jpg",
+    "orderIndex": 3,
+    "isActive": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "name": "Makyaj & Güzellik",
+    "description": "Profesyonel makyaj ve güzellik hizmetleri",
+    "imagePath": "/images/categories/makyaj.jpg",
+    "orderIndex": 4,
+    "isActive": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "name": "Erkek Kuaförü",
+    "description": "Erkeklere özel saç kesimi, sakal tıraşı ve bakım",
+    "imagePath": "/images/categories/erkek-kuaforu.jpg",
+    "orderIndex": 5,
+    "isActive": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "name": "Özel Günler",
+    "description": "Düğün, nişan ve özel günler için saç ve makyaj",
+    "imagePath": "/images/categories/ozel-gunler.jpg",
+    "orderIndex": 6,
+    "isActive": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  }
+]
