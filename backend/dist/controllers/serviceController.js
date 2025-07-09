@@ -17,9 +17,11 @@ const utils_1 = require("../utils");
 const sequelize_1 = require("sequelize");
 const date_fns_1 = require("date-fns");
 const eachDayOfInterval_1 = require("date-fns/eachDayOfInterval");
+const path_1 = __importDefault(require("path"));
 const serviceValidation_1 = require("../validations/serviceValidation");
 const serviceValidation_2 = require("../validations/serviceValidation");
 const controllerUtils_1 = require("../utils/controllerUtils");
+const multer_1 = require("../config/multer");
 const index_1 = __importDefault(require("../models/index"));
 const { Service, ServiceCategory, ServiceImage, StaffService, Staff } = index_1.default;
 const getServices = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -152,12 +154,27 @@ const createService = (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 isActive: true
             })));
         }
+        if (req.file) {
+            const fileName = req.file.filename;
+            const relativePath = path_1.default.join('services', fileName);
+            yield ServiceImage.create({
+                serviceId: service.id,
+                imagePath: relativePath,
+                isMain: true,
+                orderIndex: 0
+            });
+        }
         const serviceWithStaff = yield Service.findByPk(service.id, {
             include: [
                 {
                     model: ServiceCategory,
                     as: 'category',
                     attributes: ['id', 'name']
+                },
+                {
+                    model: ServiceImage,
+                    as: 'images',
+                    attributes: ['id', 'imagePath', 'isMain', 'orderIndex']
                 },
                 {
                     model: Staff,
@@ -173,6 +190,9 @@ const createService = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         res.status(201).json(utils_1.ApiSuccess.created(serviceWithStaff, 'Hizmet başarıyla oluşturuldu'));
     }
     catch (error) {
+        if (req.file) {
+            yield (0, multer_1.deleteFile)(req.file.path);
+        }
         next(error);
     }
 });

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { requireAdmin } from '../middleware/authMiddleware';
+import { uploadSingleServiceImage } from '../config/multer';
 import {
   getServices,
   getServiceById,
@@ -18,7 +19,7 @@ router.get('/', getServices);
 router.get('/categories', getServiceCategories); 
 router.get('/:id', getServiceById); 
 router.get('/:id/staff', getServiceStaff);
-router.post('/', requireAdmin, createService);
+router.post('/', requireAdmin, uploadSingleServiceImage, createService);
 router.put('/:id', requireAdmin, updateService);
 router.delete('/:id', requireAdmin, deleteService);
 router.post('/categories', requireAdmin, createServiceCategory);

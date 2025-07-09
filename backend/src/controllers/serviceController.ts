@@ -3,6 +3,7 @@ import { ApiError, ApiSuccess } from '../utils';
 import { Op } from 'sequelize';
 import { format } from 'date-fns';
 import { eachDayOfInterval } from 'date-fns/eachDayOfInterval';
+import path from 'path';
 import { 
   createServiceSchema, 
   updateServiceSchema,
@@ -13,6 +14,7 @@ import {
 } from '../validations/serviceValidation';
 import { validateService } from '../validations/serviceValidation';
 import { getPaginationOptions, formatPaginationResponse } from '../utils/controllerUtils';
+import { generateFileUrl, deleteFile } from '../config/multer';
 
 import db from '../models/index';
 const { Service, ServiceCategory, ServiceImage, StaffService, Staff } = db;
@@ -161,6 +163,19 @@ export const createService = async (req: Request, res: Response, next: NextFunct
       );
     }
 
+    // Eğer resim yüklenmişse service image olarak kaydet
+    if (req.file) {
+      const fileName = req.file.filename;
+      const relativePath = path.join('services', fileName);
+      
+      await ServiceImage.create({
+        serviceId: service.id,
+        imagePath: relativePath,
+        isMain: true, // İlk resim ana resim olsun
+        orderIndex: 0
+      });
+    }
+
     // Oluşturulan hizmeti staff bilgileriyle birlikte getir
     const serviceWithStaff = await Service.findByPk(service.id, {
       include: [
@@ -168,6 +183,11 @@ export const createService = async (req: Request, res: Response, next: NextFunct
           model: ServiceCategory,
           as: 'category',
           attributes: ['id', 'name']
+        },
+        {
+          model: ServiceImage,
+          as: 'images',
+          attributes: ['id', 'imagePath', 'isMain', 'orderIndex']
         },
         {
           model: Staff,
@@ -183,6 +203,10 @@ export const createService = async (req: Request, res: Response, next: NextFunct
 
     res.status(201).json(ApiSuccess.created(serviceWithStaff, 'Hizmet başarıyla oluşturuldu'));
   } catch (error) {
+    // Hata durumunda yüklenen dosyayı sil
+    if (req.file) {
+      await deleteFile(req.file.path);
+    }
     next(error);
   }
 };

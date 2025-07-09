@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiError, ApiSuccess } from '../utils';
 import { Op } from 'sequelize';
 import { format } from 'date-fns';
+import path from 'path';
 import { 
   createStaffSchema, 
   updateStaffSchema,
@@ -10,7 +11,7 @@ import {
   availableSlotsQuerySchema,
   availableSlotsRangeQuerySchema
 } from '../validations/staffValidation';
-
+import { generateFileUrl, deleteFile } from '../config/multer';
 
 import db from '../models/index';
 const { Staff, StaffService, Service, ServiceCategory } = db;
@@ -141,19 +142,27 @@ export const createStaff = async (req: Request, res: Response, next: NextFunctio
     if (error) {
       throw ApiError.fromJoi(error);
     }
-    const { fullName, email, phone, specialties, avatar, serviceIds } = value;
+    const { fullName, email, phone, specialties, serviceIds } = value;
     const existingStaff = await Staff.findOne({
       where: { email: { [Op.iLike]: email } }
     });
     if (existingStaff) {
       throw ApiError.conflict('Bu email adresi ile kayıtlı personel zaten mevcut');
     }
+
+    // Avatar dosyası yüklendi mi kontrol et
+    let avatarPath = null;
+    if (req.file) {
+      const fileName = req.file.filename;
+      avatarPath = path.join('profiles', fileName);
+    }
+
     const staff = await Staff.create({
       fullName,
       email,
       phone,
       specialties,
-      avatar,
+      avatar: avatarPath,
       isActive: true
     });
 
@@ -194,6 +203,10 @@ export const createStaff = async (req: Request, res: Response, next: NextFunctio
 
     res.status(201).json(ApiSuccess.created(staffWithServices, 'Personel başarıyla oluşturuldu'));
   } catch (error) {
+    // Hata durumunda yüklenen dosyayı sil
+    if (req.file) {
+      await deleteFile(req.file.path);
+    }
     next(error);
   }
 };
@@ -225,7 +238,27 @@ export const updateStaff = async (req: Request, res: Response, next: NextFunctio
         throw ApiError.conflict('Bu email adresi ile kayıtlı başka personel mevcut');
       }
     }
+
+    // Avatar dosyası yüklendi mi kontrol et
+    let avatarPath = null;
+    if (req.file) {
+      // Eski avatar dosyasını sil
+      if (staff.avatar) {
+        const oldAvatarPath = path.join(__dirname, '../../uploads', staff.avatar);
+        await deleteFile(oldAvatarPath);
+      }
+      
+      const fileName = req.file.filename;
+      avatarPath = path.join('profiles', fileName);
+    }
+
     const { serviceIds, ...staffUpdateData } = updateData;
+    
+    // Avatar güncellenmişse update data'ya ekle
+    if (avatarPath) {
+      staffUpdateData.avatar = avatarPath;
+    }
+    
     const updatedStaff = await staff.update(staffUpdateData);
 
     // Service ilişkilerini güncelle
@@ -273,6 +306,10 @@ export const updateStaff = async (req: Request, res: Response, next: NextFunctio
 
     res.json(ApiSuccess.updated(updatedStaffWithServices, 'Personel başarıyla güncellendi'));
   } catch (error) {
+    // Hata durumunda yüklenen dosyayı sil
+    if (req.file) {
+      await deleteFile(req.file.path);
+    }
     next(error);
   }
 };

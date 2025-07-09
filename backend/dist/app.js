@@ -47,6 +47,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const path_1 = __importDefault(require("path"));
 const env_1 = __importDefault(require("./config/env"));
 const cors_2 = require("./config/cors");
 const errorHandler_1 = require("./middleware/errorHandler");
@@ -60,6 +61,7 @@ app.use((0, cors_1.default)(cors_2.corsConfig));
 logUtils_1.LogManager.ensureLogDirectory();
 app.use(requestLogger_1.requestLogger);
 app.use(express_1.default.json());
+app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../uploads')));
 app.use('/', routes_1.default);
 (0, routes_1.setupSwagger)(app);
 const initializeDatabase = () => __awaiter(void 0, void 0, void 0, function* () {

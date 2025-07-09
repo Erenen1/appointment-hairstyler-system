@@ -27,7 +27,9 @@ exports.getAvailableSlotsRange = exports.getAvailableSlots = exports.updateStaff
 const utils_1 = require("../utils");
 const sequelize_1 = require("sequelize");
 const date_fns_1 = require("date-fns");
+const path_1 = __importDefault(require("path"));
 const staffValidation_1 = require("../validations/staffValidation");
+const multer_1 = require("../config/multer");
 const index_1 = __importDefault(require("../models/index"));
 const { Staff, StaffService, Service, ServiceCategory } = index_1.default;
 const getStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -155,19 +157,24 @@ const createStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         if (error) {
             throw utils_1.ApiError.fromJoi(error);
         }
-        const { fullName, email, phone, specialties, avatar, serviceIds } = value;
+        const { fullName, email, phone, specialties, serviceIds } = value;
         const existingStaff = yield Staff.findOne({
             where: { email: { [sequelize_1.Op.iLike]: email } }
         });
         if (existingStaff) {
             throw utils_1.ApiError.conflict('Bu email adresi ile kayıtlı personel zaten mevcut');
         }
+        let avatarPath = null;
+        if (req.file) {
+            const fileName = req.file.filename;
+            avatarPath = path_1.default.join('profiles', fileName);
+        }
         const staff = yield Staff.create({
             fullName,
             email,
             phone,
             specialties,
-            avatar,
+            avatar: avatarPath,
             isActive: true
         });
         if (serviceIds && serviceIds.length > 0) {
@@ -200,6 +207,9 @@ const createStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         res.status(201).json(utils_1.ApiSuccess.created(staffWithServices, 'Personel başarıyla oluşturuldu'));
     }
     catch (error) {
+        if (req.file) {
+            yield (0, multer_1.deleteFile)(req.file.path);
+        }
         next(error);
     }
 });
@@ -231,7 +241,19 @@ const updateStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 throw utils_1.ApiError.conflict('Bu email adresi ile kayıtlı başka personel mevcut');
             }
         }
+        let avatarPath = null;
+        if (req.file) {
+            if (staff.avatar) {
+                const oldAvatarPath = path_1.default.join(__dirname, '../../uploads', staff.avatar);
+                yield (0, multer_1.deleteFile)(oldAvatarPath);
+            }
+            const fileName = req.file.filename;
+            avatarPath = path_1.default.join('profiles', fileName);
+        }
         const { serviceIds } = updateData, staffUpdateData = __rest(updateData, ["serviceIds"]);
+        if (avatarPath) {
+            staffUpdateData.avatar = avatarPath;
+        }
         const updatedStaff = yield staff.update(staffUpdateData);
         if (serviceIds && Array.isArray(serviceIds)) {
             yield StaffService.destroy({
@@ -268,6 +290,9 @@ const updateStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         res.json(utils_1.ApiSuccess.updated(updatedStaffWithServices, 'Personel başarıyla güncellendi'));
     }
     catch (error) {
+        if (req.file) {
+            yield (0, multer_1.deleteFile)(req.file.path);
+        }
         next(error);
     }
 });
