@@ -1,0 +1,1 @@
+export const APIKEY = process.env.NEXT_PRIVATE_API_KEY
