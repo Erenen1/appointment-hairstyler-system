@@ -4,7 +4,7 @@ export const dashboardPaths = {
       tags: ['Dashboard'],
       summary: 'Dashboard istatistikleri',
       description: 'Günlük, aylık ve genel istatistikleri getirir',
-      security: [{ sessionAuth: [] }],
+      security: [{ bearerAuth: [] }],
       responses: {
         200: {
           description: 'Dashboard istatistikleri başarıyla getirildi',
@@ -33,7 +33,7 @@ export const dashboardPaths = {
       tags: ['Dashboard'],
       summary: 'Gelir grafiği',
       description: 'Aylık gelir grafiği verilerini getirir',
-      security: [{ sessionAuth: [] }],
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'months',
@@ -70,7 +70,7 @@ export const dashboardPaths = {
       tags: ['Dashboard'],
       summary: 'Popüler hizmetler',
       description: 'En çok tercih edilen hizmetleri getirir',
-      security: [{ sessionAuth: [] }],
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'limit',
@@ -110,7 +110,7 @@ export const dashboardPaths = {
       tags: ['Dashboard'],
       summary: 'Son randevular',
       description: 'En son oluşturulan randevuları getirir',
-      security: [{ sessionAuth: [] }],
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'limit',

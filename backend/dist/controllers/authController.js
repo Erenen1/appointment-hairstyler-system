@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCurrentUser = exports.logout = exports.adminLogin = void 0;
 const utils_1 = require("../utils");
 const authValidation_1 = require("../validations/authValidation");
-const logger_1 = __importDefault(require("../config/logger"));
 const index_1 = __importDefault(require("../models/index"));
 const { Admin } = index_1.default;
 const adminLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -39,31 +38,24 @@ const adminLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             throw utils_1.ApiError.authentication('Email veya şifre hatalı');
         }
         yield admin.update({ lastLogin: new Date() });
-        req.session.user = {
+        const token = utils_1.JwtUtils.generateToken({
             id: admin.id,
             email: admin.email,
             userType: 'admin',
             fullName: admin.fullName
-        };
-        req.session.save((err) => {
-            if (err) {
-                logger_1.default.error('Session save error:', err);
-                next(err);
-                return;
-            }
-            res.json(utils_1.ApiSuccess.item({
-                sessionId: req.session.id,
-                user: {
-                    id: admin.id,
-                    email: admin.email,
-                    fullName: admin.fullName,
-                    userType: 'admin',
-                    phone: admin.phone,
-                    isActive: admin.isActive,
-                    lastLogin: admin.lastLogin
-                }
-            }, 'Giriş başarılı'));
         });
+        res.json(utils_1.ApiSuccess.item({
+            bearerAuth: token,
+            user: {
+                id: admin.id,
+                email: admin.email,
+                fullName: admin.fullName,
+                userType: 'admin',
+                phone: admin.phone,
+                isActive: admin.isActive,
+                lastLogin: admin.lastLogin
+            }
+        }, 'Giriş başarılı'));
     }
     catch (error) {
         next(error);
@@ -72,13 +64,7 @@ const adminLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 exports.adminLogin = adminLogin;
 const logout = (req, res, next) => {
     try {
-        req.session.destroy((err) => {
-            if (err) {
-                throw utils_1.ApiError.internal('Çıkış işlemi sırasında hata oluştu');
-            }
-            res.clearCookie('sessionid');
-            res.json(utils_1.ApiSuccess.message('Çıkış başarılı'));
-        });
+        res.json(utils_1.ApiSuccess.message('Çıkış başarılı'));
     }
     catch (error) {
         next(error);
@@ -88,7 +74,7 @@ exports.logout = logout;
 const getCurrentUser = (req, res, next) => {
     try {
         res.json(utils_1.ApiSuccess.item({
-            user: req.session.user
+            user: req.user
         }, 'Kullanıcı bilgileri getirildi'));
     }
     catch (error) {

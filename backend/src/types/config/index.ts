@@ -6,7 +6,7 @@ export interface Config {
   DB_USER: string;
   DB_PASSWORD: string;
   PORT: number;
-  SESSION_SECRET: string;
+  JWT_SECRET: string;
   SUPER_ADMIN_API_KEY: string;
   SMTP_HOST: string;
   SMTP_PORT: number;

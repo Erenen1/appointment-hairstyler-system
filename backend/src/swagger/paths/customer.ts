@@ -3,7 +3,7 @@ export const customerPaths = {
     get: {
       tags: ['Customers'],
       summary: 'Müşterileri listele',
-      security: [{ sessionAuth: [] }],
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'page',
@@ -44,7 +44,7 @@ export const customerPaths = {
     post: {
       tags: ['Customers'],
       summary: 'Yeni müşteri oluştur',
-      security: [{ sessionAuth: [] }],
+      security: [{ bearerAuth: [] }],
       requestBody: {
         required: true,
         content: {
@@ -89,7 +89,7 @@ export const customerPaths = {
     get: {
       tags: ['Customers'],
       summary: 'Müşteri detayı',
-      security: [{ sessionAuth: [] }],
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'id',
@@ -131,7 +131,7 @@ export const customerPaths = {
     put: {
       tags: ['Customers'],
       summary: 'Müşteri güncelle',
-      security: [{ sessionAuth: [] }],
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'id',
@@ -190,7 +190,7 @@ export const customerPaths = {
     delete: {
       tags: ['Customers'],
       summary: 'Müşteri sil',
-      security: [{ sessionAuth: [] }],
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'id',

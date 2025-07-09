@@ -13,7 +13,7 @@ export const config: Config = {
     DB_USER: process.env.DB_USER || 'postgres',
     DB_PASSWORD: process.env.DB_PASSWORD || 'password123',
     PORT: parseInt(process.env.PORT || '3000', 10),
-    SESSION_SECRET: process.env.SESSION_SECRET || 'your-session-secret',
+    JWT_SECRET: process.env.JWT_SECRET || 'your-jwt-secret-key-change-in-production',
     SUPER_ADMIN_API_KEY: process.env.SUPER_ADMIN_API_KEY || 'your-api-key',
     SMTP_HOST: process.env.SMTP_HOST || '',
     SMTP_PORT: parseInt(process.env.SMTP_PORT || '587', 10),

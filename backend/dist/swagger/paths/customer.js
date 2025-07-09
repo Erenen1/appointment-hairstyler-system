@@ -6,7 +6,7 @@ exports.customerPaths = {
         get: {
             tags: ['Customers'],
             summary: 'Müşterileri listele',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'page',
@@ -47,7 +47,7 @@ exports.customerPaths = {
         post: {
             tags: ['Customers'],
             summary: 'Yeni müşteri oluştur',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             requestBody: {
                 required: true,
                 content: {
@@ -92,7 +92,7 @@ exports.customerPaths = {
         get: {
             tags: ['Customers'],
             summary: 'Müşteri detayı',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'id',
@@ -134,7 +134,7 @@ exports.customerPaths = {
         put: {
             tags: ['Customers'],
             summary: 'Müşteri güncelle',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'id',
@@ -193,7 +193,7 @@ exports.customerPaths = {
         delete: {
             tags: ['Customers'],
             summary: 'Müşteri sil',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'id',

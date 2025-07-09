@@ -9,12 +9,12 @@ const requestLogger = (req, res, next) => {
     const startTime = Date.now();
     const oldSend = res.send;
     res.send = function (body) {
-        var _a, _b, _c, _d;
+        var _a, _b;
         const duration = Date.now() - startTime;
         logger_1.loggerHelpers.apiResponse(req.method, req.originalUrl, res.statusCode, duration, {
             requestId: req.id,
-            userId: (_b = (_a = req.session) === null || _a === void 0 ? void 0 : _a.user) === null || _b === void 0 ? void 0 : _b.id,
-            userType: (_d = (_c = req.session) === null || _c === void 0 ? void 0 : _c.user) === null || _d === void 0 ? void 0 : _d.userType
+            userId: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id,
+            userType: (_b = req.user) === null || _b === void 0 ? void 0 : _b.userType
         });
         return oldSend.apply(res, arguments);
     };

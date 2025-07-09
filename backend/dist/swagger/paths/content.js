@@ -37,7 +37,7 @@ exports.contentPaths = {
         post: {
             tags: ['Content'],
             summary: 'Yeni galeri resmi ekle',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             requestBody: {
                 required: true,
                 content: {
@@ -129,7 +129,7 @@ exports.contentPaths = {
         put: {
             tags: ['Content'],
             summary: 'Galeri resmi güncelle',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'id',
@@ -180,7 +180,7 @@ exports.contentPaths = {
         delete: {
             tags: ['Content'],
             summary: 'Galeri resmi sil',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'id',

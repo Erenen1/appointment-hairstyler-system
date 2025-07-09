@@ -6,7 +6,7 @@ exports.contactPaths = {
         get: {
             tags: ['Contact'],
             summary: 'İletişim mesajlarını listele',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
                 { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 } },
@@ -42,7 +42,7 @@ exports.contactPaths = {
         get: {
             tags: ['Contact'],
             summary: 'İletişim mesajı detayı',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
             responses: {
                 200: {
@@ -57,7 +57,7 @@ exports.contactPaths = {
         put: {
             tags: ['Contact'],
             summary: 'İletişim mesajı durumunu güncelle',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
             requestBody: {
                 required: true,
@@ -96,7 +96,7 @@ exports.contactPaths = {
         delete: {
             tags: ['Contact'],
             summary: 'İletişim mesajını sil',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
             responses: {
                 200: { description: 'Mesaj başarıyla silindi' },
@@ -110,7 +110,7 @@ exports.contactPaths = {
         get: {
             tags: ['Contact'],
             summary: 'İletişim istatistikleri',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             responses: {
                 200: {
                     description: 'İstatistikler getirildi',

@@ -41,7 +41,7 @@ exports.staffPaths = {
         post: {
             tags: ['Staff'],
             summary: 'Yeni personel oluştur',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             requestBody: {
                 required: true,
                 content: {
@@ -125,7 +125,7 @@ exports.staffPaths = {
         put: {
             tags: ['Staff'],
             summary: 'Personel güncelle',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'id',

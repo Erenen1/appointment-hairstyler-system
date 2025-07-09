@@ -95,11 +95,11 @@ exports.adminSwaggerConfig = {
         schemas: exports.allSchemas,
         responses: exports.allResponses,
         securitySchemes: {
-            sessionAuth: {
-                type: 'apiKey',
-                in: 'cookie',
-                name: 'sessionid',
-                description: 'Admin session authentication'
+            bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+                description: 'JWT Bearer token authentication. Format: Bearer <token>'
             },
             apiKeyAuth: {
                 type: 'apiKey',
@@ -109,7 +109,7 @@ exports.adminSwaggerConfig = {
             }
         }
     },
-    security: [{ sessionAuth: [] }]
+    security: [{ bearerAuth: [] }]
 };
 exports.publicSwaggerConfig = {
     openapi: '3.0.3',

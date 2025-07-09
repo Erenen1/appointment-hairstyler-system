@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ApiError, ApiSuccess, HashUtils } from '../utils';
+import { ApiError, ApiSuccess, HashUtils, JwtUtils } from '../utils';
 import { loginSchema } from '../validations/authValidation';
 import logger from '../config/logger';
 import { LoginCredentials } from '../types/auth';
@@ -29,53 +29,48 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
       throw ApiError.authentication('Email veya şifre hatalı');
     }
     await admin.update({ lastLogin: new Date() });
-    req.session.user = {
+    
+    // JWT token oluştur
+    const token = JwtUtils.generateToken({
       id: admin.id,
       email: admin.email,
       userType: 'admin',
       fullName: admin.fullName
-    };
-
-    req.session.save((err) => {
-      if (err) {
-        logger.error('Session save error:', err);
-        next(err);
-        return;
-      }
-      res.json(ApiSuccess.item({
-        sessionId: req.session.id,
-        user: {
-          id: admin.id,
-          email: admin.email,
-          fullName: admin.fullName,
-          userType: 'admin',
-          phone: admin.phone,
-          isActive: admin.isActive,
-          lastLogin: admin.lastLogin
-        }
-      }, 'Giriş başarılı'));
     });
+
+    res.json(ApiSuccess.item({
+      bearerAuth:token,
+      user: {
+        id: admin.id,
+        email: admin.email,
+        fullName: admin.fullName,
+        userType: 'admin',
+        phone: admin.phone,
+        isActive: admin.isActive,
+        lastLogin: admin.lastLogin
+      }
+    }, 'Giriş başarılı'));
   } catch (error) {
     next(error);
   }
 };
+
 export const logout = (req: Request, res: Response, next: NextFunction) => {
   try {
-    req.session.destroy((err) => {
-      if (err) {
-        throw ApiError.internal('Çıkış işlemi sırasında hata oluştu');
-      }
-      res.clearCookie('sessionid');
-      res.json(ApiSuccess.message('Çıkış başarılı'));
-    });
+    // JWT ile logout client-side işlemidir
+    // Server tarafında token'ı blacklist'e almanız gerekirse
+    // bu işlemi burada yapabilirsiniz
+    res.json(ApiSuccess.message('Çıkış başarılı'));
   } catch (error) {
     next(error);
   }
 };
+
 export const getCurrentUser = (req: Request, res: Response, next: NextFunction) => {
   try {
+    // JWT middleware'dan gelen user bilgisi
     res.json(ApiSuccess.item({
-      user: req.session.user
+      user: (req as any).user
     }, 'Kullanıcı bilgileri getirildi'));
   } catch (error) {
     next(error);
