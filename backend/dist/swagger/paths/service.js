@@ -49,7 +49,7 @@ exports.servicePaths = {
         post: {
             tags: ['Services'],
             summary: 'Yeni hizmet oluştur',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             requestBody: {
                 required: true,
                 content: {
@@ -120,7 +120,7 @@ exports.servicePaths = {
         post: {
             tags: ['Services'],
             summary: 'Yeni kategori oluştur',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             requestBody: {
                 required: true,
                 content: {
@@ -196,7 +196,7 @@ exports.servicePaths = {
         put: {
             tags: ['Services'],
             summary: 'Hizmet güncelle',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'id',
@@ -247,7 +247,7 @@ exports.servicePaths = {
         delete: {
             tags: ['Services'],
             summary: 'Hizmet sil',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'id',
@@ -337,7 +337,7 @@ exports.servicePaths = {
         put: {
             tags: ['Services'],
             summary: 'Kategori güncelle',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'id',
@@ -388,7 +388,7 @@ exports.servicePaths = {
         delete: {
             tags: ['Services'],
             summary: 'Kategori sil',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'id',

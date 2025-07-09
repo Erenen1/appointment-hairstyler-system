@@ -7,7 +7,7 @@ exports.appointmentPaths = {
             tags: ['Appointments'],
             summary: 'Randevuları listele',
             description: 'Filtreleme ve sıralama seçenekleri ile randevuları listeler',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
                 { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 } },
@@ -65,7 +65,7 @@ exports.appointmentPaths = {
             tags: ['Appointments'],
             summary: 'Yeni randevu oluştur',
             description: 'Müşteri ve randevu bilgileri ile yeni randevu oluşturur',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             requestBody: {
                 required: true,
                 content: {
@@ -111,7 +111,7 @@ exports.appointmentPaths = {
             tags: ['Appointments'],
             summary: 'Takvim randevuları',
             description: 'Belirtilen tarih aralığındaki randevuları takvim formatında getirir',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'startDate',
@@ -160,7 +160,7 @@ exports.appointmentPaths = {
             tags: ['Appointments'],
             summary: 'Randevu detayı',
             description: 'Belirtilen ID\'ye sahip randevunun detaylarını getirir',
-            security: [{ sessionAuth: [] }],
+            security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: 'id',

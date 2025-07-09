@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import Enum  from "./config/env";
-import { sessionConfig} from "./config/session";
 import { corsConfig } from "./config/cors";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { requestLogger } from "./middleware/requestLogger";
@@ -15,7 +14,6 @@ const app = express();
 app.use(cors(corsConfig));
 LogManager.ensureLogDirectory();
 app.use(requestLogger);
-app.use(sessionConfig);
 app.use(express.json());
 app.use('/', routes);
 setupSwagger(app);

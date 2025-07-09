@@ -15,10 +15,15 @@ export const authSchemas = {
       data: {
         type: 'object',
         properties: {
+          token: { 
+            type: 'string', 
+            description: 'JWT authentication token',
+            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwidXNlclR5cGUiOiJhZG1pbiIsImZ1bGxOYW1lIjoiQWRtaW4gVXNlciIsImlhdCI6MTcwMDAwMDAwMCwiZXhwIjoxNzAwMDg2NDAwfQ.example-signature'
+          },
           user: {
             type: 'object',
             properties: {
-              id: { type: 'integer', example: 1 },
+              id: { type: 'string', example: '1' },
               fullName: { type: 'string', example: 'Admin User' },
               email: { type: 'string', format: 'email', example: 'admin@example.com' },
               userType: { type: 'string', example: 'admin' },
@@ -40,10 +45,15 @@ export const authSchemas = {
       data: {
         type: 'object',
         properties: {
-          id: { type: 'integer', example: 1 },
-          fullName: { type: 'string', example: 'Admin User' },
-          email: { type: 'string', format: 'email', example: 'admin@example.com' },
-          userType: { type: 'string', example: 'admin' },
+          user: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', example: '1' },
+              fullName: { type: 'string', example: 'Admin User' },
+              email: { type: 'string', format: 'email', example: 'admin@example.com' },
+              userType: { type: 'string', example: 'admin' }
+            }
+          }
         }
       },
       timestamp: { type: 'string', format: 'date-time' }
@@ -55,6 +65,18 @@ export const authSchemas = {
       success: { type: 'boolean', example: true },
       message: { type: 'string', example: 'Çıkış başarılı' },
       timestamp: { type: 'string', format: 'date-time' }
+    }
+  },
+  JWTPayload: {
+    type: 'object',
+    description: 'JWT token payload structure',
+    properties: {
+      id: { type: 'string', description: 'User ID' },
+      email: { type: 'string', format: 'email', description: 'User email' },
+      userType: { type: 'string', enum: ['admin'], description: 'User type' },
+      fullName: { type: 'string', description: 'User full name' },
+      iat: { type: 'integer', description: 'Issued at timestamp' },
+      exp: { type: 'integer', description: 'Expiration timestamp' }
     }
   }
 }; 

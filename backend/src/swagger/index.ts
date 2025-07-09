@@ -180,11 +180,11 @@ export const adminSwaggerConfig = {
     schemas: allSchemas,
     responses: allResponses,
     securitySchemes: {
-      sessionAuth: {
-        type: 'apiKey',
-        in: 'cookie',
-        name: 'sessionid',
-        description: 'Admin session authentication'
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'JWT Bearer token authentication. Format: Bearer <token>'
       },
       apiKeyAuth: {
         type: 'apiKey',
@@ -194,7 +194,7 @@ export const adminSwaggerConfig = {
       }
     }
   },
-  security: [{ sessionAuth: [] }]
+  security: [{ bearerAuth: [] }]
 };
 
 // PUBLIC API Konfigürasyonu (Sınırlı erişim)

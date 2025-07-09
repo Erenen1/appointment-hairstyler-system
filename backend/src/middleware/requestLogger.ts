@@ -20,8 +20,8 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
       duration,
       {
         requestId: (req as RequestLogger).id,
-        userId: req.session?.user?.id as any,
-        userType: req.session?.user?.userType as any
+        userId: req.user?.id as any,
+        userType: req.user?.userType as any
       }
     );
     return oldSend.apply(res, arguments as any);

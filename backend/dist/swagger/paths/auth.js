@@ -6,6 +6,7 @@ exports.authPaths = {
         post: {
             tags: ['Authentication'],
             summary: 'Admin girişi',
+            description: 'Admin kullanıcısı email ve şifre ile giriş yapar. Başarılı girişte JWT token döner.',
             requestBody: {
                 required: true,
                 content: {
@@ -16,7 +17,7 @@ exports.authPaths = {
             },
             responses: {
                 200: {
-                    description: 'Giriş başarılı',
+                    description: 'Giriş başarılı - JWT token döndürüldü',
                     content: {
                         'application/json': {
                             schema: { $ref: '#/components/schemas/LoginResponse' }
@@ -40,7 +41,8 @@ exports.authPaths = {
         post: {
             tags: ['Authentication'],
             summary: 'Çıkış yap',
-            security: [{ sessionAuth: [] }],
+            description: 'JWT token ile çıkış işlemi. Client-side\'da token silinmelidir.',
+            security: [{ bearerAuth: [] }],
             responses: {
                 200: {
                     description: 'Çıkış başarılı',
@@ -59,7 +61,8 @@ exports.authPaths = {
         get: {
             tags: ['Authentication'],
             summary: 'Mevcut kullanıcı bilgisi',
-            security: [{ sessionAuth: [] }],
+            description: 'JWT token\'dan kullanıcı bilgilerini döner',
+            security: [{ bearerAuth: [] }],
             responses: {
                 200: {
                     description: 'Kullanıcı bilgileri',
