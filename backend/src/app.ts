@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
 import Enum  from "./config/env";
 import { corsConfig } from "./config/cors";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
@@ -15,6 +16,10 @@ app.use(cors(corsConfig));
 LogManager.ensureLogDirectory();
 app.use(requestLogger);
 app.use(express.json());
+
+// Static files serve etme - uploads klasörü
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 app.use('/', routes);
 setupSwagger(app);
 
