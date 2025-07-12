@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "fullName": "Elif Şahin",
+    "phone": "+90 532 444 5566",
+    "email": "elif@kuafor.com",
+    "specialties": "Saç kesimi, saç boyama, highlights",
+    "isActive": true,
+    "orderIndex": 1,
+    "isWorking": "Evet",
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2024-01-15T08:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "fullName": "Zeynep Özkan",
+    "phone": "+90 541 777 8899",
+    "email": "zeynep@kuafor.com",
+    "specialties": "Makyaj, gelin saçı, özel günler",
+    "isActive": true,
+    "orderIndex": 2,
+    "isWorking": "Evet",
+    "createdAt": "2023-02-01T10:00:00.000Z",
+    "updatedAt": "2024-01-14T09:30:00.000Z"
+  },
+  {
+    "id": 3,
+    "fullName": "Can Arslan",
+    "phone": "+90 555 333 4444",
+    "email": "can@kuafor.com",
+    "specialties": "Erkek saç kesimi, sakal tıraşı, stil danışmanlığı",
+    "isActive": true,
+    "orderIndex": 3,
+    "isWorking": "Hayır",
+    "createdAt": "2023-03-01T10:00:00.000Z",
+    "updatedAt": "2024-01-13T10:15:00.000Z"
+  },
+  {
+    "id": 4,
+    "fullName": "Selin Korkmaz",
+    "phone": "+90 534 666 7777",
+    "email": "selin@kuafor.com",
+    "specialties": "Perma, keratin bakımı, saç tedavileri",
+    "isActive": true,
+    "isWorking": "Hayır",
+    "orderIndex": 4,
+    "createdAt": "2023-04-01T10:00:00.000Z",
+    "updatedAt": "2024-01-12T11:00:00.000Z"
+  }
+]

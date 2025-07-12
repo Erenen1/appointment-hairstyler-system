@@ -1,8 +1,11 @@
+import AppointmentsHome from '@/features/appointments/page'
 import React from 'react'
 
 const Randevular = () => {
     return (
-        <div>RandevuAl</div>
+        <div>
+            <AppointmentsHome />
+        </div>
     )
 }
 

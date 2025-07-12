@@ -1,9 +1,10 @@
 'use client';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@radix-ui/react-separator'
 import { usePathname } from 'next/navigation'
 import React from 'react'
+import AppBreadDynamicLinks from './AppBreadDynamicLinks';
+import { ChevronRight } from 'lucide-react';
 
 const SidebarItems = () => {
     const pathname = usePathname()
@@ -19,19 +20,8 @@ const SidebarItems = () => {
                         orientation="vertical"
                         className="mr-2 data-[orientation=vertical]:h-4"
                     />
-                    <Breadcrumb>
-                        <BreadcrumbList>
-                            <BreadcrumbItem className="hidden md:block">
-                                <BreadcrumbLink href="#">
-                                    Building Your Application
-                                </BreadcrumbLink>
-                            </BreadcrumbItem>
-                            <BreadcrumbSeparator className="hidden md:block" />
-                            <BreadcrumbItem>
-                                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                            </BreadcrumbItem>
-                        </BreadcrumbList>
-                    </Breadcrumb>
+                    <ChevronRight color='gray' className='w-5 h-5' />
+                    <AppBreadDynamicLinks />
                 </div>
             </header>
         </div>

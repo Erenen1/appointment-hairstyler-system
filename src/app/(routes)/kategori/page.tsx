@@ -1,10 +1,10 @@
-import CreateCategoriesForm from '@/features/categories/components/CreateCategoriesForm'
+import CategoriesPage from '@/features/categories/page'
 import React from 'react'
 
 const Kategori = () => {
     return (
         <>
-            <CreateCategoriesForm />
+            <CategoriesPage />
         </>
     )
 }

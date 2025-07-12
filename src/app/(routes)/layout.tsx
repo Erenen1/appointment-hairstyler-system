@@ -1,29 +1,27 @@
-// import { SidebarProvider } from "@/components/ui/sidebar";
+// // import { SidebarProvider } from "@/components/ui/sidebar";
 
-// import Header from "../share/Header"
-// import Footer from "../share/Footer";
+// // import Header from "../share/Header"
+// // import Footer from "../share/Footer";
 
-// const subLayout = ({ children }: SubLayoutProps) => {
-//     return (
-//         <>
-//             <div className="min-h-screen">
-//                 <SidebarProvider>
+// // const subLayout = ({ children }: SubLayoutProps) => {
+// //     return (
+// //         <>
+// //             <div className="min-h-screen">
+// //                 <SidebarProvider>
 
-//                     <Header />
+// //                     <Header />
 
-//                     {children}
-//                 </SidebarProvider>
-//             </div>
-//             <Footer />
-//         </>
-//     )
-// }
+// //                     {children}
+// //                 </SidebarProvider>
+// //             </div>
+// //             <Footer />
+// //         </>
+// //     )
+// // }
 
-// export default subLayout
+// // export default subLayout
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
-import { Separator } from '@radix-ui/react-separator'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import React from 'react'
 import { AppSidebar } from '../share/sidebar/page'
 import SidebarItems from '../share/sidebar/components/SidebarItems'

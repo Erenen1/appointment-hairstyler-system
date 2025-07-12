@@ -1,9 +1,14 @@
 import React from 'react'
+import CreateStaffForm from './components/CreateStaffForm'
+import AllStaffPage from './components/AllStaffPage'
 
-const Packages = () => {
+const StaffHome = () => {
     return (
-        <div>Paketlerimiz</div>
+        <div>
+            <CreateStaffForm />
+            <AllStaffPage />
+        </div>
     )
 }
 
-export default Packages
+export default StaffHome

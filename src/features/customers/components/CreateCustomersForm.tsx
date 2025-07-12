@@ -3,35 +3,40 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react'
 import { toast } from 'sonner';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { createCategoriesSchema } from '../schema/CreateCategoriesSchema';
+
 import { getTokenToLocalStorage } from '@/features/admin/utils/auth';
-import createCategories from '../services/CreateCategoriesApi';
+import createCategories from '../services/CreateCustomersApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import z from 'zod';
 import { useForm } from 'react-hook-form';
-import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/components/ui/dialog';
+import { createCustomerschema } from '../schema/CreateCustomersSchema';
+import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
+import { DialogTrigger } from '@radix-ui/react-dialog';
 import { SearchForm } from '@/app/share/sidebar/components/SearchForm';
 import ModalTitleComponent from '@/app/share/ModalTitleComponent';
 
-const CreateCategoriesForm = () => {
-    const form = useForm<z.infer<typeof createCategoriesSchema>>({
-        resolver: zodResolver(createCategoriesSchema),
+const CreateCustomersForm = () => {
+    const form = useForm<z.infer<typeof createCustomerschema>>({
+        resolver: zodResolver(createCustomerschema),
         mode: 'onChange',
         defaultValues: {
-            name: '',
-            description: '',
+            fullName: '',
+            phone: '',
+            email: '',
+            loyaltyPoints: 0,
+            notes: '',
         }
     });
 
-    async function onSubmit(values: z.infer<typeof createCategoriesSchema>) {
+    async function onSubmit(values: z.infer<typeof createCustomerschema>) {
         try {
             const token = getTokenToLocalStorage();
             if (!token) {
                 toast.error('Token Bulunamadı ❌');
                 return;
             }
-            await createCategories(values, token);
+            {/*API isteği yazılacak */ }
             toast.success('Kategori Oluşturuldu ✅')
             form.reset()
         } catch (error) {
@@ -44,7 +49,8 @@ const CreateCategoriesForm = () => {
     }
 
     return (
-        <div>
+        <>
+            {/* modal eklenecek */}
             <Dialog>
                 <div className='w-full flex justify-between'>
                     <div className='w-2/3'>
@@ -52,7 +58,7 @@ const CreateCategoriesForm = () => {
                     </div>
                     <DialogTrigger asChild className='px-6 py-4 mx-4'>
                         <Button>
-                            Kategori Oluştur
+                            Müşteri Oluştur
                         </Button>
 
                     </DialogTrigger>
@@ -60,7 +66,7 @@ const CreateCategoriesForm = () => {
                 <DialogContent>
                     <DialogHeader>
                         <ModalTitleComponent>
-                            Kategori Oluştur
+                            Müşteri Oluştur
                         </ModalTitleComponent>
                     </DialogHeader>
 
@@ -68,14 +74,14 @@ const CreateCategoriesForm = () => {
                         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-5 w-full'>
                             <FormField
                                 control={form.control}
-                                name='name'
+                                name='fullName'
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>
-                                            Kategori İsmi
+                                            Müşteri İsmi
                                         </FormLabel>
                                         <FormControl>
-                                            <Input placeholder='Saç Kesmi' {...field} />
+                                            <Input placeholder='Ahmet Yalçın' {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -83,11 +89,41 @@ const CreateCategoriesForm = () => {
                             />
                             <FormField
                                 control={form.control}
-                                name='description'
+                                name='phone'
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>
-                                            Açıklama
+                                            Telefon Numarası
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input placeholder='+90 555 555 5555' {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name='email'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            E-posta
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input placeholder='ornek@gmail.com' {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name='notes'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            Not
                                         </FormLabel>
                                         <FormControl>
                                             <Input placeholder='Açıklama' {...field} />
@@ -103,8 +139,8 @@ const CreateCategoriesForm = () => {
                     </Form>
                 </DialogContent>
             </Dialog>
-        </div>
+        </>
     )
 }
 
-export default CreateCategoriesForm
+export default CreateCustomersForm

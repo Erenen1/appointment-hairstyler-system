@@ -43,7 +43,6 @@ export function NavUser({
   const { isMobile } = useSidebar()
   const { handleLogout } = useLogout(); // ✅ hook çağrılıyor, fonksiyon içinden geliyor
 
-
   return (
     <SidebarMenu>
       <SidebarMenuItem>

@@ -1,0 +1,130 @@
+[
+  {
+    "id": 1,
+    "name": "Saç Bakımı",
+    "description": "Saç bakım hizmetleri",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 2,
+    "name": "Cilt Bakımı",
+    "description": "Profesyonel cilt bakım uygulamaları",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 3,
+    "name": "Manikür",
+    "description": "El ve tırnak bakımı hizmetleri",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 4,
+    "name": "Pedikür",
+    "description": "Ayak ve tırnak bakımı",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 5,
+    "name": "Kaş & Kirpik",
+    "description": "Kaş şekillendirme ve kirpik uzatma işlemleri",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 6,
+    "name": "Lazer Epilasyon",
+    "description": "Kalıcı tüy alma hizmeti",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 7,
+    "name": "Masaj",
+    "description": "Rahatlatıcı ve medikal masaj hizmetleri",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 8,
+    "name": "Solaryum",
+    "description": "Bronzlaşma ve solaryum hizmeti",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 9,
+    "name": "Makyaj",
+    "description": "Profesyonel ve günlük makyaj uygulamaları",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 10,
+    "name": "Protez Tırnak",
+    "description": "Akrilik ve jel tırnak uygulamaları",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 11,
+    "name": "Cilt Gençleştirme",
+    "description": "Leke giderici ve yaşlanma karşıtı uygulamalar",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 12,
+    "name": "Mezoterapi",
+    "description": "Cilt altına vitamin ve mineral enjeksiyonu",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 13,
+    "name": "Gelin Paketi",
+    "description": "Düğün öncesi bakım ve hazırlık hizmeti",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 14,
+    "name": "Saç Renklendirme",
+    "description": "Boya, ombre, balyaj gibi saç renklendirme işlemleri",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 15,
+    "name": "Keratin Bakımı",
+    "description": "Yıpranmış saçlara özel keratin uygulaması",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  },
+  {
+    "id": 16,
+    "name": "Kaş Laminasyonu",
+    "description": "Kaşların daha dolgun ve belirgin görünmesini sağlar",
+    "isActive": true,
+    "createdAt": "2025-07-12T10:49:48.682Z",
+    "updatedAt": "2025-07-12T10:49:48.682Z"
+  }
+]

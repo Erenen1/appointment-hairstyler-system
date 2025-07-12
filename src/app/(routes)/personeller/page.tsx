@@ -1,10 +1,10 @@
-import CreateStaffForm from '@/features/staff/components/CreateStaffForm'
+import StaffHome from '@/features/staff/page'
 import React from 'react'
 
 const Personel = () => {
     return (
         <div>
-            <CreateStaffForm />
+            <StaffHome />
         </div>
     )
 }
