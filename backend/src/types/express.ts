@@ -8,6 +8,8 @@ declare global {
       userId?: string;
       userType?: string;
       superAdmin?: boolean;
+      id?: string;
+      startTime?: number;
     }
   }
 }

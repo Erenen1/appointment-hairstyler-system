@@ -117,7 +117,7 @@ exports.categoryIdSchema = joi_1.default.object({
 });
 exports.serviceSchema = joi_1.default.object({
     categoryId: joi_1.default.string().uuid().required(),
-    staffIds: joi_1.default.array().items(joi_1.default.string().uuid()).required(),
+    staffIds: joi_1.default.string().required(),
     slug: joi_1.default.string().required(),
     title: joi_1.default.string().required(),
     description: joi_1.default.string().allow('', null),

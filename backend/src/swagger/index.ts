@@ -100,7 +100,11 @@ export const publicPaths = {
   '/services/{id}': {
     get: servicePaths['/services/{id}']?.get
   },
+  '/services/{id}/staff': servicePaths['/services/{id}/staff'],
   '/services/{id}/staff-availability': servicePaths['/services/{id}/staff-availability'],
+  '/services/categories': {
+    get: servicePaths['/services/categories']?.get
+  },
   // Sadece staff GET işlemleri
   '/staff': {
     get: staffPaths['/staff']?.get
@@ -124,16 +128,23 @@ export const publicPaths = {
 export const publicSchemas = {
   ...commonSchemas,
   ...healthSchemas,
-  ...serviceSchemas,
-  ...staffSchemas,
-  ...contactSchemas,
+  // Service schemas
   Service: serviceSchemas.Service,
   ServiceCategory: serviceSchemas.ServiceCategory,
+  ServiceStaffMember: serviceSchemas.ServiceStaffMember,
+  ServiceStaffAvailabilityResponse: serviceSchemas.ServiceStaffAvailabilityResponse,
+  // Staff schemas
   Staff: staffSchemas.Staff,
   StaffBasic: staffSchemas.StaffBasic,
+  AvailableSlot: staffSchemas.AvailableSlot,
+  AvailableSlotsResponse: staffSchemas.AvailableSlotsResponse,
+  AvailableSlotsRangeResponse: staffSchemas.AvailableSlotsRangeResponse,
+  // Availability schemas
   StaffAvailability: availabilitySchemas.StaffAvailability,
+  // Contact schemas
   ContactMessage: contactSchemas.ContactMessage,
   CreateContactMessageRequest: contactSchemas.CreateContactMessageRequest,
+  // Appointment schemas
   CreateAppointmentRequest: appointmentSchemas.CreateAppointmentRequest,
   Appointment: appointmentSchemas.Appointment
 };

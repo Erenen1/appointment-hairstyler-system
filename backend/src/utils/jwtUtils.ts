@@ -1,6 +1,6 @@
 import { config } from '../config/env';
 import { ApiError } from './ApiError';
-import jwt from "jsonwebtoken"
+import jwt, { SignOptions } from "jsonwebtoken"
 
 export interface JwtPayload {
   id: string;
@@ -12,16 +12,15 @@ export interface JwtPayload {
 }
 
 export class JwtUtils {
-  /**
-   * JWT token oluşturur
-   */
+
   static generateToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
     try {
-      return jwt.sign(payload, config.JWT_SECRET, {
-        expiresIn: '24h', // 24 saat geçerli
+      const options: SignOptions = {
+        expiresIn: (config.JWT_EXPIRES_IN || '24h') as any,
         issuer: 'kuafor-system',
         audience: 'kuafor-admin'
-      });
+      };
+      return jwt.sign(payload, config.JWT_SECRET, options);
     } catch (error) {
       throw ApiError.internal('Token oluşturulurken hata oluştu');
     }

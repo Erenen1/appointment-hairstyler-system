@@ -45,12 +45,7 @@ exports.createStaffSchema = joi_1.default.object({
         'string.max': 'Uzmanlık alanı en fazla 100 karakter olabilir',
         'any.required': 'Uzmanlık alanı zorunludur'
     }),
-    serviceIds: joi_1.default.array().items(joi_1.default.number().integer().positive()).min(0).optional().default([]).messages({
-        'array.base': 'Hizmet listesi dizi formatında olmalıdır',
-        'number.base': 'Hizmet ID sayısal değer olmalıdır',
-        'number.integer': 'Hizmet ID tam sayı olmalıdır',
-        'number.positive': 'Hizmet ID 0\'dan büyük olmalıdır'
-    }),
+    serviceIds: joi_1.default.string().optional(),
     avatar: joi_1.default.string().uri().allow('').optional()
         .messages({
         'string.uri': 'Geçerli bir URL giriniz'
@@ -81,12 +76,7 @@ exports.updateStaffSchema = joi_1.default.object({
         'string.min': 'Uzmanlık alanı en az 2 karakter olmalıdır',
         'string.max': 'Uzmanlık alanı en fazla 100 karakter olabilir'
     }),
-    serviceIds: joi_1.default.array().items(joi_1.default.number().integer().positive()).min(0).optional().messages({
-        'array.base': 'Hizmet listesi dizi formatında olmalıdır',
-        'number.base': 'Hizmet ID sayısal değer olmalıdır',
-        'number.integer': 'Hizmet ID tam sayı olmalıdır',
-        'number.positive': 'Hizmet ID 0\'dan büyük olmalıdır'
-    }),
+    serviceIds: joi_1.default.string().optional(),
     avatar: joi_1.default.string().uri().allow('').optional()
         .messages({
         'string.uri': 'Geçerli bir URL giriniz'

@@ -111,7 +111,7 @@ export const categoryIdSchema = Joi.object({
 });
 export const serviceSchema = Joi.object({
   categoryId: Joi.string().uuid().required(),
-  staffIds: Joi.array().items(Joi.string().uuid()).required(),
+  staffIds: Joi.string().required(),
   slug: Joi.string().required(),
   title: Joi.string().required(),
   description: Joi.string().allow('', null),
