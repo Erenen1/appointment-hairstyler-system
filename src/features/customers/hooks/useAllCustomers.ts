@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { Customers } from "../types/CreateCategoriesType";
+import { Customers } from "../types/CreateCustomersType";
 import { toast } from "sonner";
 
 

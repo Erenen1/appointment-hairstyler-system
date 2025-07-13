@@ -1,13 +1,8 @@
 'use client';
 
 import { APIURL } from "../../../../api/APIUrl";
+import { LoginAdminRequest } from "../types/AdminLoginType";
 
-
-
-interface LoginAdminRequest {
-    email: string;
-    password: string
-}
 export const loginAdmin = async (adminData: LoginAdminRequest) => {
     try {
         const res = await fetch(`${APIURL}/auth/admin/login`, {

@@ -17,11 +17,12 @@ export const data = {
                 {
                     title: 'Özet',
                     isActive: true,
-                    url: '/ozet',
+                    url: '/randevu-takvimi',
                 },
                 {
-                    title: "Randevu Takvimi",
-                    url: "/randevu-takvimi",
+                    title: 'Hizmetler',
+                    isActive: true,
+                    url: '/hizmetler',
                 },
                 {
                     title: "Randevular",
@@ -30,10 +31,6 @@ export const data = {
                 {
                     title: "Kategori",
                     url: "/kategori",
-                },
-                {
-                    title: "Adisyonlar",
-                    url: "/adisyonlar",
                 },
                 {
                     title: "Müşteriler",
@@ -51,11 +48,7 @@ export const data = {
             url: "#",
             items: [
 
-                {
-                    title: "Kasa Raporu",
-                    isActive: true,
-                    url: "/kasa-raporu",
-                },
+
                 {
                     title: "Borçlar",
                     url: "/borclar",

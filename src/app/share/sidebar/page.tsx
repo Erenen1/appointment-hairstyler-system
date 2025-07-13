@@ -1,178 +1,4 @@
 'use client';
-// "use client"
-
-// import * as React from "react"
-// import {
-//   BookOpen,
-//   Bot,
-//   Command,
-//   LifeBuoy,
-//   Send,
-//   Settings2,
-//   SquareTerminal,
-// } from "lucide-react"
-
-
-
-// import { NavUser } from "./components/nav-user"
-// import {
-//   Sidebar,
-//   SidebarContent,
-//   SidebarFooter,
-//   SidebarHeader,
-//   SidebarMenu,
-//   SidebarMenuButton,
-//   SidebarMenuItem,
-// } from "@/components/ui/sidebar"
-// import { NavMain } from "./components/nav-main"
-// import { NavSecondary } from "./components/nav-secondary"
-// import { usePathname } from "next/navigation"
-
-// const data = {
-//   user: {
-//     name: "shadcn",
-//     email: "m@example.com",
-//     avatar: "/avatars/shadcn.jpg",
-//   },
-//   navMain: [
-//     {
-//       title: "Playground",
-//       url: "#",
-//       icon: SquareTerminal,
-//       isActive: true,
-//       items: [
-//         {
-//           title: "History",
-//           url: "#",
-//         },
-//         {
-//           title: "Starred",
-//           url: "#",
-//         },
-//         {
-//           title: "Settings",
-//           url: "#",
-//         },
-//       ],
-//     },
-//     {
-//       title: "Models",
-//       url: "#",
-//       icon: Bot,
-//       items: [
-//         {
-//           title: "Genesis",
-//           url: "#",
-//         },
-//         {
-//           title: "Explorer",
-//           url: "#",
-//         },
-//         {
-//           title: "Quantum",
-//           url: "#",
-//         },
-//       ],
-//     },
-//     {
-//       title: "Documentation",
-//       url: "#",
-//       icon: BookOpen,
-//       items: [
-//         {
-//           title: "Introduction",
-//           url: "#",
-//         },
-//         {
-//           title: "Get Started",
-//           url: "#",
-//         },
-//         {
-//           title: "Tutorials",
-//           url: "#",
-//         },
-//         {
-//           title: "Changelog",
-//           url: "#",
-//         },
-//       ],
-//     },
-//     {
-//       title: "Settings",
-//       url: "#",
-//       icon: Settings2,
-//       items: [
-//         {
-//           title: "General",
-//           url: "#",
-//         },
-//         {
-//           title: "Team",
-//           url: "#",
-//         },
-//         {
-//           title: "Billing",
-//           url: "#",
-//         },
-//         {
-//           title: "Limits",
-//           url: "#",
-//         },
-//       ],
-//     },
-//   ],
-//   navSecondary: [
-//     {
-//       title: "Support",
-//       url: "#",
-//       icon: LifeBuoy,
-//     },
-//     {
-//       title: "Feedback",
-//       url: "#",
-//       icon: Send,
-//     },
-//   ],
-
-// }
-
-
-// export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-//   const pathname = usePathname()
-//   const isAdminPage = pathname?.startsWith('/admin');
-
-//   if (isAdminPage) return null;
-
-//   return (
-//     <Sidebar variant="inset" {...props}>
-//       <SidebarHeader>
-//         <SidebarMenu>
-//           <SidebarMenuItem>
-//             <SidebarMenuButton size="lg" asChild>
-//               <a href="#">
-//                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-//                   <Command className="size-4" />
-//                 </div>
-//                 <div className="grid flex-1 text-left text-sm leading-tight">
-//                   <span className="truncate font-medium">Logo</span>
-//                   <span className="truncate text-xs">Marka</span>
-//                 </div>
-//               </a>
-//             </SidebarMenuButton>
-//           </SidebarMenuItem>
-//         </SidebarMenu>
-//       </SidebarHeader>
-//       <SidebarContent>
-//         <NavMain items={data.navMain} />
-//         <NavSecondary items={data.navSecondary} className="mt-auto" />
-//       </SidebarContent>
-//       <SidebarFooter>
-//         <NavUser user={data.user} />
-//       </SidebarFooter>
-//     </Sidebar>
-//   )
-// }
-
 import * as React from "react"
 
 import {
@@ -191,14 +17,31 @@ import {
 import { VersionSwitcher } from "./components/VersionSwitcher"
 import { SearchForm } from "./components/SearchForm"
 import { NavUser } from "./components/nav-user"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { data } from './mock/navLinks';
-// This is sample data.
+import { useLoading } from "@/app/contexts/LoadingContext";
+import Link from "next/link";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const pathname = usePathname();
   const isAdminPage = pathname?.startsWith('/admin');
+  const { showLoading } = useLoading()
+  const router = useRouter();
+
+  const handleClick = async (e: React.MouseEvent,
+    url: string
+  ) => {
+    e.preventDefault();
+    showLoading(2000);
+    await new Promise(res => setTimeout(res, 300))
+    router.push(url);
+  }
+
+  const isActiveItem = (itemUrl: string): boolean => {
+    if (!pathname) return false;
+    return pathname.startsWith(itemUrl);
+  };
 
   if (isAdminPage) return null;
   return (
@@ -217,13 +60,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {item.items && item.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={item.isActive}>
-                      <a href={item.url}>{item.title}</a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {item.items && item.items.map((item) => {
+                  const isActive = isActiveItem(item.url);
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        className={isActive ? "bg-primary/20 text-primary borer-r-2 border-primary font-medium" : ""}
+                      >
+                        <Link href={item.url}
+                          onClick={(e) => handleClick(e, item.url)}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-none transition-all duration-200 hover:bg-muted 
+                        ${isActive ? 'bg-primary/20 text-primary shadow-sm border-l-4 border-primary'
+                              : 'text-muted-foreground hover:text-foreground'}
+                              `}>
+                          {isActive && (
+                            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                          )}
+                          {item.title}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

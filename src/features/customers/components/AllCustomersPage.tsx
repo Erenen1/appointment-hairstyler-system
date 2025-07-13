@@ -2,10 +2,10 @@
 import { getCoreRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table'
 import React, { useEffect } from 'react'
 import { useAllCustomers } from '../hooks/useAllCustomers'
-import { customersColumns } from '../hooks/CutomersColumns'
 import { DataTableLayout } from '@/app/share/table/layout'
 import { TableHeaderRows } from '@/app/share/table/components/TableHeader'
 import { TableBodyRows } from '@/app/share/table/components/TableBody'
+import { customersColumns } from '../hooks/CustomersColumns';
 
 const AllCustomersPage = () => {
 
@@ -19,7 +19,7 @@ const AllCustomersPage = () => {
   })
 
   useEffect(() => {
-    handleAllCustomers()
+    handleAllCustomers();
   }, []);
 
   return (

@@ -9,6 +9,7 @@ import { createServiceSchema } from '../schema/CreateServiceSchema';
 import { Button } from '@/components/ui/button';
 import z from 'zod';
 import createService from '../services/CreateServiceApi';
+import { GlobalDebuggerButton } from '@/app/share/GlobalDebuggerButton';
 
 
 const CreateServiceForm = () => {
@@ -162,9 +163,9 @@ const CreateServiceForm = () => {
                             </FormItem>
                         )}
                     />
-                    <Button type='submit' className='w-full'>
+                    <GlobalDebuggerButton form={form}>
                         Gönder
-                    </Button>
+                    </GlobalDebuggerButton>
                 </form>
             </Form>
         </div>

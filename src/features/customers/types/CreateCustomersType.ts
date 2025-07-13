@@ -8,3 +8,10 @@ export type Customers = {
     createdAt: string;
     updatedAt: string;
 }
+
+export interface CustomersRequest {
+    fullName: string;
+    phone: string;
+    email: string;
+    notes: string;
+}

@@ -13,6 +13,7 @@ import { useForm } from 'react-hook-form';
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/components/ui/dialog';
 import { SearchForm } from '@/app/share/sidebar/components/SearchForm';
 import ModalTitleComponent from '@/app/share/ModalTitleComponent';
+import { GlobalDebuggerButton } from '@/app/share/GlobalDebuggerButton';
 
 const CreateCategoriesForm = () => {
     const form = useForm<z.infer<typeof createCategoriesSchema>>({
@@ -96,9 +97,10 @@ const CreateCategoriesForm = () => {
                                     </FormItem>
                                 )}
                             />
-                            <Button type='submit' className='w-full'>
+
+                            <GlobalDebuggerButton form={form}>
                                 Gönder
-                            </Button>
+                            </GlobalDebuggerButton>
                         </form>
                     </Form>
                 </DialogContent>

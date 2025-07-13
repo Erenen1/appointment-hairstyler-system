@@ -12,9 +12,8 @@ import { getTokenToLocalStorage } from '@/features/admin/utils/auth';
 import createStaff from '../services/CreateStaffAPI';
 import { DialogTrigger, Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { SearchForm } from '@/app/share/sidebar/components/SearchForm';
-
-
-
+import { GlobalDebuggerButton } from '@/app/share/GlobalDebuggerButton';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from '@/components/ui/select';
 
 const CreateStaffForm = () => {
     const form = useForm<z.infer<typeof createStaffSchema>>({
@@ -25,8 +24,8 @@ const CreateStaffForm = () => {
             email: '',
             phone: '',
             specialties: '',
-            serviceIds: [],
-            avatar: '',
+            serviceIds: '[]',
+            avatar: undefined,
         }
     })
 
@@ -37,7 +36,12 @@ const CreateStaffForm = () => {
                 toast.error('Token Bulunamadı ❌');
                 return;
             }
-            await createStaff(values, token);
+            const submitValues = {
+                ...values,
+                serviceIds: values.serviceIds || '[]'
+            };
+
+            await createStaff(submitValues, token);
             toast.success('Personel Oluşturuldu ✅')
             form.reset()
         } catch (error) {
@@ -51,8 +55,8 @@ const CreateStaffForm = () => {
 
     // async function getServices() {
 
-    //         // const selectedOptions = Array.from(e.target.selectedOptions).map(o => String(o.value));
-    //         // field.onChange(selectedOptions);
+    //         // const selectedSelectItems = Array.from(e.target.selectedSelectItems).map(o => String(o.value));
+    //         // field.onChange(selectedSelectItems);
 
     // }
     return (
@@ -140,18 +144,29 @@ const CreateStaffForm = () => {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Hizmet Türü</FormLabel>
-                                        <FormControl>
-                                            <select
-                                                multiple
-                                                value={field.value || []}
-                                                // onChange=
-                                                className="border rounded p-2 w-full"
-                                            >
-                                                <option value={1}>Service 1</option>
-                                                <option value={2}>Service 2</option>
-                                                <option value={3}>Service 3</option>
-                                            </select>
-                                        </FormControl>
+                                        <Select
+                                            multiple
+                                            value={field.value ? JSON.parse(field.value) : []}
+                                            onChange={((e: React.MouseEvent) => {
+                                                const selectedSelectItems = Array.from(e.target.selectedSelectItems).map(o => o.value);
+
+                                                field.onChange(JSON.stringify(selectedSelectItems))
+                                            })}
+                                            className="border rounded p-2 w-full">
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <FormLabel>Hizmet Türü</FormLabel>
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectItem value='1'>Service 1</SelectItem>
+                                                    <SelectItem value='2'>Service 2</SelectItem>
+                                                    <SelectItem value='3'>Service 3</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -172,9 +187,9 @@ const CreateStaffForm = () => {
                                     </FormItem>
                                 )}
                             />
-                            <Button type='submit' className='w-full'>
+                            <GlobalDebuggerButton form={form}>
                                 Gönder
-                            </Button>
+                            </GlobalDebuggerButton>
                         </form>
                     </Form>
                 </DialogContent>

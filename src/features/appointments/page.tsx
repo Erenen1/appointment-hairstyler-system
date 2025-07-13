@@ -1,10 +1,12 @@
-import React from 'react'
-import AllAppointments from './components/AllAppointments'
+import React from 'react'; // ✅ Eksik olan bu
+import AllAppointmentsPage from './components/AllAppointmentsPage'
+import CreateAppointmentsForm from './components/CreateAppointmentsForm'
 
 const AppointmentsHome = () => {
     return (
         <>
-            <AllAppointments />
+            <CreateAppointmentsForm />
+            <AllAppointmentsPage />
         </>
     )
 

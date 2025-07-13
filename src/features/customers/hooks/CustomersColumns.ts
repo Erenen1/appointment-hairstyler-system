@@ -1,4 +1,4 @@
-import { Customers } from "@/features/customers/types/CreateCategoriesType";
+import { Customers } from "@/features/customers/types/CreateCustomersType";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const customersColumns: ColumnDef<Customers>[] = [

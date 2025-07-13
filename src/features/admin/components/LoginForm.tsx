@@ -4,9 +4,11 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { loginAdmin } from '../services/SuperAdminLogin';
 import { saveTokenToLocalStorage } from '../utils/auth';
+import { useLoading } from '@/app/contexts/LoadingContext';
 
 export default function AdminLoginForm() {
 
+    const { showLoading, hideLoading } = useLoading()
     const router = useRouter();
     const [formData, setFormData] = useState({
         email: '',
@@ -28,8 +30,10 @@ export default function AdminLoginForm() {
                 const token = res.data.bearerAuth
                 saveTokenToLocalStorage(token);
                 toast.success('Admin Girişi Yapıldı! 🎉');
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                router.push('/randevu-takvimi');
+                // await new Promise(resolve => setTimeout(resolve, 2000));
+                showLoading()
+                router.push('/ozet');
+                setTimeout(() => hideLoading(), 2000);
             } else {
                 toast.error(`${res.message} ❌`);
             }

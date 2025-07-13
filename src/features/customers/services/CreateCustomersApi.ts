@@ -1,10 +1,10 @@
 'use client';
 import { APIURL } from "../../../../api/APIUrl";
-import { CategoriesRequest } from "../types/CreateCategoriesType";
+import { CustomersRequest } from '../types/CreateCustomersType';
 
-export default async function createCategories(adminData: CategoriesRequest, token: string) {
+export default async function createCustomers(adminData: CustomersRequest, token: string) {
     try {
-        const res = await fetch(`${APIURL}/services/categories`, {
+        const res = await fetch(`${APIURL}/customers`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',

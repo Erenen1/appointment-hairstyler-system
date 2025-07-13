@@ -13,9 +13,8 @@ import { TableBodyRows } from "@/app/share/table/components/TableBody"
 import { TableHeaderRows } from "@/app/share/table/components/TableHeader"
 import { DataTableLayout } from "@/app/share/table/layout"
 import { appointmentsColumns } from "@/app/share/table/mock/ApointmentsColums"
-import { SearchForm } from "@/app/share/sidebar/components/SearchForm"
 
-const AllAppointments = () => {
+const AllAppointmentsPage = () => {
     const [data, setData] = useState<Randevu[]>([])
 
     const fetchAppointments = async () => {
@@ -37,7 +36,6 @@ const AllAppointments = () => {
     return (
         <div className="p-4 space-y-4">
             {/* <Button onClick={fetchRandevular}>Randevuları Yükle</Button> */}
-            <SearchForm />
             <DataTableLayout
                 header={<TableHeaderRows table={table} />}
                 body={<TableBodyRows table={table} />}
@@ -46,4 +44,4 @@ const AllAppointments = () => {
     )
 }
 
-export default AllAppointments
+export default AllAppointmentsPage;
