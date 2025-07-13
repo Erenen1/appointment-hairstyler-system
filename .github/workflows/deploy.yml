@@ -26,30 +26,24 @@ jobs:
           envs:     GH_PAT
           script: |
             set -euo pipefail
-
+            
             APP_DIR="$HOME/appointment-hairstyler-system"
-
-            # İlk kez çalışıyorsak klonla
+            
             if [ ! -d "$APP_DIR/.git" ]; then
               git clone https://${GH_PAT}@github.com/Erenen1/appointment-hairstyler-system.git "$APP_DIR"
             fi
-
+            
             cd "$APP_DIR"
             
-            # Docker'ı önce durdur
             docker compose -f docker-compose.prod.yml down --remove-orphans || true
             
-            # Uploads dizinlerinin sahipliğini düzelt
-            sudo chown -R $USER:$USER backend/uploads/ || true
-            sudo chmod -R 755 backend/uploads/ || true
+
             
-            # Git işlemlerini yap
             git fetch --prune --tags
             git checkout main
-            git reset --hard origin/main  # Force update
+            git reset --hard origin/main
             
-            # Docker yeniden build & restart
+            
             docker compose -f docker-compose.prod.yml up --build -d
             
-            # Eski, kullanılmayan imajları sil
             docker image prune -f

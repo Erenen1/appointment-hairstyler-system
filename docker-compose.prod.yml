@@ -42,6 +42,7 @@ services:
     volumes:
       - ./backend/logs:/app/logs
       - ./backend/uploads:/app/uploads
+    user: "1000:1000"
 
   nginx:
     build:

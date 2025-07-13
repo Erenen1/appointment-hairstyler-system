@@ -3,3 +3,6 @@ coverage
 .env
 .env.production.local
 dist
+uploads/profiles
+uploads/services
+uploads/gallery
