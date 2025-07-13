@@ -167,7 +167,7 @@ const createStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         let avatarPath = null;
         if (req.file) {
             const fileName = req.file.filename;
-            avatarPath = path_1.default.join('profiles', fileName);
+            avatarPath = (0, multer_1.generateFileUrl)(req, path_1.default.join('profiles', fileName));
         }
         const staff = yield Staff.create({
             fullName,
@@ -177,8 +177,10 @@ const createStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             avatar: avatarPath,
             isActive: true
         });
-        if (serviceIds && serviceIds.length > 0) {
-            yield Promise.all(serviceIds.map(serviceId => StaffService.create({
+        const serviceIdsString = req.body.serviceIds;
+        const serviceIdsArray = yield JSON.parse(serviceIdsString);
+        if (serviceIdsArray && serviceIdsArray.length > 0) {
+            yield Promise.all(serviceIdsArray.map(serviceId => StaffService.create({
                 staffId: staff.id,
                 serviceId: serviceId,
                 isActive: true

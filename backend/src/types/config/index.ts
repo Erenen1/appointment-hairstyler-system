@@ -17,6 +17,8 @@ export interface Config {
   DOMAIN: string;
   FRONTEND_DOMAIN: string;
   LOG_LEVEL: string;
+  JWT_EXPIRES_IN: string;
+  UPLOAD_DIR: string;
 }
 
 export interface LogConfig {

@@ -57,6 +57,7 @@ const logUtils_1 = require("./utils/logUtils");
 const database_1 = require("./config/database");
 const routes_1 = __importStar(require("./routes"));
 const app = (0, express_1.default)();
+console.log(env_1.default.NODE_ENV);
 app.use((0, cors_1.default)(cors_2.corsConfig));
 logUtils_1.LogManager.ensureLogDirectory();
 app.use(requestLogger_1.requestLogger);

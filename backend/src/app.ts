@@ -12,6 +12,8 @@ import routes, { setupSwagger } from "./routes";
 const app = express();
 
 
+
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 app.use(cors(corsConfig));
 LogManager.ensureLogDirectory();
 app.use(requestLogger);

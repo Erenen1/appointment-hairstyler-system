@@ -7,6 +7,9 @@ const generateRequestId = () => {
 };
 const requestLogger = (req, res, next) => {
     const startTime = Date.now();
+    const requestId = generateRequestId();
+    req.id = requestId;
+    req.startTime = startTime;
     const oldSend = res.send;
     res.send = function (body) {
         var _a, _b;
@@ -21,11 +24,14 @@ const requestLogger = (req, res, next) => {
     next();
 };
 exports.requestLogger = requestLogger;
-const getRequestContext = (req) => ({
-    requestId: req.id,
-    method: req.method,
-    url: req.originalUrl,
-    ip: req.ip || req.socket.remoteAddress,
-});
+const getRequestContext = (req) => {
+    var _a;
+    return ({
+        requestId: req.id,
+        method: req.method,
+        url: req.originalUrl,
+        ip: req.ip || ((_a = req.socket) === null || _a === void 0 ? void 0 : _a.remoteAddress),
+    });
+};
 exports.getRequestContext = getRequestContext;
 //# sourceMappingURL=requestLogger.js.map

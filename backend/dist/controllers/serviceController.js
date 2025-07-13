@@ -146,7 +146,8 @@ const createService = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             throw utils_1.ApiError.badRequest('Validasyon hatası', validationResult.errors);
         }
         const service = yield Service.create(req.body);
-        const staffIds = req.body.staffIds;
+        const staffIdsString = req.body.staffIds;
+        const staffIds = yield JSON.parse(staffIdsString);
         if (staffIds && staffIds.length > 0) {
             yield Promise.all(staffIds.map(staffId => StaffService.create({
                 staffId: staffId,
@@ -154,16 +155,17 @@ const createService = (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 isActive: true
             })));
         }
+        let avatarPath = null;
         if (req.file) {
             const fileName = req.file.filename;
-            const relativePath = path_1.default.join('services', fileName);
-            yield ServiceImage.create({
-                serviceId: service.id,
-                imagePath: relativePath,
-                isMain: true,
-                orderIndex: 0
-            });
+            avatarPath = (0, multer_1.generateFileUrl)(req, path_1.default.join('services', fileName));
         }
+        yield ServiceImage.create({
+            serviceId: service.id,
+            imagePath: avatarPath,
+            isMain: true,
+            orderIndex: 0
+        });
         const serviceWithStaff = yield Service.findByPk(service.id, {
             include: [
                 {

@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import logger, { loggerHelpers } from '../config/logger';
-import { RequestLogger } from '../types/api';
-
 
 const generateRequestId = (): string => {
   return Math.random().toString(36).substring(2, 9);
@@ -9,6 +7,12 @@ const generateRequestId = (): string => {
 
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
   const startTime = Date.now();
+  const requestId = generateRequestId();
+  
+  // Request'e id ekle
+  req.id = requestId;
+  req.startTime = startTime;
+  
   const oldSend = res.send;
 
   res.send = function(body) {
@@ -19,9 +23,9 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
       res.statusCode,
       duration,
       {
-        requestId: (req as RequestLogger).id,
-        userId: req.user?.id as any,
-        userType: req.user?.userType as any
+        requestId: req.id,
+        userId: req.user?.id,
+        userType: req.user?.userType
       }
     );
     return oldSend.apply(res, arguments as any);
@@ -30,9 +34,9 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
   next();
 };
 
-export const getRequestContext = (req: RequestLogger) => ({
+export const getRequestContext = (req: Request) => ({
   requestId: req.id,
   method: req.method,
   url: req.originalUrl,
-  ip: req.ip ||  req.socket.remoteAddress,
+  ip: req.ip || req.socket?.remoteAddress,
 }); 

@@ -4,8 +4,8 @@ import { Op } from 'sequelize';
 import { format } from 'date-fns';
 import { eachDayOfInterval } from 'date-fns/eachDayOfInterval';
 import path from 'path';
-import { 
-  createServiceSchema, 
+import {
+  createServiceSchema,
   updateServiceSchema,
   serviceIdSchema,
   categoryListQuerySchema,
@@ -65,8 +65,8 @@ export const getServices = async (req: Request, res: Response, next: NextFunctio
       limit: limitOption
     });
     const formattedServices = services.map(service => {
-      const mainImage = service.images?.find(img => img.isMain)?.imagePath || 
-                       service.images?.[0]?.imagePath;
+      const mainImage = service.images?.find(img => img.isMain)?.imagePath ||
+        service.images?.[0]?.imagePath;
       return {
         id: service.id,
         slug: service.slug,
@@ -79,11 +79,11 @@ export const getServices = async (req: Request, res: Response, next: NextFunctio
         isActive: service.isActive,
         staffMembers: service.staffMembers?.filter(staff => staff.isActive)?.map(staff => ({
           id: staff.id,
-          fullName: staff.fullName  
+          fullName: staff.fullName
         })) || []
       };
     });
-    res.status(200).json(ApiSuccess.list(formattedServices, null ,'Hizmetler başarıyla getirildi'));
+    res.status(200).json(ApiSuccess.list(formattedServices, null, 'Hizmetler başarıyla getirildi'));
   } catch (error) {
     next(error);
   }
@@ -118,7 +118,7 @@ export const getServiceById = async (req: Request, res: Response, next: NextFunc
           attributes: ['id', 'fullName', 'isActive']
         }
       ]
-    }); 
+    });
     if (!service) {
       throw ApiError.notFound('Hizmet bulunamadı');
     }
@@ -146,14 +146,14 @@ export const createService = async (req: Request, res: Response, next: NextFunct
     if (!validationResult.success) {
       throw ApiError.badRequest('Validasyon hatası', validationResult.errors);
     }
-    
+
     const service = await Service.create(req.body);
-    const staffIds: number[] = req.body.staffIds;
-    
+    const staffIdsString: any = req.body.staffIds;
+    const staffIds = await JSON.parse(staffIdsString);
     // forEach yerine Promise.all kullanarak tüm staff-service ilişkilerini paralel olarak oluştur
     if (staffIds && staffIds.length > 0) {
       await Promise.all(
-        staffIds.map(staffId => 
+        staffIds.map(staffId =>
           StaffService.create({
             staffId: staffId,
             serviceId: service.id,
@@ -163,52 +163,51 @@ export const createService = async (req: Request, res: Response, next: NextFunct
       );
     }
 
-    // Eğer resim yüklenmişse service image olarak kaydet
+    let avatarPath = null;
     if (req.file) {
       const fileName = req.file.filename;
-      const relativePath = path.join('services', fileName);
-      
-      await ServiceImage.create({
-        serviceId: service.id,
-        imagePath: relativePath,
-        isMain: true, // İlk resim ana resim olsun
-        orderIndex: 0
-      });
+      avatarPath = generateFileUrl(req, path.join('services', fileName));
     }
+    await ServiceImage.create({
+      serviceId: service.id,
+      imagePath: avatarPath,
+      isMain: true, // İlk resim ana resim olsun
+      orderIndex: 0
+    });
 
     // Oluşturulan hizmeti staff bilgileriyle birlikte getir
     const serviceWithStaff = await Service.findByPk(service.id, {
-      include: [
-        {
-          model: ServiceCategory,
-          as: 'category',
-          attributes: ['id', 'name']
+    include: [
+      {
+        model: ServiceCategory,
+        as: 'category',
+        attributes: ['id', 'name']
+      },
+      {
+        model: ServiceImage,
+        as: 'images',
+        attributes: ['id', 'imagePath', 'isMain', 'orderIndex']
+      },
+      {
+        model: Staff,
+        as: 'staffMembers',
+        through: {
+          model: StaffService,
+          attributes: ['isActive']
         },
-        {
-          model: ServiceImage,
-          as: 'images',
-          attributes: ['id', 'imagePath', 'isMain', 'orderIndex']
-        },
-        {
-          model: Staff,
-          as: 'staffMembers',
-          through: {
-            model: StaffService,
-            attributes: ['isActive']
-          },
-          attributes: ['id', 'fullName']
-        }
-      ]
-    });
+        attributes: ['id', 'fullName']
+      }
+    ]
+  });
 
-    res.status(201).json(ApiSuccess.created(serviceWithStaff, 'Hizmet başarıyla oluşturuldu'));
-  } catch (error) {
-    // Hata durumunda yüklenen dosyayı sil
-    if (req.file) {
-      await deleteFile(req.file.path);
-    }
-    next(error);
+  res.status(201).json(ApiSuccess.created(serviceWithStaff, 'Hizmet başarıyla oluşturuldu'));
+} catch (error) {
+  // Hata durumunda yüklenen dosyayı sil
+  if (req.file) {
+    await deleteFile(req.file.path);
   }
+  next(error);
+}
 };
 
 export const updateService = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -218,14 +217,14 @@ export const updateService = async (req: Request, res: Response, next: NextFunct
     if (!validationResult.success) {
       throw ApiError.badRequest('Validasyon hatası', validationResult.errors);
     }
-    
+
     const service = await Service.findByPk(id);
     if (!service) {
       throw ApiError.notFound('Hizmet bulunamadı');
     }
-    
+
     await service.update(req.body);
-    
+
     // Staff ilişkilerini güncelle
     const staffIds: number[] = req.body.staffIds;
     if (staffIds && Array.isArray(staffIds)) {
@@ -233,11 +232,11 @@ export const updateService = async (req: Request, res: Response, next: NextFunct
       await StaffService.destroy({
         where: { serviceId: id }
       });
-      
+
       // Yeni ilişkileri oluştur
       if (staffIds.length > 0) {
         await Promise.all(
-          staffIds.map(staffId => 
+          staffIds.map(staffId =>
             StaffService.create({
               staffId: staffId,
               serviceId: id,
@@ -375,7 +374,7 @@ export const updateServiceCategory = async (req: Request, res: Response, next: N
     }
     if (name && name !== category.name) {
       const existingCategory = await ServiceCategory.findOne({
-        where: { 
+        where: {
           name: { [Op.iLike]: name },
           id: { [Op.ne]: id }
         }
@@ -518,7 +517,7 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
     // Tüm personellerin müsaitlik durumlarını paralel olarak hesapla
     const staffAvailabilities = await Promise.all(staffServices.map(async (staffService) => {
       const staffId = staffService.staff.id;
-      
+
       // Bu tarih aralığındaki personelin müsaitlik kayıtlarını getir
       const staffAvailabilityRecords = await db.StaffAvailability.findAll({
         where: {
@@ -546,10 +545,10 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
 
         // O tarih için özel müsaitlik kaydı var mı?
         const staffAvailability = staffAvailabilityRecords.find(sa => sa.date === dateStr);
-        
+
         // İş saatleri
         const businessHour = businessHours.find(bh => bh.dayOfWeek === dayOfWeek);
-        
+
         // O gün randevuları
         const dayAppointments = appointments.filter(apt => apt.appointmentDate === dateStr);
 
@@ -586,7 +585,7 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
         }
 
         let availableSlots = [];
-        
+
         if (isAvailable && workingHours) {
           // 30 dakika aralıklarla slot'ları oluştur
           const startHour = parseInt(workingHours.start.split(':')[0]);
@@ -643,8 +642,8 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
           workingHours: workingHours ? {
             start: workingHours.start.substring(0, 5),
             end: workingHours.end.substring(0, 5),
-            lunchBreak: workingHours.lunchBreak ? 
-              `${workingHours.lunchBreak.start.substring(0, 5)} - ${workingHours.lunchBreak.end.substring(0, 5)}` : 
+            lunchBreak: workingHours.lunchBreak ?
+              `${workingHours.lunchBreak.start.substring(0, 5)} - ${workingHours.lunchBreak.end.substring(0, 5)}` :
               null
           } : null
         };

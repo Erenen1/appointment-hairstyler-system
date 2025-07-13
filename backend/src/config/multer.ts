@@ -118,6 +118,14 @@ export const generateFileUrl = (req: any, filePath: string): string => {
   return `${protocol}://${host}/uploads/${relativePath}`;
 };
 
+export const generateFileName = (fileName: string, type: string) => {
+  const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+  const ext = path.extname(fileName);
+  const baseName = path.basename(fileName, ext);
+  const sanitizedName = sanitizeFileName(baseName);
+  return `${type}-${sanitizedName}-${uniqueSuffix}${ext}`;
+};
+
 // Dosya silme yardımcı fonksiyonu
 export const deleteFile = (filePath: string): Promise<boolean> => {
   return new Promise((resolve) => {

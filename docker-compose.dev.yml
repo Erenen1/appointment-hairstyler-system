@@ -44,6 +44,7 @@ services:
       - app-dev-network
     volumes:
       - ./backend:/app
+      - /app/node_modules
       - ./backend/logs:/app/logs
       - ./backend/uploads:/app/uploads
     working_dir: /app

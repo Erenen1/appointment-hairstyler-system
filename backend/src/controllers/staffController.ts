@@ -3,6 +3,7 @@ import { ApiError, ApiSuccess } from '../utils';
 import { Op } from 'sequelize';
 import { format } from 'date-fns';
 import path from 'path';
+import config from '../config/env';
 import { 
   createStaffSchema, 
   updateStaffSchema,
@@ -154,7 +155,7 @@ export const createStaff = async (req: Request, res: Response, next: NextFunctio
     let avatarPath = null;
     if (req.file) {
       const fileName = req.file.filename;
-      avatarPath = path.join('profiles', fileName);
+      avatarPath = generateFileUrl(req, path.join('profiles', fileName));
     }
 
     const staff = await Staff.create({
@@ -166,10 +167,14 @@ export const createStaff = async (req: Request, res: Response, next: NextFunctio
       isActive: true
     });
 
+    const serviceIdsString:string = req.body.serviceIds;
+
+    const serviceIdsArray = await JSON.parse(serviceIdsString);
+
     // Staff-Service ilişkilerini oluştur
-    if (serviceIds && serviceIds.length > 0) {
+    if (serviceIdsArray && serviceIdsArray.length > 0) {
       await Promise.all(
-        serviceIds.map(serviceId => 
+        serviceIdsArray.map(serviceId => 
           StaffService.create({
             staffId: staff.id,
             serviceId: serviceId,

@@ -13,16 +13,22 @@ export const config: Config = {
     DB_USER: process.env.DB_USER || 'postgres',
     DB_PASSWORD: process.env.DB_PASSWORD || 'password123',
     PORT: parseInt(process.env.PORT || '3000', 10),
+    
     JWT_SECRET: process.env.JWT_SECRET || 'your-jwt-secret-key-change-in-production',
+    JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '24h',
     SUPER_ADMIN_API_KEY: process.env.SUPER_ADMIN_API_KEY || 'your-api-key',
+
     SMTP_HOST: process.env.SMTP_HOST || '',
     SMTP_PORT: parseInt(process.env.SMTP_PORT || '587', 10),
     SMTP_USER: process.env.SMTP_USER || '',
     SMTP_PASS: process.env.SMTP_PASS || '',
+    
     RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10),
     RATE_LIMIT_MAX_REQUESTS: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10),
     DOMAIN: process.env.DOMAIN || 'localhost',
     FRONTEND_DOMAIN: process.env.FRONTEND_DOMAIN || 'http://localhost:3000',
+    UPLOAD_DIR: process.env.UPLOAD_DIR || 'uploads',
+    
     LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 };
 
