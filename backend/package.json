@@ -17,6 +17,10 @@
     "test:teardown": "docker-compose -f docker-compose-test.yml down",
     "test:full": "npm run test:setup && sleep 10 && npm run test:ci && npm run test:teardown",
     "swagger": "swagger-jsdoc -d swagger.config.js -o swagger.json",
+    "migrate": "npx sequelize-cli db:migrate",
+    "migrate:undo": "npx sequelize-cli db:migrate:undo",
+    "migrate:status": "npx sequelize-cli db:migrate:status",
+    "migrate:create": "npx sequelize-cli migration:generate --name",
     "test:dashboard": "cross-env NODE_ENV=test jest tests/controllers/dashboard.test.ts",
     "test:dashboard:watch": "cross-env NODE_ENV=test jest tests/controllers/dashboard.test.ts --watch",
     "test:dashboard:coverage": "cross-env NODE_ENV=test jest tests/controllers/dashboard.test.ts --coverage"
