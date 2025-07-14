@@ -25,7 +25,7 @@
 
 // features/ui/data-table/columns.ts
 import { ColumnDef } from "@tanstack/react-table"
-import { Randevu } from "./randevu-mock-data"
+import { Randevu } from "../../../app/share/table/mock/randevu-mock-data"
 
 export const appointmentsColumns: ColumnDef<Randevu>[] = [
     {

@@ -1,21 +1,21 @@
 'use client';
 import { useState } from "react";
-import { Categories } from "../types/CreateCategoriesType";
 import { toast } from "sonner";
 import { getTokenToLocalStorage } from "@/features/admin/utils/auth";
-import allCategories from "../services/AllCategoriesApi";
+import { Randevu } from "@/app/share/table/mock/randevu-mock-data";
+import allAppointments from "../services/AllAppointmentsApi";
 
-export function useAllCategories() {
-    const [data, setData] = useState<Categories[]>([])
+export function useAllAppointments() {
+    const [data, setData] = useState<Randevu[]>([])
     const [loading, setLoading] = useState(false)
-    const handleAllCategories = async () => {
+    const handleAllAppointments = async () => {
         try {
             const token = getTokenToLocalStorage()
-            const res = await allCategories(token as string)
+            const res = await allAppointments(token as string)
             setData(res.data);
-            toast.success('Kategoriler Getirildi', res);
+            toast.success('Randevu Getirildi', res);
         } catch (error) {
-            toast.error('Kategori Getirilemedi');
+            toast.error('Randevu Getirilemedi');
             throw error;
         } finally {
             setLoading(false);
@@ -24,6 +24,6 @@ export function useAllCategories() {
     return {
         data,
         loading,
-        handleAllCategories,
+        handleAllAppointments,
     }
 }

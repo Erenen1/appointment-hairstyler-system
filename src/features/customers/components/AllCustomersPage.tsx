@@ -5,11 +5,11 @@ import { useAllCustomers } from '../hooks/useAllCustomers'
 import { DataTableLayout } from '@/app/share/table/layout'
 import { TableHeaderRows } from '@/app/share/table/components/TableHeader'
 import { TableBodyRows } from '@/app/share/table/components/TableBody'
-import { customersColumns } from '../hooks/CustomersColumns';
+import { customersColumns } from './CustomersColumns';
 
 const AllCustomersPage = () => {
 
-  const { data, loading, handleAllCustomers } = useAllCustomers()
+  const { data, handleAllCustomers } = useAllCustomers()
 
   const table = useReactTable({
     data,
@@ -24,7 +24,6 @@ const AllCustomersPage = () => {
 
   return (
     <div className='p-4 space-y-4'>
-      {loading && <p className='text-muted text-sm'>Yükleniyor ...</p>}
       <DataTableLayout
         header={<TableHeaderRows table={table} />}
         body={<TableBodyRows table={table} />}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 
 import {
     useReactTable,
@@ -8,22 +8,17 @@ import {
     getPaginationRowModel,
 } from "@tanstack/react-table"
 // import { Button } from "@/components/ui/button"
-import { Randevu } from "@/app/share/table/mock/randevu-mock-data"
 import { TableBodyRows } from "@/app/share/table/components/TableBody"
 import { TableHeaderRows } from "@/app/share/table/components/TableHeader"
 import { DataTableLayout } from "@/app/share/table/layout"
-import { appointmentsColumns } from "@/app/share/table/mock/ApointmentsColums"
-
+import { appointmentsColumns } from "./AppointmentsColumns"
+import { useAllAppointments } from "../hooks/useAllAppointments"
 const AllAppointmentsPage = () => {
-    const [data, setData] = useState<Randevu[]>([])
 
-    const fetchAppointments = async () => {
-        const res = await fetch("/json/appointments.json")
-        const json = await res.json()
-        setData(json)
-    }
+    const { data, handleAllAppointments } = useAllAppointments()
+
     useEffect(() => {
-        fetchAppointments()
+        handleAllAppointments()
     }, [])
 
     const table = useReactTable({

@@ -22,11 +22,6 @@ export const customersColumns: ColumnDef<Customers>[] = [
         }
     },
     {
-        accessorKey: "loyaltyPoints",
-        header: "Sadakat Puanı",
-        cell: ({ row }) => row.getValue("loyaltyPoints") ?? "",
-    },
-    {
         accessorKey: "notes",
         header: "Not",
         cell: ({ row }) => {

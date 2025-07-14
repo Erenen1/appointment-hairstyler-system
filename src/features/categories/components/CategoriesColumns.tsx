@@ -1,5 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { Categories } from './CreateCategoriesType';
+import { Categories } from '../types/CreateCategoriesType';
 import { Check, X } from 'lucide-react';
 
 

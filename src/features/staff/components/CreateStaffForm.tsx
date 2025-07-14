@@ -160,9 +160,9 @@ const CreateStaffForm = () => {
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    <SelectItem value='1'>Service 1</SelectItem>
-                                                    <SelectItem value='2'>Service 2</SelectItem>
-                                                    <SelectItem value='3'>Service 3</SelectItem>
+                                                    <SelectItem value='123e4567-e89b-12d3-a456-426614174000'>Service 1</SelectItem>
+                                                    <SelectItem value='123e4567-e89b-12d3-a456-426614174001'>Service 2</SelectItem>
+                                                    <SelectItem value='123e4567-e89b-12d3-a456-426614174002'>Service 3</SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>

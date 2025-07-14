@@ -1,9 +1,9 @@
 'use client';
 import { APIURL } from "../../../../api/APIUrl";
 
-export default async function allCustomers(token: string) {
+export default async function allCategories(token: string) {
     try {
-        const res = await fetch(`${APIURL}/customers`, {
+        const res = await fetch(`${APIURL}/services/categories`, {
             method: 'GET',
             headers: {
                 'content-type': 'application/json',
@@ -11,10 +11,10 @@ export default async function allCustomers(token: string) {
             },
         })
         const data = await res.json();
-        console.log('Müşteriler getirildi api:', data);
+        console.log('Kategoriler getirildi api:', data);
         return data;
     } catch (error) {
-        console.error('Müşteriler getirilemedi api:', error);
+        console.error('Kategoriler getirilemedi api:', error);
         throw error;
     };
 };
