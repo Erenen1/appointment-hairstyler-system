@@ -8,13 +8,13 @@ import { categoriesColumns } from './CategoriesColumns';
 import { useAllCategories } from '../hooks/useAllCategories';
 
 const AllCategoriesPage = () => {
-    const { data, loading, handleAllCategories } = useAllCategories();
+    const { categoriesData, handleAllCategories } = useAllCategories();
 
     useEffect(() => {
         handleAllCategories();
     }, [])
     const table = useReactTable({
-        data,
+        data: categoriesData,
         columns: categoriesColumns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel()
@@ -23,7 +23,6 @@ const AllCategoriesPage = () => {
 
     return (
         <div className='p-4 space-y-4'>
-            {loading && <p className='text-muted text-sm'>Yükleniyor...</p>}
             <DataTableLayout
                 header={<TableHeaderRows table={table} />}
                 body={<TableBodyRows table={table} />}

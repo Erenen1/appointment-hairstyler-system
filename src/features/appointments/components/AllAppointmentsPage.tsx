@@ -1,5 +1,4 @@
 "use client"
-
 import { useEffect } from "react"
 
 import {
@@ -15,14 +14,14 @@ import { appointmentsColumns } from "./AppointmentsColumns"
 import { useAllAppointments } from "../hooks/useAllAppointments"
 const AllAppointmentsPage = () => {
 
-    const { data, handleAllAppointments } = useAllAppointments()
+    const { appointmentData, handleAllAppointments } = useAllAppointments()
 
     useEffect(() => {
         handleAllAppointments()
     }, [])
 
     const table = useReactTable({
-        data,
+        data: appointmentData,
         columns: appointmentsColumns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),

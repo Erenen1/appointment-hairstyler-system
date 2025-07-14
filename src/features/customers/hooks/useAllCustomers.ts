@@ -8,26 +8,21 @@ import { getTokenToLocalStorage } from "@/features/admin/utils/auth";
 
 
 export function useAllCustomers() {
-    const [data, setData] = useState<Customers[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [customerData, setCustomerData] = useState<Customers[]>([]);
 
     const handleAllCustomers = async () => {
         try {
             const token = getTokenToLocalStorage()
-            setLoading(true)
             const res = await allCustomers(token as string)
-            setData(res.data);
+            setCustomerData(res.data);
             toast.success('Müşteriler Getirildi', res)
         } catch (error) {
             toast.error('Veri alınamadı')
             throw error;
-        } finally {
-            setLoading(false);
-        };
+        }
     }
     return {
-        data,
-        loading,
+        customerData,
         handleAllCustomers,
     }
 

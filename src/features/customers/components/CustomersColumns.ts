@@ -1,7 +1,8 @@
-import { Customers } from "@/features/customers/types/CreateCustomersType";
 import { ColumnDef } from "@tanstack/react-table";
+import { formatDateToTurkish } from '../../staff/utils/formatDateToTurkish';
+import { Customer } from "../types/CreateCustomersType";
 
-export const customersColumns: ColumnDef<Customers>[] = [
+export const customersColumns: ColumnDef<Customer>[] = [
     {
         accessorKey: "fullName",
         header: "Müşteri Adı",
@@ -32,11 +33,11 @@ export const customersColumns: ColumnDef<Customers>[] = [
     {
         accessorKey: "createdAt",
         header: "Oluşturma Tarihi",
-        cell: ({ row }) => row.getValue("createdAt") ?? "",
+        cell: ({ row }) => formatDateToTurkish(row.getValue("createdAt") as string)
     },
     {
         accessorKey: "updatedAt",
         header: "Güncellenme Tarihi",
-        cell: ({ row }) => row.getValue("updatedAt") ?? "",
+        cell: ({ row }) => formatDateToTurkish(row.getValue("updatedAt") as string)
     },
 ]

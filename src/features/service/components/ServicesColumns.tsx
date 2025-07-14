@@ -1,19 +1,34 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { Categories } from '../types/CreateCategoriesType';
 import { Check, X } from 'lucide-react';
 import { formatDateToTurkish } from '../../staff/utils/formatDateToTurkish';
+import { Service } from '../types/CreateServiceType';
 
 
-export const categoriesColumns: ColumnDef<Categories>[] = [
+export const servicesColumns: ColumnDef<Service>[] = [
     {
-        accessorKey: "name",
+        accessorKey: "categoryId",
         header: "Kategori Adı",
-        cell: ({ row }) => row.getValue("name") ?? "",
+        cell: ({ row }) => row.getValue("categoryId") ?? "",
+    },
+    {
+        accessorKey: "title",
+        header: "Başlık",
+        cell: ({ row }) => row.getValue("title") ?? "",
     },
     {
         accessorKey: "description",
         header: "Açıklama",
         cell: ({ row }) => row.getValue("description") ?? "",
+    },
+    {
+        accessorKey: "duraiton",
+        header: "Süre",
+        cell: ({ row }) => row.getValue("duraiton") ?? "",
+    },
+    {
+        accessorKey: "price",
+        header: "Ücret (₺)",
+        cell: ({ row }) => row.getValue("price") ?? "",
     },
     {
         accessorKey: "isActive",
@@ -33,6 +48,11 @@ export const categoriesColumns: ColumnDef<Categories>[] = [
                 </div>
             )
         }
+    },
+    {
+        accessorKey: "isPopular",
+        header: "Popüler",
+        cell: ({ row }) => row.getValue("isPopular") ?? "",
     },
     {
         accessorKey: "createdAt",

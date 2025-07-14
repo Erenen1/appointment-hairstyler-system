@@ -10,3 +10,16 @@ export interface ServiceRequest {
     isPopular?: string;
     isActive?: boolean
 }
+
+export type Service = {
+    slug: string;
+    categoryId: string;
+    title: string;
+    description: string;
+    duration: string;
+    price: string;
+    staffIds: [];
+    isPopular: string;
+    isActive: string;
+    image: string;
+}

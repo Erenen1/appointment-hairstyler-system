@@ -6,24 +6,20 @@ import { getTokenToLocalStorage } from "@/features/admin/utils/auth";
 import allCategories from "../services/AllCategoriesApi";
 
 export function useAllCategories() {
-    const [data, setData] = useState<Categories[]>([])
-    const [loading, setLoading] = useState(false)
+    const [categoriesData, setCategoriesData] = useState<Categories[]>([])
     const handleAllCategories = async () => {
         try {
             const token = getTokenToLocalStorage()
             const res = await allCategories(token as string)
-            setData(res.data);
+            setCategoriesData(res.data);
             toast.success('Kategoriler Getirildi', res);
         } catch (error) {
             toast.error('Kategori Getirilemedi');
             throw error;
-        } finally {
-            setLoading(false);
         }
     }
     return {
-        data,
-        loading,
+        categoriesData,
         handleAllCategories,
     }
 }

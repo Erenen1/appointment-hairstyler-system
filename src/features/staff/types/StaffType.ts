@@ -1,5 +1,13 @@
-// features/ui/data-table/mock-data.ts
-export type Personel = {
+export interface StaffRequest {
+    fullName: string;
+    email: string;
+    phone: string;
+    specialties: string;
+    serviceIds: [];
+    avatar: string;
+}
+
+export type Staff = {
     id: string
     fullName: string
     phone: string;

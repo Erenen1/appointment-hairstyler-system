@@ -4,29 +4,26 @@
 import { useState } from "react"
 import { toast } from "sonner"
 import { Personel } from "@/app/share/table/mock/personel-mock-data"
+import allStaff from "../services/AllStaffAPI"
+import { getTokenToLocalStorage } from "@/features/admin/utils/auth"
 
 export function useAllStaff() {
-    const [data, setData] = useState<Personel[]>([])
-    const [loading, setLoading] = useState(false)
+    const [staffData, setStaffData] = useState<Personel[]>([])
 
     const handleAllStaff = async () => {
         try {
-            setLoading(true)
-            const res = await fetch('/json/staff.json')
-            const json = await res.json()
-            setData(json)
-            toast.success("Personeller getirildi", json)
+            const token = getTokenToLocalStorage()
+            const res = await allStaff(token as string)
+            setStaffData(res.data)
+            toast.success("Personeller getirildi", res.data)
         } catch (error) {
-            toast.error("Veri alınamadı")
+            toast.error("Personeller getirilemedi:")
             throw error;
-        } finally {
-            setLoading(false)
         }
     }
 
     return {
-        data,
-        loading,
+        staffData,
         handleAllStaff,
     }
 }

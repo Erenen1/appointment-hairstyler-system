@@ -9,10 +9,10 @@ import { customersColumns } from './CustomersColumns';
 
 const AllCustomersPage = () => {
 
-  const { data, handleAllCustomers } = useAllCustomers()
+  const { customerData, handleAllCustomers } = useAllCustomers()
 
   const table = useReactTable({
-    data,
+    data: customerData,
     columns: customersColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel()

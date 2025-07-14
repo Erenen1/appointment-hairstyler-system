@@ -1,10 +1,12 @@
 import React from 'react'
-import CreateStaffForm from '../staff/components/CreateStaffForm'
+import CreateServicesForm from './components/CreateServicesForm'
+import AllServicesPage from './components/AllServicesPage'
 
 const ServiceHome = () => {
     return (
         <div>
-            <CreateStaffForm />
+            <CreateServicesForm />
+            <AllServicesPage />
         </div>
     )
 }

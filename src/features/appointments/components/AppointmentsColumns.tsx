@@ -1,47 +1,16 @@
-// // features/ui/data-table/columns.ts
-// import { ColumnDef } from "@tanstack/react-table"
-// import { Randevu } from "./randevu-mock-data"
-
-// export const appointmentsColumns: ColumnDef<Randevu>[] = [
-//     {
-//         accessorKey: "müsteriAdi",
-//         header: "Müşteri Adı",
-//         cell: ({ row }) => row.getValue("müsteriAdi") ?? "",
-//     },
-//     {
-//         accessorKey: "tarih",
-//         header: "Tarih",
-//         cell: ({ row }) => row.getValue("tarih") ?? "",
-//     },
-//     {
-//         accessorKey: "durum",
-//         header: "Durum",
-//         cell: ({ row }) => row.getValue("durum") ?? "",
-//     },
-// ]
-
-
-
-
-// features/ui/data-table/columns.ts
 import { ColumnDef } from "@tanstack/react-table"
-import { Randevu } from "../../../app/share/table/mock/randevu-mock-data"
+import { Appointment } from "../types/AppointmentType"
 
-export const appointmentsColumns: ColumnDef<Randevu>[] = [
+export const appointmentsColumns: ColumnDef<Appointment>[] = [
     {
         accessorKey: "appointmentDate",
-        header: "Tarih",
+        header: "Randevu Tarihi",
         cell: ({ row }) => row.getValue("appointmentDate") ?? "",
     },
     {
-        accessorKey: "startTime",
-        header: "Başlangıç",
-        cell: ({ row }) => row.getValue("startTime") ?? "",
-    },
-    {
-        accessorKey: "endTime",
-        header: "Bitiş",
-        cell: ({ row }) => row.getValue("endTime") ?? "",
+        accessorKey: "appointmentTime",
+        header: "Randevu Saati",
+        cell: ({ row }) => row.getValue("appointmentTime") ?? "",
     },
     {
         accessorKey: "price",
@@ -64,6 +33,7 @@ export const appointmentsColumns: ColumnDef<Randevu>[] = [
     //     accessorKey: "statusId",
     //     header: "Durum",
     //     cell: ({ row }) => {
+    //         const statusId = row.getValue('statusId') as number;
     //         const statusMap: Record<number, string> = {
     //             1: "Onaylandı",
     //             2: "Bekliyor",
@@ -71,11 +41,8 @@ export const appointmentsColumns: ColumnDef<Randevu>[] = [
     //             4: "İptal Edildi",
     //             5: "Müşteri İptali",
     //         }
-    //         return (
-    //             <div>
-    //             { statusMap[row.getValue("statusId")]: "Bilinmiyor" }
-    //             </div>
-    //         )
+    //         return <div>{statusMap[statusId] ?? "Bilinmiyor"}   </div>;
+
     //     },
     // },
 ]

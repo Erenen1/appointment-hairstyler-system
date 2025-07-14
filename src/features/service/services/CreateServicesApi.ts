@@ -2,7 +2,7 @@
 
 import { APIURL } from "../../../../api/APIUrl";
 import { ServiceRequest } from "../types/CreateServiceType";
-export default async function createService(adminData: ServiceRequest, token: string) {
+export default async function createServices(adminData: ServiceRequest, token: string) {
     try {
         const res = await fetch(`${APIURL}/services`, {
             method: 'POST',
@@ -13,10 +13,10 @@ export default async function createService(adminData: ServiceRequest, token: st
             body: JSON.stringify(adminData)
         })
         const data = await res.json();
-        console.log('Serviceler oluşturuldu api:', data);
+        console.log('Hizmetler oluşturuldu api:', data);
         return data;
     } catch (error) {
-        console.error('Serviceler oluşturulamadı api:', error);
+        console.error('Hizmetler oluşturulamadı api:', error);
         throw error;
     }
 }

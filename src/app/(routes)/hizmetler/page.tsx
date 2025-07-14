@@ -1,8 +1,11 @@
+import ServiceHome from '@/features/service/page'
 import React from 'react'
 
 const Hizmetler = () => {
     return (
-        <div>Hizmetler</div>
+        <div>
+            <ServiceHome />
+        </div>
     )
 }
 

@@ -1,9 +1,8 @@
-export type Customers = {
+export type Customer = {
     id: string;
     fullName: string;
     phone: string;
     email: string;
-    loyaltyPoints: string;
     notes: string;
     createdAt: string;
     updatedAt: string;
