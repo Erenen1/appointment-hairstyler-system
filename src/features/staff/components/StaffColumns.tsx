@@ -2,6 +2,11 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { formatDateToTurkish } from "../utils/formatDateToTurkish";
 import { Staff } from "../types/StaffType";
+import { getTokenToLocalStorage } from "@/features/admin/utils/auth";
+import { DetailButton } from '../../../app/share/GlobalDetailButton';
+import { UpdateButton } from "@/app/share/GlobalUpdateButton";
+import { DeleteButton } from "@/app/share/GlobalDeleteButton";
+import deleteCustomers from "@/features/customers/services/DeleteCustomersApi";
 
 export const staffColumns: ColumnDef<Staff>[] = [
     {
@@ -42,5 +47,27 @@ export const staffColumns: ColumnDef<Staff>[] = [
         header: "Güncelleme Tarihi",
         cell: ({ row }) => formatDateToTurkish(row.getValue("updatedAt") as string),
     },
+    {
+        id: 'actions',
+        header: '',
+        cell: ({ row }) => {
+            const staff = row.original;
+            const token = getTokenToLocalStorage()
+            return (
+                <div className="flex justify-center gap-3.5">
+                    <DetailButton
+                        onClick={() => deleteCustomers(staff.id, token as string)}
+                        title='Detayler' />
+                    <UpdateButton
+                        onClick={() => deleteCustomers(staff.id, token as string)}
+                        title='Güncelle'
+                    />
+                    <DeleteButton
+                        onClick={() => deleteCustomers(staff.id, token as string)}
+                        title='Sil' />
+                </div>
+            )
+        }
+    }
 
 ]

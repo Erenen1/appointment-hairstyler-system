@@ -17,7 +17,6 @@ import { SelectValue } from '@radix-ui/react-select';
 import { Dialog, DialogHeader, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import ModalTitleComponent from '@/app/share/ModalTitleComponent';
-import { SearchForm } from '@/app/share/sidebar/components/SearchForm';
 
 
 const CreateServiceForm = () => {
@@ -44,7 +43,7 @@ const CreateServiceForm = () => {
             duration: 0,
             price: 0,
             image: undefined, // File için undefined kullan
-            staffIds: '[]'
+            staffIds: ''
         }
     })
 
@@ -93,11 +92,16 @@ const CreateServiceForm = () => {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {categoriesData.map((cat) => (
-                                                    <SelectItem key={cat.id} value={cat.id.toString()}>
-                                                        {cat.name}
-                                                    </SelectItem>
-                                                ))}
+                                                {Array.isArray(categoriesData) && categoriesData.length > 0 ? (
+                                                    categoriesData.map((cat) => (
+                                                        <SelectItem key={cat.id} value={cat.id.toString()}>
+                                                            {cat.name}
+                                                        </SelectItem>
+                                                    ))
+                                                ) : (
+                                                    <SelectItem disabled value="loading">Yükleniyor...</SelectItem>
+                                                )}
+
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />
@@ -119,11 +123,16 @@ const CreateServiceForm = () => {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {staffData.map((staff) => (
-                                                    <SelectItem key={staff.id} value={staff.id.toString()}>
-                                                        {staff.fullName}
-                                                    </SelectItem>
-                                                ))}
+                                                {Array.isArray(staffData) && staffData.length > 0 ? (
+                                                    staffData.map((staff) => (
+                                                        <SelectItem key={staff.id} value={staff.id}>
+                                                            {staff.fullName}
+                                                        </SelectItem>
+                                                    ))
+                                                ) : (
+                                                    <SelectItem disabled value="loading">Yükleniyor...</SelectItem>
+                                                )}
+
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />

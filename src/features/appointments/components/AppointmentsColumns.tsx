@@ -1,5 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Appointment } from "../types/AppointmentType"
+import { getTokenToLocalStorage } from "@/features/admin/utils/auth"
+import { DetailButton } from "@/app/share/GlobalDetailButton"
+import { UpdateButton } from "@/app/share/GlobalUpdateButton"
+import { DeleteButton } from "@/app/share/GlobalDeleteButton"
+import deleteCustomers from "@/features/customers/services/DeleteCustomersApi"
 
 export const appointmentsColumns: ColumnDef<Appointment>[] = [
     {
@@ -29,6 +34,28 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
         header: "Notlar",
         cell: ({ row }) => row.getValue("notes") ?? "-",
     },
+    {
+        id: 'actions',
+        header: '',
+        cell: ({ row }) => {
+            const appointment = row.original;
+            const token = getTokenToLocalStorage()
+            return (
+                <div className="flex justify-center gap-3.5">
+                    <DetailButton
+                        onClick={() => deleteCustomers(appointment.id, token as string)}
+                        title='Detayler' />
+                    <UpdateButton
+                        onClick={() => deleteCustomers(appointment.id, token as string)}
+                        title='Güncelle'
+                    />
+                    <DeleteButton
+                        onClick={() => deleteCustomers(appointment.id, token as string)}
+                        title='Sil' />
+                </div>
+            )
+        }
+    }
     // {
     //     accessorKey: "statusId",
     //     header: "Durum",

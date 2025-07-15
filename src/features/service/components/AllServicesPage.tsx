@@ -6,7 +6,7 @@ import { getCoreRowModel, getPaginationRowModel, useReactTable } from '@tanstack
 import React, { useEffect } from 'react'
 import { servicesColumns } from './ServicesColumns'
 import { useAllService } from '../hooks/useAllService';
-import { SearchForm } from '@/app/share/sidebar/components/SearchForm';
+import ServiceHeader from './ServiceHeader';
 
 const AllServicePage = () => {
 
@@ -30,7 +30,7 @@ const AllServicePage = () => {
 
 
     <div className='p-4 space-y-4'>
-      <SearchForm onSearch={filterServices} />
+      <ServiceHeader onSearch={filterServices || ''} />
       <DataTableLayout
         header={<TableHeaderRows table={table} />}
         body={<TableBodyRows table={table} />}

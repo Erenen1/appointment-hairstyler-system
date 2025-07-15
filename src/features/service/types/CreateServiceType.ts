@@ -13,12 +13,16 @@ export interface ServiceRequest {
 
 export type Service = {
     slug: string;
-    categoryId: string;
+    // categoryId: string;
+    category: {
+        category: string;
+        name: string;
+    };
     title: string;
     description: string;
     duration: string;
     price: string;
-    staffIds: [];
+    staffMembers: [];
     isPopular: string;
     isActive: string;
     image: string;

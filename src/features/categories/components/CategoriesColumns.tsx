@@ -2,6 +2,11 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Categories } from '../types/CreateCategoriesType';
 import { Check, X } from 'lucide-react';
 import { formatDateToTurkish } from '../../staff/utils/formatDateToTurkish';
+import { DetailButton } from '@/app/share/GlobalDetailButton';
+import { UpdateButton } from '@/app/share/GlobalUpdateButton';
+import { DeleteButton } from '@/app/share/GlobalDeleteButton';
+import { getTokenToLocalStorage } from '@/features/admin/utils/auth';
+import deleteCustomers from '@/features/customers/services/DeleteCustomersApi';
 
 
 export const categoriesColumns: ColumnDef<Categories>[] = [
@@ -44,4 +49,26 @@ export const categoriesColumns: ColumnDef<Categories>[] = [
         header: "Güncelleme Tarihi",
         cell: ({ row }) => formatDateToTurkish(row.getValue("updatedAt") as string)
     },
+    {
+        id: 'actions',
+        header: '',
+        cell: ({ row }) => {
+            const categories = row.original;
+            const token = getTokenToLocalStorage()
+            return (
+                <div className="flex justify-center gap-3.5">
+                    <DetailButton
+                        onClick={() => deleteCustomers(categories.id, token as string)}
+                        title='Detayler' />
+                    <UpdateButton
+                        onClick={() => deleteCustomers(categories.id, token as string)}
+                        title='Güncelle'
+                    />
+                    <DeleteButton
+                        onClick={() => deleteCustomers(categories.id, token as string)}
+                        title='Sil' />
+                </div>
+            )
+        }
+    }
 ]

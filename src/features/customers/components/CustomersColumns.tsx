@@ -1,6 +1,11 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDateToTurkish } from '../../staff/utils/formatDateToTurkish';
 import { Customer } from "../types/CustomersType";
+import deleteCustomers from "../services/DeleteCustomersApi";
+import { getTokenToLocalStorage } from "@/features/admin/utils/auth";
+import { DeleteButton } from "@/app/share/GlobalDeleteButton";
+import { DetailButton } from "@/app/share/GlobalDetailButton";
+import { UpdateButton } from "@/app/share/GlobalUpdateButton";
 
 export const customersColumns: ColumnDef<Customer>[] = [
     {
@@ -40,4 +45,30 @@ export const customersColumns: ColumnDef<Customer>[] = [
         header: "Güncellenme Tarihi",
         cell: ({ row }) => formatDateToTurkish(row.getValue("updatedAt") as string)
     },
+    {
+        id: 'actions',
+        header: '',
+        cell: ({ row }) => {
+            const customer = row.original;
+            const token = getTokenToLocalStorage();
+            return (
+                <div className="flex justify-center gap-3.5">
+
+                    <DetailButton
+                        title='Detaylar'
+                        onClick={() => deleteCustomers(customer.id, token as string)}
+                    />
+                    <UpdateButton
+                        title='Güncelle'
+                        onClick={() => deleteCustomers(customer.id, token as string)}
+                    />
+
+                    <DeleteButton
+                        title='Sil'
+                        onClick={() => deleteCustomers(customer.id, token as string)}
+                    />
+                </div>
+            )
+        }
+    }
 ]

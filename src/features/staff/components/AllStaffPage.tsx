@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from "react"
-import { staffColumns } from "@/features/staff/components/StaffColums"
+import { staffColumns } from "@/features/staff/components/StaffColumns"
 import {
     useReactTable,
     getCoreRowModel,
