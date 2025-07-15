@@ -24,8 +24,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
   }, {
     tableName: 'special_days',
     timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
   });
   return SpecialDays;
 }; 

@@ -53,8 +53,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
   }, {
     tableName: 'staff_availability',
     timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
     indexes: [
       {
         fields: ['staffId', 'date']

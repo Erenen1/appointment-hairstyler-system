@@ -33,8 +33,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
   }, {
     tableName: 'gallery_images',
     timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
   });
   return GalleryImage;
 }; 

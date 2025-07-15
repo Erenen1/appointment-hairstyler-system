@@ -18,8 +18,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
   }, {
     tableName: 'gallery_categories',
     timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
   });
   return GalleryCategory;
 }; 
