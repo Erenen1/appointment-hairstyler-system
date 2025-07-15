@@ -23,10 +23,10 @@ import {
     DialogHeader,
     DialogTrigger
 } from '@/components/ui/dialog';
-import { SearchForm } from '@/app/share/sidebar/components/SearchForm';
 import ModalTitleComponent from '@/app/share/ModalTitleComponent';
 import createCustomers from '../services/CreateCustomersApi';
 import { GlobalDebuggerButton } from '@/app/share/GlobalDebuggerButton';
+import { } from '../hooks/useAllCustomers';
 
 const CreateCustomersForm = () => {
     const form = useForm<z.infer<typeof createCustomersSchema>>({
@@ -61,10 +61,7 @@ const CreateCustomersForm = () => {
     return (
         <>
             <Dialog>
-                <div className='w-full flex justify-between'>
-                    <div className='w-2/3'>
-                        <SearchForm />
-                    </div>
+                <div className='flex justify-end'>
                     <DialogTrigger asChild>
                         <Button className='px-6 py-4 mx-4'>Müşteri Oluştur</Button>
                     </DialogTrigger>

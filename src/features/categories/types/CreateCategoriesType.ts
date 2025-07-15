@@ -11,3 +11,7 @@ export type Categories = {
     createdAt: string;
     updatedAt: string;
 }
+
+export interface CategoriesHeaderProps {
+    onSearch: (query: string) => void;
+}

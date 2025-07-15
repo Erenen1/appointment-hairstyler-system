@@ -14,3 +14,7 @@ export interface CustomersRequest {
     email: string;
     notes: string;
 }
+
+export interface CustomersHeaderProps {
+    onSearch: (query: string) => void;
+}

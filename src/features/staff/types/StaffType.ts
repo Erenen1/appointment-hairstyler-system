@@ -19,3 +19,4 @@ export type Staff = {
     createdAt: string;
     updatedAt: string;
 }
+

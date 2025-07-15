@@ -14,3 +14,7 @@ export type Appointment = {
     createdAt: string
     updatedAt: string
 }
+
+export interface AppointmentHeaderProps {
+    onSearch: (query: string) => void;
+}

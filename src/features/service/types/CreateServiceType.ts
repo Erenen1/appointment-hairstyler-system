@@ -23,3 +23,7 @@ export type Service = {
     isActive: string;
     image: string;
 }
+
+export interface ServiceHeaderProps {
+    onSearch: (query: string) => void;
+}

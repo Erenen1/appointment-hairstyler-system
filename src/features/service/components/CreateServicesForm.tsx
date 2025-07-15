@@ -26,7 +26,6 @@ const CreateServiceForm = () => {
     const { staffData, handleAllStaff } = useAllStaff()
     const { categoriesData, handleAllCategories } = useAllCategories()
 
-
     useEffect(() => {
         if (staffData.length === 0) handleAllStaff()
         console.log('Personel Seçimi için data çekildi 🎉')
@@ -69,18 +68,12 @@ const CreateServiceForm = () => {
     return (
         <>
             <Dialog>
-                <div className='w-full flex justify-between'>
-                    <div className='w-2/3'>
-                        <SearchForm />
-                    </div>
-                    <DialogTrigger asChild>
-                        <Button className='px-6 py-4 mx-4'>Müşteri Oluştur</Button>
-                    </DialogTrigger>
-                </div>
-
+                <DialogTrigger asChild>
+                    <Button className='px-6 py-4 mx-4'>Hizmet Oluştur</Button>
+                </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>
-                        <ModalTitleComponent>Müşteri Oluştur</ModalTitleComponent>
+                        <ModalTitleComponent>Hizmet Oluştur</ModalTitleComponent>
                     </DialogHeader>
 
                     <Form {...form}>
@@ -126,9 +119,9 @@ const CreateServiceForm = () => {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {staffData.map((data) => (
-                                                    <SelectItem key={data.id} value={data.id.toString()}>
-                                                        {data.fullName}
+                                                {staffData.map((staff) => (
+                                                    <SelectItem key={staff.id} value={staff.id.toString()}>
+                                                        {staff.fullName}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>

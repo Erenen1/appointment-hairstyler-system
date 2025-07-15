@@ -5,10 +5,17 @@ import { DataTableLayout } from '@/app/share/table/layout'
 import { getCoreRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table'
 import React, { useEffect } from 'react'
 import { servicesColumns } from './ServicesColumns'
-import { useAllServices } from '../hooks/useAllServices'
+import { useAllService } from '../hooks/useAllService';
+import { SearchForm } from '@/app/share/sidebar/components/SearchForm';
 
 const AllServicePage = () => {
-  const { serviceData, handleAllServices } = useAllServices()
+
+  const {
+    serviceData,
+    filterServices,
+    handleAllServices,
+  } = useAllService();
+
   const table = useReactTable({
     data: serviceData,
     columns: servicesColumns,
@@ -23,6 +30,7 @@ const AllServicePage = () => {
 
 
     <div className='p-4 space-y-4'>
+      <SearchForm onSearch={filterServices} />
       <DataTableLayout
         header={<TableHeaderRows table={table} />}
         body={<TableBodyRows table={table} />}

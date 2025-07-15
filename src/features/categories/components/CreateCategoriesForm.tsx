@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/components
 import { SearchForm } from '@/app/share/sidebar/components/SearchForm';
 import ModalTitleComponent from '@/app/share/ModalTitleComponent';
 import { GlobalDebuggerButton } from '@/app/share/GlobalDebuggerButton';
+import { useAllCategories } from '../hooks/useAllCategories';
 
 const CreateCategoriesForm = () => {
     const form = useForm<z.infer<typeof createCategoriesSchema>>({
@@ -24,6 +25,8 @@ const CreateCategoriesForm = () => {
             description: '',
         }
     });
+
+    const { filterCategories } = useAllCategories();
 
     async function onSubmit(values: z.infer<typeof createCategoriesSchema>) {
         try {
@@ -47,17 +50,12 @@ const CreateCategoriesForm = () => {
     return (
         <div>
             <Dialog>
-                <div className='w-full flex justify-between'>
-                    <div className='w-2/3'>
-                        <SearchForm />
-                    </div>
-                    <DialogTrigger asChild className='px-6 py-4 mx-4'>
-                        <Button>
-                            Kategori Oluştur
-                        </Button>
+                <DialogTrigger asChild className='px-6 py-4 mx-4'>
+                    <Button>
+                        Kategori Oluştur
+                    </Button>
 
-                    </DialogTrigger>
-                </div>
+                </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>
                         <ModalTitleComponent>

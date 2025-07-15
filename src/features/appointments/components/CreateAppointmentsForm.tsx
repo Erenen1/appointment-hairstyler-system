@@ -1,6 +1,6 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { getTokenToLocalStorage } from '@/features/admin/utils/auth';
@@ -9,13 +9,14 @@ import { Input } from '@/components/ui/input';
 import z from 'zod';
 import { useForm } from 'react-hook-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { SearchForm } from '@/app/share/sidebar/components/SearchForm';
 import ModalTitleComponent from '@/app/share/ModalTitleComponent';
 import { createAppointmentsSchema } from '../schemas/CreateAppointmentsSchema';
 import createCategories from '@/features/categories/services/CreateCategoriesApi';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar20 } from './CalendarTimes';
 import { GlobalDebuggerButton } from '@/app/share/GlobalDebuggerButton';
+import { useAllService } from '@/features/service/hooks/useAllService';
+import { useAllStaff } from '@/features/staff/hooks/useAllStaff';
 
 const CreateAppointmentsForm = () => {
     const form = useForm<z.infer<typeof createAppointmentsSchema>>({
@@ -31,6 +32,17 @@ const CreateAppointmentsForm = () => {
     });
     const [appointmentDate, setAppointmentDate] = useState('');
     const [appointmentTime, setAppointmentTime] = useState('');
+    const { serviceData, handleAllServices } = useAllService();
+    const { staffData, handleAllStaff } = useAllStaff();
+
+    useEffect(() => {
+        if (staffData.length === 0) handleAllStaff();
+        console.log('Personel seçimi için data çekildi ⭐')
+        if (serviceData.length === 0) handleAllServices();
+        console.log('Servis seçimi için data çekildi 👾')
+    }, []);
+
+    // const { filterAppointment } = useAllAppointments()
 
     async function onSubmit(values: z.infer<typeof createAppointmentsSchema>) {
         try {
@@ -54,19 +66,14 @@ const CreateAppointmentsForm = () => {
     return (
         <div>
             <Dialog>
-                <div className='w-full flex justify-between'>
-                    <div className='w-2/3'>
-                        <SearchForm />
-                    </div>
-                    <DialogTrigger asChild className='px-6 py-4 mx-4'>
-                        <DialogTitle>
-                            <Button>
-                                Randevu Oluştur
-                            </Button>
+                <DialogTrigger asChild className='px-6 py-4 mx-4'>
+                    <DialogTitle>
+                        <Button>
+                            Randevu Oluştur
+                        </Button>
 
-                        </DialogTitle>
-                    </DialogTrigger>
-                </div>
+                    </DialogTitle>
+                </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>
                         <ModalTitleComponent>
@@ -91,11 +98,12 @@ const CreateAppointmentsForm = () => {
                                                 <SelectContent>
                                                     <SelectGroup>
                                                         {/* <SelectLabel>Servis Tipi Seçimi</SelectLabel> */}
-                                                        <SelectItem value='1'>Saç Kesimi</SelectItem>
-                                                        <SelectItem value='2'>Sakal Kesimi</SelectItem>
-                                                        <SelectItem value='3'>Saç Yıkama</SelectItem>
-                                                        <SelectItem value='4'>Manikür</SelectItem>
-                                                        <SelectItem value='5'>Pedikür</SelectItem>
+                                                        {serviceData.map((service) => (
+                                                            <SelectItem key={service.id}
+                                                                value={service.id.toString()}>
+                                                                {service.title}
+                                                            </SelectItem>
+                                                        ))}
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
@@ -120,12 +128,14 @@ const CreateAppointmentsForm = () => {
                                                 </FormControl>
                                                 <SelectContent>
                                                     <SelectGroup>
+                                                        {staffData.map((staff) => (
+
+                                                            <SelectItem key={staff.id} value={staff.id.toString()}>
+                                                                {staff.fullName}
+                                                            </SelectItem>
+                                                        ))}
                                                         {/* <SelectLabel>Personel Seçimi</SelectLabel> */}
-                                                        <SelectItem value='0dcf173b-1234-4f89-9e6f-53b39e6b09a1'>Ahmet Taş</SelectItem>
-                                                        <SelectItem value='0dcf173b-1234-4f89-9e6f-53b39e6b09a2'>Veli Toprak</SelectItem>
-                                                        <SelectItem value='0dcf173b-1234-4f89-9e6f-53b39e6b09a3'>İdil Çetin</SelectItem>
-                                                        <SelectItem value='0dcf173b-1234-4f89-9e6f-53b39e6b09a4'>Mahmut İpek</SelectItem>
-                                                        <SelectItem value='0dcf173b-1234-4f89-9e6f-53b39e6b09a5'>Eren Çelik</SelectItem>
+
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>

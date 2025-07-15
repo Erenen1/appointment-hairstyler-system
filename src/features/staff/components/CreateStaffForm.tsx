@@ -11,9 +11,9 @@ import { useForm } from 'react-hook-form';
 import { getTokenToLocalStorage } from '@/features/admin/utils/auth';
 import createStaff from '../services/CreateStaffAPI';
 import { DialogTrigger, Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
-import { SearchForm } from '@/app/share/sidebar/components/SearchForm';
 import { GlobalDebuggerButton } from '@/app/share/GlobalDebuggerButton';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from '@/components/ui/select';
+import { useAllStaff } from '../hooks/useAllStaff';
 
 const CreateStaffForm = () => {
     const form = useForm<z.infer<typeof createStaffSchema>>({
@@ -62,16 +62,11 @@ const CreateStaffForm = () => {
     return (
         <>
             <Dialog>
-                <div className='w-full flex justify-between'>
-                    <div className='w-3/3'>
-                        <SearchForm />
-                    </div>
-                    <DialogTrigger asChild className='px-6 py-4 mx-4'>
-                        <Button>
-                            Personel Oluştur
-                        </Button>
-                    </DialogTrigger>
-                </div>
+                <DialogTrigger asChild className='px-6 py-4 mx-4'>
+                    <Button>
+                        Personel Oluştur
+                    </Button>
+                </DialogTrigger>
                 <DialogContent>
                     <DialogHeader className='mx-auto text-2xl font-semibold text-gray-900 underline'>
                         Personel Oluştur

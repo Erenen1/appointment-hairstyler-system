@@ -12,9 +12,11 @@ import { TableHeaderRows } from "@/app/share/table/components/TableHeader"
 import { DataTableLayout } from "@/app/share/table/layout"
 import { appointmentsColumns } from "./AppointmentsColumns"
 import { useAllAppointments } from "../hooks/useAllAppointments"
+
+import AppointmentsHeader from "./AppointmentsHeader"
 const AllAppointmentsPage = () => {
 
-    const { appointmentData, handleAllAppointments } = useAllAppointments()
+    const { appointmentData, filterAppointment, handleAllAppointments } = useAllAppointments()
 
     useEffect(() => {
         handleAllAppointments()
@@ -29,7 +31,7 @@ const AllAppointmentsPage = () => {
 
     return (
         <div className="p-4 space-y-4">
-            {/* <Button onClick={fetchRandevular}>Randevuları Yükle</Button> */}
+            <AppointmentsHeader onSearch={filterAppointment} />
             <DataTableLayout
                 header={<TableHeaderRows table={table} />}
                 body={<TableBodyRows table={table} />}

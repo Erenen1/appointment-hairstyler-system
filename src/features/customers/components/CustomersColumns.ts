@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDateToTurkish } from '../../staff/utils/formatDateToTurkish';
-import { Customer } from "../types/CreateCustomersType";
+import { Customer } from "../types/CustomersType";
 
 export const customersColumns: ColumnDef<Customer>[] = [
     {

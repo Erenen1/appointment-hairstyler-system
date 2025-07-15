@@ -6,10 +6,15 @@ import { DataTableLayout } from '@/app/share/table/layout'
 import { TableHeaderRows } from '@/app/share/table/components/TableHeader'
 import { TableBodyRows } from '@/app/share/table/components/TableBody'
 import { customersColumns } from './CustomersColumns';
+import CustomersHeader from './CustomersHeader';
 
 const AllCustomersPage = () => {
 
-  const { customerData, handleAllCustomers } = useAllCustomers()
+  const { customerData,
+    filterCustomer,
+    handleAllCustomers,
+
+  } = useAllCustomers()
 
   const table = useReactTable({
     data: customerData,
@@ -24,11 +29,11 @@ const AllCustomersPage = () => {
 
   return (
     <div className='p-4 space-y-4'>
+      <CustomersHeader onSearch={filterCustomer} />
       <DataTableLayout
         header={<TableHeaderRows table={table} />}
         body={<TableBodyRows table={table} />}
       />
-
     </div>
   )
 }
