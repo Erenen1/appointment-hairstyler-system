@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         staffId: {
             type: DataTypes.UUID,
-            allowNull: false,
             references: {
                 model: 'staff',
                 key: 'id',
@@ -15,49 +14,40 @@ module.exports = (sequelize, DataTypes) => {
         },
         date: {
             type: DataTypes.DATEONLY,
-            allowNull: false,
             comment: 'Müsaitlik tarihi (YYYY-MM-DD)'
         },
         dayOfWeek: {
             type: DataTypes.SMALLINT,
-            allowNull: false,
             comment: '1 = Pazartesi, 7 = Pazar',
         },
         startTime: {
             type: DataTypes.TIME,
-            allowNull: false,
             comment: 'Çalışma başlangıç saati'
         },
         endTime: {
             type: DataTypes.TIME,
-            allowNull: false,
             comment: 'Çalışma bitiş saati'
         },
         lunchBreakStart: {
             type: DataTypes.TIME,
-            allowNull: true,
             comment: 'Öğle molası başlangıç saati'
         },
         lunchBreakEnd: {
             type: DataTypes.TIME,
-            allowNull: true,
             comment: 'Öğle molası bitiş saati'
         },
         isAvailable: {
             type: DataTypes.BOOLEAN,
-            allowNull: false,
             defaultValue: true,
             comment: 'Personel bu tarihte müsait mi?'
         },
         type: {
             type: DataTypes.ENUM('default', 'custom', 'off'),
-            allowNull: false,
             defaultValue: 'default',
             comment: 'default: iş saatleri, custom: özel saat, off: izinli'
         },
         notes: {
             type: DataTypes.TEXT,
-            allowNull: true,
             comment: 'Özel notlar (izin sebebi, özel durum açıklaması)'
         }
     }, {
@@ -67,7 +57,6 @@ module.exports = (sequelize, DataTypes) => {
         updatedAt: 'updated_at',
         indexes: [
             {
-                unique: true,
                 fields: ['staffId', 'date']
             },
             {

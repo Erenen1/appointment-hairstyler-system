@@ -7,7 +7,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
     },
     staffId: {
       type: DataTypes.UUID,
-      allowNull: false,
       field: 'staff_id',
       references: {
         model: 'staff',
@@ -16,7 +15,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
     },
     serviceId: {
       type: DataTypes.UUID,
-      allowNull: false,
       field: 'service_id',
       references: {
         model: 'services',
@@ -25,7 +23,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
     },
     isActive: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
       defaultValue: true,
       comment: 'Bu personelin bu hizmeti verebilir durumda olup olmadığı'
     },
@@ -36,7 +33,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
     updatedAt: false,
     indexes: [
       {
-        unique: true,
         fields: ['staff_id', 'service_id']
       }
     ]

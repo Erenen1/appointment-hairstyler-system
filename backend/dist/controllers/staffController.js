@@ -8,17 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -28,22 +17,17 @@ const utils_1 = require("../utils");
 const sequelize_1 = require("sequelize");
 const date_fns_1 = require("date-fns");
 const path_1 = __importDefault(require("path"));
-const staffValidation_1 = require("../validations/staffValidation");
 const multer_1 = require("../config/multer");
 const index_1 = __importDefault(require("../models/index"));
 const { Staff, StaffService, Service, ServiceCategory } = index_1.default;
 const getStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = staffValidation_1.staffListQuerySchema.validate(req.query);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { page, limit, isActive } = value;
+        const { page = 1, limit = 10, isActive } = req.query;
         const whereConditions = {};
-        if (typeof isActive === 'boolean') {
-            whereConditions.isActive = isActive;
+        if (isActive === 'true' || isActive === 'false') {
+            whereConditions.isActive = isActive === 'true';
         }
-        const offset = (page - 1) * limit;
+        const offset = (Number(page) - 1) * Number(limit);
         const { count, rows } = yield Staff.findAndCountAll({
             where: whereConditions,
             include: [
@@ -64,7 +48,7 @@ const getStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
                     ]
                 }
             ],
-            limit,
+            limit: Number(limit),
             offset,
             distinct: true
         });
@@ -89,14 +73,14 @@ const getStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
                 updatedAt: staff.updatedAt
             });
         });
-        const totalPages = Math.ceil(count / limit);
+        const totalPages = Math.ceil(count / Number(limit));
         const paginationInfo = {
-            currentPage: page,
+            currentPage: Number(page),
             totalPages,
             totalItems: count,
-            itemsPerPage: limit,
-            hasNextPage: page < totalPages,
-            hasPrevPage: page > 1
+            itemsPerPage: Number(limit),
+            hasNextPage: Number(page) < totalPages,
+            hasPrevPage: Number(page) > 1
         };
         res.json(utils_1.ApiSuccess.list(formattedStaff, paginationInfo, 'Personeller başarıyla getirildi'));
     }
@@ -108,11 +92,7 @@ exports.getStaff = getStaff;
 const getStaffById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
-        const { error, value } = staffValidation_1.staffIdSchema.validate(req.params);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { id } = value;
+        const { id } = req.params;
         const staff = yield Staff.findByPk(id, {
             include: [
                 {
@@ -153,11 +133,10 @@ const getStaffById = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 exports.getStaffById = getStaffById;
 const createStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = staffValidation_1.createStaffSchema.validate(req.body);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
+        const { fullName, email, phone, specialties, serviceIds } = req.body;
+        if (!fullName || !email || !phone) {
+            throw utils_1.ApiError.badRequest('Ad-soyad, e-posta ve telefon alanları zorunludur');
         }
-        const { fullName, email, phone, specialties, serviceIds } = value;
         const existingStaff = yield Staff.findOne({
             where: { email: { [sequelize_1.Op.iLike]: email } }
         });
@@ -178,13 +157,15 @@ const createStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             isActive: true
         });
         const serviceIdsString = req.body.serviceIds;
-        const serviceIdsArray = yield JSON.parse(serviceIdsString);
-        if (serviceIdsArray && serviceIdsArray.length > 0) {
-            yield Promise.all(serviceIdsArray.map(serviceId => StaffService.create({
-                staffId: staff.id,
-                serviceId: serviceId,
-                isActive: true
-            })));
+        if (serviceIdsString) {
+            const serviceIdsArray = yield JSON.parse(serviceIdsString);
+            if (serviceIdsArray && serviceIdsArray.length > 0) {
+                yield Promise.all(serviceIdsArray.map(serviceId => StaffService.create({
+                    staffId: staff.id,
+                    serviceId: serviceId,
+                    isActive: true
+                })));
+            }
         }
         const staffWithServices = yield Staff.findByPk(staff.id, {
             include: [
@@ -209,41 +190,30 @@ const createStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         res.status(201).json(utils_1.ApiSuccess.created(staffWithServices, 'Personel başarıyla oluşturuldu'));
     }
     catch (error) {
-        if (req.file) {
-            yield (0, multer_1.deleteFile)(req.file.path);
-        }
         next(error);
     }
 });
 exports.createStaff = createStaff;
 const updateStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error: paramsError, value: paramsValue } = staffValidation_1.staffIdSchema.validate(req.params);
-        if (paramsError) {
-            throw utils_1.ApiError.fromJoi(paramsError);
-        }
-        const { error: bodyError, value: bodyValue } = staffValidation_1.updateStaffSchema.validate(req.body);
-        if (bodyError) {
-            throw utils_1.ApiError.fromJoi(bodyError);
-        }
-        const { id } = paramsValue;
-        const updateData = bodyValue;
+        const { id } = req.params;
+        const { fullName, email, phone, specialties, isActive, serviceIds } = req.body;
         const staff = yield Staff.findByPk(id);
         if (!staff) {
             throw utils_1.ApiError.notFound('Personel bulunamadı');
         }
-        if (updateData.email && updateData.email !== staff.email) {
+        if (email && email !== staff.email) {
             const existingStaff = yield Staff.findOne({
                 where: {
-                    email: { [sequelize_1.Op.iLike]: updateData.email },
+                    email: { [sequelize_1.Op.iLike]: email },
                     id: { [sequelize_1.Op.ne]: id }
                 }
             });
             if (existingStaff) {
-                throw utils_1.ApiError.conflict('Bu email adresi ile kayıtlı başka personel mevcut');
+                throw utils_1.ApiError.conflict('Bu email adresi başka bir personel tarafından kullanılıyor');
             }
         }
-        let avatarPath = null;
+        let avatarPath = staff.avatar;
         if (req.file) {
             if (staff.avatar) {
                 const oldAvatarPath = path_1.default.join(__dirname, '../../uploads', staff.avatar);
@@ -252,24 +222,37 @@ const updateStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             const fileName = req.file.filename;
             avatarPath = path_1.default.join('profiles', fileName);
         }
-        const { serviceIds } = updateData, staffUpdateData = __rest(updateData, ["serviceIds"]);
-        if (avatarPath) {
-            staffUpdateData.avatar = avatarPath;
-        }
-        const updatedStaff = yield staff.update(staffUpdateData);
-        if (serviceIds && Array.isArray(serviceIds)) {
-            yield StaffService.destroy({
+        yield staff.update({
+            fullName: fullName || staff.fullName,
+            email: email || staff.email,
+            phone: phone || staff.phone,
+            specialties: specialties !== undefined ? specialties : staff.specialties,
+            avatar: avatarPath,
+            isActive: isActive !== undefined ? isActive : staff.isActive
+        });
+        if (serviceIds) {
+            const serviceIdsArray = JSON.parse(serviceIds);
+            const existingServices = yield StaffService.findAll({
                 where: { staffId: id }
             });
-            if (serviceIds.length > 0) {
-                yield Promise.all(serviceIds.map(serviceId => StaffService.create({
-                    staffId: id,
-                    serviceId: serviceId,
-                    isActive: true
-                })));
-            }
+            yield Promise.all(existingServices.map(service => service.update({ isActive: false })));
+            yield Promise.all(serviceIdsArray.map((serviceId) => __awaiter(void 0, void 0, void 0, function* () {
+                const existingService = yield StaffService.findOne({
+                    where: { staffId: id, serviceId }
+                });
+                if (existingService) {
+                    yield existingService.update({ isActive: true });
+                }
+                else {
+                    yield StaffService.create({
+                        staffId: id,
+                        serviceId,
+                        isActive: true
+                    });
+                }
+            })));
         }
-        const updatedStaffWithServices = yield Staff.findByPk(id, {
+        const updatedStaff = yield Staff.findByPk(id, {
             include: [
                 {
                     model: Service,
@@ -289,35 +272,37 @@ const updateStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 }
             ]
         });
-        res.json(utils_1.ApiSuccess.updated(updatedStaffWithServices, 'Personel başarıyla güncellendi'));
+        res.json(utils_1.ApiSuccess.updated(updatedStaff, 'Personel başarıyla güncellendi'));
     }
     catch (error) {
-        if (req.file) {
-            yield (0, multer_1.deleteFile)(req.file.path);
-        }
         next(error);
     }
 });
 exports.updateStaff = updateStaff;
 const getAvailableSlots = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error: paramsError, value: paramsValue } = staffValidation_1.staffIdSchema.validate(req.params);
-        if (paramsError) {
-            throw utils_1.ApiError.fromJoi(paramsError);
+        const { id } = req.params;
+        const { date, serviceId } = req.query;
+        if (!date) {
+            throw utils_1.ApiError.badRequest('Tarih parametresi gereklidir');
         }
-        const { error: queryError, value: queryValue } = staffValidation_1.availableSlotsQuerySchema.validate(req.query);
-        if (queryError) {
-            throw utils_1.ApiError.fromJoi(queryError);
-        }
-        const { id } = paramsValue;
-        const { date } = queryValue;
-        const staff = yield Staff.findByPk(id, {
-            where: { isActive: true }
-        });
-        if (!staff) {
+        const staff = yield Staff.findByPk(id);
+        if (!staff || !staff.isActive) {
             throw utils_1.ApiError.notFound('Personel bulunamadı veya aktif değil');
         }
-        const dateStr = typeof date === 'string' ? date : date.toISOString().split('T')[0];
+        if (serviceId) {
+            const staffService = yield StaffService.findOne({
+                where: {
+                    staffId: id,
+                    serviceId,
+                    isActive: true
+                }
+            });
+            if (!staffService) {
+                throw utils_1.ApiError.badRequest('Personel bu hizmeti veremiyor');
+            }
+        }
+        const dateStr = typeof date === 'string' ? date : String(date);
         const targetDate = new Date(dateStr);
         const dayOfWeek = targetDate.getDay() || 7;
         const staffAvailability = yield index_1.default.StaffAvailability.findOne({
@@ -445,36 +430,34 @@ const getAvailableSlots = (req, res, next) => __awaiter(void 0, void 0, void 0, 
 exports.getAvailableSlots = getAvailableSlots;
 const getAvailableSlotsRange = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error: paramsError, value: paramsValue } = staffValidation_1.staffIdSchema.validate(req.params);
-        if (paramsError) {
-            throw utils_1.ApiError.fromJoi(paramsError);
+        const { id } = req.params;
+        const { startDate, endDate, serviceId } = req.query;
+        if (!startDate || !endDate) {
+            throw utils_1.ApiError.badRequest('Başlangıç ve bitiş tarihi parametreleri gereklidir');
         }
-        const { error: queryError, value: queryValue } = staffValidation_1.availableSlotsRangeQuerySchema.validate(req.query);
-        if (queryError) {
-            throw utils_1.ApiError.fromJoi(queryError);
-        }
-        const { id } = paramsValue;
-        const { startDate, endDate, serviceId } = queryValue;
-        const staff = yield Staff.findByPk(id, {
-            where: { isActive: true }
-        });
-        if (!staff) {
+        const staff = yield Staff.findByPk(id);
+        if (!staff || !staff.isActive) {
             throw utils_1.ApiError.notFound('Personel bulunamadı veya aktif değil');
         }
         if (serviceId) {
-            const staffService = yield index_1.default.StaffService.findOne({
+            const staffService = yield StaffService.findOne({
                 where: {
                     staffId: id,
-                    serviceId: serviceId,
+                    serviceId,
                     isActive: true
                 }
             });
             if (!staffService) {
-                throw utils_1.ApiError.badRequest('Bu personel seçilen hizmeti veremiyor');
+                throw utils_1.ApiError.badRequest('Personel bu hizmeti veremiyor');
             }
         }
+        const startDateStr = typeof startDate === 'string' ? startDate : String(startDate);
+        const endDateStr = typeof endDate === 'string' ? endDate : String(endDate);
         const { eachDayOfInterval } = require('date-fns');
-        const dates = eachDayOfInterval({ start: startDate, end: endDate });
+        const dates = eachDayOfInterval({
+            start: new Date(startDateStr),
+            end: new Date(endDateStr)
+        });
         const businessHours = yield index_1.default.BusinessHours.findAll({
             order: [['dayOfWeek', 'ASC']]
         });
@@ -482,7 +465,7 @@ const getAvailableSlotsRange = (req, res, next) => __awaiter(void 0, void 0, voi
             where: {
                 staffId: id,
                 date: {
-                    [sequelize_1.Op.between]: [(0, date_fns_1.format)(startDate, 'yyyy-MM-dd'), (0, date_fns_1.format)(endDate, 'yyyy-MM-dd')]
+                    [sequelize_1.Op.between]: [(0, date_fns_1.format)(new Date(startDateStr), 'yyyy-MM-dd'), (0, date_fns_1.format)(new Date(endDateStr), 'yyyy-MM-dd')]
                 }
             }
         });
@@ -490,7 +473,7 @@ const getAvailableSlotsRange = (req, res, next) => __awaiter(void 0, void 0, voi
             where: {
                 staffId: id,
                 appointmentDate: {
-                    [sequelize_1.Op.between]: [(0, date_fns_1.format)(startDate, 'yyyy-MM-dd'), (0, date_fns_1.format)(endDate, 'yyyy-MM-dd')]
+                    [sequelize_1.Op.between]: [(0, date_fns_1.format)(new Date(startDateStr), 'yyyy-MM-dd'), (0, date_fns_1.format)(new Date(endDateStr), 'yyyy-MM-dd')]
                 }
             },
             attributes: ['appointmentDate', 'startTime', 'endTime']
@@ -594,8 +577,8 @@ const getAvailableSlotsRange = (req, res, next) => __awaiter(void 0, void 0, voi
         const response = {
             staffId: id,
             staffName: staff.fullName,
-            startDate: (0, date_fns_1.format)(startDate, 'yyyy-MM-dd'),
-            endDate: (0, date_fns_1.format)(endDate, 'yyyy-MM-dd'),
+            startDate: (0, date_fns_1.format)(new Date(startDateStr), 'yyyy-MM-dd'),
+            endDate: (0, date_fns_1.format)(new Date(endDateStr), 'yyyy-MM-dd'),
             totalDays: dailyAvailability.length,
             availableDays: dailyAvailability.filter(day => day.isAvailable && day.totalSlots > 0).length,
             dailyAvailability

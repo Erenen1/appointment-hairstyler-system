@@ -4,14 +4,6 @@ import { Op } from 'sequelize';
 import { format } from 'date-fns';
 import path from 'path';
 import config from '../config/env';
-import { 
-  createStaffSchema, 
-  updateStaffSchema,
-  staffListQuerySchema,
-  staffIdSchema,
-  availableSlotsQuerySchema,
-  availableSlotsRangeQuerySchema
-} from '../validations/staffValidation';
 import { generateFileUrl, deleteFile } from '../config/multer';
 
 import db from '../models/index';
@@ -19,16 +11,18 @@ const { Staff, StaffService, Service, ServiceCategory } = db;
 
 export const getStaff = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = staffListQuerySchema.validate(req.query);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const { page, limit, isActive } = value;
+    const { 
+      page = 1, 
+      limit = 10, 
+      isActive 
+    } = req.query;
+    
     const whereConditions: any = {};
-    if (typeof isActive === 'boolean') {
-      whereConditions.isActive = isActive;
+    if (isActive === 'true' || isActive === 'false') {
+      whereConditions.isActive = isActive === 'true';
     }
-    const offset = (page - 1) * limit;
+    
+    const offset = (Number(page) - 1) * Number(limit);
     const { count, rows } = await Staff.findAndCountAll({
       where: whereConditions,
       include: [
@@ -49,7 +43,7 @@ export const getStaff = async (req: Request, res: Response, next: NextFunction):
           ]
         }
       ],
-      limit,
+      limit: Number(limit),
       offset,
       distinct: true
     });
@@ -73,15 +67,16 @@ export const getStaff = async (req: Request, res: Response, next: NextFunction):
       updatedAt: staff.updatedAt
     }));
 
-    const totalPages = Math.ceil(count / limit);
+    const totalPages = Math.ceil(count / Number(limit));
     const paginationInfo = {
-      currentPage: page,
+      currentPage: Number(page),
       totalPages,
       totalItems: count,
-      itemsPerPage: limit,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
+      itemsPerPage: Number(limit),
+      hasNextPage: Number(page) < totalPages,
+      hasPrevPage: Number(page) > 1
     };
+    
     res.json(ApiSuccess.list(formattedStaff, paginationInfo, 'Personeller başarıyla getirildi'));
   } catch (error) {
     next(error);
@@ -90,11 +85,8 @@ export const getStaff = async (req: Request, res: Response, next: NextFunction):
 
 export const getStaffById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = staffIdSchema.validate(req.params);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const { id } = value;
+    const { id } = req.params;
+    
     const staff = await Staff.findByPk(id, {
       include: [
         {
@@ -115,6 +107,7 @@ export const getStaffById = async (req: Request, res: Response, next: NextFuncti
         }
       ]
     });
+    
     if (!staff) {
       throw ApiError.notFound('Personel bulunamadı');
     }
@@ -139,14 +132,16 @@ export const getStaffById = async (req: Request, res: Response, next: NextFuncti
 
 export const createStaff = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = createStaffSchema.validate(req.body);
-    if (error) {
-      throw ApiError.fromJoi(error);
+    const { fullName, email, phone, specialties, serviceIds } = req.body;
+    
+    if (!fullName || !email || !phone) {
+      throw ApiError.badRequest('Ad-soyad, e-posta ve telefon alanları zorunludur');
     }
-    const { fullName, email, phone, specialties, serviceIds } = value;
+    
     const existingStaff = await Staff.findOne({
       where: { email: { [Op.iLike]: email } }
     });
+    
     if (existingStaff) {
       throw ApiError.conflict('Bu email adresi ile kayıtlı personel zaten mevcut');
     }
@@ -167,21 +162,23 @@ export const createStaff = async (req: Request, res: Response, next: NextFunctio
       isActive: true
     });
 
-    const serviceIdsString:string = req.body.serviceIds;
+    const serviceIdsString = req.body.serviceIds;
+    
+    if (serviceIdsString) {
+      const serviceIdsArray = await JSON.parse(serviceIdsString);
 
-    const serviceIdsArray = await JSON.parse(serviceIdsString);
-
-    // Staff-Service ilişkilerini oluştur
-    if (serviceIdsArray && serviceIdsArray.length > 0) {
-      await Promise.all(
-        serviceIdsArray.map(serviceId => 
-          StaffService.create({
-            staffId: staff.id,
-            serviceId: serviceId,
-            isActive: true
-          })
-        )
-      );
+      // Staff-Service ilişkilerini oluştur
+      if (serviceIdsArray && serviceIdsArray.length > 0) {
+        await Promise.all(
+          serviceIdsArray.map(serviceId => 
+            StaffService.create({
+              staffId: staff.id,
+              serviceId: serviceId,
+              isActive: true
+            })
+          )
+        );
+      }
     }
 
     // Oluşturulan personeli service bilgileriyle birlikte getir
@@ -208,87 +205,94 @@ export const createStaff = async (req: Request, res: Response, next: NextFunctio
 
     res.status(201).json(ApiSuccess.created(staffWithServices, 'Personel başarıyla oluşturuldu'));
   } catch (error) {
-    // Hata durumunda yüklenen dosyayı sil
-    if (req.file) {
-      await deleteFile(req.file.path);
-    }
     next(error);
   }
 };
 
 export const updateStaff = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error: paramsError, value: paramsValue } = staffIdSchema.validate(req.params);
-    if (paramsError) {
-      throw ApiError.fromJoi(paramsError);
-    }
-    const { error: bodyError, value: bodyValue } = updateStaffSchema.validate(req.body);
-    if (bodyError) {
-      throw ApiError.fromJoi(bodyError);
-    }
-    const { id } = paramsValue;
-    const updateData = bodyValue;
+    const { id } = req.params;
+    const { fullName, email, phone, specialties, isActive, serviceIds } = req.body;
+
     const staff = await Staff.findByPk(id);
     if (!staff) {
       throw ApiError.notFound('Personel bulunamadı');
     }
-    if (updateData.email && updateData.email !== staff.email) {
+
+    // E-posta değiştirilmek isteniyorsa, mevcut bir personel tarafından kullanılıp kullanılmadığını kontrol et
+    if (email && email !== staff.email) {
       const existingStaff = await Staff.findOne({
-        where: { 
-          email: { [Op.iLike]: updateData.email },
+        where: {
+          email: { [Op.iLike]: email },
           id: { [Op.ne]: id }
         }
       });
       if (existingStaff) {
-        throw ApiError.conflict('Bu email adresi ile kayıtlı başka personel mevcut');
+        throw ApiError.conflict('Bu email adresi başka bir personel tarafından kullanılıyor');
       }
     }
 
     // Avatar dosyası yüklendi mi kontrol et
-    let avatarPath = null;
+    let avatarPath = staff.avatar;
     if (req.file) {
       // Eski avatar dosyasını sil
       if (staff.avatar) {
         const oldAvatarPath = path.join(__dirname, '../../uploads', staff.avatar);
         await deleteFile(oldAvatarPath);
       }
-      
+      // Yeni avatar dosyasını kaydet
       const fileName = req.file.filename;
       avatarPath = path.join('profiles', fileName);
     }
 
-    const { serviceIds, ...staffUpdateData } = updateData;
-    
-    // Avatar güncellenmişse update data'ya ekle
-    if (avatarPath) {
-      staffUpdateData.avatar = avatarPath;
-    }
-    
-    const updatedStaff = await staff.update(staffUpdateData);
+    // Personeli güncelle
+    await staff.update({
+      fullName: fullName || staff.fullName,
+      email: email || staff.email,
+      phone: phone || staff.phone,
+      specialties: specialties !== undefined ? specialties : staff.specialties,
+      avatar: avatarPath,
+      isActive: isActive !== undefined ? isActive : staff.isActive
+    });
 
-    // Service ilişkilerini güncelle
-    if (serviceIds && Array.isArray(serviceIds)) {
-      // Önce mevcut ilişkileri sil
-      await StaffService.destroy({
+    // Hizmetleri güncelle (eğer verilmişse)
+    if (serviceIds) {
+      const serviceIdsArray = JSON.parse(serviceIds);
+      
+      // Önce mevcut tüm ilişkileri getir
+      const existingServices = await StaffService.findAll({
         where: { staffId: id }
       });
       
-      // Yeni ilişkileri oluştur
-      if (serviceIds.length > 0) {
-        await Promise.all(
-          serviceIds.map(serviceId => 
-            StaffService.create({
+      // Mevcut ilişkileri deaktif et
+      await Promise.all(
+        existingServices.map(service => 
+          service.update({ isActive: false })
+        )
+      );
+      
+      // Yeni ilişkileri oluştur veya mevcutları aktifleştir
+      await Promise.all(
+        serviceIdsArray.map(async serviceId => {
+          const existingService = await StaffService.findOne({
+            where: { staffId: id, serviceId }
+          });
+          
+          if (existingService) {
+            await existingService.update({ isActive: true });
+          } else {
+            await StaffService.create({
               staffId: id,
-              serviceId: serviceId,
+              serviceId,
               isActive: true
-            })
-          )
-        );
-      }
+            });
+          }
+        })
+      );
     }
 
     // Güncellenmiş personeli service bilgileriyle birlikte getir
-    const updatedStaffWithServices = await Staff.findByPk(id, {
+    const updatedStaff = await Staff.findByPk(id, {
       include: [
         {
           model: Service,
@@ -309,38 +313,43 @@ export const updateStaff = async (req: Request, res: Response, next: NextFunctio
       ]
     });
 
-    res.json(ApiSuccess.updated(updatedStaffWithServices, 'Personel başarıyla güncellendi'));
+    res.json(ApiSuccess.updated(updatedStaff, 'Personel başarıyla güncellendi'));
   } catch (error) {
-    // Hata durumunda yüklenen dosyayı sil
-    if (req.file) {
-      await deleteFile(req.file.path);
-    }
     next(error);
   }
 };
 
 export const getAvailableSlots = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error: paramsError, value: paramsValue } = staffIdSchema.validate(req.params);
-    if (paramsError) {
-      throw ApiError.fromJoi(paramsError);
-    }
-    const { error: queryError, value: queryValue } = availableSlotsQuerySchema.validate(req.query);
-    if (queryError) {
-      throw ApiError.fromJoi(queryError);
-    }
-    const { id } = paramsValue;
-    const { date } = queryValue;
+    const { id } = req.params;
+    const { date, serviceId } = req.query;
 
-    const staff = await Staff.findByPk(id, {
-      where: { isActive: true }
-    });
-    if (!staff) {
+    if (!date) {
+      throw ApiError.badRequest('Tarih parametresi gereklidir');
+    }
+
+    // Personelin var olup olmadığını kontrol et
+    const staff = await Staff.findByPk(id);
+    if (!staff || !staff.isActive) {
       throw ApiError.notFound('Personel bulunamadı veya aktif değil');
     }
 
+    // Eğer serviceId verilmişse, personelin bu hizmeti verip veremediğini kontrol et
+    if (serviceId) {
+      const staffService = await StaffService.findOne({
+        where: {
+          staffId: id,
+          serviceId,
+          isActive: true
+        }
+      });
+      if (!staffService) {
+        throw ApiError.badRequest('Personel bu hizmeti veremiyor');
+      }
+    }
+
     // Tarihi string formatına çevir
-    const dateStr = typeof date === 'string' ? date : date.toISOString().split('T')[0];
+    const dateStr = typeof date === 'string' ? date : String(date);
     const targetDate = new Date(dateStr);
     const dayOfWeek = targetDate.getDay() || 7; // JS'de Pazar = 0, biz 7 yapıyoruz
 
@@ -493,41 +502,43 @@ export const getAvailableSlots = async (req: Request, res: Response, next: NextF
 
 export const getAvailableSlotsRange = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error: paramsError, value: paramsValue } = staffIdSchema.validate(req.params);
-    if (paramsError) {
-      throw ApiError.fromJoi(paramsError);
-    }
-    const { error: queryError, value: queryValue } = availableSlotsRangeQuerySchema.validate(req.query);
-    if (queryError) {
-      throw ApiError.fromJoi(queryError);
-    }
-    const { id } = paramsValue;
-    const { startDate, endDate, serviceId } = queryValue;
+    const { id } = req.params;
+    const { startDate, endDate, serviceId } = req.query;
 
-    const staff = await Staff.findByPk(id, {
-      where: { isActive: true }
-    });
-    if (!staff) {
+    if (!startDate || !endDate) {
+      throw ApiError.badRequest('Başlangıç ve bitiş tarihi parametreleri gereklidir');
+    }
+
+    // Personelin var olup olmadığını kontrol et
+    const staff = await Staff.findByPk(id);
+    if (!staff || !staff.isActive) {
       throw ApiError.notFound('Personel bulunamadı veya aktif değil');
     }
 
-    // Eğer serviceId verilmişse, personelin bu hizmeti verip veremeyeceğini kontrol et
+    // Eğer serviceId verilmişse, personelin bu hizmeti verip veremediğini kontrol et
     if (serviceId) {
-      const staffService = await db.StaffService.findOne({
+      const staffService = await StaffService.findOne({
         where: {
           staffId: id,
-          serviceId: serviceId,
+          serviceId,
           isActive: true
         }
       });
       if (!staffService) {
-        throw ApiError.badRequest('Bu personel seçilen hizmeti veremiyor');
+        throw ApiError.badRequest('Personel bu hizmeti veremiyor');
       }
     }
 
+    // String'e dönüştür
+    const startDateStr = typeof startDate === 'string' ? startDate : String(startDate);
+    const endDateStr = typeof endDate === 'string' ? endDate : String(endDate);
+
     // Tarih aralığındaki günleri oluştur
     const { eachDayOfInterval } = require('date-fns');
-    const dates = eachDayOfInterval({ start: startDate, end: endDate });
+    const dates = eachDayOfInterval({ 
+      start: new Date(startDateStr), 
+      end: new Date(endDateStr) 
+    });
 
     // İş saatlerini getir
     const businessHours = await db.BusinessHours.findAll({
@@ -539,7 +550,7 @@ export const getAvailableSlotsRange = async (req: Request, res: Response, next: 
       where: {
         staffId: id,
         date: {
-          [Op.between]: [format(startDate, 'yyyy-MM-dd'), format(endDate, 'yyyy-MM-dd')]
+          [Op.between]: [format(new Date(startDateStr), 'yyyy-MM-dd'), format(new Date(endDateStr), 'yyyy-MM-dd')]
         }
       }
     });
@@ -549,7 +560,7 @@ export const getAvailableSlotsRange = async (req: Request, res: Response, next: 
       where: {
         staffId: id,
         appointmentDate: {
-          [Op.between]: [format(startDate, 'yyyy-MM-dd'), format(endDate, 'yyyy-MM-dd')]
+          [Op.between]: [format(new Date(startDateStr), 'yyyy-MM-dd'), format(new Date(endDateStr), 'yyyy-MM-dd')]
         }
       },
       attributes: ['appointmentDate', 'startTime', 'endTime']
@@ -672,8 +683,8 @@ export const getAvailableSlotsRange = async (req: Request, res: Response, next: 
     const response = {
       staffId: id,
       staffName: staff.fullName,
-      startDate: format(startDate, 'yyyy-MM-dd'),
-      endDate: format(endDate, 'yyyy-MM-dd'),
+      startDate: format(new Date(startDateStr), 'yyyy-MM-dd'),
+      endDate: format(new Date(endDateStr), 'yyyy-MM-dd'),
       totalDays: dailyAvailability.length,
       availableDays: dailyAvailability.filter(day => day.isAvailable && day.totalSlots > 0).length,
       dailyAvailability

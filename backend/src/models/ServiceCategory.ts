@@ -7,15 +7,12 @@ module.exports = (sequelize: any, DataTypes: any) => {
     },
     name: {
       type: DataTypes.STRING(100),
-      allowNull: false,
     },
     description: {
       type: DataTypes.TEXT,
-      allowNull: true,
     },
     imagePath: {
       type: DataTypes.STRING(255),
-      allowNull: true,
     },
     orderIndex: {
       type: DataTypes.INTEGER,

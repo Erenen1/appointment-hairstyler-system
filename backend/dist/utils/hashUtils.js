@@ -38,12 +38,6 @@ class HashUtils {
     static generateToken(length = 64) {
         return (0, crypto_1.randomBytes)(length).toString('hex');
     }
-    static md5(data) {
-        return (0, crypto_1.createHash)('md5').update(data).digest('hex');
-    }
-    static hmacSha256(data, secret) {
-        return (0, crypto_1.createHash)('sha256').update(data + secret).digest('hex');
-    }
 }
 exports.HashUtils = HashUtils;
 //# sourceMappingURL=hashUtils.js.map

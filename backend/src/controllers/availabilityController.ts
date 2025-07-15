@@ -3,14 +3,6 @@ import { ApiError, ApiSuccess } from '../utils';
 import { Op } from 'sequelize';
 import { format, addDays, startOfWeek, endOfWeek, getDay } from 'date-fns';
 import { eachDayOfInterval } from 'date-fns/eachDayOfInterval';
-import { 
-  createAvailabilitySchema,
-  updateAvailabilitySchema,
-  availabilityQuerySchema,
-  availabilityIdSchema,
-  bulkCreateAvailabilitySchema,
-  dateRangeQuerySchema
-} from '../validations/availabilityValidation';
 
 import db from '../models/index';
 const { StaffAvailability, Staff, BusinessHours, Appointment, Service, StaffService } = db;
@@ -18,12 +10,11 @@ const { StaffAvailability, Staff, BusinessHours, Appointment, Service, StaffServ
 // Tüm personellerin belirli tarih aralığındaki müsaitlik durumunu getir
 export const getAllStaffAvailability = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = dateRangeQuerySchema.validate(req.query);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
+    const { startDate, endDate, serviceId } = req.query;
     
-    const { startDate, endDate, serviceId } = value;
+    if (!startDate || !endDate) {
+      throw ApiError.badRequest('Başlangıç ve bitiş tarihi gereklidir');
+    }
 
     // Aktif personelleri getir
     let staffWhereClause: any = { isActive: true };
@@ -51,8 +42,8 @@ export const getAllStaffAvailability = async (req: Request, res: Response, next:
     const result = await Promise.all(staff.map(async (staffMember) => {
       const availability = await getStaffAvailabilityForRange(
         staffMember.id, 
-        startDate, 
-        endDate, 
+        new Date(startDate as string), 
+        new Date(endDate as string), 
         businessHours
       );
       
@@ -76,12 +67,7 @@ export const getAllStaffAvailability = async (req: Request, res: Response, next:
 // Belirli personelin müsaitlik durumunu getir
 export const getStaffAvailability = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = availabilityQuerySchema.validate(req.query);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-
-    const { staffId, date, startDate, endDate, type, isAvailable } = value;
+    const { staffId, date, startDate, endDate, type, isAvailable } = req.query;
     const whereConditions: any = {};
 
     if (staffId) whereConditions.staffId = staffId;
@@ -92,7 +78,7 @@ export const getStaffAvailability = async (req: Request, res: Response, next: Ne
       if (endDate) whereConditions.date[Op.lte] = endDate;
     }
     if (type) whereConditions.type = type;
-    if (isAvailable !== undefined) whereConditions.isAvailable = isAvailable;
+    if (isAvailable !== undefined) whereConditions.isAvailable = isAvailable === 'true';
 
     const availability = await StaffAvailability.findAll({
       where: whereConditions,
@@ -115,12 +101,7 @@ export const getStaffAvailability = async (req: Request, res: Response, next: Ne
 // Yeni müsaitlik oluştur
 export const createAvailability = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = createAvailabilitySchema.validate(req.body);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-
-    const { staffId, date, startTime, endTime, lunchBreakStart, lunchBreakEnd, type, notes } = value;
+    const { staffId, date, startTime, endTime, lunchBreakStart, lunchBreakEnd, type, notes } = req.body;
 
     // Personelin varlığını kontrol et
     const staff = await Staff.findByPk(staffId);
@@ -172,12 +153,7 @@ export const createAvailability = async (req: Request, res: Response, next: Next
 // Toplu müsaitlik oluştur
 export const bulkCreateAvailability = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = bulkCreateAvailabilitySchema.validate(req.body);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-
-    const { staffId, dateRange, workingDays, schedule } = value;
+    const { staffId, dateRange, workingDays, schedule } = req.body;
 
     // Personelin varlığını kontrol et
     const staff = await Staff.findByPk(staffId);
@@ -200,12 +176,13 @@ export const bulkCreateAvailability = async (req: Request, res: Response, next: 
       if (workingDays.includes(dayOfWeek)) {
         const dateStr = format(date, 'yyyy-MM-dd');
         
-        // Mevcut kayıt var mı kontrol et
-        const existingRecord = await StaffAvailability.findOne({
+        // Mevcut müsaitlik kaydını kontrol et
+        const existingAvailability = await StaffAvailability.findOne({
           where: { staffId, date: dateStr }
         });
-
-        if (!existingRecord) {
+        
+        // Eğer kayıt yoksa oluştur
+        if (!existingAvailability) {
           availabilityRecords.push({
             staffId,
             date: dateStr,
@@ -215,22 +192,24 @@ export const bulkCreateAvailability = async (req: Request, res: Response, next: 
             lunchBreakStart: schedule.lunchBreakStart,
             lunchBreakEnd: schedule.lunchBreakEnd,
             isAvailable: true,
-            type: 'default'
+            type: 'default',
+            notes: schedule.notes || null
           });
         }
       }
     }
 
     if (availabilityRecords.length === 0) {
-      throw ApiError.badRequest('Oluşturulacak yeni müsaitlik kaydı bulunamadı');
+      throw ApiError.badRequest('Seçilen tarih aralığında oluşturulacak müsaitlik kaydı bulunamadı');
     }
 
-    const createdRecords = await StaffAvailability.bulkCreate(availabilityRecords);
+    await StaffAvailability.bulkCreate(availabilityRecords);
 
-    res.status(201).json(ApiSuccess.created(
-      { count: createdRecords.length, records: createdRecords },
-      `${createdRecords.length} adet müsaitlik kaydı başarıyla oluşturuldu`
-    ));
+    res.status(201).json(ApiSuccess.created({
+      count: availabilityRecords.length,
+      dateRange,
+      workingDays
+    }, `${availabilityRecords.length} adet müsaitlik kaydı başarıyla oluşturuldu`));
   } catch (error) {
     next(error);
   }
@@ -239,24 +218,23 @@ export const bulkCreateAvailability = async (req: Request, res: Response, next: 
 // Müsaitlik güncelle
 export const updateAvailability = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error: paramsError, value: paramsValue } = availabilityIdSchema.validate(req.params);
-    if (paramsError) {
-      throw ApiError.fromJoi(paramsError);
-    }
+    const { id } = req.params;
+    const { startTime, endTime, lunchBreakStart, lunchBreakEnd, isAvailable, type, notes } = req.body;
 
-    const { error: bodyError, value: bodyValue } = updateAvailabilitySchema.validate(req.body);
-    if (bodyError) {
-      throw ApiError.fromJoi(bodyError);
-    }
-
-    const { id } = paramsValue;
     const availability = await StaffAvailability.findByPk(id);
-    
     if (!availability) {
       throw ApiError.notFound('Müsaitlik kaydı bulunamadı');
     }
 
-    await availability.update(bodyValue);
+    await availability.update({
+      startTime: startTime || availability.startTime,
+      endTime: endTime || availability.endTime,
+      lunchBreakStart: lunchBreakStart !== undefined ? lunchBreakStart : availability.lunchBreakStart,
+      lunchBreakEnd: lunchBreakEnd !== undefined ? lunchBreakEnd : availability.lunchBreakEnd,
+      isAvailable: isAvailable !== undefined ? isAvailable : availability.isAvailable,
+      type: type || availability.type,
+      notes: notes !== undefined ? notes : availability.notes
+    });
 
     const updatedAvailability = await StaffAvailability.findByPk(id, {
       include: [
@@ -277,32 +255,28 @@ export const updateAvailability = async (req: Request, res: Response, next: Next
 // Müsaitlik sil
 export const deleteAvailability = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = availabilityIdSchema.validate(req.params);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
+    const { id } = req.params;
 
-    const { id } = value;
     const availability = await StaffAvailability.findByPk(id);
-    
     if (!availability) {
       throw ApiError.notFound('Müsaitlik kaydı bulunamadı');
     }
 
     await availability.destroy();
+
     res.json(ApiSuccess.deleted('Müsaitlik kaydı başarıyla silindi'));
   } catch (error) {
     next(error);
   }
 };
 
-// Yardımcı fonksiyon: Belirli tarih aralığında personelin müsaitlik durumunu hesapla
+// Yardımcı fonksiyon: Belirli tarih aralığındaki müsaitlik durumunu hesapla
 async function getStaffAvailabilityForRange(staffId: string, startDate: Date, endDate: Date, businessHours: any[]) {
-  // Belirlenen tarih aralığındaki tüm günleri al
+  // Tarih aralığındaki tüm günleri al
   const dates = eachDayOfInterval({ start: startDate, end: endDate });
   
-  // Bu tarih aralığındaki mevcut müsaitlik kayıtlarını getir
-  const existingAvailability = await StaffAvailability.findAll({
+  // Personelin özel müsaitlik kayıtlarını getir
+  const staffAvailability = await StaffAvailability.findAll({
     where: {
       staffId,
       date: {
@@ -310,8 +284,8 @@ async function getStaffAvailabilityForRange(staffId: string, startDate: Date, en
       }
     }
   });
-
-  // Bu tarih aralığındaki randevuları getir
+  
+  // Personelin randevularını getir
   const appointments = await Appointment.findAll({
     where: {
       staffId,
@@ -319,75 +293,77 @@ async function getStaffAvailabilityForRange(staffId: string, startDate: Date, en
         [Op.between]: [format(startDate, 'yyyy-MM-dd'), format(endDate, 'yyyy-MM-dd')]
       }
     },
-    attributes: ['appointmentDate', 'startTime', 'endTime']
+    include: [
+      {
+        model: Service,
+        as: 'service',
+        attributes: ['id', 'title', 'duration']
+      }
+    ]
   });
-
+  
+  // Her gün için müsaitlik durumunu hesapla
   return dates.map(date => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    const dayOfWeek = getDay(date) || 7;
+    const dayOfWeek = date.getDay() || 7; // JS'de Pazar = 0, biz 7 yapıyoruz
     
-    // Mevcut müsaitlik kaydını bul
-    const availabilityRecord = existingAvailability.find(av => av.date === dateStr);
+    // Personelin bu tarih için özel müsaitlik kaydını bul
+    const customAvailability = staffAvailability.find(a => format(new Date(a.date), 'yyyy-MM-dd') === dateStr);
     
-    // İş saatlerini bul
-    const businessHour = businessHours.find(bh => bh.dayOfWeek === dayOfWeek);
+    // İş saatleri tablosundan bu gün için varsayılan saatleri bul
+    const defaultHours = businessHours.find(bh => bh.dayOfWeek === dayOfWeek);
     
-    // O gün randevuları
-    const dayAppointments = appointments.filter(apt => apt.appointmentDate === dateStr);
+    // Eğer özel müsaitlik kaydı varsa onu kullan, yoksa varsayılan iş saatlerini kullan
+    let dayAvailability;
     
-    if (availabilityRecord) {
-      // Özel müsaitlik kaydı varsa onu kullan
-      return {
+    if (customAvailability) {
+      dayAvailability = {
         date: dateStr,
         dayOfWeek,
-        isAvailable: availabilityRecord.isAvailable,
-        type: availabilityRecord.type,
-        workingHours: availabilityRecord.isAvailable ? {
-          start: availabilityRecord.startTime,
-          end: availabilityRecord.endTime,
-          lunchBreak: availabilityRecord.lunchBreakStart && availabilityRecord.lunchBreakEnd ? {
-            start: availabilityRecord.lunchBreakStart,
-            end: availabilityRecord.lunchBreakEnd
-          } : null
-        } : null,
-        appointments: dayAppointments.map(apt => ({
-          startTime: apt.startTime,
-          endTime: apt.endTime
-        })),
-        notes: availabilityRecord.notes
+        isAvailable: customAvailability.isAvailable,
+        type: customAvailability.type,
+        startTime: customAvailability.startTime,
+        endTime: customAvailability.endTime,
+        lunchBreakStart: customAvailability.lunchBreakStart,
+        lunchBreakEnd: customAvailability.lunchBreakEnd,
+        notes: customAvailability.notes,
+        isCustom: true
       };
-    } else if (businessHour && !businessHour.isClosed) {
-      // İş saatleri varsa onları kullan
-      return {
+    } else if (defaultHours && !defaultHours.isClosed) {
+      dayAvailability = {
         date: dateStr,
         dayOfWeek,
         isAvailable: true,
         type: 'default',
-        workingHours: {
-          start: businessHour.openTime,
-          end: businessHour.closeTime,
-          lunchBreak: {
-            start: '12:00:00',
-            end: '13:00:00'
-          }
-        },
-        appointments: dayAppointments.map(apt => ({
-          startTime: apt.startTime,
-          endTime: apt.endTime
-        })),
-        notes: null
+        startTime: defaultHours.openTime,
+        endTime: defaultHours.closeTime,
+        isCustom: false
       };
     } else {
-      // Kapalı gün
-      return {
+      dayAvailability = {
         date: dateStr,
         dayOfWeek,
         isAvailable: false,
         type: 'off',
-        workingHours: null,
-        appointments: [],
-        notes: 'Salon kapalı'
+        isCustom: false
       };
     }
+    
+    // Bu tarihteki randevuları bul
+    const dayAppointments = appointments.filter(a => format(new Date(a.appointmentDate), 'yyyy-MM-dd') === dateStr);
+    
+    return {
+      ...dayAvailability,
+      appointments: dayAppointments.map(a => ({
+        id: a.id,
+        startTime: a.startTime,
+        endTime: a.endTime,
+        service: a.service ? {
+          id: a.service.id,
+          title: a.service.title,
+          duration: a.service.duration
+        } : null
+      }))
+    };
   });
 } 

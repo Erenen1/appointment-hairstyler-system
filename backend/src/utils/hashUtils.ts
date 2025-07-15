@@ -34,10 +34,4 @@ export class HashUtils {
   static generateToken(length: number = 64): string {
     return randomBytes(length).toString('hex');
   }
-  static md5(data: string): string {
-    return createHash('md5').update(data).digest('hex');
-  }
-  static hmacSha256(data: string, secret: string): string {
-    return createHash('sha256').update(data + secret).digest('hex');
-  }
 } 

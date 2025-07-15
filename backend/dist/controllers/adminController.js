@@ -14,16 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createAdminWithApiKey = void 0;
 const utils_1 = require("../utils");
-const adminValidation_1 = require("../validations/adminValidation");
 const index_1 = __importDefault(require("../models/index"));
 const { Admin } = index_1.default;
 const createAdminWithApiKey = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = adminValidation_1.createAdminSchema.validate(req.body);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { password, fullName, email, phone, isActive = true } = value;
+        const { password, fullName, email, phone, isActive = true } = req.body;
         const existingUsername = yield Admin.findOne({ where: { email } });
         if (existingUsername) {
             throw utils_1.ApiError.conflict('Bu e-posta adresi zaten kullanılıyor');

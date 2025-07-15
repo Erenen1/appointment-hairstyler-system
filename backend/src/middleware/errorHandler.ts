@@ -13,9 +13,6 @@ export const errorHandler = (
   if (error instanceof ApiError) {
     apiError = error;
   }
-  else if (error.isJoi) {
-    apiError = ApiError.fromJoi(error);
-  }
   else if (error.name && error.name.startsWith('Sequelize')) {
     apiError = ApiError.fromSequelize(error);
     logger.error('Database Error', {

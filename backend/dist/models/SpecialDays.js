@@ -7,12 +7,9 @@ module.exports = (sequelize, DataTypes) => {
         },
         date: {
             type: DataTypes.DATEONLY,
-            allowNull: false,
-            unique: true,
         },
         description: {
             type: DataTypes.STRING(255),
-            allowNull: false,
         },
         isClosed: {
             type: DataTypes.BOOLEAN,
@@ -20,11 +17,9 @@ module.exports = (sequelize, DataTypes) => {
         },
         openTime: {
             type: DataTypes.TIME,
-            allowNull: true,
         },
         closeTime: {
             type: DataTypes.TIME,
-            allowNull: true,
         },
     }, {
         tableName: 'special_days',

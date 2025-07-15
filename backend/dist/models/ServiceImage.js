@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         serviceId: {
             type: DataTypes.UUID,
-            allowNull: false,
             field: 'service_id',
             references: {
                 model: 'services',
@@ -17,7 +16,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         imagePath: {
             type: DataTypes.STRING(255),
-            allowNull: false,
             field: 'image_path',
         },
         isMain: {

@@ -1,19 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { HashUtils, ApiError, ApiSuccess } from '../utils';
-import { createAdminSchema, } from '../validations/adminValidation';
 import { RegisterData } from '../types/auth';
-import Joi from 'joi';
 
 import db from '../models/index';
 const { Admin } = db;
 
 export const createAdminWithApiKey = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value }: { error: Joi.ValidationError, value: RegisterData } = createAdminSchema.validate(req.body);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const {password, fullName, email, phone, isActive = true } = value;
+    const {password, fullName, email, phone, isActive = true } = req.body;
     const existingUsername = await Admin.findOne({ where: { email } });
     if (existingUsername) {
       throw ApiError.conflict('Bu e-posta adresi zaten kullanılıyor');

@@ -12,9 +12,6 @@ const errorHandler = (error, req, res, next) => {
     if (error instanceof utils_1.ApiError) {
         apiError = error;
     }
-    else if (error.isJoi) {
-        apiError = utils_1.ApiError.fromJoi(error);
-    }
     else if (error.name && error.name.startsWith('Sequelize')) {
         apiError = utils_1.ApiError.fromSequelize(error);
         logger_1.default.error('Database Error', Object.assign(Object.assign({}, (0, requestLogger_1.getRequestContext)(req)), { error: {

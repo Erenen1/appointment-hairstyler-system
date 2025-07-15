@@ -4,15 +4,6 @@ import { Op } from 'sequelize';
 import { format } from 'date-fns';
 import { eachDayOfInterval } from 'date-fns/eachDayOfInterval';
 import path from 'path';
-import {
-  createServiceSchema,
-  updateServiceSchema,
-  serviceIdSchema,
-  categoryListQuerySchema,
-  categoryIdSchema,
-  serviceStaffAvailabilityQuerySchema
-} from '../validations/serviceValidation';
-import { validateService } from '../validations/serviceValidation';
 import { getPaginationOptions, formatPaginationResponse } from '../utils/controllerUtils';
 import { generateFileUrl, deleteFile } from '../config/multer';
 
@@ -91,11 +82,7 @@ export const getServices = async (req: Request, res: Response, next: NextFunctio
 
 export const getServiceById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = serviceIdSchema.validate(req.params);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const { id } = value;
+    const { id } = req.params;
     const service = await Service.findByPk(id, {
       include: [
         {
@@ -142,11 +129,6 @@ export const getServiceById = async (req: Request, res: Response, next: NextFunc
 
 export const createService = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const validationResult = validateService(req.body);
-    if (!validationResult.success) {
-      throw ApiError.badRequest('Validasyon hatası', validationResult.errors);
-    }
-
     const service = await Service.create(req.body);
     const staffIdsString: any = req.body.staffIds;
     const staffIds = await JSON.parse(staffIdsString);
@@ -213,11 +195,6 @@ export const createService = async (req: Request, res: Response, next: NextFunct
 export const updateService = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const validationResult = validateService(req.body);
-    if (!validationResult.success) {
-      throw ApiError.badRequest('Validasyon hatası', validationResult.errors);
-    }
-
     const service = await Service.findByPk(id);
     if (!service) {
       throw ApiError.notFound('Hizmet bulunamadı');
@@ -289,11 +266,7 @@ export const deleteService = async (req: Request, res: Response, next: NextFunct
 
 export const getServiceCategories = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = categoryListQuerySchema.validate(req.query);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const { page, limit, search, isActive, sortBy, sortOrder } = value;
+    const { page = 1, limit = 10, search, isActive, sortBy = 'orderIndex', sortOrder = 'asc' } = req.query;
     const where: any = {};
     if (search) {
       where[Op.or] = [
@@ -301,8 +274,8 @@ export const getServiceCategories = async (req: Request, res: Response, next: Ne
         { description: { [Op.iLike]: `%${search}%` } }
       ];
     }
-    if (isActive !== undefined) where.isActive = isActive;
-    const { offset, limit: limitOption } = getPaginationOptions(page, limit);
+    if (isActive !== undefined) where.isActive = isActive === 'true';
+    const { offset, limit: limitOption } = getPaginationOptions(Number(page), Number(limit));
     const { count, rows: categories } = await ServiceCategory.findAndCountAll({
       where,
       include: [
@@ -313,7 +286,7 @@ export const getServiceCategories = async (req: Request, res: Response, next: Ne
           required: false
         }
       ],
-      order: [[sortBy, sortOrder.toUpperCase()]],
+      order: [[sortBy.toString(), sortOrder.toString().toUpperCase()]],
       offset,
       limit: limitOption
     });
@@ -328,7 +301,7 @@ export const getServiceCategories = async (req: Request, res: Response, next: Ne
       createdAt: category.createdAt,
       updatedAt: category.updatedAt
     }));
-    const pagination = formatPaginationResponse(count, page, limit);
+    const pagination = formatPaginationResponse(count, Number(page), Number(limit));
     res.status(200).json(ApiSuccess.list(formattedCategories, pagination, 'Hizmet kategorileri başarıyla getirildi'));
   } catch (error) {
     next(error);
@@ -362,11 +335,7 @@ export const createServiceCategory = async (req: Request, res: Response, next: N
 
 export const updateServiceCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = categoryIdSchema.validate(req.params);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const { id } = value;
+    const { id } = req.params;
     const { name, description, imagePath, orderIndex, isActive } = req.body;
     const category = await ServiceCategory.findByPk(id);
     if (!category) {
@@ -398,11 +367,7 @@ export const updateServiceCategory = async (req: Request, res: Response, next: N
 
 export const deleteServiceCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = categoryIdSchema.validate(req.params);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const { id } = value;
+    const { id } = req.params;
     const category = await ServiceCategory.findByPk(id);
     if (!category) {
       throw ApiError.notFound('Hizmet kategorisi bulunamadı');
@@ -422,11 +387,7 @@ export const deleteServiceCategory = async (req: Request, res: Response, next: N
 
 export const getServiceStaff = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = serviceIdSchema.validate(req.params);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const { id } = value;
+    const { id } = req.params;
 
     // Önce hizmetin var olup olmadığını kontrol et
     const service = await Service.findByPk(id);
@@ -467,16 +428,9 @@ export const getServiceStaff = async (req: Request, res: Response, next: NextFun
 
 export const getServiceStaffAvailability = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error: paramsError, value: paramsValue } = serviceIdSchema.validate(req.params);
-    if (paramsError) {
-      throw ApiError.fromJoi(paramsError);
-    }
-    const { error: queryError, value: queryValue } = serviceStaffAvailabilityQuerySchema.validate(req.query);
-    if (queryError) {
-      throw ApiError.fromJoi(queryError);
-    }
-    const { id } = paramsValue;
-    const { startDate, endDate } = queryValue;
+    const { id } = req.params;
+    const startDateStr = req.query.startDate as string;
+    const endDateStr = req.query.endDate as string;
 
     // Önce hizmetin var olup olmadığını kontrol et
     const service = await Service.findByPk(id);
@@ -512,7 +466,12 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
     });
 
     // Tarih aralığındaki günleri oluştur
-    const dates = eachDayOfInterval({ start: startDate, end: endDate });
+    const startDate = new Date(startDateStr);
+    const endDate = new Date(endDateStr);
+    const dates = eachDayOfInterval({ 
+      start: startDate, 
+      end: endDate 
+    });
 
     // Tüm personellerin müsaitlik durumlarını paralel olarak hesapla
     const staffAvailabilities = await Promise.all(staffServices.map(async (staffService) => {
@@ -528,7 +487,7 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
         }
       });
 
-      // Bu tarih aralığındaki randevuları getir
+      // Bu tarih aralığındaki personelin randevularını getir
       const appointments = await db.Appointment.findAll({
         where: {
           staffId,
@@ -536,9 +495,10 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
             [Op.between]: [format(startDate, 'yyyy-MM-dd'), format(endDate, 'yyyy-MM-dd')]
           }
         },
-        attributes: ['appointmentDate', 'startTime', 'endTime']
+        attributes: ['appointmentDate', 'startTime', 'endTime', 'id', 'serviceId']
       });
 
+      // Her gün için müsaitlik durumunu hesapla
       const dailyAvailability = dates.map(date => {
         const dateStr = format(date, 'yyyy-MM-dd');
         const dayOfWeek = date.getDay() || 7;

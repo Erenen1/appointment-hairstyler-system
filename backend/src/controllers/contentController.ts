@@ -1,21 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiError, ApiSuccess } from '../utils';
 import { Op } from 'sequelize';
-import { 
-  createGalleryImageSchema,
-  contentListQuerySchema,
-} from '../validations/contentValidation';
 
 import db from '../models/index';
 const { GalleryImage, GalleryCategory } = db;
 
 export const getGalleryImages = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = contentListQuerySchema.validate(req.query);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const { page, limit, search, categoryId, isActive, sortBy, sortOrder } = value;
+    const { 
+      page = 1, 
+      limit = 10, 
+      search, 
+      categoryId, 
+      isActive, 
+      sortBy = 'createdAt', 
+      sortOrder = 'desc' 
+    } = req.query;
+    
     const whereConditions: any = {};
     if (search) {
       whereConditions[Op.or] = [
@@ -27,9 +28,10 @@ export const getGalleryImages = async (req: Request, res: Response, next: NextFu
       whereConditions.categoryId = categoryId;
     }
     if (isActive !== undefined) {
-      whereConditions.isActive = isActive;
+      whereConditions.isActive = isActive === 'true';
     }
-    const offset = (page - 1) * limit;
+    
+    const offset = (Number(page) - 1) * Number(limit);
     const { count, rows } = await GalleryImage.findAndCountAll({
       where: whereConditions,
       include: [
@@ -39,19 +41,21 @@ export const getGalleryImages = async (req: Request, res: Response, next: NextFu
           attributes: ['id', 'name', 'description']
         }
       ],
-      order: [[sortBy, sortOrder.toUpperCase()]],
-      limit,
+      order: [[sortBy.toString(), String(sortOrder).toUpperCase()]],
+      limit: Number(limit),
       offset
     });
-    const totalPages = Math.ceil(count / limit);
+    
+    const totalPages = Math.ceil(count / Number(limit));
     const paginationInfo = {
-      currentPage: page,
+      currentPage: Number(page),
       totalPages,
       totalItems: count,
-      itemsPerPage: limit,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
+      itemsPerPage: Number(limit),
+      hasNextPage: Number(page) < totalPages,
+      hasPrevPage: Number(page) > 1
     };
+    
     res.json(ApiSuccess.list(rows, paginationInfo, 'Galeri resimleri başarıyla getirildi'));
   } catch (error) {
     next(error);
@@ -60,15 +64,17 @@ export const getGalleryImages = async (req: Request, res: Response, next: NextFu
 
 export const createGalleryImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = createGalleryImageSchema.validate(req.body);
-    if (error) {
-      throw ApiError.fromJoi(error);
+    const { imagePath, title, description, categoryId, isVisible } = req.body;
+    
+    if (!imagePath || !categoryId) {
+      throw ApiError.badRequest('Resim yolu ve kategori ID zorunludur');
     }
-    const { imagePath, title, description, categoryId, isVisible } = value;
+    
     const category = await GalleryCategory.findByPk(categoryId);
     if (!category) {
       throw ApiError.notFound('Galeri kategorisi bulunamadı');
     }
+    
     const image = await GalleryImage.create({
       imagePath,
       title,
@@ -76,6 +82,7 @@ export const createGalleryImage = async (req: Request, res: Response, next: Next
       categoryId,
       isVisible: isVisible !== undefined ? isVisible : true
     });
+    
     const createdImage = await GalleryImage.findByPk(image.id, {
       include: [
         {
@@ -85,6 +92,7 @@ export const createGalleryImage = async (req: Request, res: Response, next: Next
         }
       ]
     });
+    
     res.status(201).json(ApiSuccess.created(createdImage, 'Galeri resmi başarıyla eklendi'));
   } catch (error) {
     next(error);

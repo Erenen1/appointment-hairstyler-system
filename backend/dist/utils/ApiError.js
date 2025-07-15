@@ -54,14 +54,6 @@ class ApiError extends Error {
     static tooManyRequests(message = 'Çok fazla istek gönderildi') {
         return new ApiError(message, ErrorType.RATE_LIMIT, 429);
     }
-    static fromJoi(joiError) {
-        const errors = joiError.details.map((detail) => ({
-            field: detail.path.join('.'),
-            message: detail.message,
-            code: detail.type
-        }));
-        return new ApiError('Validation hatası', ErrorType.VALIDATION, 400, errors);
-    }
     static fromSequelize(sequelizeError) {
         if (sequelizeError.name === 'SequelizeValidationError') {
             const errors = sequelizeError.errors.map((error) => ({

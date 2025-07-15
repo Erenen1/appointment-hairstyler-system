@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         customerId: {
             type: DataTypes.UUID,
-            allowNull: false,
             references: {
                 model: 'customers',
                 key: 'id',
@@ -17,7 +16,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         staffId: {
             type: DataTypes.UUID,
-            allowNull: false,
             references: {
                 model: 'staff',
                 key: 'id',
@@ -27,7 +25,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         serviceId: {
             type: DataTypes.UUID,
-            allowNull: false,
             references: {
                 model: 'services',
                 key: 'id',
@@ -37,28 +34,22 @@ module.exports = (sequelize, DataTypes) => {
         },
         appointmentDate: {
             type: DataTypes.DATEONLY,
-            allowNull: false,
         },
         startTime: {
             type: DataTypes.TIME,
-            allowNull: false,
         },
         endTime: {
             type: DataTypes.TIME,
-            allowNull: false,
         },
         notes: {
             type: DataTypes.TEXT,
-            allowNull: true,
         },
         price: {
             type: DataTypes.DECIMAL(10, 2),
-            allowNull: false,
             comment: 'Randevu sırasındaki hizmet fiyatı (sabit)',
         },
         createdByAdmin: {
             type: DataTypes.UUID,
-            allowNull: true,
             references: {
                 model: 'admins',
                 key: 'id',

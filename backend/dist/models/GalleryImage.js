@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         categoryId: {
             type: DataTypes.UUID,
-            allowNull: false,
             references: {
                 model: 'gallery_categories',
                 key: 'id',
@@ -16,15 +15,12 @@ module.exports = (sequelize, DataTypes) => {
         },
         title: {
             type: DataTypes.STRING(255),
-            allowNull: true,
         },
         description: {
             type: DataTypes.TEXT,
-            allowNull: true,
         },
         imagePath: {
             type: DataTypes.STRING(255),
-            allowNull: false,
         },
         orderIndex: {
             type: DataTypes.INTEGER,

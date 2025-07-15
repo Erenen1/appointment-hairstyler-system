@@ -1,12 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiError, ApiSuccess } from '../utils';
 import { Op, fn, col } from 'sequelize';
-import { 
-  contactMessagesListQuerySchema,
-  contactMessageIdSchema,
-  updateContactMessageStatusSchema,
-  createContactMessageSchema
-} from '../validations/contactValidation';
 
 import db from '../models/index';
 const { ContactMessage } = db;
@@ -33,30 +27,38 @@ const buildWhereConditions = (filters: any) => {
 
 export const getContactMessages = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = contactMessagesListQuerySchema.validate(req.query);
-    if (error) throw ApiError.fromJoi(error);
-
-    const { page, limit, sortBy, sortOrder, ...filters } = value;
+    const { 
+      page = 1, 
+      limit = 10, 
+      sortBy = 'createdAt', 
+      sortOrder = 'desc',
+      search,
+      category,
+      startDate,
+      endDate
+    } = req.query;
+    
+    const filters = { search, category, startDate, endDate };
     const whereConditions = buildWhereConditions(filters);
-    const offset = (page - 1) * limit;
-    const orderBy = [[sortBy === 'name' ? 'fullName' : sortBy, sortOrder.toUpperCase()]];
+    const offset = (Number(page) - 1) * Number(limit);
+    const orderBy = [[sortBy === 'name' ? 'fullName' : sortBy, String(sortOrder).toUpperCase()]];
 
     const { count, rows } = await ContactMessage.findAndCountAll({
       where: whereConditions,
       order: orderBy,
-      limit,
+      limit: Number(limit),
       offset,
       attributes: { exclude: ['ipAddress', 'userAgent'] }
     });
 
-    const totalPages = Math.ceil(count / limit);
+    const totalPages = Math.ceil(count / Number(limit));
     const paginationInfo = {
-      currentPage: page,
+      currentPage: Number(page),
       totalPages,
       totalItems: count,
-      itemsPerPage: limit,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
+      itemsPerPage: Number(limit),
+      hasNextPage: Number(page) < totalPages,
+      hasPrevPage: Number(page) > 1
     };
     res.json(ApiSuccess.list(rows, paginationInfo, 'İletişim mesajları başarıyla getirildi'));
   } catch (error) {
@@ -66,10 +68,9 @@ export const getContactMessages = async (req: Request, res: Response, next: Next
 
 export const getContactMessageById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = contactMessageIdSchema.validate(req.params);
-    if (error) throw ApiError.fromJoi(error);
+    const { id } = req.params;
 
-    const message = await ContactMessage.findByPk(value.id);
+    const message = await ContactMessage.findByPk(id);
     if (!message) throw ApiError.notFound('İletişim mesajı bulunamadı');
 
     if (!message.isRead) {
@@ -105,14 +106,12 @@ const getStatusUpdateData = (status: string, userId: string) => {
 
 export const updateContactMessageStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error: paramsError, value: paramsValue } = contactMessageIdSchema.validate(req.params);
-    const { error: bodyError, value: bodyValue } = updateContactMessageStatusSchema.validate(req.body);
-    if (paramsError || bodyError) throw ApiError.fromJoi(paramsError || bodyError);
+    const { id } = req.params;
+    const { status, adminNotes } = req.body;
 
-    const message = await ContactMessage.findByPk(paramsValue.id);
+    const message = await ContactMessage.findByPk(id);
     if (!message) throw ApiError.notFound('İletişim mesajı bulunamadı');
 
-    const { status, adminNotes } = bodyValue;
     if (!STATUS_TRANSITIONS[message.status].includes(status)) {
       throw ApiError.badRequest(`${message.status} durumundan ${status} durumuna geçiş yapılamaz`);
     }
@@ -131,10 +130,9 @@ export const updateContactMessageStatus = async (req: Request, res: Response, ne
 
 export const deleteContactMessage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = contactMessageIdSchema.validate(req.params);
-    if (error) throw ApiError.fromJoi(error);
+    const { id } = req.params;
 
-    const message = await ContactMessage.findByPk(value.id);
+    const message = await ContactMessage.findByPk(id);
     if (!message) throw ApiError.notFound('İletişim mesajı bulunamadı');
 
     await message.destroy();
@@ -180,8 +178,11 @@ export const getContactStats = async (req: Request, res: Response, next: NextFun
 
 export const createContact = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { error, value } = createContactMessageSchema.validate(req.body);
-    if (error) throw ApiError.fromJoi(error);
+    const { fullName, email, subject, message } = req.body;
+
+    if (!fullName || !email || !subject || !message) {
+      throw ApiError.badRequest('Ad-soyad, e-posta, konu ve mesaj alanları zorunludur');
+    }
 
     const clientInfo = {
       ipAddress: req.ip,
@@ -189,7 +190,10 @@ export const createContact = async (req: Request, res: Response, next: NextFunct
     };
 
     const contactMessage = await ContactMessage.create({
-      ...value,
+      fullName,
+      email,
+      subject,
+      message,
       ...clientInfo,
       status: 'new',
       isRead: false

@@ -18,8 +18,6 @@ const sequelize_1 = require("sequelize");
 const date_fns_1 = require("date-fns");
 const eachDayOfInterval_1 = require("date-fns/eachDayOfInterval");
 const path_1 = __importDefault(require("path"));
-const serviceValidation_1 = require("../validations/serviceValidation");
-const serviceValidation_2 = require("../validations/serviceValidation");
 const controllerUtils_1 = require("../utils/controllerUtils");
 const multer_1 = require("../config/multer");
 const index_1 = __importDefault(require("../models/index"));
@@ -95,11 +93,7 @@ exports.getServices = getServices;
 const getServiceById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
-        const { error, value } = serviceValidation_1.serviceIdSchema.validate(req.params);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { id } = value;
+        const { id } = req.params;
         const service = yield Service.findByPk(id, {
             include: [
                 {
@@ -141,10 +135,6 @@ const getServiceById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 exports.getServiceById = getServiceById;
 const createService = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const validationResult = (0, serviceValidation_2.validateService)(req.body);
-        if (!validationResult.success) {
-            throw utils_1.ApiError.badRequest('Validasyon hatası', validationResult.errors);
-        }
         const service = yield Service.create(req.body);
         const staffIdsString = req.body.staffIds;
         const staffIds = yield JSON.parse(staffIdsString);
@@ -202,10 +192,6 @@ exports.createService = createService;
 const updateService = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const validationResult = (0, serviceValidation_2.validateService)(req.body);
-        if (!validationResult.success) {
-            throw utils_1.ApiError.badRequest('Validasyon hatası', validationResult.errors);
-        }
         const service = yield Service.findByPk(id);
         if (!service) {
             throw utils_1.ApiError.notFound('Hizmet bulunamadı');
@@ -266,11 +252,7 @@ const deleteService = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 exports.deleteService = deleteService;
 const getServiceCategories = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = serviceValidation_1.categoryListQuerySchema.validate(req.query);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { page, limit, search, isActive, sortBy, sortOrder } = value;
+        const { page = 1, limit = 10, search, isActive, sortBy = 'orderIndex', sortOrder = 'asc' } = req.query;
         const where = {};
         if (search) {
             where[sequelize_1.Op.or] = [
@@ -279,8 +261,8 @@ const getServiceCategories = (req, res, next) => __awaiter(void 0, void 0, void 
             ];
         }
         if (isActive !== undefined)
-            where.isActive = isActive;
-        const { offset, limit: limitOption } = (0, controllerUtils_1.getPaginationOptions)(page, limit);
+            where.isActive = isActive === 'true';
+        const { offset, limit: limitOption } = (0, controllerUtils_1.getPaginationOptions)(Number(page), Number(limit));
         const { count, rows: categories } = yield ServiceCategory.findAndCountAll({
             where,
             include: [
@@ -291,7 +273,7 @@ const getServiceCategories = (req, res, next) => __awaiter(void 0, void 0, void 
                     required: false
                 }
             ],
-            order: [[sortBy, sortOrder.toUpperCase()]],
+            order: [[sortBy.toString(), sortOrder.toString().toUpperCase()]],
             offset,
             limit: limitOption
         });
@@ -309,7 +291,7 @@ const getServiceCategories = (req, res, next) => __awaiter(void 0, void 0, void 
                 updatedAt: category.updatedAt
             });
         });
-        const pagination = (0, controllerUtils_1.formatPaginationResponse)(count, page, limit);
+        const pagination = (0, controllerUtils_1.formatPaginationResponse)(count, Number(page), Number(limit));
         res.status(200).json(utils_1.ApiSuccess.list(formattedCategories, pagination, 'Hizmet kategorileri başarıyla getirildi'));
     }
     catch (error) {
@@ -345,11 +327,7 @@ const createServiceCategory = (req, res, next) => __awaiter(void 0, void 0, void
 exports.createServiceCategory = createServiceCategory;
 const updateServiceCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = serviceValidation_1.categoryIdSchema.validate(req.params);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { id } = value;
+        const { id } = req.params;
         const { name, description, imagePath, orderIndex, isActive } = req.body;
         const category = yield ServiceCategory.findByPk(id);
         if (!category) {
@@ -382,11 +360,7 @@ const updateServiceCategory = (req, res, next) => __awaiter(void 0, void 0, void
 exports.updateServiceCategory = updateServiceCategory;
 const deleteServiceCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = serviceValidation_1.categoryIdSchema.validate(req.params);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { id } = value;
+        const { id } = req.params;
         const category = yield ServiceCategory.findByPk(id);
         if (!category) {
             throw utils_1.ApiError.notFound('Hizmet kategorisi bulunamadı');
@@ -407,11 +381,7 @@ const deleteServiceCategory = (req, res, next) => __awaiter(void 0, void 0, void
 exports.deleteServiceCategory = deleteServiceCategory;
 const getServiceStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = serviceValidation_1.serviceIdSchema.validate(req.params);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { id } = value;
+        const { id } = req.params;
         const service = yield Service.findByPk(id);
         if (!service) {
             throw utils_1.ApiError.notFound('Hizmet bulunamadı');
@@ -447,16 +417,9 @@ const getServiceStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
 exports.getServiceStaff = getServiceStaff;
 const getServiceStaffAvailability = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error: paramsError, value: paramsValue } = serviceValidation_1.serviceIdSchema.validate(req.params);
-        if (paramsError) {
-            throw utils_1.ApiError.fromJoi(paramsError);
-        }
-        const { error: queryError, value: queryValue } = serviceValidation_1.serviceStaffAvailabilityQuerySchema.validate(req.query);
-        if (queryError) {
-            throw utils_1.ApiError.fromJoi(queryError);
-        }
-        const { id } = paramsValue;
-        const { startDate, endDate } = queryValue;
+        const { id } = req.params;
+        const startDateStr = req.query.startDate;
+        const endDateStr = req.query.endDate;
         const service = yield Service.findByPk(id);
         if (!service) {
             throw utils_1.ApiError.notFound('Hizmet bulunamadı');
@@ -483,7 +446,12 @@ const getServiceStaffAvailability = (req, res, next) => __awaiter(void 0, void 0
         const businessHours = yield index_1.default.BusinessHours.findAll({
             order: [['dayOfWeek', 'ASC']]
         });
-        const dates = (0, eachDayOfInterval_1.eachDayOfInterval)({ start: startDate, end: endDate });
+        const startDate = new Date(startDateStr);
+        const endDate = new Date(endDateStr);
+        const dates = (0, eachDayOfInterval_1.eachDayOfInterval)({
+            start: startDate,
+            end: endDate
+        });
         const staffAvailabilities = yield Promise.all(staffServices.map((staffService) => __awaiter(void 0, void 0, void 0, function* () {
             const staffId = staffService.staff.id;
             const staffAvailabilityRecords = yield index_1.default.StaffAvailability.findAll({
@@ -501,7 +469,7 @@ const getServiceStaffAvailability = (req, res, next) => __awaiter(void 0, void 0
                         [sequelize_1.Op.between]: [(0, date_fns_1.format)(startDate, 'yyyy-MM-dd'), (0, date_fns_1.format)(endDate, 'yyyy-MM-dd')]
                     }
                 },
-                attributes: ['appointmentDate', 'startTime', 'endTime']
+                attributes: ['appointmentDate', 'startTime', 'endTime', 'id', 'serviceId']
             });
             const dailyAvailability = dates.map(date => {
                 const dateStr = (0, date_fns_1.format)(date, 'yyyy-MM-dd');

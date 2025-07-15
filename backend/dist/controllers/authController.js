@@ -14,16 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCurrentUser = exports.logout = exports.adminLogin = void 0;
 const utils_1 = require("../utils");
-const authValidation_1 = require("../validations/authValidation");
 const index_1 = __importDefault(require("../models/index"));
 const { Admin } = index_1.default;
 const adminLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = authValidation_1.loginSchema.validate(req.body);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { email, password } = value;
+        const { email, password } = req.body;
         const admin = yield Admin.findOne({
             where: {
                 email,

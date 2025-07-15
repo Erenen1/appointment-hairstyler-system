@@ -67,12 +67,12 @@ exports.testConnection = testConnection;
 const initializeAndSyncDatabase = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, exports.testConnection)();
-        const forceSync = true;
+        const forceSync = false;
         logger_1.default.info('Initializing database tables', {
             forceSync,
             environment: env_1.default.NODE_ENV
         });
-        yield exports.sequelize.sync({ force: false });
+        yield exports.sequelize.sync({ force: forceSync });
         logger_1.default.info('Database tables initialized successfully');
     }
     catch (error) {

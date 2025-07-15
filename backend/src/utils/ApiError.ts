@@ -87,19 +87,6 @@ export class ApiError extends Error {
   ): ApiError {
     return new ApiError(message, ErrorType.RATE_LIMIT, 429);
   }
-  static fromJoi(joiError: any): ApiError {
-    const errors: ErrorDetail[] = joiError.details.map((detail: any) => ({
-      field: detail.path.join('.'),
-      message: detail.message,
-      code: detail.type
-    }));
-    return new ApiError(
-      'Validation hatası',
-      ErrorType.VALIDATION,
-      400,
-      errors
-    );
-  }
   static fromSequelize(sequelizeError: any): ApiError {
     if (sequelizeError.name === 'SequelizeValidationError') {
       const errors: ErrorDetail[] = sequelizeError.errors.map((error: any) => ({

@@ -7,22 +7,15 @@ module.exports = (sequelize, DataTypes) => {
         },
         fullName: {
             type: DataTypes.STRING(100),
-            allowNull: false,
         },
         email: {
             type: DataTypes.STRING(255),
-            allowNull: false,
-            validate: {
-                isEmail: true,
-            },
         },
         subject: {
             type: DataTypes.STRING(255),
-            allowNull: false,
         },
         message: {
             type: DataTypes.TEXT,
-            allowNull: false,
         },
         isRead: {
             type: DataTypes.BOOLEAN,

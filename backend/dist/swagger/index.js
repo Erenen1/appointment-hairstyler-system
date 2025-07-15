@@ -1,5 +1,5 @@
 "use strict";
-var _a, _b, _c, _d, _e, _f;
+var _a, _b, _c, _d, _e, _f, _g;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.swaggerConfig = exports.publicSwaggerConfig = exports.adminSwaggerConfig = exports.allResponses = exports.publicSchemas = exports.publicPaths = exports.allPaths = exports.allSchemas = void 0;
 const common_1 = require("./schemas/common");
@@ -45,16 +45,18 @@ exports.publicPaths = Object.assign(Object.assign({}, health_2.healthPaths), { '
         get: (_a = service_2.servicePaths['/services']) === null || _a === void 0 ? void 0 : _a.get
     }, '/services/{id}': {
         get: (_b = service_2.servicePaths['/services/{id}']) === null || _b === void 0 ? void 0 : _b.get
-    }, '/services/{id}/staff-availability': service_2.servicePaths['/services/{id}/staff-availability'], '/staff': {
-        get: (_c = staff_2.staffPaths['/staff']) === null || _c === void 0 ? void 0 : _c.get
+    }, '/services/{id}/staff': service_2.servicePaths['/services/{id}/staff'], '/services/{id}/staff-availability': service_2.servicePaths['/services/{id}/staff-availability'], '/services/categories': {
+        get: (_c = service_2.servicePaths['/services/categories']) === null || _c === void 0 ? void 0 : _c.get
+    }, '/staff': {
+        get: (_d = staff_2.staffPaths['/staff']) === null || _d === void 0 ? void 0 : _d.get
     }, '/staff/{id}': {
-        get: (_d = staff_2.staffPaths['/staff/{id}']) === null || _d === void 0 ? void 0 : _d.get
+        get: (_e = staff_2.staffPaths['/staff/{id}']) === null || _e === void 0 ? void 0 : _e.get
     }, '/staff/{id}/available-slots': staff_2.staffPaths['/staff/{id}/available-slots'], '/staff/{id}/available-slots-range': staff_2.staffPaths['/staff/{id}/available-slots-range'], '/contact': {
-        post: (_e = contact_2.contactPaths['/contact']) === null || _e === void 0 ? void 0 : _e.post
+        post: (_f = contact_2.contactPaths['/contact']) === null || _f === void 0 ? void 0 : _f.post
     }, '/appointments': {
-        post: (_f = appointment_2.appointmentPaths['/appointments']) === null || _f === void 0 ? void 0 : _f.post
+        post: (_g = appointment_2.appointmentPaths['/appointments']) === null || _g === void 0 ? void 0 : _g.post
     } });
-exports.publicSchemas = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, common_1.commonSchemas), health_1.healthSchemas), service_1.serviceSchemas), staff_1.staffSchemas), contact_1.contactSchemas), { Service: service_1.serviceSchemas.Service, ServiceCategory: service_1.serviceSchemas.ServiceCategory, Staff: staff_1.staffSchemas.Staff, StaffBasic: staff_1.staffSchemas.StaffBasic, StaffAvailability: availabilitySchemas.StaffAvailability, ContactMessage: contact_1.contactSchemas.ContactMessage, CreateContactMessageRequest: contact_1.contactSchemas.CreateContactMessageRequest, CreateAppointmentRequest: appointment_1.appointmentSchemas.CreateAppointmentRequest, Appointment: appointment_1.appointmentSchemas.Appointment });
+exports.publicSchemas = Object.assign(Object.assign(Object.assign({}, common_1.commonSchemas), health_1.healthSchemas), { Service: service_1.serviceSchemas.Service, ServiceCategory: service_1.serviceSchemas.ServiceCategory, ServiceStaffMember: service_1.serviceSchemas.ServiceStaffMember, ServiceStaffAvailabilityResponse: service_1.serviceSchemas.ServiceStaffAvailabilityResponse, Staff: staff_1.staffSchemas.Staff, StaffBasic: staff_1.staffSchemas.StaffBasic, AvailableSlot: staff_1.staffSchemas.AvailableSlot, AvailableSlotsResponse: staff_1.staffSchemas.AvailableSlotsResponse, AvailableSlotsRangeResponse: staff_1.staffSchemas.AvailableSlotsRangeResponse, StaffAvailability: availabilitySchemas.StaffAvailability, ContactMessage: contact_1.contactSchemas.ContactMessage, CreateContactMessageRequest: contact_1.contactSchemas.CreateContactMessageRequest, CreateAppointmentRequest: appointment_1.appointmentSchemas.CreateAppointmentRequest, Appointment: appointment_1.appointmentSchemas.Appointment });
 exports.allResponses = common_1.commonResponses;
 exports.adminSwaggerConfig = {
     openapi: '3.0.3',

@@ -1,20 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiError, ApiSuccess, HashUtils, JwtUtils } from '../utils';
-import { loginSchema } from '../validations/authValidation';
 import logger from '../config/logger';
 import { LoginCredentials } from '../types/auth';
-import Joi from 'joi';
 
 import db from '../models/index';
 const { Admin } = db;
 
 export const adminLogin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { error, value }: { error: Joi.ValidationError, value: LoginCredentials } = loginSchema.validate(req.body);
-    if (error) {
-      throw ApiError.fromJoi(error);
-    }
-    const { email, password } = value;
+    const { email, password } = req.body;
     const admin = await Admin.findOne({
       where: {
         email,

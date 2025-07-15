@@ -7,27 +7,18 @@ module.exports = (sequelize, DataTypes) => {
         },
         fullName: {
             type: DataTypes.STRING,
-            allowNull: false,
         },
         email: {
             type: DataTypes.STRING,
-            allowNull: false,
-            unique: true,
-            validate: {
-                isEmail: true,
-            },
         },
         phone: {
             type: DataTypes.STRING,
-            allowNull: false,
         },
         avatar: {
             type: DataTypes.STRING,
-            allowNull: true,
         },
         specialties: {
             type: DataTypes.STRING,
-            allowNull: true,
         },
         isActive: {
             type: DataTypes.BOOLEAN,

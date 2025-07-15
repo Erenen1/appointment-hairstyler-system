@@ -7,17 +7,13 @@ module.exports = (sequelize, DataTypes) => {
         },
         dayOfWeek: {
             type: DataTypes.SMALLINT,
-            allowNull: false,
-            unique: true,
             comment: '1 = Pazartesi, 7 = Pazar',
         },
         openTime: {
             type: DataTypes.TIME,
-            allowNull: true,
         },
         closeTime: {
             type: DataTypes.TIME,
-            allowNull: true,
         },
         isClosed: {
             type: DataTypes.BOOLEAN,

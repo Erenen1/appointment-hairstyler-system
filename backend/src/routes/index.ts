@@ -12,6 +12,7 @@ import contactRoutes from './contactRoutes';
 import availabilityRoutes from './availabilityRoutes';
 import { setupSwagger } from './swagger';
 
+
 const router = Router();
 
 router.use('/health', healthRoutes);
@@ -25,6 +26,7 @@ router.use(`/staff`, staffRoutes);
 router.use(`/content`, contentRoutes);
 router.use(`/contact`, contactRoutes);
 router.use(`/availability`, availabilityRoutes);
+
 
 export { setupSwagger };
 export default router; 

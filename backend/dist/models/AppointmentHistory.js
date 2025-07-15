@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         appointmentId: {
             type: DataTypes.UUID,
-            allowNull: false,
             references: {
                 model: 'appointments',
                 key: 'id',
@@ -17,11 +16,9 @@ module.exports = (sequelize, DataTypes) => {
         },
         notes: {
             type: DataTypes.TEXT,
-            allowNull: true,
         },
         createdByAdmin: {
             type: DataTypes.UUID,
-            allowNull: true,
             references: {
                 model: 'admins',
                 key: 'id',

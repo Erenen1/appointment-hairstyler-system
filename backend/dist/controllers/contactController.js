@@ -8,17 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -26,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createContact = exports.getContactStats = exports.deleteContactMessage = exports.updateContactMessageStatus = exports.getContactMessageById = exports.getContactMessages = void 0;
 const utils_1 = require("../utils");
 const sequelize_1 = require("sequelize");
-const contactValidation_1 = require("../validations/contactValidation");
 const index_1 = __importDefault(require("../models/index"));
 const { ContactMessage } = index_1.default;
 const buildWhereConditions = (filters) => {
@@ -50,28 +38,26 @@ const buildWhereConditions = (filters) => {
 };
 const getContactMessages = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = contactValidation_1.contactMessagesListQuerySchema.validate(req.query);
-        if (error)
-            throw utils_1.ApiError.fromJoi(error);
-        const { page, limit, sortBy, sortOrder } = value, filters = __rest(value, ["page", "limit", "sortBy", "sortOrder"]);
+        const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', search, category, startDate, endDate } = req.query;
+        const filters = { search, category, startDate, endDate };
         const whereConditions = buildWhereConditions(filters);
-        const offset = (page - 1) * limit;
-        const orderBy = [[sortBy === 'name' ? 'fullName' : sortBy, sortOrder.toUpperCase()]];
+        const offset = (Number(page) - 1) * Number(limit);
+        const orderBy = [[sortBy === 'name' ? 'fullName' : sortBy, String(sortOrder).toUpperCase()]];
         const { count, rows } = yield ContactMessage.findAndCountAll({
             where: whereConditions,
             order: orderBy,
-            limit,
+            limit: Number(limit),
             offset,
             attributes: { exclude: ['ipAddress', 'userAgent'] }
         });
-        const totalPages = Math.ceil(count / limit);
+        const totalPages = Math.ceil(count / Number(limit));
         const paginationInfo = {
-            currentPage: page,
+            currentPage: Number(page),
             totalPages,
             totalItems: count,
-            itemsPerPage: limit,
-            hasNextPage: page < totalPages,
-            hasPrevPage: page > 1
+            itemsPerPage: Number(limit),
+            hasNextPage: Number(page) < totalPages,
+            hasPrevPage: Number(page) > 1
         };
         res.json(utils_1.ApiSuccess.list(rows, paginationInfo, 'İletişim mesajları başarıyla getirildi'));
     }
@@ -82,10 +68,8 @@ const getContactMessages = (req, res, next) => __awaiter(void 0, void 0, void 0,
 exports.getContactMessages = getContactMessages;
 const getContactMessageById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = contactValidation_1.contactMessageIdSchema.validate(req.params);
-        if (error)
-            throw utils_1.ApiError.fromJoi(error);
-        const message = yield ContactMessage.findByPk(value.id);
+        const { id } = req.params;
+        const message = yield ContactMessage.findByPk(id);
         if (!message)
             throw utils_1.ApiError.notFound('İletişim mesajı bulunamadı');
         if (!message.isRead) {
@@ -118,14 +102,11 @@ const getStatusUpdateData = (status, userId) => {
 const updateContactMessageStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { error: paramsError, value: paramsValue } = contactValidation_1.contactMessageIdSchema.validate(req.params);
-        const { error: bodyError, value: bodyValue } = contactValidation_1.updateContactMessageStatusSchema.validate(req.body);
-        if (paramsError || bodyError)
-            throw utils_1.ApiError.fromJoi(paramsError || bodyError);
-        const message = yield ContactMessage.findByPk(paramsValue.id);
+        const { id } = req.params;
+        const { status, adminNotes } = req.body;
+        const message = yield ContactMessage.findByPk(id);
         if (!message)
             throw utils_1.ApiError.notFound('İletişim mesajı bulunamadı');
-        const { status, adminNotes } = bodyValue;
         if (!STATUS_TRANSITIONS[message.status].includes(status)) {
             throw utils_1.ApiError.badRequest(`${message.status} durumundan ${status} durumuna geçiş yapılamaz`);
         }
@@ -140,10 +121,8 @@ const updateContactMessageStatus = (req, res, next) => __awaiter(void 0, void 0,
 exports.updateContactMessageStatus = updateContactMessageStatus;
 const deleteContactMessage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = contactValidation_1.contactMessageIdSchema.validate(req.params);
-        if (error)
-            throw utils_1.ApiError.fromJoi(error);
-        const message = yield ContactMessage.findByPk(value.id);
+        const { id } = req.params;
+        const message = yield ContactMessage.findByPk(id);
         if (!message)
             throw utils_1.ApiError.notFound('İletişim mesajı bulunamadı');
         yield message.destroy();
@@ -188,14 +167,18 @@ const getContactStats = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
 exports.getContactStats = getContactStats;
 const createContact = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = contactValidation_1.createContactMessageSchema.validate(req.body);
-        if (error)
-            throw utils_1.ApiError.fromJoi(error);
+        const { fullName, email, subject, message } = req.body;
+        if (!fullName || !email || !subject || !message) {
+            throw utils_1.ApiError.badRequest('Ad-soyad, e-posta, konu ve mesaj alanları zorunludur');
+        }
         const clientInfo = {
             ipAddress: req.ip,
             userAgent: req.headers['user-agent']
         };
-        const contactMessage = yield ContactMessage.create(Object.assign(Object.assign(Object.assign({}, value), clientInfo), { status: 'new', isRead: false }));
+        const contactMessage = yield ContactMessage.create(Object.assign(Object.assign({ fullName,
+            email,
+            subject,
+            message }, clientInfo), { status: 'new', isRead: false }));
         res.status(201).json(utils_1.ApiSuccess.created(contactMessage, 'İletişim mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.'));
     }
     catch (error) {

@@ -15,16 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createGalleryImage = exports.getGalleryImages = void 0;
 const utils_1 = require("../utils");
 const sequelize_1 = require("sequelize");
-const contentValidation_1 = require("../validations/contentValidation");
 const index_1 = __importDefault(require("../models/index"));
 const { GalleryImage, GalleryCategory } = index_1.default;
 const getGalleryImages = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = contentValidation_1.contentListQuerySchema.validate(req.query);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { page, limit, search, categoryId, isActive, sortBy, sortOrder } = value;
+        const { page = 1, limit = 10, search, categoryId, isActive, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
         const whereConditions = {};
         if (search) {
             whereConditions[sequelize_1.Op.or] = [
@@ -36,9 +31,9 @@ const getGalleryImages = (req, res, next) => __awaiter(void 0, void 0, void 0, f
             whereConditions.categoryId = categoryId;
         }
         if (isActive !== undefined) {
-            whereConditions.isActive = isActive;
+            whereConditions.isActive = isActive === 'true';
         }
-        const offset = (page - 1) * limit;
+        const offset = (Number(page) - 1) * Number(limit);
         const { count, rows } = yield GalleryImage.findAndCountAll({
             where: whereConditions,
             include: [
@@ -48,18 +43,18 @@ const getGalleryImages = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                     attributes: ['id', 'name', 'description']
                 }
             ],
-            order: [[sortBy, sortOrder.toUpperCase()]],
-            limit,
+            order: [[sortBy.toString(), String(sortOrder).toUpperCase()]],
+            limit: Number(limit),
             offset
         });
-        const totalPages = Math.ceil(count / limit);
+        const totalPages = Math.ceil(count / Number(limit));
         const paginationInfo = {
-            currentPage: page,
+            currentPage: Number(page),
             totalPages,
             totalItems: count,
-            itemsPerPage: limit,
-            hasNextPage: page < totalPages,
-            hasPrevPage: page > 1
+            itemsPerPage: Number(limit),
+            hasNextPage: Number(page) < totalPages,
+            hasPrevPage: Number(page) > 1
         };
         res.json(utils_1.ApiSuccess.list(rows, paginationInfo, 'Galeri resimleri başarıyla getirildi'));
     }
@@ -70,11 +65,10 @@ const getGalleryImages = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 exports.getGalleryImages = getGalleryImages;
 const createGalleryImage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = contentValidation_1.createGalleryImageSchema.validate(req.body);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
+        const { imagePath, title, description, categoryId, isVisible } = req.body;
+        if (!imagePath || !categoryId) {
+            throw utils_1.ApiError.badRequest('Resim yolu ve kategori ID zorunludur');
         }
-        const { imagePath, title, description, categoryId, isVisible } = value;
         const category = yield GalleryCategory.findByPk(categoryId);
         if (!category) {
             throw utils_1.ApiError.notFound('Galeri kategorisi bulunamadı');

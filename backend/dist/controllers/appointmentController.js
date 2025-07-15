@@ -16,16 +16,11 @@ exports.getAppointmentById = exports.getCalendarAppointments = exports.createApp
 const utils_1 = require("../utils");
 const sequelize_1 = require("sequelize");
 const date_fns_1 = require("date-fns");
-const appointmentValidation_1 = require("../validations/appointmentValidation");
 const index_1 = __importDefault(require("../models/index"));
 const { Appointment, Customer, Service, Staff, AppointmentHistory, StaffService } = index_1.default;
 const getAppointments = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { error, value } = appointmentValidation_1.appointmentListQuerySchema.validate(req.query);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { page, limit, startDate, endDate, staffId, customerId, serviceId, sortBy, sortOrder } = value;
+        const { page = 1, limit = 10, startDate, endDate, staffId, customerId, serviceId, sortBy = 'appointmentDate', sortOrder = 'desc' } = req.query;
         const whereConditions = {};
         if (startDate || endDate) {
             whereConditions.appointmentDate = {};
@@ -57,15 +52,15 @@ const getAppointments = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                 attributes: ['id', 'fullName', 'specialties']
             },
         ];
-        const offset = (page - 1) * limit;
+        const offset = (Number(page) - 1) * Number(limit);
         const { count, rows: appointments } = yield Appointment.findAndCountAll({
             where: whereConditions,
             include: includeConditions,
-            limit,
+            limit: Number(limit),
             offset,
             order: [[sortBy === 'customer_name' ? [{ model: Customer, as: 'customer' }, 'fullName'] :
                         sortBy === 'service_name' ? [{ model: Service, as: 'service' }, 'title'] :
-                            sortBy, sortOrder.toUpperCase()]],
+                            sortBy, String(sortOrder).toUpperCase()]],
             distinct: true
         });
         const formattedAppointments = appointments.map((appointment) => ({
@@ -98,14 +93,14 @@ const getAppointments = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             createdAt: appointment.createdAt,
             updatedAt: appointment.updatedAt
         }));
-        const totalPages = Math.ceil(count / limit);
+        const totalPages = Math.ceil(count / Number(limit));
         const paginationInfo = {
-            currentPage: page,
+            currentPage: Number(page),
             totalPages,
             totalItems: count,
-            itemsPerPage: limit,
-            hasNextPage: page < totalPages,
-            hasPrevPage: page > 1
+            itemsPerPage: Number(limit),
+            hasNextPage: Number(page) < totalPages,
+            hasPrevPage: Number(page) > 1
         };
         res.json(utils_1.ApiSuccess.list(formattedAppointments, paginationInfo, 'Randevu listesi başarıyla getirildi'));
     }
@@ -117,11 +112,7 @@ exports.getAppointments = getAppointments;
 const createAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
-        const { error, value } = appointmentValidation_1.createAppointmentSchema.validate(req.body);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { customer: customerData, serviceId, staffId, appointmentDate, startTime, notes } = value;
+        const { customer: customerData, serviceId, staffId, appointmentDate, startTime, notes } = req.body;
         const service = yield Service.findByPk(serviceId);
         if (!service) {
             throw utils_1.ApiError.notFound('Hizmet bulunamadı');
@@ -202,7 +193,71 @@ const createAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             notes: 'Randevu oluşturuldu',
             createdByAdmin: ((_b = req.user) === null || _b === void 0 ? void 0 : _b.userType) === 'admin' ? req.user.id : null
         });
-        const fullAppointment = yield Appointment.findByPk(appointment.id, {
+        res.status(201).json(utils_1.ApiSuccess.created(appointment, 'Randevu başarıyla oluşturuldu'));
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.createAppointment = createAppointment;
+const getCalendarAppointments = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { startDate, endDate } = req.query;
+        if (!startDate || !endDate) {
+            throw utils_1.ApiError.badRequest('Başlangıç ve bitiş tarihi gereklidir');
+        }
+        const appointments = yield Appointment.findAll({
+            where: {
+                appointmentDate: {
+                    [sequelize_1.Op.between]: [startDate, endDate]
+                }
+            },
+            include: [
+                {
+                    model: Customer,
+                    as: 'customer',
+                    attributes: ['id', 'fullName', 'email', 'phone']
+                },
+                {
+                    model: Service,
+                    as: 'service',
+                    attributes: ['id', 'title', 'duration']
+                },
+                {
+                    model: Staff,
+                    as: 'staff',
+                    attributes: ['id', 'fullName']
+                }
+            ],
+            order: [
+                ['appointmentDate', 'ASC'],
+                ['startTime', 'ASC']
+            ]
+        });
+        const calendarEvents = appointments.map(appointment => ({
+            id: appointment.id,
+            title: `${appointment.customer.fullName} - ${appointment.service.title}`,
+            start: `${appointment.appointmentDate}T${appointment.startTime}`,
+            end: `${appointment.appointmentDate}T${appointment.endTime}`,
+            resourceId: appointment.staffId,
+            extendedProps: {
+                customer: appointment.customer,
+                service: appointment.service,
+                staff: appointment.staff,
+                notes: appointment.notes
+            }
+        }));
+        res.json(utils_1.ApiSuccess.list(calendarEvents, null, 'Takvim randevuları başarıyla getirildi'));
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getCalendarAppointments = getCalendarAppointments;
+const getAppointmentById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const appointment = yield Appointment.findByPk(id, {
             include: [
                 {
                     model: Customer,
@@ -218,113 +273,25 @@ const createAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
                     model: Staff,
                     as: 'staff',
                     attributes: ['id', 'fullName', 'specialties']
-                }
-            ]
-        });
-        res.status(201).json(utils_1.ApiSuccess.created(fullAppointment, 'Randevu başarıyla oluşturuldu'));
-    }
-    catch (error) {
-        next(error);
-    }
-});
-exports.createAppointment = createAppointment;
-const getCalendarAppointments = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { error, value } = appointmentValidation_1.calendarQuerySchema.validate(req.query);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const { startDate, endDate, staffId } = value;
-        const whereConditions = {
-            appointmentDate: {
-                [sequelize_1.Op.between]: [startDate, endDate]
-            }
-        };
-        if (staffId) {
-            whereConditions.staffId = staffId;
-        }
-        const appointments = yield Appointment.findAll({
-            where: whereConditions,
-            include: [
-                {
-                    model: Customer,
-                    as: 'customer',
-                    attributes: ['fullName', 'phone']
-                },
-                {
-                    model: Service,
-                    as: 'service',
-                    attributes: ['title']
-                },
-                {
-                    model: Staff,
-                    as: 'staff',
-                    attributes: ['fullName']
-                }
-            ],
-            order: [['appointmentDate', 'ASC'], ['startTime', 'ASC']]
-        });
-        const calendarEvents = appointments.map((appointment) => {
-            const startDateTime = `${appointment.appointmentDate}T${appointment.startTime}:00`;
-            const endDateTime = `${appointment.appointmentDate}T${appointment.endTime}:00`;
-            return {
-                id: appointment.id,
-                title: `${appointment.customer.fullName} - ${appointment.service.title}`,
-                start: startDateTime,
-                end: endDateTime,
-                backgroundColor: '#28a745',
-                borderColor: '#28a745',
-                extendedProps: {
-                    customerName: appointment.customer.fullName,
-                    serviceName: appointment.service.title,
-                    staffName: appointment.staff.fullName,
-                    phone: appointment.customer.phone,
-                    price: Number(appointment.price),
-                    notes: appointment.notes
-                }
-            };
-        });
-        res.json(utils_1.ApiSuccess.item(calendarEvents, 'Takvim randevuları başarıyla getirildi'));
-    }
-    catch (error) {
-        next(error);
-    }
-});
-exports.getCalendarAppointments = getCalendarAppointments;
-const getAppointmentById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { error, value } = appointmentValidation_1.appointmentIdSchema.validate(req.params);
-        if (error) {
-            throw utils_1.ApiError.fromJoi(error);
-        }
-        const appointment = yield Appointment.findByPk(value.id, {
-            include: [
-                {
-                    model: Customer,
-                    as: 'customer',
-                    attributes: ['id', 'fullName', 'email', 'phone']
-                },
-                {
-                    model: Service,
-                    as: 'service',
-                    attributes: ['id', 'title', 'price', 'duration', 'description']
-                },
-                {
-                    model: Staff,
-                    as: 'staff',
-                    attributes: ['id', 'fullName', 'specialties', 'phone']
                 },
                 {
                     model: AppointmentHistory,
                     as: 'history',
-                    order: [['createdAt', 'DESC']]
+                    attributes: ['id', 'notes', 'createdAt'],
+                    include: [
+                        {
+                            model: index_1.default.Admin,
+                            as: 'createdBy',
+                            attributes: ['id', 'fullName']
+                        }
+                    ]
                 }
             ]
         });
         if (!appointment) {
             throw utils_1.ApiError.notFound('Randevu bulunamadı');
         }
-        res.json(utils_1.ApiSuccess.item(appointment, 'Randevu detayı başarıyla getirildi'));
+        res.json(utils_1.ApiSuccess.item(appointment, 'Randevu detayları başarıyla getirildi'));
     }
     catch (error) {
         next(error);
