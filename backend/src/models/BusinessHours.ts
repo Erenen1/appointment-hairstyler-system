@@ -22,8 +22,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
   }, {
     tableName: 'business_hours',
     timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
   });
   return BusinessHours;
 }; 

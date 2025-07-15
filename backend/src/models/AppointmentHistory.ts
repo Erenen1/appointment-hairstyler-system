@@ -29,7 +29,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
   }, {
     tableName: 'appointment_history',
     timestamps: true,
-    createdAt: 'created_at',
+    createdAt: 'createdAt',
     updatedAt: false,
   });
   return AppointmentHistory;
