@@ -1,3 +1,7 @@
+/**
+ * Admin kullanıcı arayüzü
+ * Veritabanındaki admins tablosuna karşılık gelir
+ */
 export interface IAdmin {
     id: string;
     fullName: string;
@@ -10,6 +14,10 @@ export interface IAdmin {
     deletedAt?: Date;
 }
 
+/**
+ * Admin yanıt arayüzü
+ * Hassas bilgileri içermez (password gibi)
+ */
 export interface IAdminResponse {
     id: string;
     fullName: string;

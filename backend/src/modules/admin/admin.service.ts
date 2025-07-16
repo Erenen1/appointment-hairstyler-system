@@ -22,23 +22,23 @@ class AdminService {
      * Yeni bir admin oluşturur
      */
     public async createAdmin(adminData: CreateAdminDto): Promise<IAdminResponse> {
-        // Email kontrolü
-        const existingAdmin = await this.adminRepository.findByEmail(adminData.email);
-        if (existingAdmin) {
-            throw ApiError.conflict('Bu e-posta adresi zaten kullanılıyor');
-        }
-
-        // Şifreyi hashle
-        const hashedPassword = HashUtils.hashPassword(adminData.password);
-        
-        // Admin oluştur
-        const admin = await this.adminRepository.create({
-            ...adminData,
-            password: hashedPassword
-        });
-
-        // Hassas bilgileri çıkar
-        return this.sanitizeAdmin(admin);
+            // Email kontrolü
+            const existingAdmin = await this.adminRepository.findByEmail(adminData.email);
+            if (existingAdmin) {
+                throw ApiError.conflict('Bu e-posta adresi zaten kullanılıyor');
+            }
+    
+            // Şifreyi hashle
+            const hashedPassword = HashUtils.hashPassword(adminData.password);
+            
+            // Admin oluştur
+            const admin = await this.adminRepository.create({
+                ...adminData,
+                password: hashedPassword
+            });
+    
+            // Hassas bilgileri çıkar
+            return this.sanitizeAdmin(admin);
     }
 
     /**

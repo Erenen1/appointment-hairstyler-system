@@ -5,10 +5,10 @@ import jwt, { SignOptions } from "jsonwebtoken"
 export interface JwtPayload {
   id: string;
   email: string;
-  userType: 'admin';
   fullName: string;
-  iat?: number;
+  userType?: string;
   exp?: number;
+  iat?: number;
 }
 
 export class JwtUtils {

@@ -15,9 +15,7 @@ class AdminRepository extends BaseRepository<IAdmin> {
      * Email'e göre admin getirir
      */
     public async findByEmail(email: string): Promise<IAdmin | null> {
-        return await this.findOne({ 
-            email: { [Op.iLike]: email } 
-        });
+        return await this.findOne({ email });
     }
 
     /**

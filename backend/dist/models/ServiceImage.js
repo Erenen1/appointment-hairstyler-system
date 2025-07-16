@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: 'service_images',
         timestamps: true,
-        createdAt: 'created_at',
+        createdAt: 'createdAt',
         updatedAt: false,
     });
     return ServiceImage;

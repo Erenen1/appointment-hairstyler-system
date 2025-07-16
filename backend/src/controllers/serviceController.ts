@@ -130,10 +130,14 @@ export const getServiceById = async (req: Request, res: Response, next: NextFunc
 export const createService = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const service = await Service.create(req.body);
-    const staffIdsString: any = req.body.staffIds;
-    const staffIds = await JSON.parse(staffIdsString);
+    let staffIds: any = req.body.staffIds;
+    let staffIdsCleaned: any = [];
+    if(staffIds){
+      const staffIdsString: any = staffIds;
+      const staffIdsCleaned = await JSON.parse(staffIdsString);
+    }
     // forEach yerine Promise.all kullanarak tüm staff-service ilişkilerini paralel olarak oluştur
-    if (staffIds && staffIds.length > 0) {
+    if (staffIdsCleaned && staffIdsCleaned.length > 0) {
       await Promise.all(
         staffIds.map(staffId =>
           StaffService.create({
@@ -412,15 +416,315 @@ export const getServiceStaff = async (req: Request, res: Response, next: NextFun
       order: [[{ model: Staff, as: 'staff' }, 'fullName', 'ASC']]
     });
 
-    const formattedStaff = staffServices.map(staffService => ({
+    // İş saatlerini getir
+    const businessHours = await db.BusinessHours.findAll({
+      order: [['dayOfWeek', 'ASC']]
+    });
+
+    // Bugünden başlayarak bir haftalık tarih aralığını oluştur
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 6); // Bugün + 6 gün = 1 hafta
+    
+    const dates = eachDayOfInterval({ 
+      start: startDate, 
+      end: endDate 
+    });
+
+    // Tüm personellerin müsaitlik durumlarını paralel olarak hesapla
+    const formattedStaffWithAvailability = await Promise.all(staffServices.map(async staffService => {
+      const staffId = staffService.staff.id;
+      
+      // Bu tarih aralığındaki personelin müsaitlik kayıtlarını getir
+      const staffAvailabilityRecords = await db.StaffAvailability.findAll({
+        where: {
+          staffId,
+          date: {
+            [Op.between]: [format(startDate, 'yyyy-MM-dd'), format(endDate, 'yyyy-MM-dd')]
+          }
+        }
+      });
+
+      // Bu tarih aralığındaki personelin randevularını getir
+      const appointments = await db.Appointment.findAll({
+        where: {
+          staffId,
+          appointmentDate: {
+            [Op.between]: [format(startDate, 'yyyy-MM-dd'), format(endDate, 'yyyy-MM-dd')]
+          }
+        },
+        attributes: ['appointmentDate', 'startTime', 'endTime', 'id', 'serviceId']
+      });
+
+      // Her gün için müsaitlik durumunu hesapla
+      const dailyAvailability = dates.map(date => {
+        // Geçerli bir tarih olduğundan emin ol
+        if (!(date instanceof Date) || isNaN(date.getTime())) {
+          return {
+            date: "Geçersiz tarih",
+            dayOfWeek: 0,
+            isAvailable: false,
+            reason: "Geçersiz tarih",
+            availableSlots: [],
+            totalSlots: 0,
+            workingHours: null
+          };
+        }
+
+        const dateStr = format(date, 'yyyy-MM-dd');
+        const dayOfWeek = date.getDay() || 7;
+
+        // O tarih için özel müsaitlik kaydı var mı?
+        const staffAvailability = staffAvailabilityRecords.find(sa => sa.date === dateStr);
+
+        // İş saatleri
+        const businessHour = businessHours.find(bh => bh.dayOfWeek === dayOfWeek);
+
+        // O gün randevuları
+        const dayAppointments = appointments.filter(apt => apt.appointmentDate === dateStr);
+
+        let workingHours;
+        let isAvailable = true;
+        let reason = null;
+
+        // Çalışma saatlerini belirle
+        if (staffAvailability) {
+          if (!staffAvailability.isAvailable) {
+            isAvailable = false;
+            reason = staffAvailability.notes || 'Personel bu tarihte müsait değil';
+          } else {
+            workingHours = {
+              start: staffAvailability.startTime,
+              end: staffAvailability.endTime,
+              lunchBreak: staffAvailability.lunchBreakStart && staffAvailability.lunchBreakEnd ? {
+                start: staffAvailability.lunchBreakStart,
+                end: staffAvailability.lunchBreakEnd
+              } : null
+            };
+          }
+        } else if (businessHour && !businessHour.isClosed) {
+          workingHours = {
+            start: businessHour.openTime,
+            end: businessHour.closeTime,
+            lunchBreak: {
+              start: '12:00:00',
+              end: '13:00:00'
+            }
+          };
+        } else {
+          // İş saatleri yoksa ve özel müsaitlik kaydı yoksa varsayılan saatler belirle
+          // Pazar (0) ve Cumartesi (6) günleri için farklı saatler belirle
+          const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+          
+          if (isWeekend) {
+            workingHours = {
+              start: '10:00:00',
+              end: '16:00:00',
+              lunchBreak: {
+                start: '13:00:00',
+                end: '14:00:00'
+              }
+            };
+          } else {
+            workingHours = {
+              start: '09:00:00',
+              end: '18:00:00',
+              lunchBreak: {
+                start: '12:00:00',
+                end: '13:00:00'
+              }
+            };
+          }
+          
+          isAvailable = true;
+          reason = null;
+        }
+
+        let availableSlots = [];
+
+        // Eğer müsaitse ve çalışma saatleri tanımlanmışsa slot'ları oluştur
+        if (isAvailable && workingHours) {
+          // 30 dakika aralıklarla slot'ları oluştur
+          const startHour = parseInt(workingHours.start.split(':')[0]);
+          const startMinute = parseInt(workingHours.start.split(':')[1]);
+          const endHour = parseInt(workingHours.end.split(':')[0]);
+          const endMinute = parseInt(workingHours.end.split(':')[1]);
+
+          const allSlots: string[] = [];
+          let currentHour = startHour;
+          let currentMinute = startMinute;
+
+          while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
+            const timeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+            allSlots.push(timeStr);
+
+            currentMinute += 30;
+            if (currentMinute >= 60) {
+              currentMinute = 0;
+              currentHour += 1;
+            }
+          }
+
+          // Kullanılamayan saatleri filtrele
+          availableSlots = allSlots.filter(slot => {
+            // Öğle molasını kontrol et
+            if (workingHours.lunchBreak) {
+              const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+              const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+              if (slot >= lunchStart && slot < lunchEnd) {
+                return false;
+              }
+            }
+
+            // Mevcut randevularla çakışma kontrolü
+            return !dayAppointments.some(appointment => {
+              const appointmentStart = appointment.startTime.substring(0, 5);
+              const appointmentEnd = appointment.endTime.substring(0, 5);
+              return slot >= appointmentStart && slot < appointmentEnd;
+            });
+          }).map(slot => ({
+            time: slot,
+            displayTime: slot,
+            available: true
+          }));
+          
+          // Eğer hala slot yoksa, bugün için geçmiş saatleri kontrol et
+          if (availableSlots.length === 0) {
+            const today = new Date();
+            const isToday = date.getDate() === today.getDate() && 
+                           date.getMonth() === today.getMonth() && 
+                           date.getFullYear() === today.getFullYear();
+                            
+            if (isToday) {
+              // Bugün için sadece gelecek saatleri göster
+              const currentHour = today.getHours();
+              const currentMinute = today.getMinutes();
+              
+              // Varsayılan slotları oluştur (şu andan itibaren)
+              const defaultSlots = [];
+              let hour = currentHour;
+              let minute = Math.ceil(currentMinute / 30) * 30; // En yakın 30 dakikaya yuvarla
+              
+              if (minute >= 60) {
+                minute = 0;
+                hour += 1;
+              }
+              
+              while (hour < endHour || (hour === endHour && minute < endMinute)) {
+                const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                
+                // Öğle molası kontrolü
+                let isLunchBreak = false;
+                if (workingHours.lunchBreak) {
+                  const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+                  const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+                  if (timeStr >= lunchStart && timeStr < lunchEnd) {
+                    isLunchBreak = true;
+                  }
+                }
+                
+                // Randevu çakışması kontrolü
+                const hasAppointment = dayAppointments.some(appointment => {
+                  const appointmentStart = appointment.startTime.substring(0, 5);
+                  const appointmentEnd = appointment.endTime.substring(0, 5);
+                  return timeStr >= appointmentStart && timeStr < appointmentEnd;
+                });
+                
+                if (!isLunchBreak && !hasAppointment) {
+                  defaultSlots.push({
+                    time: timeStr,
+                    displayTime: timeStr,
+                    available: true
+                  });
+                }
+                
+                minute += 30;
+                if (minute >= 60) {
+                  minute = 0;
+                  hour += 1;
+                }
+              }
+              
+              availableSlots = defaultSlots;
+            } else {
+              // Bugün değilse, varsayılan slotları oluştur
+              const defaultSlots = [];
+              let hour = startHour;
+              let minute = startMinute;
+              
+              while (hour < endHour || (hour === endHour && minute < endMinute)) {
+                const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                
+                // Öğle molası kontrolü
+                let isLunchBreak = false;
+                if (workingHours.lunchBreak) {
+                  const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+                  const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+                  if (timeStr >= lunchStart && timeStr < lunchEnd) {
+                    isLunchBreak = true;
+                  }
+                }
+                
+                if (!isLunchBreak) {
+                  defaultSlots.push({
+                    time: timeStr,
+                    displayTime: timeStr,
+                    available: true
+                  });
+                }
+                
+                minute += 30;
+                if (minute >= 60) {
+                  minute = 0;
+                  hour += 1;
+                }
+              }
+              
+              availableSlots = defaultSlots;
+            }
+          }
+        }
+
+        return {
+          date: dateStr,
+          dayOfWeek,
+          isAvailable,
+          reason,
+          availableSlots,
+          totalSlots: availableSlots.length,
+          workingHours: workingHours ? {
+            start: workingHours.start.substring(0, 5),
+            end: workingHours.end.substring(0, 5),
+            lunchBreak: workingHours.lunchBreak ?
+              `${workingHours.lunchBreak.start.substring(0, 5)} - ${workingHours.lunchBreak.end.substring(0, 5)}` :
+              null
+          } : null
+        };
+      });
+
+      // Toplam müsait slot sayısını hesapla
+      const totalAvailableSlots = dailyAvailability.reduce((total, day) => total + day.totalSlots, 0);
+      const availableDays = dailyAvailability.filter(day => day.isAvailable && day.totalSlots > 0).length;
+
+      return {
       id: staffService.staff.id,
       fullName: staffService.staff.fullName,
       specialties: staffService.staff.specialties,
       avatar: staffService.staff.avatar,
-      canProvideService: staffService.isActive
+        canProvideService: staffService.isActive,
+        availability: {
+          summary: {
+            totalDays: dailyAvailability.length,
+            availableDays,
+            totalAvailableSlots,
+            averageSlotsPerDay: availableDays > 0 ? Math.round(totalAvailableSlots / availableDays) : 0
+          },
+          dailyAvailability
+        }
+      };
     }));
 
-    res.json(ApiSuccess.list(formattedStaff, null, 'Hizmeti veren personeller başarıyla getirildi'));
+    res.json(ApiSuccess.list(formattedStaffWithAvailability, null, 'Hizmeti veren personeller ve müsaitlik durumları başarıyla getirildi'));
   } catch (error) {
     next(error);
   }
@@ -429,8 +733,20 @@ export const getServiceStaff = async (req: Request, res: Response, next: NextFun
 export const getServiceStaffAvailability = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const startDateStr = req.query.startDate as string;
-    const endDateStr = req.query.endDate as string;
+    let startDateStr = req.query.startDate as string;
+    let endDateStr = req.query.endDate as string;
+
+    // Tarih parametreleri belirtilmemişse varsayılan değerler ata
+    if (!startDateStr) {
+      const today = new Date();
+      startDateStr = format(today, 'yyyy-MM-dd');
+    }
+
+    if (!endDateStr) {
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 6); // Bugün + 6 gün = 1 hafta
+      endDateStr = format(endDate, 'yyyy-MM-dd');
+    }
 
     // Önce hizmetin var olup olmadığını kontrol et
     const service = await Service.findByPk(id);
@@ -468,6 +784,12 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
     // Tarih aralığındaki günleri oluştur
     const startDate = new Date(startDateStr);
     const endDate = new Date(endDateStr);
+    
+    // Tarihlerin geçerli olduğundan emin ol
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      throw ApiError.badRequest('Geçersiz tarih formatı. Lütfen YYYY-MM-DD formatında tarih girin.');
+    }
+    
     const dates = eachDayOfInterval({ 
       start: startDate, 
       end: endDate 
@@ -500,6 +822,19 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
 
       // Her gün için müsaitlik durumunu hesapla
       const dailyAvailability = dates.map(date => {
+        // Geçerli bir tarih olduğundan emin ol
+        if (!(date instanceof Date) || isNaN(date.getTime())) {
+          return {
+            date: "Geçersiz tarih",
+            dayOfWeek: 0,
+            isAvailable: false,
+            reason: "Geçersiz tarih",
+            availableSlots: [],
+            totalSlots: 0,
+            workingHours: null
+          };
+        }
+        
         const dateStr = format(date, 'yyyy-MM-dd');
         const dayOfWeek = date.getDay() || 7;
 
@@ -540,8 +875,32 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
             }
           };
         } else {
-          isAvailable = false;
-          reason = 'Salon bu gün kapalı';
+          // İş saatleri yoksa ve özel müsaitlik kaydı yoksa varsayılan saatler belirle
+          // Pazar (0) ve Cumartesi (6) günleri için farklı saatler belirle
+          const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+          
+          if (isWeekend) {
+            workingHours = {
+              start: '10:00:00',
+              end: '16:00:00',
+              lunchBreak: {
+                start: '13:00:00',
+                end: '14:00:00'
+              }
+            };
+          } else {
+            workingHours = {
+              start: '09:00:00',
+              end: '18:00:00',
+              lunchBreak: {
+                start: '12:00:00',
+                end: '13:00:00'
+              }
+            };
+          }
+          
+          isAvailable = true;
+          reason = null;
         }
 
         let availableSlots = [];
@@ -590,6 +949,102 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
             displayTime: slot,
             available: true
           }));
+          
+          // Eğer hala slot yoksa, bugün için geçmiş saatleri kontrol et
+          if (availableSlots.length === 0) {
+            const today = new Date();
+            const isToday = date.getDate() === today.getDate() && 
+                            date.getMonth() === today.getMonth() && 
+                            date.getFullYear() === today.getFullYear();
+                            
+            if (isToday) {
+              // Bugün için sadece gelecek saatleri göster
+              const currentHour = today.getHours();
+              const currentMinute = today.getMinutes();
+              
+              // Varsayılan slotları oluştur (şu andan itibaren)
+              const defaultSlots = [];
+              let hour = currentHour;
+              let minute = Math.ceil(currentMinute / 30) * 30; // En yakın 30 dakikaya yuvarla
+              
+              if (minute >= 60) {
+                minute = 0;
+                hour += 1;
+              }
+              
+              while (hour < endHour || (hour === endHour && minute < endMinute)) {
+                const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                
+                // Öğle molası kontrolü
+                let isLunchBreak = false;
+                if (workingHours.lunchBreak) {
+                  const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+                  const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+                  if (timeStr >= lunchStart && timeStr < lunchEnd) {
+                    isLunchBreak = true;
+                  }
+                }
+                
+                // Randevu çakışması kontrolü
+                const hasAppointment = dayAppointments.some(appointment => {
+                  const appointmentStart = appointment.startTime.substring(0, 5);
+                  const appointmentEnd = appointment.endTime.substring(0, 5);
+                  return timeStr >= appointmentStart && timeStr < appointmentEnd;
+                });
+                
+                if (!isLunchBreak && !hasAppointment) {
+                  defaultSlots.push({
+                    time: timeStr,
+                    displayTime: timeStr,
+                    available: true
+                  });
+                }
+                
+                minute += 30;
+                if (minute >= 60) {
+                  minute = 0;
+                  hour += 1;
+                }
+              }
+              
+              availableSlots = defaultSlots;
+            } else {
+              // Bugün değilse, varsayılan slotları oluştur
+              const defaultSlots = [];
+              let hour = startHour;
+              let minute = startMinute;
+              
+              while (hour < endHour || (hour === endHour && minute < endMinute)) {
+                const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                
+                // Öğle molası kontrolü
+                let isLunchBreak = false;
+                if (workingHours.lunchBreak) {
+                  const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+                  const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+                  if (timeStr >= lunchStart && timeStr < lunchEnd) {
+                    isLunchBreak = true;
+                  }
+                }
+                
+                if (!isLunchBreak) {
+                  defaultSlots.push({
+                    time: timeStr,
+                    displayTime: timeStr,
+                    available: true
+                  });
+                }
+                
+                minute += 30;
+                if (minute >= 60) {
+                  minute = 0;
+                  hour += 1;
+                }
+              }
+              
+              availableSlots = defaultSlots;
+            }
+          }
         }
 
         return {
@@ -631,7 +1086,13 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
     }));
 
     // En müsait personeli en üste getir
-    staffAvailabilities.sort((a, b) => b.summary.totalAvailableSlots - a.summary.totalAvailableSlots);
+    // Önce her personelin summary özelliğini kontrol et
+    const validStaffAvailabilities = staffAvailabilities.filter(item => item && item.summary);
+    
+    // Eğer geçerli personeller varsa sırala
+    if (validStaffAvailabilities.length > 0) {
+      validStaffAvailabilities.sort((a, b) => b.summary.totalAvailableSlots - a.summary.totalAvailableSlots);
+    }
 
     const response = {
       service: {
@@ -645,7 +1106,7 @@ export const getServiceStaffAvailability = async (req: Request, res: Response, n
         endDate: format(endDate, 'yyyy-MM-dd'),
         totalDays: dates.length
       },
-      staffAvailabilities
+      staffAvailabilities: validStaffAvailabilities
     };
 
     res.json(ApiSuccess.item(response, 'Hizmet personellerinin müsaitlik durumları başarıyla getirildi'));

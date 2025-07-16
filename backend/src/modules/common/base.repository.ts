@@ -26,7 +26,8 @@ export abstract class BaseRepository<T> {
     /**
      * Belirli koşullara göre kayıt getirir
      */
-    public async findOne(where: WhereOptions): Promise<T | null> {
+    public async findOne(conditions: any): Promise<T | null> {
+        const where = conditions.where || conditions;
         const record = await this.model.findOne({ where });
         return record ? (record.toJSON() as unknown as T) : null;
     }
@@ -34,7 +35,8 @@ export abstract class BaseRepository<T> {
     /**
      * Belirli koşullara göre kayıtları getirir
      */
-    public async findWhere(where: WhereOptions, options: any = {}): Promise<T[]> {
+    public async findWhere(conditions: any, options: any = {}): Promise<T[]> {
+        const where = conditions.where || conditions;
         const records = await this.model.findAll({
             where,
             ...options
@@ -66,7 +68,8 @@ export abstract class BaseRepository<T> {
     /**
      * Belirli koşullara göre kayıtları günceller
      */
-    public async updateWhere(where: WhereOptions, data: Partial<T>): Promise<number> {
+    public async updateWhere(conditions: any, data: Partial<T>): Promise<number> {
+        const where = conditions.where || conditions;
         const [affectedCount] = await this.model.update(data as any, { where });
         return affectedCount;
     }
@@ -82,14 +85,16 @@ export abstract class BaseRepository<T> {
     /**
      * Belirli koşullara göre kayıtları siler
      */
-    public async deleteWhere(where: WhereOptions): Promise<number> {
+    public async deleteWhere(conditions: any): Promise<number> {
+        const where = conditions.where || conditions;
         return await this.model.destroy({ where });
     }
 
     /**
      * Kayıt sayısını getirir
      */
-    public async count(where: WhereOptions = {}): Promise<number> {
+    public async count(conditions: any = {}): Promise<number> {
+        const where = conditions.where || conditions;
         return await this.model.count({ where });
     }
 
