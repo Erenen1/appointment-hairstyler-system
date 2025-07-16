@@ -30,7 +30,7 @@ const AllServicePage = () => {
 
 
     <div className='p-4 space-y-4'>
-      <ServiceHeader onSearch={filterServices || ''} />
+      <ServiceHeader onSearch={filterServices} />
       <DataTableLayout
         header={<TableHeaderRows table={table} />}
         body={<TableBodyRows table={table} />}

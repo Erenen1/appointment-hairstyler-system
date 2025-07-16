@@ -1,19 +1,19 @@
 import { SearchForm } from '@/app/share/sidebar/components/SearchForm'
 import React from 'react'
-import { ServiceHeaderProps } from '../types/CreateServiceType'
-import CreateServiceForm from './CreateServicesForm'
+import CreateStaffForm from './CreateStaffForm'
+import { StaffHeaderProps } from '../types/StaffType'
 
-const ServiceHeader: React.FC<ServiceHeaderProps> = ({ onSearch }) => {
+const StaffHeader: React.FC<StaffHeaderProps> = ({ onSearch }) => {
     return (
         <div>
             <div className='flex justify-between'>
                 <div className='w-3xl'>
                     <SearchForm onSearch={onSearch} />
                 </div>
-                <CreateServiceForm />
+                <CreateStaffForm />
             </div>
         </div>
     )
 }
 
-export default ServiceHeader
+export default StaffHeader

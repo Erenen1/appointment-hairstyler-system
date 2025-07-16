@@ -11,7 +11,7 @@ import { DataTableLayout } from "@/app/share/table/layout"
 import { TableHeaderRows } from "@/app/share/table/components/TableHeader"
 import { TableBodyRows } from "@/app/share/table/components/TableBody"
 import { useAllStaff } from "../hooks/useAllStaff"
-import { SearchForm } from "@/app/share/sidebar/components/SearchForm"
+import StaffHeader from "./StaffHeader"
 
 export default function AllStaffPage() {
     const { staffData, handleAllStaff, filterStaff } = useAllStaff()
@@ -29,7 +29,7 @@ export default function AllStaffPage() {
 
     return (
         <div className="p-4 space-y-4">
-            <SearchForm onSearch={filterStaff} />
+            <StaffHeader onSearch={filterStaff} />
             <DataTableLayout
                 header={<TableHeaderRows table={table} />}
                 body={<TableBodyRows table={table} />}

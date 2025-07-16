@@ -24,3 +24,7 @@ export interface StaffModalProps {
     children: React.ReactNode;
     staff: Staff;
 };
+
+export interface StaffHeaderProps {
+    onSearch: (searchTerm: string) => void;
+}

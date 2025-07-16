@@ -6,7 +6,7 @@ import { CustomersHeaderProps } from "../types/CustomersType";
 const CustomersHeader: React.FC<CustomersHeaderProps> = ({ onSearch }) => {
     return (
         <div className="flex justify-between">
-            <div className="w-3xl">
+            <div className='w-3xl'>
                 <SearchForm onSearch={onSearch} />
             </div>
             <CreateCustomersForm />
