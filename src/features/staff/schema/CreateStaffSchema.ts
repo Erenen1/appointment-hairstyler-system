@@ -40,4 +40,3 @@ export const createStaffSchema = z.object({
     avatar: z.string().optional() // String olarak tanımla
 });
 
-export type CreateStaffFormData = z.infer<typeof createStaffSchema>;

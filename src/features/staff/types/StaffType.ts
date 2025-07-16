@@ -5,7 +5,7 @@ export interface StaffRequest {
     specialties: string;
     serviceIds: [];
     avatar: string;
-}
+};
 
 export type Staff = {
     id: string
@@ -18,5 +18,9 @@ export type Staff = {
     orderIndex: string;
     createdAt: string;
     updatedAt: string;
-}
+};
 
+export interface StaffModalProps {
+    children: React.ReactNode;
+    staff: Staff;
+};

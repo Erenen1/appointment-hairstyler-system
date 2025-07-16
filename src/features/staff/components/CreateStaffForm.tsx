@@ -1,5 +1,5 @@
 'use client';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,11 +12,20 @@ import { getTokenToLocalStorage } from '@/features/admin/utils/auth';
 import createStaff from '../services/CreateStaffAPI';
 import { DialogTrigger, Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { GlobalDebuggerButton } from '@/app/share/GlobalDebuggerButton';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from '@/components/ui/select';
-import { useAllStaff } from '../hooks/useAllStaff';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAllService } from '@/features/service/hooks/useAllService';
+import { Service } from '@/features/service/types/CreateServiceType';
+import { Badge } from '@/components/ui/badge';
+import { colorClasses } from '@/features/service/components/ColorBadge';
+import { X } from 'lucide-react';
+
+type CreateStaffFormData = z.infer<typeof createStaffSchema>;
 
 const CreateStaffForm = () => {
-    const form = useForm<z.infer<typeof createStaffSchema>>({
+
+    const [selectedServices, setSelectedServices] = useState<Service[]>([]);
+
+    const form = useForm<CreateStaffFormData>({
         resolver: zodResolver(createStaffSchema),
         mode: 'onChange',
         defaultValues: {
@@ -29,16 +38,16 @@ const CreateStaffForm = () => {
         }
     })
 
-    async function onSubmit(values: z.infer<typeof createStaffSchema>) {
+    async function onSubmit(values: CreateStaffFormData) {
         try {
             const token = getTokenToLocalStorage();
             if (!token) {
                 toast.error('Token Bulunamadı ❌');
                 return;
             }
-            const submitValues = {
+            const submitValues: CreateStaffFormData = {
                 ...values,
-                serviceIds: values.serviceIds || '[]'
+                serviceIds: JSON.stringify(selectedServices)
             };
 
             await createStaff(submitValues, token);
@@ -51,14 +60,27 @@ const CreateStaffForm = () => {
         console.log('Form Gönderildi', values)
         toast.success('Personel Oluşturulmuştur ✅')
         form.reset();
+        setSelectedServices([]);
     }
 
-    // async function getServices() {
+    const { serviceData, handleAllServices } = useAllService()
 
-    //         // const selectedSelectItems = Array.from(e.target.selectedSelectItems).map(o => String(o.value));
-    //         // field.onChange(selectedSelectItems);
+    useEffect(() => {
+        if (serviceData.length === 0) handleAllServices();
+    }, [])
 
-    // }
+    const handleSelect = (value: string) => {
+        const selected = serviceData.find((cat) => cat.id.toString() === value) //
+        if (selected && !selectedServices.some((service) => service.id === selected.id)) {
+            setSelectedServices((prev) => [...prev, selected])
+        }
+    };
+
+    const handleRemove = (id: number) => {
+        setSelectedServices((prev) => prev.filter((service) => Number(service.id) !== id))
+        toast.success('Kategori kaldırıldı')
+    }
+
     return (
         <>
             <Dialog>
@@ -139,30 +161,57 @@ const CreateStaffForm = () => {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Hizmet Türü</FormLabel>
-                                        <Select
-                                            multiple
-                                            value={field.value ? JSON.parse(field.value) : []}
-                                            onChange={((e: React.MouseEvent) => {
-                                                const selectedSelectItems = Array.from(e.target.selectedSelectItems).map(o => o.value);
-
-                                                field.onChange(JSON.stringify(selectedSelectItems))
-                                            })}
-                                            className="border rounded p-2 w-full">
+                                        <Select onValueChange={handleSelect}>
                                             <FormControl>
                                                 <SelectTrigger>
-                                                    <FormLabel>Hizmet Türü</FormLabel>
+                                                    <SelectValue placeholder="Hizmet seçiniz" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    <SelectItem value='123e4567-e89b-12d3-a456-426614174000'>Service 1</SelectItem>
-                                                    <SelectItem value='123e4567-e89b-12d3-a456-426614174001'>Service 2</SelectItem>
-                                                    <SelectItem value='123e4567-e89b-12d3-a456-426614174002'>Service 3</SelectItem>
+                                                    {Array.isArray(serviceData) && serviceData.length > 0 ? (
+                                                        serviceData.map((service) => {
+                                                            const isSelected = selectedServices.some((s) => s.id === service.id);
+                                                            return (
+                                                                <SelectItem
+                                                                    key={service.id}
+                                                                    value={service.id.toString()}
+                                                                    disabled={isSelected}
+                                                                >
+                                                                    {service.title || service.name || 'Başlık bulunamadı'}
+                                                                </SelectItem>
+                                                            );
+                                                        })
+                                                    ) : (
+                                                        <SelectItem disabled value="loading">
+                                                            Yükleniyor...
+                                                        </SelectItem>
+                                                    )}
                                                 </SelectGroup>
+
+                                                {/* Selected services badges */}
                                             </SelectContent>
                                         </Select>
-
                                         <FormMessage />
+                                        {selectedServices && selectedServices.length > 0 && (
+                                            <div className="mt-4 flex flex-wrap gap-2 p-2">
+                                                {selectedServices.map((service, index) => {
+                                                    const color = colorClasses[index % colorClasses.length];
+                                                    return (
+                                                        <Badge
+                                                            key={service.id}
+                                                            className={`flex items-center gap-1 text-sm font-medium transition-colors hover:scale-105 duration-200 cursor-pointer ${color}`}
+                                                            onClick={() => handleRemove(service.id)}
+                                                        >
+                                                            {service.title}
+
+
+                                                            <X className="w-3.5 h-3.5 cursor-pointer ml-1 hover:scale-105" />
+                                                        </Badge>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
                                     </FormItem>
                                 )}
                             />

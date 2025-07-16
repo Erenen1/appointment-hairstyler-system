@@ -7,17 +7,19 @@ import { DetailButton } from '@/app/share/GlobalDetailButton';
 import { UpdateButton } from '@/app/share/GlobalUpdateButton';
 import { DeleteButton } from '@/app/share/GlobalDeleteButton';
 import deleteCustomers from '@/features/customers/services/DeleteCustomersApi';
+import deleteService from '../services/DeleteServiceApi';
+import ServiceModal from './ServiceModal';
 
 export const servicesColumns: ColumnDef<Service>[] = [
-    // {
-    //     accessorKey: "staffMembers",
-    //     header: "Personel(ler)",
-    //     cell: ({ row }) => {
-    //         const staffList = row.getValue("staffMembers") as { fullName: string }[];
-    //         if (!staffList || staffList.length === 0) return "Yok";
-    //         return staffList.map((s) => s.fullName).join(", ");
-    //     },
-    // },
+    {
+        accessorKey: "staffMembers",
+        header: "Personel(ler)",
+        cell: ({ row }) => {
+            const staffList = row.getValue("staffMembers") as { fullName: string }[];
+            if (!staffList || staffList.length === 0) return "Yok";
+            return staffList.map((s) => s.fullName).join(", ");
+        },
+    },
 
     {
         header: "Kategori Adı",
@@ -88,16 +90,18 @@ export const servicesColumns: ColumnDef<Service>[] = [
 
             return (
                 <div className="flex justify-center gap-3.5">
-                    <DetailButton
-                        onClick={() => deleteCustomers(service.id, token as string)}
-                        title='Detaylar'
-                    />
+                    <ServiceModal service={service}>
+                        <DetailButton
+                            onClick={() => deleteCustomers(service.id, token as string)}
+                            title='Detaylar'
+                        />
+                    </ServiceModal>
                     <UpdateButton
                         onClick={() => deleteCustomers(service.id, token as string)}
                         title='Güncelle'
                     />
                     <DeleteButton
-                        onClick={() => deleteCustomers(service.id, token as string)}
+                        onClick={() => deleteService(service.id, token as string)}
                         title='Sil'
                     />
                 </div>

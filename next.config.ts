@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // source: '/api/:path*',
+  // destination: 'https://api.erencelik.info/:path*', // Proxy isteği
 };
 
 export default nextConfig;

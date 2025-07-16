@@ -11,7 +11,7 @@ import deleteCustomers from "@/features/customers/services/DeleteCustomersApi";
 export const staffColumns: ColumnDef<Staff>[] = [
     {
         accessorKey: "fullName",
-        header: "Müşteri Adı",
+        header: "Personel Adı",
         cell: ({ row }) => row.getValue("fullName") ?? "",
     },
     {

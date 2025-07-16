@@ -1,3 +1,5 @@
+import React from "react";
+
 export interface ServiceRequest {
     slug?: string;
     categoryId: string;
@@ -14,6 +16,7 @@ export interface ServiceRequest {
 export type Service = {
     slug: string;
     // categoryId: string;
+    id: string;
     category: {
         category: string;
         name: string;
@@ -23,11 +26,18 @@ export type Service = {
     duration: string;
     price: string;
     staffMembers: [];
+    serviceIds: [];
     isPopular: string;
     isActive: string;
     image: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
+export interface ServiceModalProps {
+    service: Service;
+    children: React.ReactNode;
+}
 export interface ServiceHeaderProps {
     onSearch: (query: string) => void;
 }

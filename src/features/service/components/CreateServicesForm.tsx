@@ -1,7 +1,7 @@
 'use client';
 import { getTokenToLocalStorage } from '@/features/admin/utils/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,10 @@ import { SelectValue } from '@radix-ui/react-select';
 import { Dialog, DialogHeader, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import ModalTitleComponent from '@/app/share/ModalTitleComponent';
+import { Categories } from '@/features/categories/types/CreateCategoriesType';
+import { Badge } from '@/components/ui/badge';
+import { X } from 'lucide-react';
+import { colorClasses } from './ColorBadge';
 
 
 const CreateServiceForm = () => {
@@ -24,16 +28,36 @@ const CreateServiceForm = () => {
 
     const { staffData, handleAllStaff } = useAllStaff()
     const { categoriesData, handleAllCategories } = useAllCategories()
+    const [selectedCategories, setSelectedCategories] = useState<Categories[]>([])
+
+    const handleSelect = (value: string) => {
+        const selected = categoriesData.find((cat) => cat.id.toString() === value) //
+        if (selected && !selectedCategories.some((c) => c.id === selected.id)) {
+            setSelectedCategories((prev) => [...prev, selected])
+        }
+    };
+
+    const handleRemove = (id: number) => {
+        setSelectedCategories((prev) => prev.filter((cat) => Number(cat.id) !== id))
+        toast.success('Kategori kaldırıldı')
+    }
 
     useEffect(() => {
         if (staffData.length === 0) handleAllStaff()
         console.log('Personel Seçimi için data çekildi 🎉')
         if (categoriesData.length === 0) handleAllCategories()
         console.log('Kategori seçimi için data çekildi 🪄')
-    }, [])
+    }, [staffData.length,
+        handleAllStaff,
+    categoriesData.length,
+        handleAllCategories])
 
 
-    const form = useForm<z.infer<typeof createServiceSchema>>({
+
+
+    type CreateServiceFormValues = z.infer<typeof createServiceSchema>;
+
+    const form = useForm<CreateServiceFormValues>({
         resolver: zodResolver(createServiceSchema),
         mode: 'onChange',
         defaultValues: {
@@ -46,8 +70,9 @@ const CreateServiceForm = () => {
             staffIds: ''
         }
     })
+    type CreateServiceFormData = z.infer<typeof createServiceSchema>;
 
-    async function onSubmit(values: z.infer<typeof createServiceSchema>) {
+    async function onSubmit(values: CreateServiceFormData) {
         try {
             const token = getTokenToLocalStorage();
             if (!token) {
@@ -85,7 +110,8 @@ const CreateServiceForm = () => {
                                         <FormLabel>
                                             Kategori Seç
                                         </FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={handleSelect}
+                                            defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder='Kategori Seç' />
@@ -93,11 +119,17 @@ const CreateServiceForm = () => {
                                             </FormControl>
                                             <SelectContent>
                                                 {Array.isArray(categoriesData) && categoriesData.length > 0 ? (
-                                                    categoriesData.map((cat) => (
-                                                        <SelectItem key={cat.id} value={cat.id.toString()}>
-                                                            {cat.name}
-                                                        </SelectItem>
-                                                    ))
+                                                    categoriesData.map((cat) => {
+                                                        const isSelected = selectedCategories.some((c) => c.id === cat.id)
+                                                        return (
+                                                            <SelectItem key={cat.id}
+                                                                value={cat.id.toString()}
+                                                                disabled={isSelected}
+                                                            >
+                                                                {cat.name}
+                                                            </SelectItem>
+                                                        )
+                                                    })
                                                 ) : (
                                                     <SelectItem disabled value="loading">Yükleniyor...</SelectItem>
                                                 )}
@@ -105,6 +137,22 @@ const CreateServiceForm = () => {
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />
+                                        <div className='mt-4 flex flex-nowrap gap-2'>
+                                            {selectedCategories && selectedCategories.map((cat, index) => {
+                                                const color = colorClasses[index % colorClasses.length]
+                                                return (
+                                                    <Badge key={cat.id}
+                                                        className={`flex items-center gap-1 text-sm font-medium transition-colors hover:scale-3d duration-700
+                                                    ${color}
+                                                    `}
+                                                        onClick={() => handleRemove(Number(cat.id))}>
+                                                        {cat.name}
+                                                        <X className='w-3.5 h-3.5 cursor-pointer ml-1 hover:scale-3d'
+                                                        />
+                                                    </Badge>
+                                                )
+                                            })}
+                                        </div>
                                     </FormItem>
                                 )}
                             />

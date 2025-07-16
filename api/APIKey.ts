@@ -1,1 +1,1 @@
-export const APIKEY = process.env.NEXT_PRIVATE_API_KEY
+export const APIKEY = process.env.NEXT_PUBLIC_API_KEY

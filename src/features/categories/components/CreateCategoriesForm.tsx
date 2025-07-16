@@ -11,10 +11,8 @@ import { Input } from '@/components/ui/input';
 import z from 'zod';
 import { useForm } from 'react-hook-form';
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/components/ui/dialog';
-import { SearchForm } from '@/app/share/sidebar/components/SearchForm';
 import ModalTitleComponent from '@/app/share/ModalTitleComponent';
 import { GlobalDebuggerButton } from '@/app/share/GlobalDebuggerButton';
-import { useAllCategories } from '../hooks/useAllCategories';
 
 const CreateCategoriesForm = () => {
     const form = useForm<z.infer<typeof createCategoriesSchema>>({
@@ -26,7 +24,6 @@ const CreateCategoriesForm = () => {
         }
     });
 
-    const { filterCategories } = useAllCategories();
 
     async function onSubmit(values: z.infer<typeof createCategoriesSchema>) {
         try {

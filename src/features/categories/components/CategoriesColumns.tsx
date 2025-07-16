@@ -7,6 +7,7 @@ import { UpdateButton } from '@/app/share/GlobalUpdateButton';
 import { DeleteButton } from '@/app/share/GlobalDeleteButton';
 import { getTokenToLocalStorage } from '@/features/admin/utils/auth';
 import deleteCustomers from '@/features/customers/services/DeleteCustomersApi';
+import deleteCategories from '../services/DeleteCategoriesApi';
 
 
 export const categoriesColumns: ColumnDef<Categories>[] = [
@@ -65,7 +66,7 @@ export const categoriesColumns: ColumnDef<Categories>[] = [
                         title='Güncelle'
                     />
                     <DeleteButton
-                        onClick={() => deleteCustomers(categories.id, token as string)}
+                        onClick={() => deleteCategories(categories.id, token as string)}
                         title='Sil' />
                 </div>
             )

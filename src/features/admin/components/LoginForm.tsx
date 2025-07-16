@@ -32,7 +32,7 @@ export default function AdminLoginForm() {
                 toast.success('Admin Girişi Yapıldı! 🎉');
                 // await new Promise(resolve => setTimeout(resolve, 2000));
                 showLoading()
-                router.push('/ozet');
+                router.push('/randevu-takvimi');
                 setTimeout(() => hideLoading(), 2000);
             } else {
                 toast.error(`${res.message} ❌`);
