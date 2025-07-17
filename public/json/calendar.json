@@ -1,0 +1,120 @@
+{
+  "scheduleInfo": {
+    "date": "27 Haziran 2025 Cuma",
+    "system": "Randevu Sistemi",
+    "url": "randevu.tr/calendar"
+  },
+  "staff": [
+    { "id": "staff_1", "name": "burcu hanım", "role": "Kuaför" },
+    { "id": "staff_2", "name": "emre bey", "role": "Berber" },
+    { "id": "staff_3", "name": "simge hanım", "role": "Nail Artist" },
+    { "id": "staff_4", "name": "burak bey", "role": "Masaj Terapisti" },
+    { "id": "staff_5", "name": "mahir bey", "role": "Estetisyen" },
+    { "id": "staff_6", "name": "kahraman bey", "role": "Cilt Uzmanı" },
+    { "id": "staff_7", "name": "kaan bey", "role": "Fitness Trainer" }
+  ],
+  "timeSlots": [
+    "8.30",
+    "9.00",
+    "9.30",
+    "10.00",
+    "10.30",
+    "11.00",
+    "11.30",
+    "12.00",
+    "12.30",
+    "13.00",
+    "13.30",
+    "14.00",
+    "14.30",
+    "15.00",
+    "15.30",
+    "16.00",
+    "16.30",
+    "17.00",
+    "17.30",
+    "18.00"
+  ],
+  "appointments": [
+    {
+      "id": "apt_1",
+      "staffId": "staff_1",
+      "time": "9.00",
+      "customer": { "name": "Ayşe Kaya", "phone": "0532 123 45 67" },
+      "service": "Saç Kesimi + Fön",
+      "status": "confirmed"
+    },
+    {
+      "id": "apt_2",
+      "staffId": "staff_1",
+      "time": "10.30",
+      "customer": { "name": "Elif Demir", "phone": "0533 987 65 43" },
+      "service": "Saç Boyama",
+      "status": "confirmed"
+    },
+    {
+      "id": "apt_3",
+      "staffId": "staff_2",
+      "time": "8.30",
+      "customer": { "name": "Mehmet Yılmaz", "phone": "0534 567 89 12" },
+      "service": "Saç + Sakal",
+      "status": "confirmed"
+    },
+    {
+      "id": "apt_4",
+      "staffId": "staff_2",
+      "time": "11.00",
+      "customer": { "name": "Ali Özkan", "phone": "0535 234 56 78" },
+      "service": "Saç Kesimi",
+      "status": "pending"
+    },
+    {
+      "id": "apt_5",
+      "staffId": "staff_3",
+      "time": "9.30",
+      "customer": { "name": "Zeynep Arslan", "phone": "0536 345 67 89" },
+      "service": "Manikür + Pedikür",
+      "status": "confirmed"
+    },
+    {
+      "id": "apt_6",
+      "staffId": "staff_4",
+      "time": "10.00",
+      "customer": { "name": "Can Şahin", "phone": "0537 456 78 90" },
+      "service": "Aromaterapi Masaj",
+      "status": "confirmed"
+    },
+    {
+      "id": "apt_7",
+      "staffId": "staff_5",
+      "time": "9.00",
+      "customer": { "name": "Seda Çelik", "phone": "0538 567 89 01" },
+      "service": "Hydrafacial",
+      "status": "confirmed"
+    },
+    {
+      "id": "apt_8",
+      "staffId": "staff_6",
+      "time": "8.30",
+      "customer": { "name": "Burak Öztürk", "phone": "0539 678 90 12" },
+      "service": "Saç + Cilt Bakımı",
+      "status": "completed"
+    },
+    {
+      "id": "apt_9",
+      "staffId": "staff_7",
+      "time": "10.00",
+      "customer": { "name": "Deniz Kara", "phone": "0540 789 01 23" },
+      "service": "Kişisel Antrenman",
+      "status": "confirmed"
+    },
+    {
+      "id": "apt_10",
+      "staffId": "staff_7",
+      "time": "11.30",
+      "customer": { "name": "Gizem Aktaş", "phone": "0541 890 12 34" },
+      "service": "Yoga Seansı",
+      "status": "pending"
+    }
+  ]
+}

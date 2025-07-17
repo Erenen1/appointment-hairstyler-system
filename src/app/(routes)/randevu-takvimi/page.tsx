@@ -1,9 +1,12 @@
+import CalenderHome from '@/features/calendar/page'
 import React from 'react'
 
-const RandevuTakvimi = () => {
+const Ozet = () => {
     return (
-        <div>RandevuTakvimi</div>
+        <>
+            <CalenderHome />
+        </>
     )
 }
 
-export default RandevuTakvimi
+export default Ozet

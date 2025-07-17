@@ -2,45 +2,53 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { usePathname } from 'next/navigation';
 import React from 'react'
+import { data } from '../mock/navLinks';
 
-const formatSegment = (segment: string) => {
-    return segment
-        .replace(/-/g, ' ') //tireleri boşluğpa çevir
-        .replace(/\b\w/g, (char) => char.toUpperCase());//her kelimenin ilk harfini büyük yap
-}
+
 
 const AppBreadDynamicLinks = () => {
     const pathname = usePathname();
-    const segments = pathname.split('/').filter(Boolean)// boş  strinleri filtrele
 
+    const getBreadcrumbItems = () => {
+        const items: { title: string; url: string }[] = [];
+
+        items.push({ title: 'Anasayfa', url: '/' });// Ana sayfa ekle
+
+        data.navMain.forEach(mainItem => {
+            if (mainItem.items) {
+                mainItem.items.forEach(subItem => {
+                    if (pathname == subItem.url) {
+                        // Ana kategori ekle
+                        items.push({ title: mainItem.title, url: mainItem.title })
+                        // Alt sayfa ekle
+                        items.push({ title: subItem.title, url: subItem.url })
+                    }
+                })
+            }
+        })
+        return items;
+    }
+
+    const breadcrumbItems = getBreadcrumbItems();
 
     return (
 
         <Breadcrumb>
             <BreadcrumbList>
-                {segments.map((segment, index) => {
-                    const isLast = index === segments.length - 1;
-                    const formatted = formatSegment(segment);
-                    return (
-                        <React.Fragment key={segment}>
-                            {index !== 0 && <BreadcrumbSeparator />}
-                            <BreadcrumbItem className="hidden md:block">
-                                {isLast ? (
-
-                                    <BreadcrumbPage>{formatted}</BreadcrumbPage>
-                                ) : (
-                                    <span className='text-muted-foreground hidden md:inline'>{formatted}</span>
-                                )}
-                            </BreadcrumbItem>
-                        </React.Fragment>
-                    )
-                })}
-                <BreadcrumbItem>
-                </BreadcrumbItem>
+                {breadcrumbItems.map((item, index) => (
+                    <React.Fragment key={index}>
+                        {index > 0 && <BreadcrumbSeparator />}
+                        <BreadcrumbItem className="hidden md:block">
+                            <BreadcrumbPage>
+                                {item.title}
+                            </BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </React.Fragment>
+                ))}
             </BreadcrumbList>
         </Breadcrumb>
-
     )
+
 }
 
 export default AppBreadDynamicLinks

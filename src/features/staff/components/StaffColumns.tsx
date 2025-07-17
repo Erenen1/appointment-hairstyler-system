@@ -7,6 +7,7 @@ import { DetailButton } from '../../../app/share/GlobalDetailButton';
 import { UpdateButton } from "@/app/share/GlobalUpdateButton";
 import { DeleteButton } from "@/app/share/GlobalDeleteButton";
 import deleteCustomers from "@/features/customers/services/DeleteCustomersApi";
+import UpdateStaffModal from "./UpdateStaffModal";
 
 export const staffColumns: ColumnDef<Staff>[] = [
     {
@@ -56,14 +57,15 @@ export const staffColumns: ColumnDef<Staff>[] = [
             return (
                 <div className="flex justify-center gap-3.5">
                     <DetailButton
-                        onClick={() => deleteCustomers(staff.id, token as string)}
-                        title='Detayler' />
-                    <UpdateButton
-                        onClick={() => deleteCustomers(staff.id, token as string)}
-                        title='Güncelle'
-                    />
+                        onClick={() => deleteCustomers(staff.id as string, token as string)}
+                        title='Detaylar' />
+                    <UpdateStaffModal selectedStaff={staff} >
+                        <UpdateButton
+                            title="Güncelle"
+                        />
+                    </UpdateStaffModal>
                     <DeleteButton
-                        onClick={() => deleteCustomers(staff.id, token as string)}
+                        onClick={() => deleteCustomers(staff.id as string, token as string)}
                         title='Sil' />
                 </div>
             )

@@ -1,15 +1,14 @@
 import { Check } from 'lucide-react';
 import React from 'react';
 
-interface DeleteButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    onClick: () => void;
+interface UpdateButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    onClick?: () => void | Promise<void>;
     title?: string;
 }
 
-export const UpdateButton = ({ onClick, title = 'Güncelle', ...props }: DeleteButtonProps) => {
+export const UpdateButton = ({ title = 'Güncelle', ...props }: UpdateButtonProps) => {
     return (
         <button
-            onClick={onClick}
             className="flex items-center group shadow-sm shadow-gray-400 rounded-md p-1"
             title={title}
             {...props}
