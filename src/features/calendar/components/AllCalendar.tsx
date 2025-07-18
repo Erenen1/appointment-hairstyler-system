@@ -1,78 +1,179 @@
 "use client";
-import React from "react";
-import { TableBodyRows } from "@/app/share/table/components/TableBody";
-import { TableHeaderRows } from "@/app/share/table/components/TableHeader";
-import { DataTableLayout } from "@/app/share/table/layout";
-import { useReactTable, getCoreRowModel } from "@tanstack/react-table";
-import { useCalendarData } from "@/features/calendar/hooks/CalendarData";
-import { columns as calendarColumns } from "@/features/calendar/components/CalendarColumns";
-import { CalendarHeader } from "../utils/calendarFunction";
 
-const AllCalendarPage = () => {
-    const { data: mockData, isLoading, isError } = useCalendarData();
+import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
-    const tableData = React.useMemo(() => {
-        if (!mockData) return [];
-        return mockData.timeSlots.map((timeSlot) => {
-            const row: Record<string, any> = { timeSlot };
-            mockData.staff.forEach((staff) => {
-                const apt = mockData.appointments.find((a) => a.staffId === staff.id && a.time === timeSlot);
-                row[staff.id] = apt
-                    ? {
-                        customer: apt.customer.name,
-                        service: apt.service,
-                        status: apt.status,
-                        phone: apt.customer.phone,
-                    }
-                    : null;
-            });
-            return row;
-        });
-    }, [mockData]);
+import { useAllStaff } from "@/features/staff/hooks/useAllStaff";
+import { StaffCalendarBody } from "./CalendarBody";
 
-    const columns = React.useMemo(
-        () => (mockData ? calendarColumns(mockData.staff) : []),
-        [mockData]
-    );
+import CalendarHeader from "./CalendarHeader";
+import { Staff } from "@/features/staff/types/StaffType";
+import { Input } from "@/components/ui/input";
+import { Plus, RefreshCcw, Trash } from "lucide-react";
+import CreateAppointmentModal from "./CreateAppointmentModal copy 2";
 
-    const table = useReactTable({
-        data: tableData,
-        columns,
-        getPaginationRowModel: getCoreRowModel(),
-        getCoreRowModel: getCoreRowModel(),
-        meta: {
-            title: mockData?.scheduleInfo.system ?? "",
-            subtitle: mockData?.scheduleInfo.date ?? "",
-            url: mockData?.scheduleInfo.url ?? "",
-        },
-    });
+export const timeSlots = Array.from({ length: 10 }, (_, i) => {
+    const hour = 9 + i;
+    return `${hour.toString().padStart(2, "0")}:00`;
+});
 
-    if (isLoading) return <div>Yükleniyor...</div>;
-    if (isError || !mockData) return <div>Hata oluştu.</div>;
+export type AppointmentStatus = "confirmed" | "pending" | "completed";
 
-    return (
-        <div className="p-4 space-y-4 [&_tr]:border-b-0">
-            {/* <div className="mb-4 border-none">
-                <h1 className="text-2xl font-bold text-gray-800">{table.options.meta.title}</h1>
-                <p className="text-gray-600">{table.options.meta.subtitle}</p>
-                <p className="text-sm text-gray-500">{table.options.meta.url}</p>
-            </div> */}
-            <CalendarHeader />
-            <div className="[&_*]:border-0 [&_*]:outline-0">
-                <DataTableLayout
-                    data={tableData}
-                    columns={columns}
-                    header={<TableHeaderRows table={table} />}
-                    body={<TableBodyRows table={table} />}
-                />
-            </div>
-        </div>
-
-    );
+export type Appointment = {
+    staffId: string;
+    time: string;
+    customer: string;
+    service: string;
+    status: AppointmentStatus;
+    phone: string;
 };
 
+export default function StaffCalendarPage() {
+    const [selectedSlot, setSelectedSlot] = useState<{ staffId: string; time: string } | null>(null);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const { staffData, handleAllStaff } = useAllStaff();
+    const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
+
+    useEffect(() => {
+        handleAllStaff();
+    }, []);
+
+    // Personel verileri geldikten sonra appointment'ları yükle
+    useEffect(() => {
+        if (staffData.length >= 3) {
+            const initialAppointments: Appointment[] = [
+                {
+                    staffId: staffData[0]?.id,
+                    time: "09:00",
+                    customer: "Ali",
+                    phone: "555-1234",
+                    service: "Saç Kesimi",
+                    status: "confirmed",
+                },
+                {
+                    staffId: staffData[1]?.id,
+                    time: "10:00",
+                    customer: "Ayhan",
+                    phone: "555-1234",
+                    service: "Cilt Bakımı",
+                    status: "pending",
+                },
+                {
+                    staffId: staffData[2]?.id,
+                    time: "11:00",
+                    customer: "Selin",
+                    phone: "555-1234",
+                    service: "Manikür",
+                    status: "completed",
+                },
+                {
+                    staffId: staffData[0]?.id,
+                    time: "13:00",
+                    customer: "Gizem",
+                    phone: "555-1234",
+                    service: "Kaş Alımı",
+                    status: "confirmed",
+                },
+                {
+                    staffId: staffData[1]?.id,
+                    time: "13:00",
+                    customer: "Okan",
+                    phone: "555-1234",
+                    service: "Saç Boyama",
+                    status: "pending",
+                },
+            ].filter((a) => a.staffId !== undefined);
+            setAllAppointments(initialAppointments);
+        }
+    }, [staffData]);
+
+    const openModal = (staffId: string, time: string) => {
+        setSelectedSlot({ staffId, time });
+        setModalOpen(true);
+    };
+    const handleDeleteAppointment = (staffId: string, time: string) => {
+        setAllAppointments((prev) =>
+            prev.filter((appointment) => !(appointment.staffId === staffId && appointment.time === time))
+        );
+    }
 
 
+    if (!staffData.length) return <div className="p-4">Yükleniyor...</div>;
 
-export default AllCalendarPage;
-// /app/calendar/RandevuTakvimi.tsx
+    const existingAppointment = allAppointments.find(
+        (a) => a.staffId === selectedSlot?.staffId && a.time === selectedSlot?.time
+    );
+
+    return (
+        <div className="h-[calc(100vh-100px)] overflow-y-hidden p-4">
+            <h2 className="text-xl font-bold mb-4">Randevu Takvimi</h2>
+
+            <div className="overflow-x-auto border rounded-lg h-full">
+                <div
+                    className="grid h-full"
+                    style={{
+                        gridTemplateColumns: `100px repeat(${staffData.length}, 1fr)`,
+                        minHeight: "100%",
+                    }}
+                >
+                    <CalendarHeader staffData={staffData.filter((staff): staff is Staff => staff.id != null)} />
+
+                    <StaffCalendarBody
+                        staffData={staffData}
+                        timeSlots={timeSlots}
+                        appointments={allAppointments}
+                        phone=""
+                        onCellClick={openModal}
+                        onDeleteAppointment={handleDeleteAppointment}
+
+                    />
+                </div>
+            </div>
+
+            <CreateAppointmentModal open={isModalOpen} onOpenChange={setModalOpen} title="Yeni Randevu">
+                <div className="space-y-2">
+
+                    <p className="text-sm text-muted-foreground">
+                        <strong>Çalışan:</strong>{" "}
+                        {staffData.find((s) => s.id === selectedSlot?.staffId)?.fullName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                        <strong>Saat:</strong> {selectedSlot?.time}
+                    </p>
+                    <div className="space-y-1">
+                        <Input
+                            placeholder="Müşteri Adı"
+                            className="w-full border rounded px-3 py-2 text-sm"
+                            defaultValue={existingAppointment?.customer ?? ""}
+                        />
+                        <Input
+                            placeholder="Hizmet"
+                            className="w-full border rounded px-3 py-2 text-sm"
+                            defaultValue={existingAppointment?.service ?? ""}
+                        />
+                        <select
+                            className="w-full border rounded px-3 py-2 text-sm"
+                            defaultValue={existingAppointment?.status ?? "confirmed"}
+                        >
+                            <option value="confirmed">Onaylandı</option>
+                            <option value="pending">Bekliyor</option>
+                            <option value="completed">Tamamlandı</option>
+                        </select>
+                    </div>
+
+                    {existingAppointment ? (
+                        <Button className="flex items-center justify-center space-x-2 w-full">
+                            <RefreshCcw className="w-5 h-5 text-green-500" />
+                            <p>Randevu Güncelle</p>
+                        </Button>
+                    ) : (
+                        <Button className="flex items-center justify-center space-x-2 w-full">
+                            <Plus className="w-5 h-5 text-green-500" />
+                            <p>Randevu Oluştur</p>
+                        </Button>
+                    )}
+                </div>
+            </CreateAppointmentModal>
+        </div>
+    );
+}
