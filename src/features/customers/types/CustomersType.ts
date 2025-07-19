@@ -18,3 +18,7 @@ export interface CustomersRequest {
 export interface CustomersHeaderProps {
     onSearch: (query: string) => void;
 }
+export interface CustomersUpdateModalProps {
+    children: React.ReactNode;
+    selectedCustomer: Customer;
+}

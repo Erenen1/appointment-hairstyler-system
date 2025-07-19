@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { getTokenToLocalStorage } from "@/features/admin/utils/auth";
-import { Service } from "../types/CreateServiceType";
+import { Service } from "../types/ServiceType";
 import allServices from "../services/AllServicesApi";
 import { filterData } from "@/hooks/filterService";
 

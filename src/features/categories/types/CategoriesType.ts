@@ -15,3 +15,8 @@ export type Categories = {
 export interface CategoriesHeaderProps {
     onSearch: (query: string) => void;
 }
+
+export interface CategoriesUpdateModalProps {
+    children: React.ReactNode;
+    selectedCategory: Categories;
+}   

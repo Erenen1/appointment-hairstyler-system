@@ -1,7 +1,7 @@
 import React from 'react'
 import CreateCategoriesForm from './CreateCategoriesForm'
 import { SearchForm } from '@/app/share/sidebar/components/SearchForm'
-import { CategoriesHeaderProps } from '../types/CreateCategoriesType'
+import { CategoriesHeaderProps } from '../types/CategoriesType'
 
 const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({ onSearch }) => {
     return (

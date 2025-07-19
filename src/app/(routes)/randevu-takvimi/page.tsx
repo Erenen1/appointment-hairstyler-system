@@ -1,4 +1,4 @@
-import CalenderHome from '@/features/calendar/page'
+import CalenderHome from '@/features/calendar-appointment/page'
 import React from 'react'
 
 const Ozet = () => {

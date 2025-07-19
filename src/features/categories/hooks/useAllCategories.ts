@@ -1,6 +1,6 @@
 'use client';
 import { useState } from "react";
-import { Categories } from "../types/CreateCategoriesType";
+import { Categories } from "../types/CategoriesType";
 import { toast } from "sonner";
 import { getTokenToLocalStorage } from "@/features/admin/utils/auth";
 import allCategories from "../services/AllCategoriesApi";

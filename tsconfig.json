@@ -28,7 +28,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/app/share/table/mock/AppointmentsColumns.tss",
-    "src/features/calendar/components/FormAppointmentModaltsx"
+    "src/features/calendar-appointment/components/FormAppointmentModaltsx"
   ],
   "exclude": ["node_modules"]
 }

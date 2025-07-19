@@ -1,7 +1,7 @@
 'use client';
 
 import { APIURL } from "../../../../api/APIUrl";
-import { ServiceRequest } from "../types/CreateServiceType";
+import { ServiceRequest } from "../types/ServiceType";
 export default async function createServices(adminData: ServiceRequest, token: string) {
     try {
         const res = await fetch(`${APIURL}/services`, {

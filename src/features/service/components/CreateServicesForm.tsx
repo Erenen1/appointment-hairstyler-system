@@ -17,7 +17,7 @@ import { SelectValue } from '@radix-ui/react-select';
 import { Dialog, DialogHeader, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import ModalTitleComponent from '@/app/share/ModalTitleComponent';
-import { Categories } from '@/features/categories/types/CreateCategoriesType';
+import { Categories } from '@/features/categories/types/CategoriesType';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import { colorClasses } from './ColorBadge';
@@ -67,7 +67,7 @@ const CreateServiceForm = () => {
             duration: 0,
             price: 0,
             image: undefined, // File için undefined kullan
-            staffIds: ''
+            staffIds: '[]', // Başlangıçta boş dizi olarak ayarla
         }
     })
     type CreateServiceFormData = z.infer<typeof createServiceSchema>;

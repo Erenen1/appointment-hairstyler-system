@@ -1,9 +1,9 @@
 import { DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Dialog } from '@/components/ui/dialog'
 import React from 'react'
-import { ServiceModalProps } from '../types/CreateServiceType';
+import { ServiceModalProps } from '../types/ServiceType';
 
-const ServiceModal = ({ children, service, }: ServiceModalProps) => {
+const DetailServiceModal = ({ children, service, }: ServiceModalProps) => {
     return (
         <>
             <Dialog>
@@ -29,4 +29,4 @@ const ServiceModal = ({ children, service, }: ServiceModalProps) => {
     )
 }
 
-export default ServiceModal
+export default DetailServiceModal

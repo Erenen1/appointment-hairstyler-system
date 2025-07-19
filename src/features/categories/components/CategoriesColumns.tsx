@@ -1,5 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { Categories } from '../types/CreateCategoriesType';
+import { Categories } from '../types/CategoriesType';
 import { Check, X } from 'lucide-react';
 import { formatDateToTurkish } from '../../staff/utils/formatDateToTurkish';
 import { DetailButton } from '@/app/share/GlobalDetailButton';
@@ -8,6 +8,9 @@ import { DeleteButton } from '@/app/share/GlobalDeleteButton';
 import { getTokenToLocalStorage } from '@/features/admin/utils/auth';
 import deleteCustomers from '@/features/customers/services/DeleteCustomersApi';
 import deleteCategories from '../services/DeleteCategoriesApi';
+import { DeleteAlertDialogDemo } from '@/app/share/DeleteAlertDialog';
+import UpdateCategoriesModal from './UpdateCategoriesModal';
+import { toast } from 'sonner';
 
 
 export const categoriesColumns: ColumnDef<Categories>[] = [
@@ -60,14 +63,30 @@ export const categoriesColumns: ColumnDef<Categories>[] = [
                 <div className="flex justify-center gap-3.5">
                     <DetailButton
                         onClick={() => deleteCustomers(categories.id, token as string)}
-                        title='Detayler' />
-                    <UpdateButton
-                        onClick={() => deleteCustomers(categories.id, token as string)}
-                        title='Güncelle'
-                    />
-                    <DeleteButton
-                        onClick={() => deleteCategories(categories.id, token as string)}
-                        title='Sil' />
+                        title='Detaylar' />
+                    <UpdateCategoriesModal
+                        selectedCategory={categories}
+
+                    >
+                        <UpdateButton
+                            title='Güncelle'
+                        />
+                    </UpdateCategoriesModal>
+                    <DeleteAlertDialogDemo
+                        onConfirm={() => {
+                            toast.success("Kategori başarıyla silindi!");
+                            deleteCategories(categories.id, token as string);
+                        }}
+                        title='Kategori Silinecek'
+                        footer='Bu işlem geri alınamaz!'
+                        description="Seçmiş olduğunuz kategori kaydı kalıcı olarak silinecektir."
+                    // onOpenChange={() => { }}
+                    >
+                        <DeleteButton
+                            title='Sil'
+                            onClick={() => deleteCategories(categories.id, token as string)}
+                        />
+                    </DeleteAlertDialogDemo>
                 </div>
             )
         }

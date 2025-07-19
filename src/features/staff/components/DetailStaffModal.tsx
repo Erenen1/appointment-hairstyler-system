@@ -3,7 +3,7 @@ import { Dialog } from '@/components/ui/dialog';
 import React from 'react';
 import { StaffModalProps } from '../types/StaffType';
 
-const StaffModal = ({ children, staff, }: StaffModalProps) => {
+const DetailStaffModal = ({ children, staff, }: StaffModalProps) => {
     return (
         <>
             <Dialog>
@@ -29,4 +29,4 @@ const StaffModal = ({ children, staff, }: StaffModalProps) => {
     )
 }
 
-export default StaffModal;
+export default DetailStaffModal;

@@ -1,6 +1,6 @@
 import { SearchForm } from '@/app/share/sidebar/components/SearchForm'
 import React from 'react'
-import { ServiceHeaderProps } from '../types/CreateServiceType'
+import { ServiceHeaderProps } from '../types/ServiceType'
 import CreateServiceForm from './CreateServicesForm'
 
 const ServiceHeader: React.FC<ServiceHeaderProps> = ({ onSearch }) => {

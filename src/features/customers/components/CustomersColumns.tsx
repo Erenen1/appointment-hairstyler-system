@@ -6,6 +6,9 @@ import { getTokenToLocalStorage } from "@/features/admin/utils/auth";
 import { DeleteButton } from "@/app/share/GlobalDeleteButton";
 import { DetailButton } from "@/app/share/GlobalDetailButton";
 import { UpdateButton } from "@/app/share/GlobalUpdateButton";
+import { DeleteAlertDialogDemo } from "@/app/share/DeleteAlertDialog";
+import { toast } from "sonner";
+import UpdateCustomersModal from "./UpdateCustomersModal";
 
 export const customersColumns: ColumnDef<Customer>[] = [
     {
@@ -58,15 +61,23 @@ export const customersColumns: ColumnDef<Customer>[] = [
                         title='Detaylar'
                         onClick={() => deleteCustomers(customer.id, token as string)}
                     />
-                    <UpdateButton
-                        title='Güncelle'
-                        onClick={() => deleteCustomers(customer.id, token as string)}
-                    />
+                    <UpdateCustomersModal selectedCustomer={customer}>
+                        <UpdateButton
+                            title='Güncelle' />
+                    </UpdateCustomersModal>
 
-                    <DeleteButton
-                        title='Sil'
-                        onClick={() => deleteCustomers(customer.id, token as string)}
-                    />
+                    <DeleteAlertDialogDemo
+                        title={`Müşteriyi Silmek istediğinize emin misiniz?`}
+                        description="Seçmiş olduğunuz müşteri kaydı kalıcı olarak silinecektir."
+                        footer='Bu işlem geri alınamaz!'
+                        onConfirm={() => {
+                            toast.success("Müşteri başarıyla silindi!");
+                            deleteCustomers(customer.id, token as string);
+                        }}>
+                        <DeleteButton
+                            title='Sil'
+                        />
+                    </DeleteAlertDialogDemo>
                 </div>
             )
         }

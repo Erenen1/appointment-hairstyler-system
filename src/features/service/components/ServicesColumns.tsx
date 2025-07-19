@@ -1,14 +1,17 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { Check, X } from 'lucide-react';
 import { formatDateToTurkish } from '../../staff/utils/formatDateToTurkish';
-import { Service } from '../types/CreateServiceType';
+import { Service } from '../types/ServiceType';
 import { getTokenToLocalStorage } from '@/features/admin/utils/auth';
 import { DetailButton } from '@/app/share/GlobalDetailButton';
 import { UpdateButton } from '@/app/share/GlobalUpdateButton';
 import { DeleteButton } from '@/app/share/GlobalDeleteButton';
 import deleteCustomers from '@/features/customers/services/DeleteCustomersApi';
 import deleteService from '../services/DeleteServiceApi';
-import ServiceModal from './ServiceModal';
+import DetailServiceModal from './DetailServicesModal';
+import { DeleteAlertDialogDemo } from '@/app/share/DeleteAlertDialog';
+import { toast } from 'sonner';
+import UpdateServiceModal from './UpdateServiceModal';
 
 export const servicesColumns: ColumnDef<Service>[] = [
     {
@@ -90,20 +93,30 @@ export const servicesColumns: ColumnDef<Service>[] = [
 
             return (
                 <div className="flex justify-center gap-3.5">
-                    <ServiceModal service={service}>
+                    <DetailServiceModal service={service}>
                         <DetailButton
                             onClick={() => deleteCustomers(service.id, token as string)}
                             title='Detaylar'
                         />
-                    </ServiceModal>
-                    <UpdateButton
-                        onClick={() => deleteCustomers(service.id, token as string)}
-                        title='Güncelle'
-                    />
-                    <DeleteButton
-                        onClick={() => deleteService(service.id, token as string)}
-                        title='Sil'
-                    />
+                    </DetailServiceModal>
+                    <UpdateServiceModal selectedService={service}>
+                        <UpdateButton
+                            title='Güncelle'
+                        />
+                    </UpdateServiceModal>
+                    <DeleteAlertDialogDemo
+                        title={`Hizmeti Silmek istediğinize emin misiniz?`}
+                        description="Seçmiş olduğunuz hizmet kaydı kalıcı olarak silinecektir."
+                        footer='Bu işlem geri alınamaz!'
+                        onConfirm={() => {
+                            toast.success("Hizmet başarıyla silindi!");
+                            deleteService(service.id, token as string);
+                        }}>
+                        <DeleteButton
+                            title='Sil'
+                        />
+
+                    </DeleteAlertDialogDemo>
                 </div>
             );
         }

@@ -1,6 +1,6 @@
 'use client';
 import { APIURL } from "../../../../api/APIUrl";
-import { CategoriesRequest } from "../types/CreateCategoriesType";
+import { CategoriesRequest } from "../types/CategoriesType";
 
 export default async function createCategories(adminData: CategoriesRequest, token: string) {
     try {

@@ -14,7 +14,7 @@ import { DialogTrigger, Dialog, DialogContent, DialogHeader } from '@/components
 import { GlobalDebuggerButton } from '@/app/share/GlobalDebuggerButton';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAllService } from '@/features/service/hooks/useAllService';
-import { Service } from '@/features/service/types/CreateServiceType';
+import { Service } from '@/features/service/types/ServiceType';
 import { Badge } from '@/components/ui/badge';
 import { colorClasses } from '@/features/service/components/ColorBadge';
 import { X } from 'lucide-react';

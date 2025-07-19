@@ -1,7 +1,7 @@
 import React from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Props, statusColors } from "../types/CalendarType";
-import { DeleteAlertDialogDemo } from "./DeleteAlertDialog";
+import { DeleteAlertDialogDemo } from "../../../app/share/DeleteAlertDialog";
 import { toast } from "sonner";
 
 

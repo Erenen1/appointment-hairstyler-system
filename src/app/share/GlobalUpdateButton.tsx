@@ -2,7 +2,6 @@ import { RefreshCcw } from 'lucide-react';
 import React from 'react';
 
 interface UpdateButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    onClick?: () => void | Promise<void>;
     title?: string;
 }
 
