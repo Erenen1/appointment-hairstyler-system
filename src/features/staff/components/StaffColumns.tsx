@@ -8,6 +8,8 @@ import { UpdateButton } from "@/app/share/GlobalUpdateButton";
 import { DeleteButton } from "@/app/share/GlobalDeleteButton";
 import deleteCustomers from "@/features/customers/services/DeleteCustomersApi";
 import UpdateStaffModal from "./UpdateStaffModal";
+import { DeleteAlertDialogDemo } from "@/app/share/DeleteAlertDialog";
+import { toast } from "sonner";
 
 export const staffColumns: ColumnDef<Staff>[] = [
     {
@@ -64,9 +66,19 @@ export const staffColumns: ColumnDef<Staff>[] = [
                             title="Güncelle"
                         />
                     </UpdateStaffModal>
-                    <DeleteButton
-                        onClick={() => deleteCustomers(staff.id as string, token as string)}
-                        title='Sil' />
+                    <DeleteAlertDialogDemo
+                        title={`Personeli Silmek istediğinize emin misiniz?`}
+                        description="Seçmiş olduğunuz personel kaydı kalıcı olarak silinecektir."
+                        footer='Bu işlem geri alınamaz!'
+                        onConfirm={() => {
+                            toast.success("Personel başarıyla silindi!");
+                            deleteCustomers(staff.id as string, token as string);
+                        }}
+                    >
+                        <DeleteButton
+                            onClick={() => deleteCustomers(staff.id as string, token as string)}
+                            title='Sil' />
+                    </DeleteAlertDialogDemo>
                 </div>
             )
         }

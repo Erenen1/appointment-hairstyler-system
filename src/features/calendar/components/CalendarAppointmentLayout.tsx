@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import React from 'react'
 import { CalendarModalProps } from '../types/CalendarType';
 
-const UpdateAppointmentModal = ({ open, onOpenChange, children, title }: CalendarModalProps) => {
+const CalendarAppointmentLayout = ({ open, onOpenChange, children, title }: CalendarModalProps) => {
     return (
         <div>
             <Dialog open={open} onOpenChange={onOpenChange}>
@@ -18,4 +18,4 @@ const UpdateAppointmentModal = ({ open, onOpenChange, children, title }: Calenda
     )
 }
 
-export default UpdateAppointmentModal
+export default CalendarAppointmentLayout;

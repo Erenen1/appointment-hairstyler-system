@@ -33,3 +33,15 @@ export type CalendarModalProps = {
     children: ReactNode;
     title?: string;
 };
+
+export type CalendarAppointmentFormProps = {
+    staffData: Staff[];
+    existingAppointment?: {
+        customer: string;
+        service: string;
+        status: 'confirmed' | 'pending' | 'completed';
+    };
+    selectedSlot?: { staffId: string; time: string };
+    onSubmit: () => void;
+    isSubmitting: boolean;
+}

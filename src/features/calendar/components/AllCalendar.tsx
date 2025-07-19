@@ -1,16 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 
 import { useAllStaff } from "@/features/staff/hooks/useAllStaff";
-import { StaffCalendarBody } from "./CalendarBody";
+import { StaffCalendarBody } from "./CalendarAppointmentBody";
 
-import CalendarHeader from "./CalendarHeader";
+import CalendarHeader from "./CalendarAppointmentHeader";
 import { Staff } from "@/features/staff/types/StaffType";
-import { Input } from "@/components/ui/input";
-import { Plus, RefreshCcw, Trash } from "lucide-react";
-import CreateAppointmentModal from "./CreateAppointmentModal copy 2";
+import CalendarAppointmentLayout from "./CalendarAppointmentLayout";
+import CalendarAppointmentForm from "./CalendarAppointmentForm";
 
 export const timeSlots = Array.from({ length: 10 }, (_, i) => {
     const hour = 9 + i;
@@ -29,8 +27,8 @@ export type Appointment = {
 };
 
 export default function StaffCalendarPage() {
-    const [selectedSlot, setSelectedSlot] = useState<{ staffId: string; time: string } | null>(null);
-    const [isModalOpen, setModalOpen] = useState(false);
+    const [selectedSlot, setSelectedSlot] = useState<{ staffId: string; time: string } | undefined>(undefined);
+    const [isModalOpen, setModalOpen] = useState<boolean>(false);
     const { staffData, handleAllStaff } = useAllStaff();
     const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
 
@@ -40,49 +38,49 @@ export default function StaffCalendarPage() {
 
     // Personel verileri geldikten sonra appointment'ları yükle
     useEffect(() => {
-        if (staffData.length >= 3) {
+        if (staffData.length >= 3 && staffData[0]?.id && staffData[1]?.id && staffData[2]?.id) {
             const initialAppointments: Appointment[] = [
                 {
-                    staffId: staffData[0]?.id,
+                    staffId: staffData[0].id,
                     time: "09:00",
                     customer: "Ali",
                     phone: "555-1234",
                     service: "Saç Kesimi",
-                    status: "confirmed",
+                    status: "confirmed" as AppointmentStatus,
                 },
                 {
-                    staffId: staffData[1]?.id,
+                    staffId: staffData[1].id,
                     time: "10:00",
                     customer: "Ayhan",
                     phone: "555-1234",
                     service: "Cilt Bakımı",
-                    status: "pending",
+                    status: "pending" as AppointmentStatus,
                 },
                 {
-                    staffId: staffData[2]?.id,
+                    staffId: staffData[2].id,
                     time: "11:00",
                     customer: "Selin",
                     phone: "555-1234",
                     service: "Manikür",
-                    status: "completed",
+                    status: "completed" as AppointmentStatus,
                 },
                 {
-                    staffId: staffData[0]?.id,
+                    staffId: staffData[0].id,
                     time: "13:00",
                     customer: "Gizem",
                     phone: "555-1234",
                     service: "Kaş Alımı",
-                    status: "confirmed",
+                    status: "confirmed" as AppointmentStatus,
                 },
                 {
-                    staffId: staffData[1]?.id,
+                    staffId: staffData[1].id,
                     time: "13:00",
                     customer: "Okan",
                     phone: "555-1234",
                     service: "Saç Boyama",
-                    status: "pending",
+                    status: "pending" as AppointmentStatus,
                 },
-            ].filter((a) => a.staffId !== undefined);
+            ];
             setAllAppointments(initialAppointments);
         }
     }, [staffData]);
@@ -105,7 +103,7 @@ export default function StaffCalendarPage() {
     );
 
     return (
-        <div className="h-[calc(100vh-100px)] overflow-y-hidden p-4">
+        <div className="h-[calc(100vh-100px)] !overflow-y-hidden p-4">
             <h2 className="text-xl font-bold mb-4">Randevu Takvimi</h2>
 
             <div className="overflow-x-auto border rounded-lg h-full">
@@ -129,36 +127,58 @@ export default function StaffCalendarPage() {
                     />
                 </div>
             </div>
-
-            <CreateAppointmentModal open={isModalOpen} onOpenChange={setModalOpen} title="Yeni Randevu">
-                <div className="space-y-2">
-
-                    <p className="text-sm text-muted-foreground">
-                        <strong>Çalışan:</strong>{" "}
-                        {staffData.find((s) => s.id === selectedSlot?.staffId)?.fullName}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                        <strong>Saat:</strong> {selectedSlot?.time}
-                    </p>
+            <CalendarAppointmentLayout open={isModalOpen} onOpenChange={setModalOpen}>
+                <CalendarAppointmentForm
+                    staffData={staffData}
+                    existingAppointment={existingAppointment}
+                    onSubmit={() => {
+                        // Handle form submission
+                    }}
+                    isSubmitting={false}
+                    selectedSlot={selectedSlot}
+                />
+            </CalendarAppointmentLayout>
+            {/* 
+            <CalendarAppointmentLayout open={isModalOpen} onOpenChange={setModalOpen}>
+                <div className="space-y-4">
+                    <h3 className="text-lg font-semibold mx-auto text-center">
+                        {existingAppointment ? "Randevu Güncelle" : "Yeni Randevu Oluştur"}
+                    </h3>
+                    <div className="flex items-center space-x-4">
+                        <p className="text-sm text-muted-foreground">
+                            <strong>Personel:</strong>{" "}
+                            {staffData.find((s) => s.id === selectedSlot?.staffId)?.fullName}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                            <strong>Seçilen Saat:</strong> {selectedSlot?.time}
+                        </p>
+                    </div>
                     <div className="space-y-1">
+                        <Label className="text-sm">Müşteri Adı</Label>
                         <Input
-                            placeholder="Müşteri Adı"
+                            placeholder="Selin Yılmaz"
                             className="w-full border rounded px-3 py-2 text-sm"
                             defaultValue={existingAppointment?.customer ?? ""}
                         />
+                        <Label className="text-sm">Hizmet Türü</Label>
                         <Input
-                            placeholder="Hizmet"
+                            placeholder="Sakal Traşı"
                             className="w-full border rounded px-3 py-2 text-sm"
                             defaultValue={existingAppointment?.service ?? ""}
                         />
-                        <select
-                            className="w-full border rounded px-3 py-2 text-sm"
-                            defaultValue={existingAppointment?.status ?? "confirmed"}
-                        >
-                            <option value="confirmed">Onaylandı</option>
-                            <option value="pending">Bekliyor</option>
-                            <option value="completed">Tamamlandı</option>
-                        </select>
+                        <div className="!w-full">
+                            <Select defaultValue={existingAppointment?.status ?? "confirmed"}>
+                                <Label className="text-sm">Hizmet Durumu</Label>
+                                <SelectTrigger className="!w-full">
+                                    <SelectValue placeholder="Hizmet Durumu" />
+                                </SelectTrigger>
+                                <SelectContent className="!w-full">
+                                    <SelectItem value="confirmed">Onaylandı</SelectItem>
+                                    <SelectItem value="pending">Bekliyor</SelectItem>
+                                    <SelectItem value="completed">Tamamlandı</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
 
                     {existingAppointment ? (
@@ -173,7 +193,7 @@ export default function StaffCalendarPage() {
                         </Button>
                     )}
                 </div>
-            </CreateAppointmentModal>
+            </CalendarAppointmentLayout> */}
         </div>
     );
 }

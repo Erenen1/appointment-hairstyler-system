@@ -1,7 +1,7 @@
 'use client';
 import { Clock } from 'lucide-react';
 import React from 'react';
-import { Staff } from './AllCalendar';
+import { Staff } from '../../staff/types/StaffType';
 
 
 const CalendarHeader = ({ staffData }: { staffData: Staff[] }) => {

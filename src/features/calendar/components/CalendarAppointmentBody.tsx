@@ -1,7 +1,9 @@
 import React from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Props, statusColors } from "../types/CalendarType";
-import { AlertDialogDemo } from "./AlertDialog";
+import { DeleteAlertDialogDemo } from "./DeleteAlertDialog";
+import { toast } from "sonner";
+
 
 
 export function StaffCalendarBody({
@@ -35,9 +37,15 @@ export function StaffCalendarBody({
                             >
                                 {apt ? (
                                     <div className={`relative rounded-none text-xs  text-white h-full w-full ${statusColors[apt.status]}`}>
-                                        <AlertDialogDemo
+                                        <DeleteAlertDialogDemo
+                                            title={`Randevuyu Silmek istediğinize emin misiniz?`}
+                                            description="Seçmiş olduğunuz randevu kaydı kalıcı olarak silinecektir."
+                                            footer='Bu işlem geri alınamaz!'
                                             onOpenChange={setIsAlertOpen} // Handle open state
-                                            onConfirm={() => onDeleteAppointment?.(staff.id as string, time)}
+                                            onConfirm={() => {
+                                                toast.success("Randevu başarıyla silindi!");
+                                                onDeleteAppointment?.(staff.id as string, time);
+                                            }}
                                         >
                                             <button
                                                 onClick={(e) => {
@@ -47,7 +55,7 @@ export function StaffCalendarBody({
                                                 title="Randevuyu Sil">
                                                 <Trash2 size={16} />
                                             </button>
-                                        </AlertDialogDemo>
+                                        </DeleteAlertDialogDemo>
                                         {/* Randevu içeriği */}
                                         <div className="flex justify-center flex-col mx-auto h-full w-full text-center p-2">
                                             <div className="flex flex-col items-start mx-auto  justify-center">

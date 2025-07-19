@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+import { RefreshCcw } from 'lucide-react';
 import React from 'react';
 
 interface UpdateButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -13,7 +13,7 @@ export const UpdateButton = ({ title = 'Güncelle', ...props }: UpdateButtonProp
             title={title}
             {...props}
         >
-            <Check className="w-5 h-5 text-green-500 group-hover:text-green-700 transition-all group-hover:scale-125" />
+            <RefreshCcw className="w-5 h-5 text-green-500 group-hover:text-green-700 transition-all group-hover:scale-125" />
         </button>
     );
 };
