@@ -2,9 +2,10 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Appointment } from "../types/AppointmentType"
 import { getTokenToLocalStorage } from "@/features/admin/utils/auth"
 import { DetailButton } from "@/app/share/GlobalDetailButton"
-import { UpdateButton } from "@/app/share/GlobalUpdateButton"
 import { DeleteButton } from "@/app/share/GlobalDeleteButton"
 import deleteCustomers from "@/features/customers/services/DeleteCustomersApi"
+import { DeleteAlertDialogDemo } from "@/app/share/DeleteAlertDialog"
+import deleteAppointment from "../services/DeleteApoointmentsApi"
 
 export const appointmentsColumns: ColumnDef<Appointment>[] = [
     {
@@ -43,15 +44,17 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
             return (
                 <div className="flex justify-center gap-3.5">
                     <DetailButton
-                        onClick={() => deleteCustomers(appointment.id, token as string)}
-                        title='Detayler' />
-                    <UpdateButton
-                        onClick={() => deleteCustomers(appointment.id, token as string)}
-                        title='Güncelle'
-                    />
-                    <DeleteButton
-                        onClick={() => deleteCustomers(appointment.id, token as string)}
-                        title='Sil' />
+                        onClick={() => deleteCustomers(appointment.id.toString(), token as string)}
+                        title='Detaylar' />
+                    <DeleteAlertDialogDemo
+                        onConfirm={() => deleteAppointment(appointment, token as string)}
+                        title='Randevuyu Sil'
+                        description='Randevuyu silmek istediğinize emin misiniz?'
+                        footer='Bu işlem geri alınamaz.'
+                        toast='Randevu başarıyla silindi.'>
+                        <DeleteButton
+                            title='Sil' />
+                    </DeleteAlertDialogDemo>
                 </div>
             )
         }

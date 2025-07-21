@@ -1,12 +1,11 @@
 'use client';
 
 import { APIKEY } from "../../../../api/APIKey";
-import { APIURL } from "../../../../api/APIUrl";
 import { CreateAdminRequest } from "../types/AdminLoginType";
 
 export const createAdmin = async (adminData: CreateAdminRequest) => {
     try {
-        const res = await fetch(`${APIURL}/admin/super/create`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/business-auth/register`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',

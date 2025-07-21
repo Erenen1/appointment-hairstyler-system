@@ -71,7 +71,7 @@ export const staffColumns: ColumnDef<Staff>[] = [
                             toast.success("Personel başarıyla silindi!");
                             deleteCustomers(staff.id as string, token as string);
                         }}
-                        onOpenChange={() => { }}
+                        // onOpenChange={() => { }}
                         title={`Personeli Silmek istediğinize emin misiniz?`}
                         description="Seçmiş olduğunuz personel kaydı kalıcı olarak silinecektir."
                         footer='Bu işlem geri alınamaz!'

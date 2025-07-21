@@ -5,7 +5,7 @@ import { LoginAdminRequest } from "../types/AdminLoginType";
 
 export const loginAdmin = async (adminData: LoginAdminRequest) => {
     try {
-        const res = await fetch(`${APIURL}/auth/admin/login`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/business-admin/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

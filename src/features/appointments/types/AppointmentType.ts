@@ -18,3 +18,7 @@ export type Appointment = {
 export interface AppointmentHeaderProps {
     onSearch: (query: string) => void;
 }
+export interface AppointmentUpdateModalProps {
+    children: React.ReactNode;
+    selectedAppointment: Appointment;
+}
