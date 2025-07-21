@@ -1,5 +1,4 @@
 'use client';
-import { APIURL } from "../../../../api/APIUrl";
 import { StaffRequest } from "../types/StaffType";
 
 export default async function createStaff(adminData: StaffRequest, token: string) {
@@ -21,7 +20,6 @@ export default async function createStaff(adminData: StaffRequest, token: string
     };
 };
 // 'use client';
-// import { APIURL } from "../../../../api/APIUrl";
 // import { StaffRequest } from "../types/StaffType";
 
 // export default async function createStaff(adminData: StaffRequest, token: string) {

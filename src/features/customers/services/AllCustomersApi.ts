@@ -1,5 +1,4 @@
 'use client';
-import { APIURL } from "../../../../api/APIUrl";
 
 export default async function allCustomers(token: string) {
     try {

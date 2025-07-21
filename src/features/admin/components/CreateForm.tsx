@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react'
-import { createAdmin } from '../services/SuperAdminCreate';
 import { toast } from 'sonner';
+import { createBusiness } from '../services/CreateBusinessApi';
 
 const AdminCreateForm = () => {
     const [formData, setFormData] = useState({
@@ -19,7 +19,7 @@ const AdminCreateForm = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await createAdmin(formData)
+            const res = await createBusiness(formData)
             toast.success('Admin kayıt edildi ✅', res)
             return res;
         } catch (error) {

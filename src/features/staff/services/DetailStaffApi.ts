@@ -1,5 +1,4 @@
 'use client';
-import { APIURL } from "../../../../api/APIUrl";
 
 export default async function allStaff(token: string, id: string) {
     try {

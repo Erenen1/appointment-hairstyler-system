@@ -1,5 +1,4 @@
 'use client';
-import { APIURL } from "../../../../api/APIUrl";
 import { Staff } from "../types/StaffType";
 export default async function updateStaff(adminData: Staff, token: string) {
     try {

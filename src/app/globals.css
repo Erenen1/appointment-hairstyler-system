@@ -120,3 +120,6 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Shadcn temaları denenecek */
+/*component.json içinde "theme": "shadcn" olarak ayarlanacak */

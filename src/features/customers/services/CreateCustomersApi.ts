@@ -1,5 +1,4 @@
 'use client';
-import { APIURL } from "../../../../api/APIUrl";
 import { CustomersRequest } from '../types/CustomersType';
 
 export default async function createCustomers(adminData: CustomersRequest, token: string) {

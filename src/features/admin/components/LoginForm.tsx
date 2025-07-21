@@ -2,9 +2,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { loginAdmin } from '../services/SuperAdminLogin';
 import { saveTokenToLocalStorage } from '../utils/auth';
 import { useLoading } from '@/app/contexts/LoadingContext';
+import { loginBusiness } from '../services/LoginBusinessApi';
 
 export default function AdminLoginForm() {
 
@@ -22,7 +22,7 @@ export default function AdminLoginForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await loginAdmin(formData);
+            const res = await loginBusiness(formData);
 
             console.log('Login Response:', res);
 

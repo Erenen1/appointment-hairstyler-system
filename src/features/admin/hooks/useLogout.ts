@@ -1,7 +1,7 @@
 'use client';
 
 import { toast } from "sonner";
-import adminLogout from "../services/SuperAdminLogout";
+import logoutBusiness from "../services/LogoutBusinessApi";
 import { getTokenToLocalStorage, removeTokenFromLocalStorage } from "../utils/auth";
 import { useRouter } from 'next/navigation';
 import { useLoading } from "@/app/contexts/LoadingContext";
@@ -18,7 +18,7 @@ export function useLogout() {
                 return;
             }
 
-            await adminLogout(token);
+            await logoutBusiness(token);
             removeTokenFromLocalStorage();
             toast.success("Çıkış yapıldı ✅");
             showLoading() //saniye göster

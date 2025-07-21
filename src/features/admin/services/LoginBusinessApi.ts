@@ -1,9 +1,8 @@
 'use client';
 
-// import { APIURL } from "../../../../api/APIUrl";
 import { LoginAdminRequest } from "../types/AdminLoginType";
 
-export const loginAdmin = async (adminData: LoginAdminRequest) => {
+export const loginBusiness = async (adminData: LoginAdminRequest) => {
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/business-admin/login`, {
             method: 'POST',
@@ -14,10 +13,10 @@ export const loginAdmin = async (adminData: LoginAdminRequest) => {
 
         });
         const data = await res.json()
-        console.log('super admin başarıyla giriş yaptı', data);
+        console.log('admin başarıyla giriş yaptı', data);
         return data;
     } catch (error) {
-        console.log('super admin giriş yaparken bir hata oluştu', error)
+        console.log('giriş yaparken bir hata oluştu', error)
         throw error;
 
     }
