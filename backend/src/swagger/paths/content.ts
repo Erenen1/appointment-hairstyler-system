@@ -1,7 +1,7 @@
 import config from '../../config/env';
 
 export const contentPaths = {
-  [`${config.API_PREFIX}/gallery/categories`]: {
+  [`/gallery/categories`]: {
     get: {
       tags: ['Content'],
       summary: 'Tüm galeri kategorilerini getir',
@@ -57,7 +57,7 @@ export const contentPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/gallery/categories/{id}`]: {
+  [`/gallery/categories/{id}`]: {
     get: {
       tags: ['Content'],
       summary: 'Belirli bir galeri kategorisini getir',
@@ -132,7 +132,7 @@ export const contentPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/gallery/images`]: {
+  [`/gallery/images`]: {
     get: {
       tags: ['Content'],
       summary: 'Tüm galeri resimlerini getir',
@@ -195,7 +195,7 @@ export const contentPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/gallery/images/{id}`]: {
+  [`/gallery/images/{id}`]: {
     get: {
       tags: ['Content'],
       summary: 'Belirli bir galeri resmini getir',

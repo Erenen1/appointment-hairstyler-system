@@ -1,7 +1,7 @@
 import config from '../../config/env';
 
 export const superAdminPaths = {
-  [`${config.API_PREFIX}/super-admin/login`]: {
+  [`/super-admin/login`]: {
     post: {
       tags: ['Super Admin'],
       summary: 'Süper Yönetici girişi',

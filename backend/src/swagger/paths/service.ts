@@ -1,7 +1,7 @@
 import config from '../../config/env';
 
 export const servicePaths = {
-  [`${config.API_PREFIX}/services`]: {
+  [`/services`]: {
     get: {
       tags: ['Services'],
       summary: 'Tüm hizmetleri getir',
@@ -64,7 +64,7 @@ export const servicePaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/services/{id}`]: {
+  [`/services/{id}`]: {
     get: {
       tags: ['Services'],
       summary: 'Belirli bir hizmeti getir',
@@ -139,7 +139,7 @@ export const servicePaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/services/categories`]: {
+  [`/services/categories`]: {
     get: {
       tags: ['Services'],
       summary: 'Tüm hizmet kategorilerini getir',
@@ -161,7 +161,7 @@ export const servicePaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/services/{id}/staff`]: {
+  [`/services/{id}/staff`]: {
     get: {
       tags: ['Services'],
       summary: 'Bir hizmet için uygun personeli getir',
@@ -187,7 +187,7 @@ export const servicePaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/services/{id}/staff-availability`]: {
+  [`/services/{id}/staff-availability`]: {
     get: {
       tags: ['Services'],
       summary: 'Bir hizmet ve personel için müsaitlik getir',

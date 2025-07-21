@@ -1,11 +1,11 @@
 import config from '../../config/env';
 
 export const healthPaths = {
-  [`${config.API_PREFIX}/health`]: {
+  [`/health`]: {
     get: {
       tags: ['Health'],
       summary: 'API sağlık kontrolü',
-      description: 'API"nin çalışır durumda olup olmadığını kontrol eder.',
+      description: 'API\'nin çalışır durumda olup olmadığını kontrol eder.',
       responses: {
         '200': {
           description: 'API çalışıyor.',
@@ -34,7 +34,7 @@ export const healthPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/health/database`]: {
+  [`/health/database`]: {
     get: {
       tags: ['Health'],
       summary: 'Veritabanı sağlık kontrolü',

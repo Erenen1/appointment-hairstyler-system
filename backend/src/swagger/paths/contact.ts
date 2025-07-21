@@ -1,7 +1,7 @@
 import config from '../../config/env';
 
 export const contactPaths = {
-  [`${config.API_PREFIX}/contact`]: {
+  [`/contact`]: {
     get: {
       tags: ['Contact'],
       summary: 'Tüm iletişim mesajlarını getir',
@@ -65,7 +65,7 @@ export const contactPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/contact/{id}`]: {
+  [`/contact/{id}`]: {
     get: {
       tags: ['Contact'],
       summary: 'Belirli bir iletişim mesajını getir',
