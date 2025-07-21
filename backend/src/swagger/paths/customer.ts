@@ -1,7 +1,7 @@
 import config from '../../config/env';
 
 export const customerPaths = {
-  [`${config.API_PREFIX}/customers`]: {
+  [`/customers`]: {
     get: {
       tags: ['Customers'],
       summary: 'Tüm müşterileri getir',
@@ -57,7 +57,7 @@ export const customerPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/customers/{id}`]: {
+  [`/customers/{id}`]: {
     get: {
       tags: ['Customers'],
       summary: 'Belirli bir müşteriyi getir',

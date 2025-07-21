@@ -1,7 +1,7 @@
 import config from '../../config/env';
 
 export const dashboardPaths = {
-  [`${config.API_PREFIX}/dashboard/summary`]: {
+  [`/dashboard/summary`]: {
     get: {
       tags: ['Dashboard'],
       summary: 'Kontrol Paneli Özeti',
@@ -22,7 +22,7 @@ export const dashboardPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/dashboard/stats`]: {
+  [`/dashboard/stats`]: {
     get: {
       tags: ['Dashboard'],
       summary: 'Kontrol Paneli İstatistikleri',

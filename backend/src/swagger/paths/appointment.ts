@@ -1,7 +1,7 @@
 import config from '../../config/env';
 
 export const appointmentPaths = {
-  [`${config.API_PREFIX}/appointments`]: {
+  [`/appointments`]: {
     get: {
       tags: ['Appointments'],
       summary: 'Tüm randevuları getir',
@@ -81,7 +81,7 @@ export const appointmentPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/appointments/{id}`]: {
+  [`/appointments/{id}`]: {
     get: {
       tags: ['Appointments'],
       summary: 'Belirli bir randevuyu getir',

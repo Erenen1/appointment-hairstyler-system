@@ -1,7 +1,7 @@
 import config from '../../config/env';
 
 export const availabilityPaths = {
-  [`${config.API_PREFIX}/availability/all`]: {
+  [`/availability/all`]: {
     get: {
       tags: ['Availability'],
       summary: 'Tüm personel müsaitliklerini getir',
@@ -13,7 +13,7 @@ export const availabilityPaths = {
         {
           name: 'staffId',
           in: 'query',
-          description: 'Personel ID"si ile filtrele (isteğe bağlı)',
+          description: 'Personel ID\'si ile filtrele (isteğe bağlı)',
           required: false,
           schema: { type: 'string', format: 'uuid' },
         },
@@ -55,16 +55,16 @@ export const availabilityPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/availability`]: {
+  [`/availability`]: {
     get: {
       tags: ['Availability'],
       summary: 'Belirli bir personel için müsaitliği getir',
-      description: 'Belirtilen personel ID"si ve tarihi için müsaitliği getirir.',
+      description: 'Belirtilen personel ID\'si ve tarihi için müsaitliği getirir.',
       parameters: [
         {
           name: 'staffId',
           in: 'query',
-          description: 'Personel ID"si',
+          description: 'Personel ID\'si',
           required: true,
           schema: { type: 'string', format: 'uuid' },
         },
@@ -89,7 +89,6 @@ export const availabilityPaths = {
         },
         '400': { $ref: '#/components/responses/ValidationError' },
         '401': { $ref: '#/components/responses/UnauthorizedError' },
-        '404': { $ref: '#/components/responses/NotFoundError' },
         '500': { $ref: '#/components/responses/InternalServerError' },
       },
     },
@@ -124,7 +123,7 @@ export const availabilityPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/availability/bulk`]: {
+  [`/availability/bulk`]: {
     post: {
       tags: ['Availability'],
       summary: 'Toplu müsaitlik oluştur',
@@ -159,11 +158,11 @@ export const availabilityPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/availability/{id}`]: {
+  [`/availability/{id}`]: {
     put: {
       tags: ['Availability'],
       summary: 'Müsaitliği güncelle',
-      description: 'Belirtilen ID"ye sahip müsaitliği günceller.',
+      description: 'Belirtilen ID\'ye sahip müsaitliği günceller.',
       parameters: [
         { $ref: '#/components/schemas/IdParam' },
       ],
@@ -197,7 +196,7 @@ export const availabilityPaths = {
     delete: {
       tags: ['Availability'],
       summary: 'Müsaitliği sil',
-      description: 'Belirtilen ID"ye sahip müsaitliği siler.',
+      description: 'Belirtilen ID\'ye sahip müsaitliği siler.',
       parameters: [
         { $ref: '#/components/schemas/IdParam' },
       ],

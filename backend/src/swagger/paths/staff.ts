@@ -1,7 +1,7 @@
 import config from '../../config/env';
 
 export const staffPaths = {
-  [`${config.API_PREFIX}/staff`]: {
+  [`/staff`]: {
     get: {
       tags: ['Staff'],
       summary: 'Tüm personeli getir',
@@ -57,7 +57,7 @@ export const staffPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/staff/{id}`]: {
+  [`/staff/{id}`]: {
     get: {
       tags: ['Staff'],
       summary: 'Belirli bir personeli getir',
@@ -132,7 +132,7 @@ export const staffPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/staff/{id}/available-slots`]: {
+  [`/staff/{id}/available-slots`]: {
     get: {
       tags: ['Staff'],
       summary: 'Belirli bir personel için müsait zaman aralıklarını getir',
@@ -165,7 +165,7 @@ export const staffPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/staff/{id}/available-slots-range`]: {
+  [`/staff/{id}/available-slots-range`]: {
     get: {
       tags: ['Staff'],
       summary: 'Belirli bir personel için zaman aralığında müsait zaman aralıklarını getir',

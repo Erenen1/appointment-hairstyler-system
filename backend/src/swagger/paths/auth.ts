@@ -1,7 +1,7 @@
 import config from '../../config/env';
 
 export const authPaths = {
-  [`${config.API_PREFIX}/business-auth/register`]: {
+  [`/business-auth/register`]: {
     post: {
       tags: ['Business Auth'],
       summary: 'Yeni bir işletme kaydı',
@@ -53,7 +53,7 @@ export const authPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/business-auth/login`]: {
+  [`/business-auth/login`]: {
     post: {
       tags: ['Business Auth'],
       summary: 'İşletme girişi',

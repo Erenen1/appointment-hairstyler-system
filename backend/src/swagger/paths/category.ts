@@ -1,7 +1,7 @@
 import config from '../../config/env';
 
 export const categoryPaths = {
-  [`${config.API_PREFIX}/categories`]: {
+  [`/categories`]: {
     get: {
       tags: ['Categories'],
       summary: 'Tüm kategorileri getir',
@@ -57,7 +57,7 @@ export const categoryPaths = {
       },
     },
   },
-  [`${config.API_PREFIX}/categories/{id}`]: {
+  [`/categories/{id}`]: {
     get: {
       tags: ['Categories'],
       summary: 'Belirli bir kategoriyi getir',
