@@ -1,201 +1,159 @@
+import config from '../../config/env';
+
 export const appointmentPaths = {
-  '/appointments': {
+  [`${config.API_PREFIX}/appointments`]: {
     get: {
       tags: ['Appointments'],
-      summary: 'Randevuları listele',
-      description: 'Filtreleme ve sıralama seçenekleri ile randevuları listeler',
-      security: [{ bearerAuth: [] }],
+      summary: 'Tüm randevuları getir',
+      description: 'Tüm randevuların listesini sayfalama ve arama seçenekleriyle getirir.',
       parameters: [
-        { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
-        { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 } },
-        { name: 'startDate', in: 'query', schema: { type: 'string', format: 'date' } },
-        { name: 'endDate', in: 'query', schema: { type: 'string', format: 'date' } },
-        { name: 'staffId', in: 'query', schema: { type: 'integer' } },
-        { name: 'customerId', in: 'query', schema: { type: 'integer' } },
-        { name: 'serviceId', in: 'query', schema: { type: 'integer' } },
-        { 
-          name: 'sortBy', 
-          in: 'query', 
-          schema: { 
-            type: 'string', 
-            enum: ['appointmentDate', 'createdAt', 'customer_name', 'service_name'], 
-            default: 'appointmentDate' 
-          } 
+        { $ref: '#/components/schemas/PageQuery' },
+        { $ref: '#/components/schemas/LimitQuery' },
+        { $ref: '#/components/schemas/SearchQuery' },
+        {
+          name: 'status',
+          in: 'query',
+          description: 'Randevu durumu filtrelemesi',
+          required: false,
+          schema: {
+            type: 'string',
+            enum: ['pending', 'confirmed', 'cancelled', 'completed'],
+          },
         },
-        { 
-          name: 'sortOrder', 
-          in: 'query', 
-          schema: { 
-            type: 'string', 
-            enum: ['asc', 'desc'], 
-            default: 'asc' 
-          } 
-        }
-      ],
-      responses: {
-        200: {
-          description: 'Randevular başarıyla listelendi',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Randevu listesi başarıyla getirildi' },
-                  data: {
-                    type: 'array',
-                    items: { $ref: '#/components/schemas/Appointment' }
-                  },
-                  pagination: { $ref: '#/components/schemas/Pagination' },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
-        },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
-    },
-    post: {
-      tags: ['Appointments'],
-      summary: 'Yeni randevu oluştur',
-      description: 'Müşteri ve randevu bilgileri ile yeni randevu oluşturur',
-      security: [{ bearerAuth: [] }],
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: { $ref: '#/components/schemas/CreateAppointmentRequest' }
-          }
-        }
-      },
-      responses: {
-        201: {
-          description: 'Randevu başarıyla oluşturuldu',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Randevu başarıyla oluşturuldu' },
-                  data: { $ref: '#/components/schemas/Appointment' },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
-        },
-        400: { $ref: '#/components/responses/ValidationError' },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        409: {
-          description: 'Zaman çakışması',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
-    }
-  },
-  '/appointments/calendar': {
-    get: {
-      tags: ['Appointments'],
-      summary: 'Takvim randevuları',
-      description: 'Belirtilen tarih aralığındaki randevuları takvim formatında getirir',
-      security: [{ bearerAuth: [] }],
-      parameters: [
         {
           name: 'startDate',
           in: 'query',
-          required: true,
+          description: 'Başlangıç tarihi (YYYY-MM-DD)',
+          required: false,
           schema: { type: 'string', format: 'date' },
-          description: 'Başlangıç tarihi'
         },
         {
           name: 'endDate',
           in: 'query',
-          required: true,
+          description: 'Bitiş tarihi (YYYY-MM-DD)',
+          required: false,
           schema: { type: 'string', format: 'date' },
-          description: 'Bitiş tarihi'
-        }
+        },
       ],
       responses: {
-        200: {
-          description: 'Takvim randevuları başarıyla getirildi',
+        '200': {
+          description: 'Randevular başarıyla getirildi.',
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Takvim randevuları başarıyla getirildi' },
-                  data: {
-                    type: 'array',
-                    items: { $ref: '#/components/schemas/CalendarEvent' }
-                  },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
+                $ref: '#/components/schemas/AppointmentListResponse',
+              },
+            },
+          },
         },
-        400: { $ref: '#/components/responses/ValidationError' },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
-    }
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
+    post: {
+      tags: ['Appointments'],
+      summary: 'Yeni randevu oluştur',
+      description: 'Yeni bir randevu oluşturmak için kullanılır.',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/CreateAppointmentRequest',
+            },
+          },
+        },
+      },
+      responses: {
+        '201': {
+          description: 'Randevu başarıyla oluşturuldu.',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Appointment',
+              },
+            },
+          },
+        },
+        '400': { $ref: '#/components/responses/ValidationError' },
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
   },
-  '/appointments/{id}': {
+  [`${config.API_PREFIX}/appointments/{id}`]: {
     get: {
       tags: ['Appointments'],
-      summary: 'Randevu detayı',
-      description: 'Belirtilen ID\'ye sahip randevunun detaylarını getirir',
-      security: [{ bearerAuth: [] }],
+      summary: 'Belirli bir randevuyu getir',
+      description: 'Belirtilen ID\'ye sahip randevuyu getirir.',
       parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          schema: { type: 'integer' },
-          description: 'Randevu ID\'si'
-        }
+        { $ref: '#/components/schemas/IdParam' },
       ],
       responses: {
-        200: {
-          description: 'Randevu detayı başarıyla getirildi',
+        '200': {
+          description: 'Randevu başarıyla getirildi.',
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Randevu detayı başarıyla getirildi' },
-                  data: { $ref: '#/components/schemas/Appointment' },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
+                $ref: '#/components/schemas/Appointment',
+              },
+            },
+          },
         },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        404: {
-          description: 'Randevu bulunamadı',
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '404': { $ref: '#/components/responses/NotFoundError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
+    put: {
+      tags: ['Appointments'],
+      summary: 'Randevuyu güncelle',
+      description: 'Belirtilen ID\'ye sahip randevuyu günceller.',
+      parameters: [
+        { $ref: '#/components/schemas/IdParam' },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/UpdateAppointmentRequest',
+            },
+          },
+        },
+      },
+      responses: {
+        '200': {
+          description: 'Randevu başarıyla güncellendi.',
           content: {
             'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
+              schema: {
+                $ref: '#/components/schemas/Appointment',
+              },
+            },
+          },
         },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
-    }
-  }
+        '400': { $ref: '#/components/responses/ValidationError' },
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '404': { $ref: '#/components/responses/NotFoundError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
+    delete: {
+      tags: ['Appointments'],
+      summary: 'Randevuyu sil',
+      description: 'Belirtilen ID\'ye sahip randevuyu siler.',
+      parameters: [
+        { $ref: '#/components/schemas/IdParam' },
+      ],
+      responses: {
+        '204': {
+          description: 'Randevu başarıyla silindi (İçerik Yok).',
+        },
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '404': { $ref: '#/components/responses/NotFoundError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
+  },
 }; 

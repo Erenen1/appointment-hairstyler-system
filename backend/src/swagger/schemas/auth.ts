@@ -1,82 +1,60 @@
 export const authSchemas = {
-  LoginRequest: {
+  BusinessRegister: {
+    type: 'object',
+    required: ['email', 'password', 'businessName', 'phone'],
+    properties: {
+      email: { type: 'string', format: 'email', description: 'İşletme e-posta adresi' },
+      password: { type: 'string', format: 'password', description: 'İşletme şifresi' },
+      businessName: { type: 'string', description: 'İşletme adı' },
+      phone: { type: 'string', description: 'İşletme telefon numarası' },
+      address: { type: 'string', description: 'İşletme adresi (isteğe bağlı)' },
+      city: { type: 'string', description: 'İşletme şehri (isteğe bağlı)' },
+      country: { type: 'string', description: 'İşletme ülkesi (isteğe bağlı)' },
+      website: { type: 'string', description: 'İşletme web sitesi (isteğe bağlı)' },
+    },
+    example: {
+      email: 'test@business.com',
+      password: 'password123',
+      businessName: 'Test Kuaför Salonu',
+      phone: '+905551234567',
+      address: 'Test Mahallesi No:1',
+      city: 'İstanbul',
+      country: 'Türkiye',
+      website: 'https://www.testkuafor.com',
+    },
+  },
+  BusinessLogin: {
     type: 'object',
     required: ['email', 'password'],
     properties: {
-      email: { type: 'string', format: 'email', example: 'admin@example.com' },
-      password: { type: 'string', example: 'password123' }
-    }
+      email: { type: 'string', format: 'email', description: 'İşletme e-posta adresi' },
+      password: { type: 'string', format: 'password', description: 'İşletme şifresi' },
+    },
+    example: {
+      email: 'test@business.com',
+      password: 'password123',
+    },
   },
-  LoginResponse: {
+  Business: {
     type: 'object',
     properties: {
-      success: { type: 'boolean', example: true },
-      message: { type: 'string', example: 'Giriş başarılı' },
-      data: {
-        type: 'object',
-        properties: {
-          token: { 
-            type: 'string', 
-            description: 'JWT authentication token',
-            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwidXNlclR5cGUiOiJhZG1pbiIsImZ1bGxOYW1lIjoiQWRtaW4gVXNlciIsImlhdCI6MTcwMDAwMDAwMCwiZXhwIjoxNzAwMDg2NDAwfQ.example-signature'
-          },
-          user: {
-            type: 'object',
-            properties: {
-              id: { type: 'string', example: '1' },
-              fullName: { type: 'string', example: 'Admin User' },
-              email: { type: 'string', format: 'email', example: 'admin@example.com' },
-              userType: { type: 'string', example: 'admin' },
-              phone: { type: 'string', example: '1234567890' },
-              isActive: { type: 'boolean', example: true },
-              lastLogin: { type: 'string', format: 'date-time', nullable: true }
-            }
-          }
-        }
-      },
-      timestamp: { type: 'string', format: 'date-time' }
-    }
+      id: { type: 'string', format: 'uuid' },
+      email: { type: 'string', format: 'email' },
+      businessName: { type: 'string' },
+      phone: { type: 'string' },
+      address: { type: 'string' },
+      city: { type: 'string' },
+      country: { type: 'string' },
+      website: { type: 'string' },
+      createdAt: { type: 'string', format: 'date-time' },
+      updatedAt: { type: 'string', format: 'date-time' },
+    },
   },
-  ProfileResponse: {
+  Error: {
     type: 'object',
     properties: {
-      success: { type: 'boolean', example: true },
-      message: { type: 'string', example: 'Kullanıcı bilgileri getirildi' },
-      data: {
-        type: 'object',
-        properties: {
-          user: {
-            type: 'object',
-            properties: {
-              id: { type: 'string', example: '1' },
-              fullName: { type: 'string', example: 'Admin User' },
-              email: { type: 'string', format: 'email', example: 'admin@example.com' },
-              userType: { type: 'string', example: 'admin' }
-            }
-          }
-        }
-      },
-      timestamp: { type: 'string', format: 'date-time' }
-    }
+      message: { type: 'string' },
+      status: { type: 'number' },
+    },
   },
-  LogoutResponse: {
-    type: 'object',
-    properties: {
-      success: { type: 'boolean', example: true },
-      message: { type: 'string', example: 'Çıkış başarılı' },
-      timestamp: { type: 'string', format: 'date-time' }
-    }
-  },
-  JWTPayload: {
-    type: 'object',
-    description: 'JWT token payload structure',
-    properties: {
-      id: { type: 'string', description: 'User ID' },
-      email: { type: 'string', format: 'email', description: 'User email' },
-      userType: { type: 'string', enum: ['admin'], description: 'User type' },
-      fullName: { type: 'string', description: 'User full name' },
-      iat: { type: 'integer', description: 'Issued at timestamp' },
-      exp: { type: 'integer', description: 'Expiration timestamp' }
-    }
-  }
 }; 

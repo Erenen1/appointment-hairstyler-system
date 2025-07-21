@@ -1,4 +1,4 @@
-import { ApiError } from "../../utils/ApiError";
+import { ApiError } from "../../utils";
 import ServiceRepository from "./service.repository";
 import { ServiceCreateDTO, ServiceUpdateDTO, ServiceCategoryCreateDTO, ServiceCategoryUpdateDTO } from "./dto";
 import { IService, IServiceCategory, IServiceImage } from "./service.interface";

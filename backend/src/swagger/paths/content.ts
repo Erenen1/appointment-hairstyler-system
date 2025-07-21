@@ -1,212 +1,273 @@
+import config from '../../config/env';
+
 export const contentPaths = {
-  '/content/gallery': {
+  [`${config.API_PREFIX}/gallery/categories`]: {
     get: {
       tags: ['Content'],
-      summary: 'Galeri resimlerini listele',
+      summary: 'Tüm galeri kategorilerini getir',
+      description: 'Tüm galeri kategorilerinin listesini sayfalama ve arama seçenekleriyle getirir.',
       parameters: [
-        {
-          name: 'categoryId',
-          in: 'query',
-          description: 'Kategori ID ile filtreleme',
-          required: false,
-          schema: { type: 'integer', minimum: 1 }
-        },
-        {
-          name: 'isActive',
-          in: 'query',
-          description: 'Aktiflik durumu ile filtreleme',
-          required: false,
-          schema: { type: 'boolean' }
-        }
+        { $ref: '#/components/schemas/PageQuery' },
+        { $ref: '#/components/schemas/LimitQuery' },
+        { $ref: '#/components/schemas/SearchQuery' },
       ],
       responses: {
-        200: {
-          description: 'Galeri resimleri başarıyla listelendi',
+        '200': {
+          description: 'Galeri kategorileri başarıyla getirildi.',
           content: {
             'application/json': {
-              schema: { $ref: '#/components/schemas/GalleryListResponse' }
-            }
-          }
+              schema: {
+                $ref: '#/components/schemas/GalleryCategoryListResponse',
+              },
+            },
+          },
         },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
     },
     post: {
       tags: ['Content'],
-      summary: 'Yeni galeri resmi ekle',
-      security: [{ bearerAuth: [] }],
+      summary: 'Yeni galeri kategorisi oluştur',
+      description: 'Yeni bir galeri kategorisi oluşturmak için kullanılır.',
       requestBody: {
         required: true,
         content: {
-          'multipart/form-data': {
-            schema: { $ref: '#/components/schemas/CreateGalleryImageRequest' }
-          }
-        }
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/CreateGalleryCategoryRequest',
+            },
+          },
+        },
       },
       responses: {
-        201: {
-          description: 'Galeri resmi başarıyla eklendi',
+        '201': {
+          description: 'Galeri kategorisi başarıyla oluşturuldu.',
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Galeri resmi başarıyla eklendi' },
-                  data: { $ref: '#/components/schemas/GalleryImage' },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
+                $ref: '#/components/schemas/GalleryCategory',
+              },
+            },
+          },
         },
-        400: { $ref: '#/components/responses/ValidationError' },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        413: {
-          description: 'Dosya boyutu çok büyük',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        415: {
-          description: 'Desteklenmeyen dosya formatı',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
-    }
+        '400': { $ref: '#/components/responses/ValidationError' },
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
   },
-  '/content/gallery/{id}': {
+  [`${config.API_PREFIX}/gallery/categories/{id}`]: {
     get: {
       tags: ['Content'],
-      summary: 'Galeri resmi detayı',
+      summary: 'Belirli bir galeri kategorisini getir',
+      description: 'Belirtilen ID\'ye sahip galeri kategorisini getirir.',
       parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          schema: { type: 'integer' }
-        }
+        { $ref: '#/components/schemas/IdParam' },
       ],
       responses: {
-        200: {
-          description: 'Galeri resmi detayı',
+        '200': {
+          description: 'Galeri kategorisi başarıyla getirildi.',
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Galeri resmi detayı getirildi' },
-                  data: { $ref: '#/components/schemas/GalleryImage' },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
+                $ref: '#/components/schemas/GalleryCategory',
+              },
+            },
+          },
         },
-        404: {
-          description: 'Galeri resmi bulunamadı',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '404': { $ref: '#/components/responses/NotFoundError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
     },
     put: {
       tags: ['Content'],
-      summary: 'Galeri resmi güncelle',
-      security: [{ bearerAuth: [] }],
+      summary: 'Galeri kategorisini güncelle',
+      description: 'Belirtilen ID\'ye sahip galeri kategorisini günceller.',
       parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          schema: { type: 'integer' }
-        }
+        { $ref: '#/components/schemas/IdParam' },
       ],
       requestBody: {
         required: true,
         content: {
           'application/json': {
-            schema: { $ref: '#/components/schemas/UpdateGalleryImageRequest' }
-          }
-        }
+            schema: {
+              $ref: '#/components/schemas/UpdateGalleryCategoryRequest',
+            },
+          },
+        },
       },
       responses: {
-        200: {
-          description: 'Galeri resmi başarıyla güncellendi',
+        '200': {
+          description: 'Galeri kategorisi başarıyla güncellendi.',
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Galeri resmi başarıyla güncellendi' },
-                  data: { $ref: '#/components/schemas/GalleryImage' },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
+                $ref: '#/components/schemas/GalleryCategory',
+              },
+            },
+          },
         },
-        400: { $ref: '#/components/responses/ValidationError' },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        404: {
-          description: 'Galeri resmi bulunamadı',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
+        '400': { $ref: '#/components/responses/ValidationError' },
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '404': { $ref: '#/components/responses/NotFoundError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
     },
     delete: {
       tags: ['Content'],
-      summary: 'Galeri resmi sil',
-      security: [{ bearerAuth: [] }],
+      summary: 'Galeri kategorisini sil',
+      description: 'Belirtilen ID\'ye sahip galeri kategorisini siler.',
       parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          schema: { type: 'integer' }
-        }
+        { $ref: '#/components/schemas/IdParam' },
       ],
       responses: {
-        200: {
-          description: 'Galeri resmi başarıyla silindi',
+        '204': {
+          description: 'Galeri kategorisi başarıyla silindi (İçerik Yok).',
+        },
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '404': { $ref: '#/components/responses/NotFoundError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
+  },
+  [`${config.API_PREFIX}/gallery/images`]: {
+    get: {
+      tags: ['Content'],
+      summary: 'Tüm galeri resimlerini getir',
+      description: 'Tüm galeri resimlerinin listesini sayfalama, arama ve kategori filtreleme seçenekleriyle getirir.',
+      parameters: [
+        { $ref: '#/components/schemas/PageQuery' },
+        { $ref: '#/components/schemas/LimitQuery' },
+        { $ref: '#/components/schemas/SearchQuery' },
+        {
+          name: 'categoryId',
+          in: 'query',
+          description: 'Kategori ID\'si ile filtrele (isteğe bağlı)',
+          required: false,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      responses: {
+        '200': {
+          description: 'Galeri resimleri başarıyla getirildi.',
           content: {
             'application/json': {
-              schema: { $ref: '#/components/schemas/ApiSuccessResponse' }
-            }
-          }
+              schema: {
+                $ref: '#/components/schemas/GalleryImageListResponse',
+              },
+            },
+          },
         },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        404: {
-          description: 'Galeri resmi bulunamadı',
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
+    post: {
+      tags: ['Content'],
+      summary: 'Yeni galeri resmi oluştur',
+      description: 'Yeni bir galeri resmi oluşturmak için kullanılır.',
+      requestBody: {
+        required: true,
+        content: {
+          'multipart/form-data': {
+            schema: {
+              $ref: '#/components/schemas/CreateGalleryImageRequest',
+            },
+          },
+        },
+      },
+      responses: {
+        '201': {
+          description: 'Galeri resmi başarıyla oluşturuldu.',
           content: {
             'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
+              schema: {
+                $ref: '#/components/schemas/GalleryImage',
+              },
+            },
+          },
         },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
-    }
-  }
+        '400': { $ref: '#/components/responses/ValidationError' },
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
+  },
+  [`${config.API_PREFIX}/gallery/images/{id}`]: {
+    get: {
+      tags: ['Content'],
+      summary: 'Belirli bir galeri resmini getir',
+      description: 'Belirtilen ID\'ye sahip galeri resmini getirir.',
+      parameters: [
+        { $ref: '#/components/schemas/IdParam' },
+      ],
+      responses: {
+        '200': {
+          description: 'Galeri resmi başarıyla getirildi.',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/GalleryImage',
+              },
+            },
+          },
+        },
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '404': { $ref: '#/components/responses/NotFoundError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
+    put: {
+      tags: ['Content'],
+      summary: 'Galeri resmini güncelle',
+      description: 'Belirtilen ID\'ye sahip galeri resmini günceller.',
+      parameters: [
+        { $ref: '#/components/schemas/IdParam' },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'multipart/form-data': {
+            schema: {
+              $ref: '#/components/schemas/UpdateGalleryImageRequest',
+            },
+          },
+        },
+      },
+      responses: {
+        '200': {
+          description: 'Galeri resmi başarıyla güncellendi.',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/GalleryImage',
+              },
+            },
+          },
+        },
+        '400': { $ref: '#/components/responses/ValidationError' },
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '404': { $ref: '#/components/responses/NotFoundError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
+    delete: {
+      tags: ['Content'],
+      summary: 'Galeri resmini sil',
+      description: 'Belirtilen ID\'ye sahip galeri resmini siler.',
+      parameters: [
+        { $ref: '#/components/schemas/IdParam' },
+      ],
+      responses: {
+        '204': {
+          description: 'Galeri resmi başarıyla silindi (İçerik Yok).',
+        },
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '404': { $ref: '#/components/responses/NotFoundError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
+  },
 }; 

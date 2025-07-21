@@ -24,8 +24,8 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
       duration,
       {
         requestId: req.id,
-        userId: req.user?.id,
-        userType: req.user?.userType
+        businessId: req.user?.businessId,
+        role: req.user?.role
       }
     );
     return oldSend.apply(res, arguments as any);

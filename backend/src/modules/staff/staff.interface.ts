@@ -9,6 +9,7 @@ export interface IStaff {
     avatar?: string;
     specialties?: string;
     isActive: boolean;
+    businessId: string; // İşletme ID (zorunlu)
     createdAt?: Date;
     updatedAt?: Date;
     services?: IStaffServiceRelation[];
@@ -22,6 +23,7 @@ export interface IStaffService {
     staffId: string;
     serviceId: string;
     isActive: boolean;
+    businessId: string; // İşletme ID (zorunlu)
     createdAt?: Date;
 }
 

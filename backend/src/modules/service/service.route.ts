@@ -2,7 +2,7 @@ import { Router } from "express";
 import ServiceController from "./service.controller";
 import ServiceService from "./service.service";
 import ServiceRepository from "./service.repository";
-import { requireAdmin } from "../../middleware/authMiddleware";
+import { requireBusinessOrAdmin, applyBusinessContext } from "../../middleware/businessAuthMiddleware";
 import { uploadSingleServiceImage } from "../../config/multer";
 
 /**
@@ -16,19 +16,19 @@ const serviceController = new ServiceController(serviceService);
 
 const router = Router();
 
-// Hizmet kategorisi rotaları
-router.get('/categories', serviceController.getAllServiceCategories.bind(serviceController));
-router.get('/categories/:id', serviceController.getServiceCategoryById.bind(serviceController));
-router.post('/categories', requireAdmin, uploadSingleServiceImage, serviceController.createServiceCategory.bind(serviceController));
-router.put('/categories/:id', requireAdmin, uploadSingleServiceImage, serviceController.updateServiceCategory.bind(serviceController));
-router.delete('/categories/:id', requireAdmin, serviceController.deleteServiceCategory.bind(serviceController));
+// Hizmet kategorisi rotaları (Business context gerektirir)
+router.get('/categories', requireBusinessOrAdmin, applyBusinessContext, serviceController.getAllServiceCategories.bind(serviceController));
+router.get('/categories/:id', requireBusinessOrAdmin, applyBusinessContext, serviceController.getServiceCategoryById.bind(serviceController));
+router.post('/categories', requireBusinessOrAdmin, applyBusinessContext, uploadSingleServiceImage, serviceController.createServiceCategory.bind(serviceController));
+router.put('/categories/:id', requireBusinessOrAdmin, applyBusinessContext, uploadSingleServiceImage, serviceController.updateServiceCategory.bind(serviceController));
+router.delete('/categories/:id', requireBusinessOrAdmin, applyBusinessContext, serviceController.deleteServiceCategory.bind(serviceController));
 
-// Hizmet rotaları
-router.get('/', serviceController.getAllServices.bind(serviceController));
-router.get('/:id', serviceController.getServiceById.bind(serviceController));
-router.get('/slug/:slug', serviceController.getServiceBySlug.bind(serviceController));
-router.post('/', requireAdmin, uploadSingleServiceImage, serviceController.createService.bind(serviceController));
-router.put('/:id', requireAdmin, uploadSingleServiceImage, serviceController.updateService.bind(serviceController));
-router.delete('/:id', requireAdmin, serviceController.deleteService.bind(serviceController));
+// Hizmet rotaları (Business context gerektirir)
+router.get('/', requireBusinessOrAdmin, applyBusinessContext, serviceController.getAllServices.bind(serviceController));
+router.get('/:id', requireBusinessOrAdmin, applyBusinessContext, serviceController.getServiceById.bind(serviceController));
+router.get('/slug/:slug', requireBusinessOrAdmin, applyBusinessContext, serviceController.getServiceBySlug.bind(serviceController));
+router.post('/', requireBusinessOrAdmin, applyBusinessContext, uploadSingleServiceImage, serviceController.createService.bind(serviceController));
+router.put('/:id', requireBusinessOrAdmin, applyBusinessContext, uploadSingleServiceImage, serviceController.updateService.bind(serviceController));
+router.delete('/:id', requireBusinessOrAdmin, applyBusinessContext, serviceController.deleteService.bind(serviceController));
 
 export default router; 

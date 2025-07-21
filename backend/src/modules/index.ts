@@ -1,10 +1,11 @@
 import { Router } from "express";
-import adminRoutes from "./admin/admin.route";
-import authRoutes from "./auth/auth.route";
+import businessAuthRoutes from "./business-auth/business-auth.route";
+import superAdminRoutes from "./super-admin/super-admin.route";
 import customerRoutes from "./customer/customer.route";
 import contactRoutes from "./contact/contact.route";
 import staffRoutes from "./staff/staff.route";
 import serviceRoutes from "./service/service.route";
+import categoryRoutes from "./category/category.route";
 
 /**
  * Tüm modül rotalarını birleştiren ana router
@@ -21,11 +22,11 @@ class ModuleRoutes {
      * Tüm modül rotalarını initialize eder
      */
     private initializeRoutes(): void {
-        // Admin modülü rotaları
-        this.router.use("/admin", adminRoutes);
+        // Business auth modülü rotaları
+        this.router.use("/business-auth", businessAuthRoutes);
         
-        // Auth modülü rotaları
-        this.router.use("/auth", authRoutes);
+        // Super admin modülü rotaları
+        this.router.use("/super-admin", superAdminRoutes);
         
         // Customer modülü rotaları
         this.router.use("/customers", customerRoutes);
@@ -38,6 +39,9 @@ class ModuleRoutes {
         
         // Service modülü rotaları
         this.router.use("/services", serviceRoutes);
+        
+        // Kategori modülü rotaları
+        this.router.use("/categories", categoryRoutes);
     }
 
     /**

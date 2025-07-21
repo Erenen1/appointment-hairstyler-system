@@ -1,233 +1,135 @@
+import config from '../../config/env';
+
 export const customerPaths = {
-  '/customers': {
+  [`${config.API_PREFIX}/customers`]: {
     get: {
       tags: ['Customers'],
-      summary: 'Müşterileri listele',
-      security: [{ bearerAuth: [] }],
+      summary: 'Tüm müşterileri getir',
+      description: 'Tüm müşterilerin listesini sayfalama ve arama seçenekleriyle getirir.',
       parameters: [
-        {
-          name: 'page',
-          in: 'query',
-          description: 'Sayfa numarası',
-          required: false,
-          schema: { type: 'integer', minimum: 1, default: 1 }
-        },
-        {
-          name: 'limit',
-          in: 'query',
-          description: 'Sayfa başına kayıt sayısı',
-          required: false,
-          schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 }
-        },
-        {
-          name: 'search',
-          in: 'query',
-          description: 'İsim, telefon veya email ile arama',
-          required: false,
-          schema: { type: 'string' }
-        }
+        { $ref: '#/components/schemas/PageQuery' },
+        { $ref: '#/components/schemas/LimitQuery' },
+        { $ref: '#/components/schemas/SearchQuery' },
       ],
       responses: {
-        200: {
-          description: 'Müşteriler başarıyla listelendi',
+        '200': {
+          description: 'Müşteriler başarıyla getirildi.',
           content: {
             'application/json': {
-              schema: { $ref: '#/components/schemas/CustomerListResponse' }
-            }
-          }
+              schema: {
+                $ref: '#/components/schemas/CustomerListResponse',
+              },
+            },
+          },
         },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
     },
     post: {
       tags: ['Customers'],
       summary: 'Yeni müşteri oluştur',
-      security: [{ bearerAuth: [] }],
+      description: 'Yeni bir müşteri oluşturmak için kullanılır.',
       requestBody: {
         required: true,
         content: {
           'application/json': {
-            schema: { $ref: '#/components/schemas/CreateCustomerRequest' }
-          }
-        }
+            schema: {
+              $ref: '#/components/schemas/CreateCustomerRequest',
+            },
+          },
+        },
       },
       responses: {
-        201: {
-          description: 'Müşteri başarıyla oluşturuldu',
+        '201': {
+          description: 'Müşteri başarıyla oluşturuldu.',
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Müşteri başarıyla oluşturuldu' },
-                  data: { $ref: '#/components/schemas/Customer' },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
+                $ref: '#/components/schemas/Customer',
+              },
+            },
+          },
         },
-        400: { $ref: '#/components/responses/ValidationError' },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        409: {
-          description: 'Telefon veya email zaten kullanımda',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
-    }
+        '400': { $ref: '#/components/responses/ValidationError' },
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
   },
-  '/customers/{id}': {
+  [`${config.API_PREFIX}/customers/{id}`]: {
     get: {
       tags: ['Customers'],
-      summary: 'Müşteri detayı',
-      security: [{ bearerAuth: [] }],
+      summary: 'Belirli bir müşteriyi getir',
+      description: 'Belirtilen ID\'ye sahip müşteriyi getirir.',
       parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          schema: { type: 'integer' }
-        }
+        { $ref: '#/components/schemas/IdParam' },
       ],
       responses: {
-        200: {
-          description: 'Müşteri detayı',
+        '200': {
+          description: 'Müşteri başarıyla getirildi.',
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Müşteri detayı getirildi' },
-                  data: { $ref: '#/components/schemas/Customer' },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
+                $ref: '#/components/schemas/Customer',
+              },
+            },
+          },
         },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        404: {
-          description: 'Müşteri bulunamadı',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '404': { $ref: '#/components/responses/NotFoundError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
     },
     put: {
       tags: ['Customers'],
-      summary: 'Müşteri güncelle',
-      security: [{ bearerAuth: [] }],
+      summary: 'Müşteriyi güncelle',
+      description: 'Belirtilen ID\'ye sahip müşteriyi günceller.',
       parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          schema: { type: 'integer' }
-        }
+        { $ref: '#/components/schemas/IdParam' },
       ],
       requestBody: {
         required: true,
         content: {
           'application/json': {
-            schema: { $ref: '#/components/schemas/UpdateCustomerRequest' }
-          }
-        }
+            schema: {
+              $ref: '#/components/schemas/UpdateCustomerRequest',
+            },
+          },
+        },
       },
       responses: {
-        200: {
-          description: 'Müşteri başarıyla güncellendi',
+        '200': {
+          description: 'Müşteri başarıyla güncellendi.',
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Müşteri başarıyla güncellendi' },
-                  data: { $ref: '#/components/schemas/Customer' },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
+                $ref: '#/components/schemas/Customer',
+              },
+            },
+          },
         },
-        400: { $ref: '#/components/responses/ValidationError' },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        404: {
-          description: 'Müşteri bulunamadı',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        409: {
-          description: 'Telefon veya email zaten kullanımda',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
+        '400': { $ref: '#/components/responses/ValidationError' },
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '404': { $ref: '#/components/responses/NotFoundError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
     },
     delete: {
       tags: ['Customers'],
-      summary: 'Müşteri sil',
-      security: [{ bearerAuth: [] }],
+      summary: 'Müşteriyi sil',
+      description: 'Belirtilen ID\'ye sahip müşteriyi siler.',
       parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          schema: { type: 'integer' }
-        }
+        { $ref: '#/components/schemas/IdParam' },
       ],
       responses: {
-        200: {
-          description: 'Müşteri başarıyla silindi',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ApiSuccessResponse' }
-            }
-          }
+        '204': {
+          description: 'Müşteri başarıyla silindi (İçerik Yok).',
         },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        404: {
-          description: 'Müşteri bulunamadı',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        409: {
-          description: 'Müşteri aktif randevularda kullanılıyor',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' }
-            }
-          }
-        },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
-    }
-  }
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '404': { $ref: '#/components/responses/NotFoundError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
+  },
 }; 

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import ContactService from "./contact.service";
-import { ApiSuccess } from "../../utils/ApiResponse";
+import { ApiSuccess, ApiError } from "../../utils";
 import { ContactCreateDTO } from "./dto";
 
 /**

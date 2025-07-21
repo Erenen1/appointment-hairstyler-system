@@ -21,6 +21,16 @@ module.exports = (sequelize, DataTypes) => {
         closeTime: {
             type: DataTypes.TIME,
         },
+        businessId: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            field: 'business_id',
+            references: {
+                model: 'businesses',
+                key: 'id',
+            },
+            comment: 'İşletme ID (foreign key)'
+        },
     }, {
         tableName: 'special_days',
         timestamps: true,

@@ -1,81 +1,117 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authPaths = void 0;
+const env_1 = __importDefault(require("../../config/env"));
 exports.authPaths = {
-    '/auth/admin/login': {
+    [`${env_1.default.API_PREFIX}/business-auth/register`]: {
         post: {
-            tags: ['Authentication'],
-            summary: 'Admin girişi',
-            description: 'Admin kullanıcısı email ve şifre ile giriş yapar. Başarılı girişte JWT token döner.',
+            tags: ['Business Auth'],
+            summary: 'Yeni bir işletme kaydı',
+            description: 'Yeni bir işletmenin sisteme kaydedilmesi için kullanılır.',
             requestBody: {
                 required: true,
                 content: {
                     'application/json': {
-                        schema: { $ref: '#/components/schemas/LoginRequest' }
-                    }
-                }
+                        schema: {
+                            $ref: '#/components/schemas/BusinessRegister',
+                        },
+                    },
+                },
             },
             responses: {
-                200: {
-                    description: 'Giriş başarılı - JWT token döndürüldü',
+                '201': {
+                    description: 'İşletme başarıyla kaydedildi.',
                     content: {
                         'application/json': {
-                            schema: { $ref: '#/components/schemas/LoginResponse' }
-                        }
-                    }
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    message: { type: 'string', example: 'İşletme başarıyla kaydedildi.' },
+                                },
+                            },
+                        },
+                    },
                 },
-                401: {
-                    description: 'Geçersiz kimlik bilgileri',
+                '400': {
+                    description: 'Hatalı istek. E-posta zaten kayıtlı olabilir veya eksik alanlar var.',
                     content: {
                         'application/json': {
-                            schema: { $ref: '#/components/schemas/ErrorResponse' }
-                        }
-                    }
+                            schema: {
+                                $ref: '#/components/schemas/Error',
+                            },
+                        },
+                    },
                 },
-                400: { $ref: '#/components/responses/ValidationError' },
-                500: { $ref: '#/components/responses/InternalError' }
-            }
-        }
+                '500': {
+                    description: 'Sunucu hatası.',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                $ref: '#/components/schemas/Error',
+                            },
+                        },
+                    },
+                },
+            },
+        },
     },
-    '/auth/logout': {
+    [`${env_1.default.API_PREFIX}/business-auth/login`]: {
         post: {
-            tags: ['Authentication'],
-            summary: 'Çıkış yap',
-            description: 'JWT token ile çıkış işlemi. Client-side\'da token silinmelidir.',
-            security: [{ bearerAuth: [] }],
+            tags: ['Business Auth'],
+            summary: 'İşletme girişi',
+            description: 'Kayıtlı bir işletmenin sisteme giriş yapması için kullanılır.',
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            $ref: '#/components/schemas/BusinessLogin',
+                        },
+                    },
+                },
+            },
             responses: {
-                200: {
-                    description: 'Çıkış başarılı',
+                '200': {
+                    description: 'Giriş başarılı.',
                     content: {
                         'application/json': {
-                            schema: { $ref: '#/components/schemas/LogoutResponse' }
-                        }
-                    }
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    token: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+                                    business: {
+                                        $ref: '#/components/schemas/Business',
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
-                401: { $ref: '#/components/responses/UnauthorizedError' },
-                500: { $ref: '#/components/responses/InternalError' }
-            }
-        }
+                '401': {
+                    description: 'Kimlik doğrulama başarısız. Geçersiz kimlik bilgileri.',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                $ref: '#/components/schemas/Error',
+                            },
+                        },
+                    },
+                },
+                '500': {
+                    description: 'Sunucu hatası.',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                $ref: '#/components/schemas/Error',
+                            },
+                        },
+                    },
+                },
+            },
+        },
     },
-    '/auth/profile': {
-        get: {
-            tags: ['Authentication'],
-            summary: 'Mevcut kullanıcı bilgisi',
-            description: 'JWT token\'dan kullanıcı bilgilerini döner',
-            security: [{ bearerAuth: [] }],
-            responses: {
-                200: {
-                    description: 'Kullanıcı bilgileri',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ProfileResponse' }
-                        }
-                    }
-                },
-                401: { $ref: '#/components/responses/UnauthorizedError' },
-                500: { $ref: '#/components/responses/InternalError' }
-            }
-        }
-    }
 };
 //# sourceMappingURL=auth.js.map

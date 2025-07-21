@@ -5,46 +5,47 @@ exports.customerSchemas = {
     Customer: {
         type: 'object',
         properties: {
-            id: { type: 'integer', example: 1 },
-            fullName: { type: 'string', example: 'Ayşe Kaya' },
-            phone: { type: 'string', example: '+90 555 111 2233' },
-            email: { type: 'string', format: 'email', example: 'ayse@example.com' },
-            notes: { type: 'string', example: 'Hassas cilt' },
+            id: { type: 'string', format: 'uuid' },
+            businessId: { type: 'string', format: 'uuid' },
+            firstName: { type: 'string' },
+            lastName: { type: 'string' },
+            email: { type: 'string', format: 'email', nullable: true },
+            phone: { type: 'string', nullable: true },
+            notes: { type: 'string', nullable: true },
             createdAt: { type: 'string', format: 'date-time' },
-            updatedAt: { type: 'string', format: 'date-time' }
-        }
+            updatedAt: { type: 'string', format: 'date-time' },
+        },
     },
     CreateCustomerRequest: {
         type: 'object',
-        required: ['fullName', 'phone'],
+        required: ['firstName', 'lastName'],
         properties: {
-            fullName: { type: 'string', minLength: 2, maxLength: 100, example: 'Ayşe Kaya' },
-            phone: { type: 'string', pattern: '^[0-9+\\-\\s()]+$', example: '+90 555 111 2233' },
-            email: { type: 'string', format: 'email', example: 'ayse@example.com' },
-            notes: { type: 'string', maxLength: 500, example: 'Hassas cilt' }
-        }
+            firstName: { type: 'string', description: 'Müşteri adı' },
+            lastName: { type: 'string', description: 'Müşteri soyadı' },
+            email: { type: 'string', format: 'email', description: 'Müşteri e-posta adresi (isteğe bağlı)', nullable: true },
+            phone: { type: 'string', description: 'Müşteri telefon numarası (isteğe bağlı)', nullable: true },
+            notes: { type: 'string', description: 'Müşteri notları (isteğe bağlı)', nullable: true },
+        },
     },
     UpdateCustomerRequest: {
         type: 'object',
         properties: {
-            fullName: { type: 'string', minLength: 2, maxLength: 100, example: 'Ayşe Kaya' },
-            phone: { type: 'string', pattern: '^[0-9+\\-\\s()]+$', example: '+90 555 111 2233' },
-            email: { type: 'string', format: 'email', example: 'ayse@example.com' },
-            notes: { type: 'string', maxLength: 500, example: 'Hassas cilt' }
-        }
+            firstName: { type: 'string', description: 'Müşteri adı' },
+            lastName: { type: 'string', description: 'Müşteri soyadı' },
+            email: { type: 'string', format: 'email', description: 'Müşteri e-posta adresi (isteğe bağlı)', nullable: true },
+            phone: { type: 'string', description: 'Müşteri telefon numarası (isteğe bağlı)', nullable: true },
+            notes: { type: 'string', description: 'Müşteri notları (isteğe bağlı)', nullable: true },
+        },
     },
     CustomerListResponse: {
         type: 'object',
         properties: {
-            success: { type: 'boolean', example: true },
-            message: { type: 'string', example: 'Müşteriler başarıyla listelendi' },
             data: {
                 type: 'array',
-                items: { $ref: '#/components/schemas/Customer' }
+                items: { $ref: '#/components/schemas/Customer' },
             },
-            pagination: { $ref: '#/components/schemas/PaginationInfo' },
-            timestamp: { type: 'string', format: 'date-time' }
-        }
-    }
+            pagination: { $ref: '#/components/schemas/PaginationResponse' },
+        },
+    },
 };
 //# sourceMappingURL=customer.js.map

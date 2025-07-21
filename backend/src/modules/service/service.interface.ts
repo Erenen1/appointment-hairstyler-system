@@ -8,6 +8,7 @@ export interface IServiceCategory {
     imagePath?: string;
     orderIndex: number;
     isActive: boolean;
+    businessId: string; // İşletme ID (zorunlu)
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -25,6 +26,7 @@ export interface IService {
     price: string;
     isActive: boolean;
     orderIndex: number;
+    businessId: string; // İşletme ID (zorunlu)
     benefits?: any;
     includes?: any;
     recommendedFor?: any;
@@ -45,6 +47,7 @@ export interface IServiceImage {
     imagePath: string;
     isMain: boolean;
     orderIndex: number;
+    businessId: string; // İşletme ID (zorunlu)
     createdAt?: Date;
 }
 

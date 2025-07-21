@@ -19,6 +19,7 @@ export interface Config {
   LOG_LEVEL: string;
   JWT_EXPIRES_IN: string;
   UPLOAD_DIR: string;
+  API_PREFIX: string;
 }
 
 export interface LogConfig {

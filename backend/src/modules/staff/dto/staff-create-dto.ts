@@ -8,4 +8,5 @@ export class StaffCreateDTO {
     specialties?: string;
     serviceIds?: string[];
     avatar?: Express.Multer.File;
+    // businessId middleware'den otomatik eklenecek
 } 

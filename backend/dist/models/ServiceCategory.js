@@ -18,6 +18,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             defaultValue: 0,
         },
+        businessId: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            field: 'business_id',
+            references: {
+                model: 'businesses',
+                key: 'id',
+            },
+            comment: 'İşletme ID (foreign key)'
+        },
         isActive: {
             type: DataTypes.BOOLEAN,
             defaultValue: true,

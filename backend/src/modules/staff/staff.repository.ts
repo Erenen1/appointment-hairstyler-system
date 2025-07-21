@@ -14,12 +14,13 @@ class StaffRepository extends BaseRepository<IStaff> {
     }
 
     /**
-     * Tüm personelleri getirir
+     * İşletmeye ait tüm personelleri getirir
+     * @param businessId İşletme ID
      * @param isActive Aktiflik durumu filtresi (opsiyonel)
      * @returns Personel listesi
      */
-    public async getAllStaff(isActive?: boolean): Promise<IStaff[]> {
-        const whereConditions: any = {};
+    public async getAllStaff(businessId: string, isActive?: boolean): Promise<IStaff[]> {
+        const whereConditions: any = { businessId };
 
         if (isActive !== undefined) {
             whereConditions.isActive = isActive;
@@ -60,12 +61,14 @@ class StaffRepository extends BaseRepository<IStaff> {
     }
 
     /**
-     * ID'ye göre personel getirir
+     * ID'ye göre işletmeye ait personel getirir
      * @param id Personel ID
+     * @param businessId İşletme ID
      * @returns Personel bilgileri
      */
-    public async getStaffById(id: string): Promise<IStaff | null> {
-        const staff = await Staff.findByPk(id, {
+    public async getStaffById(id: string, businessId: string): Promise<IStaff | null> {
+        const staff = await Staff.findOne({
+            where: { id, businessId },
             include: [
                 {
                     model: Service,
@@ -104,12 +107,13 @@ class StaffRepository extends BaseRepository<IStaff> {
     }
 
     /**
-     * E-posta adresine göre personel arar
+     * İşletmeye ait e-posta adresine göre personel arar
      * @param email Personel e-posta adresi
+     * @param businessId İşletme ID
      * @returns Bulunan personel veya null
      */
-    public async findByEmail(email: string): Promise<IStaff | null> {
-        return await Staff.findOne({ where: { email: email } });
+    public async findByEmail(email: string, businessId: string): Promise<IStaff | null> {
+        return await Staff.findOne({ where: { email, businessId } });
     }
 
     /**
@@ -122,21 +126,33 @@ class StaffRepository extends BaseRepository<IStaff> {
     }
 
     /**
-     * Personel bilgilerini günceller
+     * İşletmeye ait personel bilgilerini günceller
      * @param id Personel ID
+     * @param businessId İşletme ID
      * @param staff Güncellenecek personel bilgileri
      * @returns Güncellenen personel
      */
-    public async updateStaff(id: string, staff: Partial<IStaff>): Promise<IStaff | null> {
+    public async updateStaff(id: string, businessId: string, staff: Partial<IStaff>): Promise<IStaff | null> {
+        // İlk önce business'a ait olduğunu kontrol et
+        const existingStaff = await this.getStaffById(id, businessId);
+        if (!existingStaff) {
+            return null;
+        }
         return await this.update(id, staff);
     }
 
     /**
-     * Personel kaydını siler
+     * İşletmeye ait personel kaydını siler
      * @param id Personel ID
+     * @param businessId İşletme ID
      * @returns İşlem başarılı ise true
      */
-    public async deleteStaff(id: string): Promise<boolean> {
+    public async deleteStaff(id: string, businessId: string): Promise<boolean> {
+        // İlk önce business'a ait olduğunu kontrol et
+        const existingStaff = await this.getStaffById(id, businessId);
+        if (!existingStaff) {
+            return false;
+        }
         return await this.delete(id);
     }
 
@@ -144,12 +160,14 @@ class StaffRepository extends BaseRepository<IStaff> {
      * Personel-Hizmet ilişkisi oluşturur
      * @param staffId Personel ID
      * @param serviceId Hizmet ID
+     * @param businessId İşletme ID
      * @returns Oluşturulan ilişki
      */
-    public async createStaffService(staffId: string, serviceId: string): Promise<IStaffService> {
+    public async createStaffService(staffId: string, serviceId: string, businessId: string): Promise<IStaffService> {
         return await StaffService.create({
             staffId,
             serviceId,
+            businessId,
             isActive: true
         });
     }
@@ -157,11 +175,12 @@ class StaffRepository extends BaseRepository<IStaff> {
     /**
      * Personelin tüm hizmet ilişkilerini siler
      * @param staffId Personel ID
+     * @param businessId İşletme ID
      * @returns İşlem başarılı ise true
      */
-    public async deleteStaffServices(staffId: string): Promise<boolean> {
+    public async deleteStaffServices(staffId: string, businessId: string): Promise<boolean> {
         const result = await StaffService.destroy({
-            where: { staffId }
+            where: { staffId, businessId }
         });
 
         return result > 0;

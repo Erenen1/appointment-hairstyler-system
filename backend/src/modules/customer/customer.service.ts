@@ -1,4 +1,4 @@
-import { ApiError } from "../../utils/ApiError";
+import { ApiError } from "../../utils";
 import CustomerRepository from "./customer.repository";
 import { CustomerCreateDTO, CustomerUpdateDTO } from "./dto";
 import { ICustomer } from "./customer.interface";

@@ -1,4 +1,4 @@
-import { ApiError } from "../../utils/ApiError";
+import { ApiError } from "../../utils";
 import StaffRepository from "./staff.repository";
 import { StaffCreateDTO, StaffUpdateDTO } from "./dto";
 import { IStaff } from "./staff.interface";
@@ -16,21 +16,23 @@ class StaffService {
     }
 
     /**
-     * Tüm personelleri getirir
+     * İşletmeye ait tüm personelleri getirir
+     * @param businessId İşletme ID
      * @param isActive Aktiflik durumu filtresi (opsiyonel)
      * @returns Personel listesi
      */
-    public async getAllStaff(isActive?: boolean): Promise<IStaff[]> {
-        return await this.staffRepository.getAllStaff(isActive);
+    public async getAllStaff(businessId: string, isActive?: boolean): Promise<IStaff[]> {
+        return await this.staffRepository.getAllStaff(businessId, isActive);
     }
 
     /**
-     * ID'ye göre personel getirir
+     * İşletmeye ait ID'ye göre personel getirir
      * @param id Personel ID
+     * @param businessId İşletme ID
      * @returns Personel bilgileri
      */
-    public async getStaffById(id: string): Promise<IStaff> {
-        const staff = await this.staffRepository.getStaffById(id);
+    public async getStaffById(id: string, businessId: string): Promise<IStaff> {
+        const staff = await this.staffRepository.getStaffById(id, businessId);
         if (!staff) {
             throw ApiError.notFound('Personel bulunamadı');
         }
@@ -40,13 +42,14 @@ class StaffService {
     /**
      * Yeni personel oluşturur
      * @param staffDto Personel bilgileri
+     * @param businessId İşletme ID
      * @param file Yüklenen avatar dosyası
      * @param req Express isteği
      * @returns Oluşturulan personel
      */
-    public async createStaff(staffDto: StaffCreateDTO, file: Express.Multer.File | undefined, req: any): Promise<IStaff> {
+    public async createStaff(staffDto: StaffCreateDTO, businessId: string, file: Express.Multer.File | undefined, req: any): Promise<IStaff> {
         // E-posta kontrolü
-        const existingStaff = await this.staffRepository.findByEmail(staffDto.email);
+        const existingStaff = await this.staffRepository.findByEmail(staffDto.email, businessId);
         if (existingStaff) {
             throw ApiError.conflict('Bu email adresi ile kayıtlı personel zaten mevcut');
         }
@@ -65,8 +68,10 @@ class StaffService {
             phone: staffDto.phone,
             specialties: staffDto.specialties,
             avatar: avatarPath,
+            businessId: businessId,
             isActive: true,
         });
+        
         if(staffDto.serviceIds && typeof staffDto.serviceIds === 'string'){
             staffDto.serviceIds = JSON.parse(staffDto.serviceIds);
         }
@@ -74,113 +79,128 @@ class StaffService {
         if (staffDto.serviceIds) {
             await Promise.all(
                 staffDto.serviceIds.map(serviceId => {
-                    this.staffRepository.createStaffService(staff.id.toString(), serviceId.toString())
+                    this.staffRepository.createStaffService(staff.id.toString(), serviceId.toString(), businessId)
                 })
             );
         }
-        return await this.getStaffById(staff.id);
+        return await this.getStaffById(staff.id, businessId);
     }
 
     /**
      * Personel bilgilerini günceller
      * @param id Personel ID
+     * @param businessId İşletme ID
      * @param staffDto Güncellenecek personel bilgileri
      * @param file Yüklenen avatar dosyası
      * @param req Express isteği
      * @returns Güncellenen personel
      */
-    public async updateStaff(id: string, staffDto: StaffUpdateDTO, file: Express.Multer.File | undefined, req: any): Promise<IStaff> {
+    public async updateStaff(id: string, businessId: string, staffDto: StaffUpdateDTO, file: Express.Multer.File | undefined, req: any): Promise<IStaff> {
         // Personel kontrolü
-        const staff = await this.staffRepository.getStaffById(id);
+        const staff = await this.staffRepository.getStaffById(id, businessId);
         if (!staff) {
             throw ApiError.notFound('Personel bulunamadı');
         }
 
         // E-posta değiştirilmek isteniyorsa, mevcut bir personel tarafından kullanılıp kullanılmadığını kontrol et
         if (staffDto.email && staffDto.email !== staff.email) {
-            const existingStaff = await this.staffRepository.findByEmail(staffDto.email);
+            const existingStaff = await this.staffRepository.findByEmail(staffDto.email, businessId);
             if (existingStaff) {
                 throw ApiError.conflict('Bu email adresi başka bir personel tarafından kullanılıyor');
             }
         }
 
-        // Avatar dosyası yüklendi mi kontrol et
+        // Avatar dosyası güncellenecek mi kontrol et
         let avatarPath = staff.avatar;
         if (file) {
             // Eski avatar dosyasını sil
             if (staff.avatar) {
-                const oldAvatarUrl = staff.avatar;
-                const oldAvatarPath = oldAvatarUrl.substring(oldAvatarUrl.indexOf('/uploads/') + 9);
-                const fullPath = path.join(__dirname, '../../../uploads', oldAvatarPath);
-                await deleteFile(fullPath);
+                await deleteFile(staff.avatar);
             }
-            
-            // Yeni avatar dosyasını kaydet
             const fileName = file.filename;
             avatarPath = generateFileUrl(req, path.join('profiles', fileName));
         }
 
         // Personeli güncelle
-        const updateData: Partial<IStaff> = {
-            fullName: staffDto.fullName || staff.fullName,
-            email: staffDto.email || staff.email,
-            phone: staffDto.phone || staff.phone,
-            specialties: staffDto.specialties !== undefined ? staffDto.specialties : staff.specialties,
-            isActive: staffDto.isActive !== undefined ? staffDto.isActive : staff.isActive,
-            avatar: avatarPath
-        };
+        const updatedStaff = await this.staffRepository.updateStaff(id, businessId, {
+            fullName: staffDto.fullName,
+            email: staffDto.email,
+            phone: staffDto.phone,
+            specialties: staffDto.specialties,
+            avatar: avatarPath,
+            isActive: staffDto.isActive,
+        });
 
-        await this.staffRepository.updateStaff(id, updateData);
-
-        // Hizmet ilişkilerini güncelle
-        if (staffDto.serviceIds) {
-            // Mevcut ilişkileri sil
-            await this.staffRepository.deleteStaffServices(id);
-            
-            // Yeni ilişkileri oluştur
-            if (staffDto.serviceIds.length > 0) {
-                await Promise.all(
-                    staffDto.serviceIds.map(serviceId => 
-                        this.staffRepository.createStaffService(id, serviceId)
-                    )
-                );
-            }
+        if (!updatedStaff) {
+            throw ApiError.notFound('Personel güncellenemedi');
         }
 
-        // Güncellenen personeli tüm ilişkileriyle birlikte getir
-        return await this.getStaffById(id);
+        // Hizmet ilişkilerini güncelle
+        if(staffDto.serviceIds && typeof staffDto.serviceIds === 'string'){
+            staffDto.serviceIds = JSON.parse(staffDto.serviceIds);
+        }
+        
+        if (staffDto.serviceIds) {
+            // Eski ilişkileri sil
+            await this.staffRepository.deleteStaffServices(id, businessId);
+            
+            // Yeni ilişkileri oluştur
+            await Promise.all(
+                staffDto.serviceIds.map(serviceId => {
+                    this.staffRepository.createStaffService(id, serviceId.toString(), businessId)
+                })
+            );
+        }
+
+        return await this.getStaffById(id, businessId);
     }
 
     /**
      * Personel kaydını siler
      * @param id Personel ID
+     * @param businessId İşletme ID
      * @returns İşlem başarılı ise true
      */
-    public async deleteStaff(id: string): Promise<boolean> {
+    public async deleteStaff(id: string, businessId: string): Promise<boolean> {
         // Personel kontrolü
-        const staff = await this.staffRepository.getStaffById(id);
+        const staff = await this.staffRepository.getStaffById(id, businessId);
         if (!staff) {
             throw ApiError.notFound('Personel bulunamadı');
         }
 
         // Avatar dosyasını sil
         if (staff.avatar) {
-            const avatarUrl = staff.avatar;
-            const avatarPath = avatarUrl.substring(avatarUrl.indexOf('/uploads/') + 9);
-            const fullPath = path.join(__dirname, '../../../uploads', avatarPath);
-            await deleteFile(fullPath);
+            await deleteFile(staff.avatar);
         }
 
         // Hizmet ilişkilerini sil
-        await this.staffRepository.deleteStaffServices(id);
+        await this.staffRepository.deleteStaffServices(id, businessId);
 
         // Personeli sil
-        const result = await this.staffRepository.deleteStaff(id);
-        if (!result) {
-            throw ApiError.internal('Personel silinirken bir hata oluştu');
+        return await this.staffRepository.deleteStaff(id, businessId);
+    }
+
+    /**
+     * Personelin durumunu değiştirir (aktif/pasif)
+     * @param id Personel ID
+     * @param businessId İşletme ID
+     * @returns Güncellenen personel
+     */
+    public async toggleStaffStatus(id: string, businessId: string): Promise<IStaff> {
+        const staff = await this.staffRepository.getStaffById(id, businessId);
+        if (!staff) {
+            throw ApiError.notFound('Personel bulunamadı');
         }
-        
-        return result;
+
+        const updatedStaff = await this.staffRepository.updateStaff(id, businessId, {
+            isActive: !staff.isActive
+        });
+
+        if (!updatedStaff) {
+            throw ApiError.internal('Personel durumu güncellenemedi');
+        }
+
+        return updatedStaff;
     }
 }
 

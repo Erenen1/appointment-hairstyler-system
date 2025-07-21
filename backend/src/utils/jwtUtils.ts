@@ -3,10 +3,9 @@ import { ApiError } from './ApiError';
 import jwt, { SignOptions } from "jsonwebtoken"
 
 export interface JwtPayload {
-  id: string;
-  email: string;
-  fullName: string;
-  userType?: string;
+  businessId: string; // Business ID (super_admin için 'super_admin')
+  businessName: string; // Business adı (super_admin için 'Super Admin')
+  role: 'business' | 'super_admin'; // Sadece iki rol
   exp?: number;
   iat?: number;
 }

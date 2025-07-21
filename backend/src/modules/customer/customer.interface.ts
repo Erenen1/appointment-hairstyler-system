@@ -8,6 +8,7 @@ export interface ICustomer {
     phone: string;
     notes: string;
     isActive: boolean;
+    businessId: string; // İşletme ID (zorunlu)
     createdAt?: Date;
     updatedAt?: Date;
 }

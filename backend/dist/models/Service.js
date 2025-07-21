@@ -23,8 +23,8 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
         },
         duration: {
-            type: DataTypes.STRING,
-            comment: 'Duration as string (e.g., "45 dakika")'
+            type: DataTypes.INTEGER,
+            comment: 'Duration in minutes (e.g., 45)'
         },
         price: {
             type: DataTypes.STRING,
@@ -33,6 +33,16 @@ module.exports = (sequelize, DataTypes) => {
         isActive: {
             type: DataTypes.BOOLEAN,
             defaultValue: true,
+        },
+        businessId: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            field: 'business_id',
+            references: {
+                model: 'businesses',
+                key: 'id',
+            },
+            comment: 'İşletme ID (foreign key)'
         },
         orderIndex: {
             type: DataTypes.INTEGER,

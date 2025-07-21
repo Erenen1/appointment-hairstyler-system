@@ -1,4 +1,4 @@
-import { ApiError } from "../../utils/ApiError";
+import { ApiError } from "../../utils";
 import ContactRepository from "./contact.repository";
 import { ContactCreateDTO, ContactUpdateDTO } from "./dto";
 import { IContactMessage, IContactStats } from "./contact.interface";
@@ -116,6 +116,7 @@ class ContactService {
         const contactMessage = await this.contactRepository.createContactMessage({
             ...contactDto,
             isRead: false,
+            businessId: '00000000-0000-0000-0000-000000000000', // Genel mesajlar için default business ID
             ...clientInfo
         } as IContactMessage);
 

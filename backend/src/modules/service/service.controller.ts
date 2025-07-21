@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import ServiceService from "./service.service";
-import { ApiSuccess } from "../../utils/ApiResponse";
+import { ApiSuccess, ApiError } from "../../utils";
 import { ServiceCreateDTO, ServiceUpdateDTO, ServiceCategoryCreateDTO, ServiceCategoryUpdateDTO } from "./dto";
 
 /**
@@ -21,6 +21,11 @@ class ServiceController {
      */
     public async getAllServices(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            const businessId = (req as any).businessId;
+            if (!businessId) {
+                throw ApiError.badRequest('İşletme bilgisi bulunamadı');
+            }
+
             const filters = {
                 search: req.query.search as string,
                 categoryId: req.query.categoryId as string,

@@ -1,83 +1,70 @@
+import config from '../../config/env';
+
 export const healthPaths = {
-  '/health': {
+  [`${config.API_PREFIX}/health`]: {
     get: {
       tags: ['Health'],
-      summary: 'Sistem sağlık durumu',
-      description: 'Sistemin genel sağlık durumunu kontrol eder',
+      summary: 'API sağlık kontrolü',
+      description: 'API"nin çalışır durumda olup olmadığını kontrol eder.',
       responses: {
-        200: {
-          description: 'Sistem sağlıklı',
+        '200': {
+          description: 'API çalışıyor.',
           content: {
             'application/json': {
-              schema: { $ref: '#/components/schemas/HealthResponse' }
-            }
-          }
-        }
-      }
-    }
+              schema: {
+                type: 'object',
+                properties: {
+                  status: { type: 'string', example: 'ok' },
+                  timestamp: { type: 'string', format: 'date-time' },
+                },
+              },
+            },
+          },
+        },
+        '500': {
+          description: 'Sunucu hatası. API düzgün çalışmıyor.',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Error',
+              },
+            },
+          },
+        },
+      },
+    },
   },
-  '/health/database': {
+  [`${config.API_PREFIX}/health/database`]: {
     get: {
       tags: ['Health'],
-      summary: 'Veritabanı sağlık durumu',
+      summary: 'Veritabanı sağlık kontrolü',
+      description: 'Veritabanı bağlantısının çalışır durumda olup olmadığını kontrol eder.',
       responses: {
-        200: {
-          description: 'Veritabanı sağlıklı',
+        '200': {
+          description: 'Veritabanı bağlantısı başarılı.',
           content: {
             'application/json': {
-              schema: { $ref: '#/components/schemas/ApiSuccessResponse' }
-            }
-          }
-        }
-      }
-    }
+              schema: {
+                type: 'object',
+                properties: {
+                  status: { type: 'string', example: 'ok' },
+                  message: { type: 'string', example: 'Veritabanı bağlantısı başarılı.' },
+                },
+              },
+            },
+          },
+        },
+        '500': {
+          description: 'Sunucu hatası. Veritabanı bağlantısı başarısız.',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Error',
+              },
+            },
+          },
+        },
+      },
+    },
   },
-  '/health/server': {
-    get: {
-      tags: ['Health'],
-      summary: 'Server bilgileri',
-      responses: {
-        200: {
-          description: 'Server bilgileri',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ServerInfoResponse' }
-            }
-          }
-        }
-      }
-    }
-  },
-  '/health/liveness': {
-    get: {
-      tags: ['Health'],
-      summary: 'Liveness probe',
-      responses: {
-        200: {
-          description: 'Service alive',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/LivenessResponse' }
-            }
-          }
-        }
-      }
-    }
-  },
-  '/health/readiness': {
-    get: {
-      tags: ['Health'],
-      summary: 'Readiness probe',
-      responses: {
-        200: {
-          description: 'Service ready',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ReadinessResponse' }
-            }
-          }
-        }
-      }
-    }
-  }
 }; 

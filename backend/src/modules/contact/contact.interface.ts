@@ -8,6 +8,7 @@ export interface IContactMessage {
     subject: string;
     message: string;
     isRead: boolean;
+    businessId: string; // İşletme ID (zorunlu)
     createdAt?: Date;
     updatedAt?: Date;
 }
