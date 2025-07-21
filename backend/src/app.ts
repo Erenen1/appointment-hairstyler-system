@@ -9,6 +9,7 @@ import logger, { loggerHelpers } from "./config/logger";
 import { LogManager } from "./utils/logUtils";
 import { initializeAndSyncDatabase } from "./config/database";
 import routes, { setupSwagger } from "./routes";
+import router from "./modules";
 const app = express();
 
 
@@ -22,7 +23,8 @@ app.use(express.json());
 // Static files serve etme - uploads klasörü
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-app.use('/', routes);
+// app.use('/', routes);
+app.use('/', router);
 setupSwagger(app);
 
 const initializeDatabase = async () => {

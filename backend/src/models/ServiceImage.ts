@@ -28,6 +28,16 @@ module.exports = (sequelize: any, DataTypes: any) => {
       defaultValue: 0,
       field: 'order_index',
     },
+    businessId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: 'business_id',
+      references: {
+        model: 'businesses',
+        key: 'id',
+      },
+      comment: 'İşletme ID (foreign key)'
+    },
   }, {
     tableName: 'service_images',
     timestamps: true,

@@ -19,6 +19,16 @@ module.exports = (sequelize: any, DataTypes: any) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    businessId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: 'business_id',
+      references: {
+        model: 'businesses',
+        key: 'id',
+      },
+      comment: 'İşletme ID (foreign key)'
+    },
   }, {
     tableName: 'business_hours',
     timestamps: true,

@@ -16,8 +16,8 @@ const requestLogger = (req, res, next) => {
         const duration = Date.now() - startTime;
         logger_1.loggerHelpers.apiResponse(req.method, req.originalUrl, res.statusCode, duration, {
             requestId: req.id,
-            userId: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id,
-            userType: (_b = req.user) === null || _b === void 0 ? void 0 : _b.userType
+            businessId: (_a = req.user) === null || _a === void 0 ? void 0 : _a.businessId,
+            role: (_b = req.user) === null || _b === void 0 ? void 0 : _b.role
         });
         return oldSend.apply(res, arguments);
     };

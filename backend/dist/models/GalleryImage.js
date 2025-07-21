@@ -30,11 +30,21 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             defaultValue: true,
         },
+        businessId: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            field: 'business_id',
+            references: {
+                model: 'businesses',
+                key: 'id',
+            },
+            comment: 'İşletme ID (foreign key)'
+        },
     }, {
         tableName: 'gallery_images',
         timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
+        createdAt: 'createdAt',
+        updatedAt: 'updatedAt',
     });
     return GalleryImage;
 };

@@ -1,93 +1,59 @@
 import { commonSchemas, commonResponses } from './schemas/common';
 import { healthSchemas } from './schemas/health';
 import { authSchemas } from './schemas/auth';
-import { adminSchemas } from './schemas/admin';
 import { appointmentSchemas } from './schemas/appointment';
 import { serviceSchemas } from './schemas/service';
 import { customerSchemas } from './schemas/customer';
 import { staffSchemas } from './schemas/staff';
-import { contentSchemas } from './schemas/content';
 import { contactSchemas } from './schemas/contact';
 import { dashboardSchemas } from './schemas/dashboard';
-import { 
-  StaffAvailabilitySchema,
-  CreateAvailabilitySchema,
-  UpdateAvailabilitySchema,
-  BulkCreateAvailabilitySchema,
-  StaffAvailabilityWithAppointmentsSchema,
-  AllStaffAvailabilityResponseSchema
-} from './schemas/availability';
+import { categorySchemas } from './schemas/category';
+import { contentSchemas } from './schemas/content';
+import { availabilitySchemas } from './schemas/availability';
 
 import { healthPaths } from './paths/health';
 import { authPaths } from './paths/auth';
-import { adminPaths } from './paths/admin';
 import { appointmentPaths } from './paths/appointment';
 import { servicePaths } from './paths/service';
 import { customerPaths } from './paths/customer';
 import { staffPaths } from './paths/staff';
-import { contentPaths } from './paths/content';
 import { contactPaths } from './paths/contact';
 import { dashboardPaths } from './paths/dashboard';
-import {
-  getAllStaffAvailability,
-  getStaffAvailability,
-  createAvailability,
-  bulkCreateAvailability,
-  updateAvailability,
-  deleteAvailability
-} from './paths/availability';
-
-const availabilitySchemas = {
-  StaffAvailability: StaffAvailabilitySchema,
-  CreateAvailability: CreateAvailabilitySchema,
-  UpdateAvailability: UpdateAvailabilitySchema,
-  BulkCreateAvailability: BulkCreateAvailabilitySchema,
-  StaffAvailabilityWithAppointments: StaffAvailabilityWithAppointmentsSchema,
-  AllStaffAvailabilityResponse: AllStaffAvailabilityResponseSchema
-};
-
-const availabilityPaths = {
-  '/availability/all': getAllStaffAvailability,
-  '/availability': {
-    ...getStaffAvailability,
-    ...createAvailability
-  },
-  '/availability/bulk': bulkCreateAvailability,
-  '/availability/{id}': {
-    ...updateAvailability,
-    ...deleteAvailability
-  }
-};
+import { superAdminPaths } from './paths/super-admin';
+import { categoryPaths } from './paths/category';
+import { contentPaths } from './paths/content';
+import { availabilityPaths } from './paths/availability';
 
 // Tüm şemalar
 export const allSchemas = {
   ...commonSchemas,
   ...healthSchemas,
   ...authSchemas,
-  ...adminSchemas,
   ...appointmentSchemas,
   ...serviceSchemas,
   ...customerSchemas,
   ...staffSchemas,
-  ...contentSchemas,
   ...contactSchemas,
   ...dashboardSchemas,
-  ...availabilitySchemas
+  ...categorySchemas,
+  ...contentSchemas,
+  ...availabilitySchemas,
 };
 
 // Tüm path'ler
 export const allPaths = {
   ...healthPaths,
   ...authPaths,
-  ...adminPaths,
   ...appointmentPaths,
   ...servicePaths,
   ...customerPaths,
   ...staffPaths,
-  ...contentPaths,
   ...contactPaths,
   ...dashboardPaths,
-  ...availabilityPaths
+  ...superAdminPaths,
+  ...categoryPaths,
+  ...contentPaths,
+  ...availabilityPaths,
 };
 
 // PUBLIC API için path'ler (Anasayfa kullanımı için)
@@ -139,14 +105,15 @@ export const publicSchemas = {
   AvailableSlot: staffSchemas.AvailableSlot,
   AvailableSlotsResponse: staffSchemas.AvailableSlotsResponse,
   AvailableSlotsRangeResponse: staffSchemas.AvailableSlotsRangeResponse,
-  // Availability schemas
-  StaffAvailability: availabilitySchemas.StaffAvailability,
   // Contact schemas
   ContactMessage: contactSchemas.ContactMessage,
   CreateContactMessageRequest: contactSchemas.CreateContactMessageRequest,
   // Appointment schemas
   CreateAppointmentRequest: appointmentSchemas.CreateAppointmentRequest,
-  Appointment: appointmentSchemas.Appointment
+  Appointment: appointmentSchemas.Appointment,
+  // Content schemas
+  GalleryCategory: contentSchemas.GalleryCategory,
+  GalleryImage: contentSchemas.GalleryImage,
 };
 
 export const allResponses = commonResponses;
@@ -176,7 +143,6 @@ export const adminSwaggerConfig = {
   tags: [
     { name: 'Health', description: 'Sistem sağlık kontrolleri' },
     { name: 'Authentication', description: 'Admin kimlik doğrulama' },
-    { name: 'Admin', description: 'Admin yönetimi' },
     { name: 'Appointments', description: 'Randevu yönetimi (CRUD)' },
     { name: 'Services', description: 'Hizmet yönetimi (CRUD)' },
     { name: 'Customers', description: 'Müşteri yönetimi (CRUD)' },
@@ -184,7 +150,10 @@ export const adminSwaggerConfig = {
     { name: 'Content', description: 'İçerik yönetimi (CRUD)' },
     { name: 'Contact', description: 'İletişim yönetimi' },
     { name: 'Dashboard', description: 'Dashboard istatistikleri' },
-    { name: 'Availability', description: 'Personel müsaitlik yönetimi' }
+    { name: 'Availability', description: 'Personel müsaitlik yönetimi' },
+    { name: 'Business Auth', description: 'İşletme Kimlik Doğrulama' },
+    { name: 'Super Admin', description: 'Süper Yönetici İşlemleri' },
+    { name: 'Categories', description: 'Kategori Yönetimi (CRUD)' },
   ],
   paths: allPaths,
   components: {
@@ -235,7 +204,8 @@ export const publicSwaggerConfig = {
     { name: 'Services', description: 'Hizmet bilgileri (sadece okuma)' },
     { name: 'Staff', description: 'Personel bilgileri ve müsaitlik (sadece okuma)' },
     { name: 'Contact', description: 'İletişim mesajları gönderme' },
-    { name: 'Appointments', description: 'Randevu alma (sadece oluşturma)' }
+    { name: 'Appointments', description: 'Randevu alma (sadece oluşturma)' },
+    { name: 'Content', description: 'İçerik bilgileri (sadece okuma)' },
   ],
   paths: publicPaths,
   components: {
@@ -252,5 +222,4 @@ export const publicSwaggerConfig = {
   }
 };
 
-// Backward compatibility için
-export const swaggerConfig = adminSwaggerConfig; 
+export const swaggerConfig = adminSwaggerConfig;

@@ -1,0 +1,53 @@
+# Sadelik ve Basitlik Kuralları (KISS - Keep It Simple, Stupid)
+
+## Minimum Kod Prensibi
+- Az ve öz kod yaz, her satırın bir amacı olsun
+- Tekrarlanan koddan kaçın (DRY - Don't Repeat Yourself)
+- Gereksiz soyutlamalardan kaçın
+- Bir fonksiyon 20-30 satırdan uzun olmamalı
+
+## Okunabilirlik
+- Karmaşık tek satır kodlar yerine açık ve anlaşılır kod blokları kullan
+- Zincirleme metod çağrılarını sınırla (maksimum 2-3)
+- Karmaşık ifadeleri daha küçük, anlaşılır parçalara böl
+- Yorum yerine kendini açıklayan kod yaz
+
+## Adlandırma
+- Değişken ve fonksiyon isimleri açık ve anlaşılır olmalı
+- Kısaltmalardan ve belirsiz isimlerden kaçın
+- İsimlendirme tutarlı olmalı
+- İsimlendirme amacı ve kullanımı yansıtmalı
+
+## Fonksiyon Tasarımı
+- Fonksiyonlar tek bir iş yapmalı
+- Fonksiyonlar en fazla 3 parametre almalı
+- Yan etkilerden kaçın
+- Fonksiyon çıktıları tahmin edilebilir olmalı
+
+## Koşullar ve Döngüler
+- İç içe koşullardan kaçın (maksimum 2 seviye)
+- Erken dönüş (early return) kullan
+- Karmaşık koşulları fonksiyonlara ayır
+- Sade ve anlaşılır döngüler kullan
+
+## Veri Yapıları
+- Basit veri yapılarını tercih et
+- Gereksiz karmaşık nesnelerden kaçın
+- Veri yapılarını tutarlı kullan
+- İmmutable (değişmez) veri yapılarını tercih et
+
+## Mimari
+- Aşırı mühendislikten kaçın
+- Gerekmedikçe tasarım desenleri ekleme
+- Basit ve düz bir yapı tercih et
+- Gerçek ihtiyaçlara göre tasarla, varsayımlara göre değil
+
+## Genel Prensipler
+- Şimdi ihtiyacın olmayan kodu yazma (YAGNI - You Aren't Gonna Need It)
+- Mükemmel yerine çalışan kod tercih et
+- Basit çözümleri karmaşık çözümlere tercih et
+- Kod eklemeden önce "Bu gerçekten gerekli mi?" diye sor
+description:
+globs:
+alwaysApply: true
+---

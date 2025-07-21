@@ -8,6 +8,19 @@ export abstract class BaseRepository<T> {
     }
 
     /**
+     * Business context ile where koşullarını birleştirir
+     */
+    protected applyBusinessContext(where: any = {}, businessId?: string): any {
+        if (businessId) {
+            return {
+                ...where,
+                businessId
+            };
+        }
+        return where;
+    }
+
+    /**
      * Tüm kayıtları getirir
      */
     public async findAll(options: any = {}): Promise<T[]> {
@@ -26,7 +39,8 @@ export abstract class BaseRepository<T> {
     /**
      * Belirli koşullara göre kayıt getirir
      */
-    public async findOne(where: WhereOptions): Promise<T | null> {
+    public async findOne(conditions: any): Promise<T | null> {
+        const where = conditions.where || conditions;
         const record = await this.model.findOne({ where });
         return record ? (record.toJSON() as unknown as T) : null;
     }
@@ -34,7 +48,8 @@ export abstract class BaseRepository<T> {
     /**
      * Belirli koşullara göre kayıtları getirir
      */
-    public async findWhere(where: WhereOptions, options: any = {}): Promise<T[]> {
+    public async findWhere(conditions: any, options: any = {}): Promise<T[]> {
+        const where = conditions.where || conditions;
         const records = await this.model.findAll({
             where,
             ...options
@@ -66,7 +81,8 @@ export abstract class BaseRepository<T> {
     /**
      * Belirli koşullara göre kayıtları günceller
      */
-    public async updateWhere(where: WhereOptions, data: Partial<T>): Promise<number> {
+    public async updateWhere(conditions: any, data: Partial<T>): Promise<number> {
+        const where = conditions.where || conditions;
         const [affectedCount] = await this.model.update(data as any, { where });
         return affectedCount;
     }
@@ -82,14 +98,16 @@ export abstract class BaseRepository<T> {
     /**
      * Belirli koşullara göre kayıtları siler
      */
-    public async deleteWhere(where: WhereOptions): Promise<number> {
+    public async deleteWhere(conditions: any): Promise<number> {
+        const where = conditions.where || conditions;
         return await this.model.destroy({ where });
     }
 
     /**
      * Kayıt sayısını getirir
      */
-    public async count(where: WhereOptions = {}): Promise<number> {
+    public async count(conditions: any = {}): Promise<number> {
+        const where = conditions.where || conditions;
         return await this.model.count({ where });
     }
 
@@ -108,6 +126,56 @@ export abstract class BaseRepository<T> {
         return {
             rows: rows.map(record => record.toJSON() as unknown as T),
             count
+        };
+    }
+
+    /**
+     * Business context ile tüm kayıtları getirir
+     */
+    public async findAllWithBusinessContext(businessId?: string, options: any = {}): Promise<T[]> {
+        const where = this.applyBusinessContext(options.where, businessId);
+        const records = await this.model.findAll({
+            ...options,
+            where
+        });
+        return records.map(record => record.toJSON() as unknown as T);
+    }
+
+    /**
+     * Business context ile koşullara göre kayıt getirir
+     */
+    public async findOneWithBusinessContext(conditions: any, businessId?: string): Promise<T | null> {
+        const where = this.applyBusinessContext(conditions, businessId);
+        const record = await this.model.findOne({ where });
+        return record ? (record.toJSON() as unknown as T) : null;
+    }
+
+    /**
+     * Business context ile sayfalama
+     */
+    public async findWithPaginationAndBusinessContext(
+        page: number = 1, 
+        limit: number = 10, 
+        businessId?: string,
+        conditions: any = {}, 
+        options: any = {}
+    ): Promise<{ data: T[], total: number, page: number, limit: number, totalPages: number }> {
+        const offset = (page - 1) * limit;
+        const where = this.applyBusinessContext(conditions, businessId);
+        
+        const { count, rows } = await this.model.findAndCountAll({
+            ...options,
+            where,
+            limit,
+            offset
+        });
+
+        return {
+            data: rows.map(record => record.toJSON() as unknown as T),
+            total: count,
+            page,
+            limit,
+            totalPages: Math.ceil(count / limit)
         };
     }
 } 

@@ -136,9 +136,13 @@ exports.getServiceById = getServiceById;
 const createService = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const service = yield Service.create(req.body);
-        const staffIdsString = req.body.staffIds;
-        const staffIds = yield JSON.parse(staffIdsString);
-        if (staffIds && staffIds.length > 0) {
+        let staffIds = req.body.staffIds;
+        let staffIdsCleaned = [];
+        if (staffIds) {
+            const staffIdsString = staffIds;
+            const staffIdsCleaned = yield JSON.parse(staffIdsString);
+        }
+        if (staffIdsCleaned && staffIdsCleaned.length > 0) {
             yield Promise.all(staffIds.map(staffId => StaffService.create({
                 staffId: staffId,
                 serviceId: service.id,
@@ -401,58 +405,17 @@ const getServiceStaff = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             ],
             order: [[{ model: Staff, as: 'staff' }, 'fullName', 'ASC']]
         });
-        const formattedStaff = staffServices.map(staffService => ({
-            id: staffService.staff.id,
-            fullName: staffService.staff.fullName,
-            specialties: staffService.staff.specialties,
-            avatar: staffService.staff.avatar,
-            canProvideService: staffService.isActive
-        }));
-        res.json(utils_1.ApiSuccess.list(formattedStaff, null, 'Hizmeti veren personeller başarıyla getirildi'));
-    }
-    catch (error) {
-        next(error);
-    }
-});
-exports.getServiceStaff = getServiceStaff;
-const getServiceStaffAvailability = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { id } = req.params;
-        const startDateStr = req.query.startDate;
-        const endDateStr = req.query.endDate;
-        const service = yield Service.findByPk(id);
-        if (!service) {
-            throw utils_1.ApiError.notFound('Hizmet bulunamadı');
-        }
-        const staffServices = yield StaffService.findAll({
-            where: {
-                serviceId: id,
-                isActive: true
-            },
-            include: [
-                {
-                    model: Staff,
-                    as: 'staff',
-                    where: { isActive: true },
-                    attributes: ['id', 'fullName', 'specialties', 'avatar']
-                }
-            ],
-            order: [[{ model: Staff, as: 'staff' }, 'fullName', 'ASC']]
-        });
-        if (staffServices.length === 0) {
-            res.json(utils_1.ApiSuccess.list([], null, 'Bu hizmeti verebilen aktif personel bulunamadı'));
-            return;
-        }
         const businessHours = yield index_1.default.BusinessHours.findAll({
             order: [['dayOfWeek', 'ASC']]
         });
-        const startDate = new Date(startDateStr);
-        const endDate = new Date(endDateStr);
+        const startDate = new Date();
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + 6);
         const dates = (0, eachDayOfInterval_1.eachDayOfInterval)({
             start: startDate,
             end: endDate
         });
-        const staffAvailabilities = yield Promise.all(staffServices.map((staffService) => __awaiter(void 0, void 0, void 0, function* () {
+        const formattedStaffWithAvailability = yield Promise.all(staffServices.map((staffService) => __awaiter(void 0, void 0, void 0, function* () {
             const staffId = staffService.staff.id;
             const staffAvailabilityRecords = yield index_1.default.StaffAvailability.findAll({
                 where: {
@@ -472,6 +435,17 @@ const getServiceStaffAvailability = (req, res, next) => __awaiter(void 0, void 0
                 attributes: ['appointmentDate', 'startTime', 'endTime', 'id', 'serviceId']
             });
             const dailyAvailability = dates.map(date => {
+                if (!(date instanceof Date) || isNaN(date.getTime())) {
+                    return {
+                        date: "Geçersiz tarih",
+                        dayOfWeek: 0,
+                        isAvailable: false,
+                        reason: "Geçersiz tarih",
+                        availableSlots: [],
+                        totalSlots: 0,
+                        workingHours: null
+                    };
+                }
                 const dateStr = (0, date_fns_1.format)(date, 'yyyy-MM-dd');
                 const dayOfWeek = date.getDay() || 7;
                 const staffAvailability = staffAvailabilityRecords.find(sa => sa.date === dateStr);
@@ -507,8 +481,29 @@ const getServiceStaffAvailability = (req, res, next) => __awaiter(void 0, void 0
                     };
                 }
                 else {
-                    isAvailable = false;
-                    reason = 'Salon bu gün kapalı';
+                    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                    if (isWeekend) {
+                        workingHours = {
+                            start: '10:00:00',
+                            end: '16:00:00',
+                            lunchBreak: {
+                                start: '13:00:00',
+                                end: '14:00:00'
+                            }
+                        };
+                    }
+                    else {
+                        workingHours = {
+                            start: '09:00:00',
+                            end: '18:00:00',
+                            lunchBreak: {
+                                start: '12:00:00',
+                                end: '13:00:00'
+                            }
+                        };
+                    }
+                    isAvailable = true;
+                    reason = null;
                 }
                 let availableSlots = [];
                 if (isAvailable && workingHours) {
@@ -546,6 +541,374 @@ const getServiceStaffAvailability = (req, res, next) => __awaiter(void 0, void 0
                         displayTime: slot,
                         available: true
                     }));
+                    if (availableSlots.length === 0) {
+                        const today = new Date();
+                        const isToday = date.getDate() === today.getDate() &&
+                            date.getMonth() === today.getMonth() &&
+                            date.getFullYear() === today.getFullYear();
+                        if (isToday) {
+                            const currentHour = today.getHours();
+                            const currentMinute = today.getMinutes();
+                            const defaultSlots = [];
+                            let hour = currentHour;
+                            let minute = Math.ceil(currentMinute / 30) * 30;
+                            if (minute >= 60) {
+                                minute = 0;
+                                hour += 1;
+                            }
+                            while (hour < endHour || (hour === endHour && minute < endMinute)) {
+                                const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                                let isLunchBreak = false;
+                                if (workingHours.lunchBreak) {
+                                    const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+                                    const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+                                    if (timeStr >= lunchStart && timeStr < lunchEnd) {
+                                        isLunchBreak = true;
+                                    }
+                                }
+                                const hasAppointment = dayAppointments.some(appointment => {
+                                    const appointmentStart = appointment.startTime.substring(0, 5);
+                                    const appointmentEnd = appointment.endTime.substring(0, 5);
+                                    return timeStr >= appointmentStart && timeStr < appointmentEnd;
+                                });
+                                if (!isLunchBreak && !hasAppointment) {
+                                    defaultSlots.push({
+                                        time: timeStr,
+                                        displayTime: timeStr,
+                                        available: true
+                                    });
+                                }
+                                minute += 30;
+                                if (minute >= 60) {
+                                    minute = 0;
+                                    hour += 1;
+                                }
+                            }
+                            availableSlots = defaultSlots;
+                        }
+                        else {
+                            const defaultSlots = [];
+                            let hour = startHour;
+                            let minute = startMinute;
+                            while (hour < endHour || (hour === endHour && minute < endMinute)) {
+                                const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                                let isLunchBreak = false;
+                                if (workingHours.lunchBreak) {
+                                    const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+                                    const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+                                    if (timeStr >= lunchStart && timeStr < lunchEnd) {
+                                        isLunchBreak = true;
+                                    }
+                                }
+                                if (!isLunchBreak) {
+                                    defaultSlots.push({
+                                        time: timeStr,
+                                        displayTime: timeStr,
+                                        available: true
+                                    });
+                                }
+                                minute += 30;
+                                if (minute >= 60) {
+                                    minute = 0;
+                                    hour += 1;
+                                }
+                            }
+                            availableSlots = defaultSlots;
+                        }
+                    }
+                }
+                return {
+                    date: dateStr,
+                    dayOfWeek,
+                    isAvailable,
+                    reason,
+                    availableSlots,
+                    totalSlots: availableSlots.length,
+                    workingHours: workingHours ? {
+                        start: workingHours.start.substring(0, 5),
+                        end: workingHours.end.substring(0, 5),
+                        lunchBreak: workingHours.lunchBreak ?
+                            `${workingHours.lunchBreak.start.substring(0, 5)} - ${workingHours.lunchBreak.end.substring(0, 5)}` :
+                            null
+                    } : null
+                };
+            });
+            const totalAvailableSlots = dailyAvailability.reduce((total, day) => total + day.totalSlots, 0);
+            const availableDays = dailyAvailability.filter(day => day.isAvailable && day.totalSlots > 0).length;
+            return {
+                id: staffService.staff.id,
+                fullName: staffService.staff.fullName,
+                specialties: staffService.staff.specialties,
+                avatar: staffService.staff.avatar,
+                canProvideService: staffService.isActive,
+                availability: {
+                    summary: {
+                        totalDays: dailyAvailability.length,
+                        availableDays,
+                        totalAvailableSlots,
+                        averageSlotsPerDay: availableDays > 0 ? Math.round(totalAvailableSlots / availableDays) : 0
+                    },
+                    dailyAvailability
+                }
+            };
+        })));
+        res.json(utils_1.ApiSuccess.list(formattedStaffWithAvailability, null, 'Hizmeti veren personeller ve müsaitlik durumları başarıyla getirildi'));
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getServiceStaff = getServiceStaff;
+const getServiceStaffAvailability = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        let startDateStr = req.query.startDate;
+        let endDateStr = req.query.endDate;
+        if (!startDateStr) {
+            const today = new Date();
+            startDateStr = (0, date_fns_1.format)(today, 'yyyy-MM-dd');
+        }
+        if (!endDateStr) {
+            const endDate = new Date();
+            endDate.setDate(endDate.getDate() + 6);
+            endDateStr = (0, date_fns_1.format)(endDate, 'yyyy-MM-dd');
+        }
+        const service = yield Service.findByPk(id);
+        if (!service) {
+            throw utils_1.ApiError.notFound('Hizmet bulunamadı');
+        }
+        const staffServices = yield StaffService.findAll({
+            where: {
+                serviceId: id,
+                isActive: true
+            },
+            include: [
+                {
+                    model: Staff,
+                    as: 'staff',
+                    where: { isActive: true },
+                    attributes: ['id', 'fullName', 'specialties', 'avatar']
+                }
+            ],
+            order: [[{ model: Staff, as: 'staff' }, 'fullName', 'ASC']]
+        });
+        if (staffServices.length === 0) {
+            res.json(utils_1.ApiSuccess.list([], null, 'Bu hizmeti verebilen aktif personel bulunamadı'));
+            return;
+        }
+        const businessHours = yield index_1.default.BusinessHours.findAll({
+            order: [['dayOfWeek', 'ASC']]
+        });
+        const startDate = new Date(startDateStr);
+        const endDate = new Date(endDateStr);
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            throw utils_1.ApiError.badRequest('Geçersiz tarih formatı. Lütfen YYYY-MM-DD formatında tarih girin.');
+        }
+        const dates = (0, eachDayOfInterval_1.eachDayOfInterval)({
+            start: startDate,
+            end: endDate
+        });
+        const staffAvailabilities = yield Promise.all(staffServices.map((staffService) => __awaiter(void 0, void 0, void 0, function* () {
+            const staffId = staffService.staff.id;
+            const staffAvailabilityRecords = yield index_1.default.StaffAvailability.findAll({
+                where: {
+                    staffId,
+                    date: {
+                        [sequelize_1.Op.between]: [(0, date_fns_1.format)(startDate, 'yyyy-MM-dd'), (0, date_fns_1.format)(endDate, 'yyyy-MM-dd')]
+                    }
+                }
+            });
+            const appointments = yield index_1.default.Appointment.findAll({
+                where: {
+                    staffId,
+                    appointmentDate: {
+                        [sequelize_1.Op.between]: [(0, date_fns_1.format)(startDate, 'yyyy-MM-dd'), (0, date_fns_1.format)(endDate, 'yyyy-MM-dd')]
+                    }
+                },
+                attributes: ['appointmentDate', 'startTime', 'endTime', 'id', 'serviceId']
+            });
+            const dailyAvailability = dates.map(date => {
+                if (!(date instanceof Date) || isNaN(date.getTime())) {
+                    return {
+                        date: "Geçersiz tarih",
+                        dayOfWeek: 0,
+                        isAvailable: false,
+                        reason: "Geçersiz tarih",
+                        availableSlots: [],
+                        totalSlots: 0,
+                        workingHours: null
+                    };
+                }
+                const dateStr = (0, date_fns_1.format)(date, 'yyyy-MM-dd');
+                const dayOfWeek = date.getDay() || 7;
+                const staffAvailability = staffAvailabilityRecords.find(sa => sa.date === dateStr);
+                const businessHour = businessHours.find(bh => bh.dayOfWeek === dayOfWeek);
+                const dayAppointments = appointments.filter(apt => apt.appointmentDate === dateStr);
+                let workingHours;
+                let isAvailable = true;
+                let reason = null;
+                if (staffAvailability) {
+                    if (!staffAvailability.isAvailable) {
+                        isAvailable = false;
+                        reason = staffAvailability.notes || 'Personel bu tarihte müsait değil';
+                    }
+                    else {
+                        workingHours = {
+                            start: staffAvailability.startTime,
+                            end: staffAvailability.endTime,
+                            lunchBreak: staffAvailability.lunchBreakStart && staffAvailability.lunchBreakEnd ? {
+                                start: staffAvailability.lunchBreakStart,
+                                end: staffAvailability.lunchBreakEnd
+                            } : null
+                        };
+                    }
+                }
+                else if (businessHour && !businessHour.isClosed) {
+                    workingHours = {
+                        start: businessHour.openTime,
+                        end: businessHour.closeTime,
+                        lunchBreak: {
+                            start: '12:00:00',
+                            end: '13:00:00'
+                        }
+                    };
+                }
+                else {
+                    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                    if (isWeekend) {
+                        workingHours = {
+                            start: '10:00:00',
+                            end: '16:00:00',
+                            lunchBreak: {
+                                start: '13:00:00',
+                                end: '14:00:00'
+                            }
+                        };
+                    }
+                    else {
+                        workingHours = {
+                            start: '09:00:00',
+                            end: '18:00:00',
+                            lunchBreak: {
+                                start: '12:00:00',
+                                end: '13:00:00'
+                            }
+                        };
+                    }
+                    isAvailable = true;
+                    reason = null;
+                }
+                let availableSlots = [];
+                if (isAvailable && workingHours) {
+                    const startHour = parseInt(workingHours.start.split(':')[0]);
+                    const startMinute = parseInt(workingHours.start.split(':')[1]);
+                    const endHour = parseInt(workingHours.end.split(':')[0]);
+                    const endMinute = parseInt(workingHours.end.split(':')[1]);
+                    const allSlots = [];
+                    let currentHour = startHour;
+                    let currentMinute = startMinute;
+                    while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
+                        const timeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+                        allSlots.push(timeStr);
+                        currentMinute += 30;
+                        if (currentMinute >= 60) {
+                            currentMinute = 0;
+                            currentHour += 1;
+                        }
+                    }
+                    availableSlots = allSlots.filter(slot => {
+                        if (workingHours.lunchBreak) {
+                            const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+                            const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+                            if (slot >= lunchStart && slot < lunchEnd) {
+                                return false;
+                            }
+                        }
+                        return !dayAppointments.some(appointment => {
+                            const appointmentStart = appointment.startTime.substring(0, 5);
+                            const appointmentEnd = appointment.endTime.substring(0, 5);
+                            return slot >= appointmentStart && slot < appointmentEnd;
+                        });
+                    }).map(slot => ({
+                        time: slot,
+                        displayTime: slot,
+                        available: true
+                    }));
+                    if (availableSlots.length === 0) {
+                        const today = new Date();
+                        const isToday = date.getDate() === today.getDate() &&
+                            date.getMonth() === today.getMonth() &&
+                            date.getFullYear() === today.getFullYear();
+                        if (isToday) {
+                            const currentHour = today.getHours();
+                            const currentMinute = today.getMinutes();
+                            const defaultSlots = [];
+                            let hour = currentHour;
+                            let minute = Math.ceil(currentMinute / 30) * 30;
+                            if (minute >= 60) {
+                                minute = 0;
+                                hour += 1;
+                            }
+                            while (hour < endHour || (hour === endHour && minute < endMinute)) {
+                                const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                                let isLunchBreak = false;
+                                if (workingHours.lunchBreak) {
+                                    const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+                                    const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+                                    if (timeStr >= lunchStart && timeStr < lunchEnd) {
+                                        isLunchBreak = true;
+                                    }
+                                }
+                                const hasAppointment = dayAppointments.some(appointment => {
+                                    const appointmentStart = appointment.startTime.substring(0, 5);
+                                    const appointmentEnd = appointment.endTime.substring(0, 5);
+                                    return timeStr >= appointmentStart && timeStr < appointmentEnd;
+                                });
+                                if (!isLunchBreak && !hasAppointment) {
+                                    defaultSlots.push({
+                                        time: timeStr,
+                                        displayTime: timeStr,
+                                        available: true
+                                    });
+                                }
+                                minute += 30;
+                                if (minute >= 60) {
+                                    minute = 0;
+                                    hour += 1;
+                                }
+                            }
+                            availableSlots = defaultSlots;
+                        }
+                        else {
+                            const defaultSlots = [];
+                            let hour = startHour;
+                            let minute = startMinute;
+                            while (hour < endHour || (hour === endHour && minute < endMinute)) {
+                                const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                                let isLunchBreak = false;
+                                if (workingHours.lunchBreak) {
+                                    const lunchStart = workingHours.lunchBreak.start.substring(0, 5);
+                                    const lunchEnd = workingHours.lunchBreak.end.substring(0, 5);
+                                    if (timeStr >= lunchStart && timeStr < lunchEnd) {
+                                        isLunchBreak = true;
+                                    }
+                                }
+                                if (!isLunchBreak) {
+                                    defaultSlots.push({
+                                        time: timeStr,
+                                        displayTime: timeStr,
+                                        available: true
+                                    });
+                                }
+                                minute += 30;
+                                if (minute >= 60) {
+                                    minute = 0;
+                                    hour += 1;
+                                }
+                            }
+                            availableSlots = defaultSlots;
+                        }
+                    }
                 }
                 return {
                     date: dateStr,
@@ -581,7 +944,10 @@ const getServiceStaffAvailability = (req, res, next) => __awaiter(void 0, void 0
                 dailyAvailability
             };
         })));
-        staffAvailabilities.sort((a, b) => b.summary.totalAvailableSlots - a.summary.totalAvailableSlots);
+        const validStaffAvailabilities = staffAvailabilities.filter(item => item && item.summary);
+        if (validStaffAvailabilities.length > 0) {
+            validStaffAvailabilities.sort((a, b) => b.summary.totalAvailableSlots - a.summary.totalAvailableSlots);
+        }
         const response = {
             service: {
                 id: service.id,
@@ -594,7 +960,7 @@ const getServiceStaffAvailability = (req, res, next) => __awaiter(void 0, void 0
                 endDate: (0, date_fns_1.format)(endDate, 'yyyy-MM-dd'),
                 totalDays: dates.length
             },
-            staffAvailabilities
+            staffAvailabilities: validStaffAvailabilities
         };
         res.json(utils_1.ApiSuccess.item(response, 'Hizmet personellerinin müsaitlik durumları başarıyla getirildi'));
     }

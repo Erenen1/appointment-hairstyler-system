@@ -15,11 +15,21 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             defaultValue: 0,
         },
+        businessId: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            field: 'business_id',
+            references: {
+                model: 'businesses',
+                key: 'id',
+            },
+            comment: 'İşletme ID (foreign key)'
+        },
     }, {
         tableName: 'gallery_categories',
         timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
+        createdAt: 'createdAt',
+        updatedAt: 'updatedAt',
     });
     return GalleryCategory;
 };

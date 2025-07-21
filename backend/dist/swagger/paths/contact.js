@@ -1,125 +1,149 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.contactPaths = void 0;
+const env_1 = __importDefault(require("../../config/env"));
 exports.contactPaths = {
-    '/contact/messages': {
+    [`${env_1.default.API_PREFIX}/contact`]: {
         get: {
             tags: ['Contact'],
-            summary: 'İletişim mesajlarını listele',
-            security: [{ bearerAuth: [] }],
+            summary: 'Tüm iletişim mesajlarını getir',
+            description: 'Tüm iletişim mesajlarının listesini sayfalama ve arama seçenekleriyle getirir.',
             parameters: [
-                { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
-                { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 } },
-                { name: 'isRead', in: 'query', schema: { type: 'boolean' } }
+                { $ref: '#/components/schemas/PageQuery' },
+                { $ref: '#/components/schemas/LimitQuery' },
+                { $ref: '#/components/schemas/SearchQuery' },
+                {
+                    name: 'replied',
+                    in: 'query',
+                    description: 'Yanıtlanmış mesajları filtrele (true/false)',
+                    required: false,
+                    schema: {
+                        type: 'boolean',
+                    },
+                },
             ],
             responses: {
-                200: {
-                    description: 'İletişim mesajları başarıyla listelendi',
-                    content: { 'application/json': { schema: { $ref: '#/components/schemas/ContactMessageListResponse' } } }
+                '200': {
+                    description: 'İletişim mesajları başarıyla getirildi.',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                $ref: '#/components/schemas/ContactMessageListResponse',
+                            },
+                        },
+                    },
                 },
-                401: { $ref: '#/components/responses/UnauthorizedError' },
-                500: { $ref: '#/components/responses/InternalError' }
-            }
+                '401': { $ref: '#/components/responses/UnauthorizedError' },
+                '500': { $ref: '#/components/responses/InternalServerError' },
+            },
         },
         post: {
             tags: ['Contact'],
             summary: 'Yeni iletişim mesajı gönder',
-            requestBody: {
-                required: true,
-                content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateContactMessageRequest' } } }
-            },
-            responses: {
-                201: {
-                    description: 'Mesaj başarıyla gönderildi',
-                    content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiSuccessResponse' } } }
-                },
-                400: { $ref: '#/components/responses/ValidationError' },
-                500: { $ref: '#/components/responses/InternalError' }
-            }
-        }
-    },
-    '/contact/messages/{id}': {
-        get: {
-            tags: ['Contact'],
-            summary: 'İletişim mesajı detayı',
-            security: [{ bearerAuth: [] }],
-            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
-            responses: {
-                200: {
-                    description: 'Mesaj detayı getirildi',
-                    content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiSuccessResponse' } } }
-                },
-                401: { $ref: '#/components/responses/UnauthorizedError' },
-                404: { description: 'Mesaj bulunamadı' },
-                500: { $ref: '#/components/responses/InternalError' }
-            }
-        },
-        put: {
-            tags: ['Contact'],
-            summary: 'İletişim mesajı durumunu güncelle',
-            security: [{ bearerAuth: [] }],
-            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+            description: 'Yeni bir iletişim mesajı göndermek için kullanılır.',
             requestBody: {
                 required: true,
                 content: {
                     'application/json': {
                         schema: {
-                            type: 'object',
-                            required: ['status'],
-                            properties: {
-                                status: {
-                                    type: 'string',
-                                    enum: ['read', 'replied', 'closed'],
-                                    example: 'read'
-                                },
-                                adminNotes: {
-                                    type: 'string',
-                                    maxLength: 1000,
-                                    example: 'Müşteri ile iletişime geçildi'
-                                }
-                            }
-                        }
-                    }
-                }
+                            $ref: '#/components/schemas/CreateContactMessageRequest',
+                        },
+                    },
+                },
             },
             responses: {
-                200: {
-                    description: 'Mesaj durumu başarıyla güncellendi',
-                    content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiSuccessResponse' } } }
+                '201': {
+                    description: 'Mesaj başarıyla gönderildi.',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                $ref: '#/components/schemas/ContactMessage',
+                            },
+                        },
+                    },
                 },
-                400: { $ref: '#/components/responses/ValidationError' },
-                401: { $ref: '#/components/responses/UnauthorizedError' },
-                404: { description: 'Mesaj bulunamadı' },
-                500: { $ref: '#/components/responses/InternalError' }
-            }
+                '400': { $ref: '#/components/responses/ValidationError' },
+                '500': { $ref: '#/components/responses/InternalServerError' },
+            },
+        },
+    },
+    [`${env_1.default.API_PREFIX}/contact/{id}`]: {
+        get: {
+            tags: ['Contact'],
+            summary: 'Belirli bir iletişim mesajını getir',
+            description: 'Belirtilen ID\'ye sahip iletişim mesajını getirir.',
+            parameters: [
+                { $ref: '#/components/schemas/IdParam' },
+            ],
+            responses: {
+                '200': {
+                    description: 'İletişim mesajı başarıyla getirildi.',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                $ref: '#/components/schemas/ContactMessage',
+                            },
+                        },
+                    },
+                },
+                '401': { $ref: '#/components/responses/UnauthorizedError' },
+                '404': { $ref: '#/components/responses/NotFoundError' },
+                '500': { $ref: '#/components/responses/InternalServerError' },
+            },
+        },
+        put: {
+            tags: ['Contact'],
+            summary: 'İletişim mesajını güncelle',
+            description: 'Belirtilen ID\'ye sahip iletişim mesajını günceller. Genellikle mesajı yanıtlandı olarak işaretlemek için kullanılır.',
+            parameters: [
+                { $ref: '#/components/schemas/IdParam' },
+            ],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            $ref: '#/components/schemas/UpdateContactMessageRequest',
+                        },
+                    },
+                },
+            },
+            responses: {
+                '200': {
+                    description: 'İletişim mesajı başarıyla güncellendi.',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                $ref: '#/components/schemas/ContactMessage',
+                            },
+                        },
+                    },
+                },
+                '400': { $ref: '#/components/responses/ValidationError' },
+                '401': { $ref: '#/components/responses/UnauthorizedError' },
+                '404': { $ref: '#/components/responses/NotFoundError' },
+                '500': { $ref: '#/components/responses/InternalServerError' },
+            },
         },
         delete: {
             tags: ['Contact'],
             summary: 'İletişim mesajını sil',
-            security: [{ bearerAuth: [] }],
-            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+            description: 'Belirtilen ID\'ye sahip iletişim mesajını siler.',
+            parameters: [
+                { $ref: '#/components/schemas/IdParam' },
+            ],
             responses: {
-                200: { description: 'Mesaj başarıyla silindi' },
-                401: { $ref: '#/components/responses/UnauthorizedError' },
-                404: { description: 'Mesaj bulunamadı' },
-                500: { $ref: '#/components/responses/InternalError' }
-            }
-        }
-    },
-    '/contact/stats': {
-        get: {
-            tags: ['Contact'],
-            summary: 'İletişim istatistikleri',
-            security: [{ bearerAuth: [] }],
-            responses: {
-                200: {
-                    description: 'İstatistikler getirildi',
-                    content: { 'application/json': { schema: { $ref: '#/components/schemas/ContactStatsResponse' } } }
+                '204': {
+                    description: 'İletişim mesajı başarıyla silindi (İçerik Yok).',
                 },
-                401: { $ref: '#/components/responses/UnauthorizedError' },
-                500: { $ref: '#/components/responses/InternalError' }
-            }
-        }
-    }
+                '401': { $ref: '#/components/responses/UnauthorizedError' },
+                '404': { $ref: '#/components/responses/NotFoundError' },
+                '500': { $ref: '#/components/responses/InternalServerError' },
+            },
+        },
+    },
 };
 //# sourceMappingURL=contact.js.map

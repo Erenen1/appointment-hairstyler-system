@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const database_1 = require("../config/database");
+const Business = require('./Business')(database_1.sequelize, sequelize_1.DataTypes);
 const Admin = require('./Admin')(database_1.sequelize, sequelize_1.DataTypes);
 const Staff = require('./Staff')(database_1.sequelize, sequelize_1.DataTypes);
 const Customer = require('./Customer')(database_1.sequelize, sequelize_1.DataTypes);
@@ -18,6 +19,18 @@ const GalleryImage = require('./GalleryImage')(database_1.sequelize, sequelize_1
 const StaffService = require('./StaffService')(database_1.sequelize, sequelize_1.DataTypes);
 const StaffAvailability = require('./StaffAvailability')(database_1.sequelize, sequelize_1.DataTypes);
 const setupAssociations = () => {
+    Business.hasMany(Staff, { foreignKey: 'businessId', as: 'staff' });
+    Staff.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
+    Business.hasMany(Service, { foreignKey: 'businessId', as: 'services' });
+    Service.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
+    Business.hasMany(ServiceCategory, { foreignKey: 'businessId', as: 'serviceCategories' });
+    ServiceCategory.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
+    Business.hasMany(Customer, { foreignKey: 'businessId', as: 'customers' });
+    Customer.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
+    Business.hasMany(Appointment, { foreignKey: 'businessId', as: 'appointments' });
+    Appointment.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
+    Business.hasMany(Admin, { foreignKey: 'businessId', as: 'admins' });
+    Admin.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
     ServiceCategory.hasMany(Service, { foreignKey: 'categoryId', as: 'services' });
     Service.belongsTo(ServiceCategory, { foreignKey: 'categoryId', as: 'category' });
     Service.hasMany(ServiceImage, { foreignKey: 'serviceId', as: 'images' });
@@ -50,6 +63,7 @@ const setupAssociations = () => {
 setupAssociations();
 const db = {
     sequelize: database_1.sequelize,
+    Business,
     Admin,
     Staff,
     Customer,

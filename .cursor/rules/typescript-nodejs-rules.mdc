@@ -1,0 +1,48 @@
+# TypeScript ve Node.js Temiz Kod Kuralları
+
+## Tip Güvenliği
+- Her zaman güçlü tip tanımları kullan, `any` tipinden kaçın
+- Interface ve Type tanımlarını açıkça belirt ve dökümante et
+- Jenerik tipleri karmaşık olmadıkça kullan (`<T>`)
+- Null ve undefined kontrollerini TypeScript'in sunduğu özelliklerle yap
+
+## Asenkron İşlemler
+- Promise tabanlı yaklaşımları tercih et
+- async/await kullan, callback zincirlerinden kaçın
+- Hata yakalama için try/catch blokları kullan
+- Promise.all() ile paralel işlemleri optimize et
+
+## Dışa Aktarma ve İçe Aktarma
+- Her dosyada tek bir sorumluluğu olan modül olsun
+- Default export yerine named export tercih et
+- İçe aktarmaları alfabetik sıraya göre düzenle
+- Döngüsel bağımlılıklardan kaçın
+
+## Değişken ve Fonksiyon İsimlendirme
+- camelCase kullan (değişkenler, fonksiyonlar)
+- PascalCase kullan (sınıflar, interface'ler, type'lar)
+- Açıklayıcı isimler kullan, kısaltmalardan kaçın
+- Boolean değişkenleri is/has/should gibi ön eklerle başlat
+
+## Kod Düzeni
+- Maksimum satır uzunluğu 100 karakter
+- Tutarlı girinti kullan (2 veya 4 boşluk)
+- İlgili kodları grupla, mantıksal bölümlere ayır
+
+## TypeScript Özellikleri
+- Readonly kullan (değişmez değerler için)
+- Optional parametreleri sona koy (fonksiyonlarda)
+- Union ve Intersection tipleri kullan (|, &)
+- Literal tipleri kullan (string, number, boolean)
+
+## Node.js En İyi Uygulamalar
+- Response yapısını Class üzerinden kullan
+- utils dosyası içerisinde ApiResponse sınıfı bulunuyor. 
+- Hata yönetimi için oluşturulmuş hata fırlatma sınıflarını kullan.
+- Hata class'ı utils dosyası altında ApiError içerisinde yer alıyor.
+- Hataları bu class'ın fonksiyonları ile fırlatıcaksın.
+- Controller içerisinde next(error) ile error middleware'e yönlendiriceksin.
+description:
+globs:
+alwaysApply: true
+---

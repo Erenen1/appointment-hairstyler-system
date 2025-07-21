@@ -1,148 +1,46 @@
+import config from '../../config/env';
+
 export const dashboardPaths = {
-  '/dashboard/stats': {
+  [`${config.API_PREFIX}/dashboard/summary`]: {
     get: {
       tags: ['Dashboard'],
-      summary: 'Dashboard istatistikleri',
-      description: 'Günlük, aylık ve genel istatistikleri getirir',
-      security: [{ bearerAuth: [] }],
+      summary: 'Kontrol Paneli Özeti',
+      description: 'Genel kontrol paneli özet istatistiklerini getirir.',
       responses: {
-        200: {
-          description: 'Dashboard istatistikleri başarıyla getirildi',
+        '200': {
+          description: 'Kontrol paneli özeti başarıyla getirildi.',
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Dashboard istatistikleri başarıyla getirildi' },
-                  data: { $ref: '#/components/schemas/DashboardStats' },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
+                $ref: '#/components/schemas/DashboardSummary',
+              },
+            },
+          },
         },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
-    }
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
   },
-  '/dashboard/revenue-chart': {
+  [`${config.API_PREFIX}/dashboard/stats`]: {
     get: {
       tags: ['Dashboard'],
-      summary: 'Gelir grafiği',
-      description: 'Aylık gelir grafiği verilerini getirir',
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: 'months',
-          in: 'query',
-          schema: { type: 'integer', default: 6, minimum: 1, maximum: 12 },
-          description: 'Kaç aylık veri gösterileceği'
-        }
-      ],
+      summary: 'Kontrol Paneli İstatistikleri',
+      description: 'Detaylı kontrol paneli istatistiklerini (aylık gelir, randevu durumu vb.) getirir.',
       responses: {
-        200: {
-          description: 'Gelir grafiği verileri başarıyla getirildi',
+        '200': {
+          description: 'Kontrol paneli istatistikleri başarıyla getirildi.',
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Gelir grafiği verileri başarıyla getirildi' },
-                  data: { $ref: '#/components/schemas/RevenueChart' },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
+                $ref: '#/components/schemas/DashboardStatsResponse',
+              },
+            },
+          },
         },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
-    }
+        '401': { $ref: '#/components/responses/UnauthorizedError' },
+        '500': { $ref: '#/components/responses/InternalServerError' },
+      },
+    },
   },
-  '/dashboard/popular-services': {
-    get: {
-      tags: ['Dashboard'],
-      summary: 'Popüler hizmetler',
-      description: 'En çok tercih edilen hizmetleri getirir',
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: 'limit',
-          in: 'query',
-          schema: { type: 'integer', default: 5, minimum: 1, maximum: 20 },
-          description: 'Kaç hizmet gösterileceği'
-        }
-      ],
-      responses: {
-        200: {
-          description: 'Popüler hizmetler başarıyla getirildi',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Popüler hizmetler başarıyla getirildi' },
-                  data: {
-                    type: 'array',
-                    items: { $ref: '#/components/schemas/PopularService' }
-                  },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
-        },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
-    }
-  },
-  '/dashboard/recent-appointments': {
-    get: {
-      tags: ['Dashboard'],
-      summary: 'Son randevular',
-      description: 'En son oluşturulan randevuları getirir',
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: 'limit',
-          in: 'query',
-          schema: { type: 'integer', default: 10, minimum: 1, maximum: 50 },
-          description: 'Kaç randevu gösterileceği'
-        }
-      ],
-      responses: {
-        200: {
-          description: 'Son randevular başarıyla getirildi',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  message: { type: 'string', example: 'Son randevular başarıyla getirildi' },
-                  data: {
-                    type: 'array',
-                    items: { $ref: '#/components/schemas/RecentAppointment' }
-                  },
-                  timestamp: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
-        },
-        401: { $ref: '#/components/responses/UnauthorizedError' },
-        403: { $ref: '#/components/responses/ForbiddenError' },
-        500: { $ref: '#/components/responses/InternalError' }
-      }
-    }
-  }
 }; 

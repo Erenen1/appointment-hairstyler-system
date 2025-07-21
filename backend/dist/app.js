@@ -55,7 +55,8 @@ const requestLogger_1 = require("./middleware/requestLogger");
 const logger_1 = __importStar(require("./config/logger"));
 const logUtils_1 = require("./utils/logUtils");
 const database_1 = require("./config/database");
-const routes_1 = __importStar(require("./routes"));
+const routes_1 = require("./routes");
+const modules_1 = __importDefault(require("./modules"));
 const app = (0, express_1.default)();
 app.use(express_1.default.urlencoded({ extended: true, limit: '5mb' }));
 app.use((0, cors_1.default)(cors_2.corsConfig));
@@ -63,7 +64,7 @@ logUtils_1.LogManager.ensureLogDirectory();
 app.use(requestLogger_1.requestLogger);
 app.use(express_1.default.json());
 app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../uploads')));
-app.use('/', routes_1.default);
+app.use('/', modules_1.default);
 (0, routes_1.setupSwagger)(app);
 const initializeDatabase = () => __awaiter(void 0, void 0, void 0, function* () {
     try {

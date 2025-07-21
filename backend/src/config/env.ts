@@ -28,7 +28,7 @@ export const config: Config = {
     DOMAIN: process.env.DOMAIN || 'localhost',
     FRONTEND_DOMAIN: process.env.FRONTEND_DOMAIN || 'http://localhost:3000',
     UPLOAD_DIR: process.env.UPLOAD_DIR || 'uploads',
-    
+    API_PREFIX: process.env.API_PREFIX || '/api/v1',
     LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 };
 

@@ -26,10 +26,20 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: true,
             comment: 'Bu personelin bu hizmeti verebilir durumda olup olmadığı'
         },
+        businessId: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            field: 'business_id',
+            references: {
+                model: 'businesses',
+                key: 'id',
+            },
+            comment: 'İşletme ID (foreign key)'
+        },
     }, {
         tableName: 'staff_services',
         timestamps: true,
-        createdAt: 'created_at',
+        createdAt: 'createdAt',
         updatedAt: false,
         indexes: [
             {
