@@ -3,7 +3,7 @@ import { APIURL } from "../../../../api/APIUrl";
 import { Staff } from "../types/StaffType";
 export default async function updateStaff(adminData: Staff, token: string) {
     try {
-        const res = await fetch(`${APIURL}/staff/${adminData.id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/staff/${adminData.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

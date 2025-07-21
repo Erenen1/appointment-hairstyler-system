@@ -1,6 +1,6 @@
 'use client';
 
-import { APIURL } from "../../../../api/APIUrl";
+// import { APIURL } from "../../../../api/APIUrl";
 import { LoginAdminRequest } from "../types/AdminLoginType";
 
 export const loginAdmin = async (adminData: LoginAdminRequest) => {

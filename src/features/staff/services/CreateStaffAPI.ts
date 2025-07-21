@@ -4,7 +4,7 @@ import { StaffRequest } from "../types/StaffType";
 
 export default async function createStaff(adminData: StaffRequest, token: string) {
     try {
-        const res = await fetch(`${APIURL}/staff`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/staff`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -39,7 +39,7 @@ export default async function createStaff(adminData: StaffRequest, token: string
 //             formData.append('avatar', adminData.avatar);
 //         }
 
-//         const res = await fetch(`${APIURL}/staff`, {
+//         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/staff`, {
 //             method: 'POST',
 //             headers: {
 //                 'Authorization': `Bearer ${token}`

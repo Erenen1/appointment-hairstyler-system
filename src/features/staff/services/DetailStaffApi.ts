@@ -3,7 +3,7 @@ import { APIURL } from "../../../../api/APIUrl";
 
 export default async function allStaff(token: string, id: string) {
     try {
-        const res = await fetch(`${APIURL}/staff/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/staff/${id}`, {
             method: 'GET',
             headers: {
                 'content-type': 'application/json',

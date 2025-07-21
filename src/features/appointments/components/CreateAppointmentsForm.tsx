@@ -11,22 +11,30 @@ import { useForm } from 'react-hook-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import ModalTitleComponent from '@/app/share/ModalTitleComponent';
 import { createAppointmentsSchema } from '../schemas/CreateAppointmentsSchema';
-import createCategories from '@/features/categories/services/CreateCategoriesApi';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar20 } from './CalendarTimes';
 import { GlobalDebuggerButton } from '@/app/share/GlobalDebuggerButton';
 import { useAllService } from '@/features/service/hooks/useAllService';
 import { useAllStaff } from '@/features/staff/hooks/useAllStaff';
+import { useAllCustomers } from '@/features/customers/hooks/useAllCustomers';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import createAppointments from '../services/CreateAppointmentsApi';
 
 const CreateAppointmentsForm = () => {
     const form = useForm<z.infer<typeof createAppointmentsSchema>>({
         resolver: zodResolver(createAppointmentsSchema),
         mode: 'onChange',
         defaultValues: {
-            serviceId: 0,
+            serviceId: '',
             staffId: '',
+            customerId: '',
             appointmentDate: '',
-            appointmentTime: '',
+            startTime: '',
+            endTime: '',
+            totalPrice: 0,
             notes: ''
         }
     });
@@ -34,12 +42,17 @@ const CreateAppointmentsForm = () => {
     const [appointmentTime, setAppointmentTime] = useState('');
     const { serviceData, handleAllServices } = useAllService();
     const { staffData, handleAllStaff } = useAllStaff();
+    const { customerData, handleAllCustomers } = useAllCustomers();
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState<string | null>(null);
 
     useEffect(() => {
         if (staffData.length === 0) handleAllStaff();
         console.log('Personel seçimi için data çekildi ⭐')
         if (serviceData.length === 0) handleAllServices();
         console.log('Servis seçimi için data çekildi 👾')
+        if (customerData.length === 0) handleAllCustomers();
+        console.log('Müşteri seçimi için data çekildi 🧪')
     }, []);
 
     // const { filterAppointment } = useAllAppointments()
@@ -51,15 +64,15 @@ const CreateAppointmentsForm = () => {
                 toast.error('Token Bulunamadı ❌');
                 return;
             }
-            await createCategories(values, token);
-            toast.success('Kategori Oluşturuldu ✅')
+            await createAppointments(values, token);
+            toast.success('Randevu Oluşturuldu ✅')
             form.reset()
         } catch (error) {
-            toast.error('Kategori Oluşturulamadı ❌')
+            toast.error('Randevu Oluşturulamadı ❌')
             throw error;
         }
         console.log('Form Gönderildi', values)
-        toast.success('Kategori Oluşturulmuştur ✅')
+        toast.success('Randevu Oluşturulmuştur ✅')
         form.reset();
     }
 
@@ -83,6 +96,51 @@ const CreateAppointmentsForm = () => {
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-5 w-full'>
                             <div className='flex justify-between'>
+
+                                <Popover open={open} onOpenChange={setOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={open}
+                                            className="w-[200px] justify-between"
+                                        >
+                                            {value
+                                                ? customerData.find((customer) => customer.fullName === value)?.fullName
+                                                : "Selin Yılmaz..."}
+                                            <ChevronsUpDown className="opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[200px] p-0">
+                                        <Command>
+                                            <CommandInput placeholder="Müşteri Seçimi..." className="h-9" />
+                                            <CommandList>
+                                                <CommandEmpty>Müşteri bulunamadı.</CommandEmpty>
+                                                <CommandGroup>
+                                                    {customerData.map((customer) => (
+                                                        <CommandItem
+                                                            key={customer.id}
+                                                            value={customer.fullName}
+                                                            onSelect={(currentValue) => {
+                                                                setValue(currentValue === customer.fullName ? "" : currentValue)
+                                                                setOpen(false)
+                                                            }}
+                                                        >
+                                                            {customer.fullName}
+                                                            <Check
+                                                                className={cn(
+                                                                    "ml-auto",
+                                                                    value === customer.fullName ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+
                                 <FormField
                                     control={form.control}
                                     name='serviceId'
@@ -130,7 +188,7 @@ const CreateAppointmentsForm = () => {
                                                     <SelectGroup>
                                                         {staffData.map((staff) => (
 
-                                                            <SelectItem key={staff.id} value={staff.id.toString()}>
+                                                            <SelectItem key={staff.id} value={staff.id?.toString() || 'Personel Adı Girilmemiş!'}>
                                                                 {staff.fullName}
                                                             </SelectItem>
                                                         ))}

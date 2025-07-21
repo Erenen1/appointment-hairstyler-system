@@ -199,51 +199,96 @@
 // }
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
+import trLocale from '@fullcalendar/core/locales/tr';
 
-import CalendarDialog from './CalendarDialog';
+
+import CalendarDialog from './CalendarAppointmentDialog';
 import CalendarAppointmentForm from './CalendarAppointmentForm';
+import { useAllAppointments } from '@/features/appointments/hooks/useAllAppointments';
+import { Appointment } from '@/features/appointments/types/AppointmentType';
 
 const AllCalendar = () => {
-    const [events, setEvents] = React.useState<{ title: string; date: string; id: string }[]>([]);
-
+    const [events, setEvents] = React.useState<Appointment[]>([]);
     const [isDialogOpen, setDialogOpen] = React.useState(false);
     const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
+
+    const { appointmentData, handleAllAppointments } = useAllAppointments()
+
+
+    useEffect(() => {
+        handleAllAppointments();
+        console.log("Tüm randevular:", appointmentData);
+    }, [appointmentData]);
 
     const handleDateClick = (arg: { dateStr: string }) => {
         setSelectedDate(arg.dateStr);
         setDialogOpen(true);
     };
 
-    const handleAddEvent = (title: string) => {
-        if (!selectedDate) return;
-
-        const newEvent = {
-            title, // ✅ Burada sadece string
-            date: selectedDate,
-            id: Date.now().toString(),
-        };
-
-        setEvents((prev) => [...prev, newEvent]);
+    const handleAddEvent = (appointment: Appointment) => {
+        setEvents((prev) => [...prev, appointment]);
     };
-
     return (
         <div className="p-6">
             <FullCalendar
                 plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin, listPlugin]}
+                locale={trLocale}
                 weekends={true}
-                events={events}
+                events={
+                    events.length > 0
+                        ? events.map((event) => ({
+                            id: event.id.toString(),
+                            title: `${event.customerId}: ${event.serviceId}`,
+                            start: event.startTime,
+                            end: event.endTime,
+                            allDay: false,
+                            extendedProps: {
+                                ...event,
+                            },
+                        }))
+                        : appointmentData.map((appointment) => ({
+                            id: appointment.id.toString(),
+                            title: `${appointment.customerId}: ${appointment.serviceId}`,
+                            start: appointment.startTime,
+                            end: appointment.endTime,
+                            allDay: false,
+                            extendedProps: {
+                                ...appointment,
+                            },
+                        }))
+                }
+                eventClick={(info) => {
+                    const appointmentId = info.event.id;
+                    const appointmentDate = info.event.extendedProps as Appointment
+                    console.log('Seçilen Randevu Idsi', appointmentId);
+                    console.log('Seçilen Randevu Bilgileri:', appointmentDate);
+                }}
                 dayHeaders={true}
                 initialView="dayGridMonth"
                 dateClick={handleDateClick}
                 editable={true}
                 initialDate={new Date()}
+                allDaySlot={true}
+                // contentHeight={800} // <--- yüksekliği burada sınırlıyoruz
+                slotMinTime={'08:00:00'}
+                slotMaxTime={'21:00:00'}
                 themeSystem="flaty"
+                expandRows={true}
+                height="auto"
+
+                dayHeaderFormat={{ weekday: 'long' }} // "Pazartesi"
+
+                titleFormat={{
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                }}
                 headerToolbar={{
                     left: 'prev,next today',
                     center: 'title',
@@ -257,8 +302,8 @@ const AllCalendar = () => {
                 selectedDate={selectedDate}
             >
                 <CalendarAppointmentForm
-                    onSubmit={(data: { customer: string; service: string; staff: string; }) => {
-                        const title = `${data.customer})`;
+                    onSubmit={(data: Appointment) => {
+                        const title = `${data.customerId}: ${data.serviceId}`;
                         handleAddEvent(title);
                         setDialogOpen(false);
                     }}

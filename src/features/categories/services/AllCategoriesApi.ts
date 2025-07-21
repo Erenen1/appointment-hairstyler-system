@@ -3,7 +3,7 @@ import { APIURL } from "../../../../api/APIUrl";
 
 export default async function allCategories(token: string) {
     try {
-        const res = await fetch(`${APIURL}/services/categories`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`, {
             method: 'GET',
             headers: {
                 'content-type': 'application/json',

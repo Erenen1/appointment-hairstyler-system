@@ -3,14 +3,10 @@ export type Appointment = {
     customerId: number
     staffId: number
     serviceId: number
-    statusId: number
-    status: 'onaylandı' | 'bekliyor' | 'iptal'
-    appointmentDate: string
-    appointmentTime: string
-    // endTime: string
+    startTime: string
+    endTime: string
     notes: string
     price: number
-    createdByAdmin: number | null
     createdAt: string
     updatedAt: string
 }

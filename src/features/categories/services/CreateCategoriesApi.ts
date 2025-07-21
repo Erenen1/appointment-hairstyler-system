@@ -1,10 +1,9 @@
 'use client';
-import { APIURL } from "../../../../api/APIUrl";
 import { CategoriesRequest } from "../types/CategoriesType";
 
 export default async function createCategories(adminData: CategoriesRequest, token: string) {
     try {
-        const res = await fetch(`${APIURL}/services/categories`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',

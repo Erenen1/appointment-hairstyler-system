@@ -1,9 +1,8 @@
 'use client';
-import { APIURL } from "../../../../api/APIUrl";
 
 export default async function deleteCategories(id: string, token: string) {
     try {
-        const res = await fetch(`${APIURL}/services/categories/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/${id}`, {
             method: 'DELETE',
             headers: {
                 'content-type': 'application/json',

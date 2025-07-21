@@ -5,7 +5,8 @@ import { DetailButton } from "@/app/share/GlobalDetailButton"
 import { DeleteButton } from "@/app/share/GlobalDeleteButton"
 import deleteCustomers from "@/features/customers/services/DeleteCustomersApi"
 import { DeleteAlertDialogDemo } from "@/app/share/DeleteAlertDialog"
-import deleteAppointment from "../services/DeleteApoointmentsApi"
+import deleteAppointment from "../services/DeleteAppointmentsApi"
+import detailAppointments from "../services/DetailAppointmentsApi"
 
 export const appointmentsColumns: ColumnDef<Appointment>[] = [
     {
@@ -44,7 +45,7 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
             return (
                 <div className="flex justify-center gap-3.5">
                     <DetailButton
-                        onClick={() => deleteCustomers(appointment.id.toString(), token as string)}
+                        onClick={() => detailAppointments(appointment, token as string)}
                         title='Detaylar' />
                     <DeleteAlertDialogDemo
                         onConfirm={() => deleteAppointment(appointment, token as string)}

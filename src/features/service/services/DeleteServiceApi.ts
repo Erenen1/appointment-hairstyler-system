@@ -1,9 +1,8 @@
 'use client';
-import { APIURL } from "../../../../api/APIUrl";
 
 export default async function deleteService(id: string, token: string) {
     try {
-        const res = await fetch(`${APIURL}/services/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/services/${id}`, {
             method: 'DELETE',
             headers: {
                 'content-type': 'application/json',

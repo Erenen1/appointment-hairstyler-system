@@ -1,9 +1,8 @@
 'use client';
-import { APIURL } from "../../../../api/APIUrl";
 
 export default async function allAppointments(token: string) {
     try {
-        const res = await fetch(`${APIURL}/appointments`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointments`, {
             method: 'GET',
             headers: {
                 'content-type': 'application/json',

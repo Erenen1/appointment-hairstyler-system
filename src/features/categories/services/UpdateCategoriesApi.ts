@@ -4,7 +4,7 @@ import { Categories } from "../types/CategoriesType";
 
 export default async function updateCategories(adminData: Categories, token: string) {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/services/categories/${adminData.id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/${adminData.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

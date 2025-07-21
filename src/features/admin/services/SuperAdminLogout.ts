@@ -3,7 +3,7 @@ import { APIURL } from "../../../../api/APIUrl";
 
 export default async function adminLogout(token: string) {
     try {
-        const res = await fetch(`${APIURL}/v1/auth/logout`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/auth/logout`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',

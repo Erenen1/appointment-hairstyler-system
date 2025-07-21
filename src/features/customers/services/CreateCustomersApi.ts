@@ -4,7 +4,7 @@ import { CustomersRequest } from '../types/CustomersType';
 
 export default async function createCustomers(adminData: CustomersRequest, token: string) {
     try {
-        const res = await fetch(`${APIURL}/customers`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/customers`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',

@@ -3,7 +3,7 @@ import { APIURL } from "../../../../api/APIUrl";
 
 export default async function deleteCustomers(id: string, token: string) {
     try {
-        const res = await fetch(`${APIURL}/customers/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/customers/${id}`, {
             method: 'DELETE',
             headers: {
                 'content-type': 'application/json',

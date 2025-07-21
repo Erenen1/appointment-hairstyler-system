@@ -4,7 +4,7 @@ import { APIURL } from "../../../../api/APIUrl";
 import { ServiceRequest } from "../types/ServiceType";
 export default async function createServices(adminData: ServiceRequest, token: string) {
     try {
-        const res = await fetch(`${APIURL}/services`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/services`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -37,7 +37,7 @@ export default async function createServices(adminData: ServiceRequest, token: s
 //         formData.append('image', data.image); // File nesnesi
 //     }
 
-//     const res = await fetch(`${APIURL}/services`, {
+//     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/services`, {
 //         method: 'POST',
 //         headers: {
 //             'Authorization': `Bearer ${token}`,
