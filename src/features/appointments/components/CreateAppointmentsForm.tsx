@@ -28,9 +28,9 @@ const CreateAppointmentsForm = () => {
         resolver: zodResolver(createAppointmentsSchema),
         mode: 'onChange',
         defaultValues: {
-            serviceId: '',
-            staffId: '',
             customerId: '',
+            staffId: '',
+            serviceId: '',
             appointmentDate: '',
             startTime: '',
             endTime: '',
@@ -47,13 +47,13 @@ const CreateAppointmentsForm = () => {
     const [value, setValue] = useState<string | null>(null);
 
     useEffect(() => {
-        if (staffData.length === 0) handleAllStaff();
+        if (staffData?.length === 0) handleAllStaff();
         console.log('Personel seçimi için data çekildi ⭐')
-        if (serviceData.length === 0) handleAllServices();
+        if (serviceData?.length === 0) handleAllServices();
         console.log('Servis seçimi için data çekildi 👾')
-        if (customerData.length === 0) handleAllCustomers();
+        if (customerData?.length === 0) handleAllCustomers();
         console.log('Müşteri seçimi için data çekildi 🧪')
-    }, []);
+    }, [handleAllStaff, handleAllServices, handleAllCustomers, staffData?.length, serviceData?.length, customerData?.length]);
 
     // const { filterAppointment } = useAllAppointments()
 
@@ -78,10 +78,10 @@ const CreateAppointmentsForm = () => {
 
     return (
         <div>
-            <Dialog>
-                <DialogTrigger asChild className='px-6 py-4 mx-4'>
+            <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
                     <DialogTitle>
-                        <Button>
+                        <Button className='cursor-pointer'>
                             Randevu Oluştur
                         </Button>
 
@@ -94,16 +94,15 @@ const CreateAppointmentsForm = () => {
                         </ModalTitleComponent>
                     </DialogHeader>
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-5 w-full'>
-                            <div className='flex justify-between'>
-
-                                <Popover open={open} onOpenChange={setOpen}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-5'>
+                            <>
+                                <Popover >
                                     <PopoverTrigger asChild>
                                         <Button
+                                            className=" cursor-pointer font-normal"
                                             variant="outline"
                                             role="combobox"
                                             aria-expanded={open}
-                                            className="w-[200px] justify-between"
                                         >
                                             {value
                                                 ? customerData.find((customer) => customer.fullName === value)?.fullName
@@ -111,30 +110,36 @@ const CreateAppointmentsForm = () => {
                                             <ChevronsUpDown className="opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-[200px] p-0">
+                                    <PopoverContent className='w-[180px] p-0'>
                                         <Command>
                                             <CommandInput placeholder="Müşteri Seçimi..." className="h-9" />
                                             <CommandList>
                                                 <CommandEmpty>Müşteri bulunamadı.</CommandEmpty>
                                                 <CommandGroup>
-                                                    {customerData.map((customer) => (
-                                                        <CommandItem
-                                                            key={customer.id}
-                                                            value={customer.fullName}
-                                                            onSelect={(currentValue) => {
-                                                                setValue(currentValue === customer.fullName ? "" : currentValue)
-                                                                setOpen(false)
-                                                            }}
-                                                        >
-                                                            {customer.fullName}
-                                                            <Check
-                                                                className={cn(
-                                                                    "ml-auto",
-                                                                    value === customer.fullName ? "opacity-100" : "opacity-0"
-                                                                )}
-                                                            />
+                                                    {customerData && customerData?.length > 0 ? (
+                                                        customerData?.map((customer) => (
+                                                            <CommandItem
+                                                                key={customer.id}
+                                                                value={customer.fullName}
+                                                                onSelect={(currentValue) => {
+                                                                    setValue(currentValue === customer.fullName ? "" : currentValue)
+                                                                    setOpen(false)
+                                                                }}
+                                                            >
+                                                                {customer.fullName}
+                                                                <Check
+                                                                    className={cn(
+                                                                        "ml-auto",
+                                                                        value === customer.fullName ? "opacity-100" : "opacity-0"
+                                                                    )}
+                                                                />
+                                                            </CommandItem>
+                                                        ))
+                                                    ) : (
+                                                        <CommandItem disabled value='loading'>
+                                                            Yükleniyor...
                                                         </CommandItem>
-                                                    ))}
+                                                    )}
                                                 </CommandGroup>
                                             </CommandList>
                                         </Command>
@@ -156,12 +161,18 @@ const CreateAppointmentsForm = () => {
                                                 <SelectContent>
                                                     <SelectGroup>
                                                         {/* <SelectLabel>Servis Tipi Seçimi</SelectLabel> */}
-                                                        {serviceData.map((service) => (
-                                                            <SelectItem key={service.id}
-                                                                value={service.id.toString()}>
-                                                                {service.title}
+                                                        {serviceData && serviceData?.length > 0 ? (
+                                                            serviceData?.map((service) => (
+                                                                <SelectItem key={service.id}
+                                                                    value={service.id.toString()}>
+                                                                    {service.title}
+                                                                </SelectItem>
+                                                            ))
+                                                        ) : (
+                                                            <SelectItem disabled value='loading'>
+                                                                Yükleniyor...
                                                             </SelectItem>
-                                                        ))}
+                                                        )}
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
@@ -186,12 +197,17 @@ const CreateAppointmentsForm = () => {
                                                 </FormControl>
                                                 <SelectContent>
                                                     <SelectGroup>
-                                                        {staffData.map((staff) => (
-
-                                                            <SelectItem key={staff.id} value={staff.id?.toString() || 'Personel Adı Girilmemiş!'}>
-                                                                {staff.fullName}
+                                                        {staffData && staffData?.length > 0 ? (
+                                                            staffData?.map((staff) => (
+                                                                <SelectItem key={staff.id} value={staff.id?.toString() || 'Personel Adı Girilmemiş!'}>
+                                                                    {staff.fullName}
+                                                                </SelectItem>
+                                                            ))
+                                                        ) : (
+                                                            <SelectItem disabled value='loading'>
+                                                                Yükleniyor...
                                                             </SelectItem>
-                                                        ))}
+                                                        )}
                                                         {/* <SelectLabel>Personel Seçimi</SelectLabel> */}
 
                                                     </SelectGroup>
@@ -201,7 +217,7 @@ const CreateAppointmentsForm = () => {
                                         </FormItem>
                                     )}
                                 />
-                            </div>
+                            </>
 
                             <Calendar20 appointmentDate={appointmentDate}
                                 setAppointmentDate={setAppointmentDate}

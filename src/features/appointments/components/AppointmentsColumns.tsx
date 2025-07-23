@@ -3,7 +3,6 @@ import { Appointment } from "../types/AppointmentType"
 import { getTokenToLocalStorage } from "@/features/admin/utils/auth"
 import { DetailButton } from "@/app/share/GlobalDetailButton"
 import { DeleteButton } from "@/app/share/GlobalDeleteButton"
-import deleteCustomers from "@/features/customers/services/DeleteCustomersApi"
 import { DeleteAlertDialogDemo } from "@/app/share/DeleteAlertDialog"
 import deleteAppointment from "../services/DeleteAppointmentsApi"
 import detailAppointments from "../services/DetailAppointmentsApi"
@@ -15,9 +14,19 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
         cell: ({ row }) => row.getValue("appointmentDate") ?? "",
     },
     {
-        accessorKey: "appointmentTime",
-        header: "Randevu Saati",
-        cell: ({ row }) => row.getValue("appointmentTime") ?? "",
+        accessorKey: "startTime",
+        header: "Randevu Başlangıç Saati",
+        cell: ({ row }) => row.getValue("startTime") ?? "",
+    },
+    {
+        accessorKey: "endTime",
+        header: "Randevu Bitiş Saati",
+        cell: ({ row }) => row.getValue("endTime") ?? "",
+    },
+    {
+        accessorKey: "status",
+        header: "Durum",
+        cell: ({ row }) => row.getValue("status") ?? "",
     },
     {
         accessorKey: "price",

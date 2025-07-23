@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { saveTokenToLocalStorage } from '../utils/auth';
+import { getTokenToLocalStorage, saveTokenToLocalStorage } from '../utils/auth';
 import { useLoading } from '@/app/contexts/LoadingContext';
 import { loginBusiness } from '../services/LoginBusinessApi';
 
@@ -21,13 +21,22 @@ export default function AdminLoginForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const token = getTokenToLocalStorage();
+        if (token) {
+            toast.error('Zaten giriş yaptınız ❌');
+            return;
+        }
         try {
-            const res = await loginBusiness(formData);
+            const res = await loginBusiness(formData, token as string);
 
             console.log('Login Response:', res);
 
             if (res.message === 'Giriş başarılı') {
-                const token = res.data.bearerAuth
+                const token = res.data.token;
+                if (!token) {
+                    toast.error('Token alınamadı ❌');
+                    return;
+                }
                 saveTokenToLocalStorage(token);
                 toast.success('Admin Girişi Yapıldı! 🎉');
                 // await new Promise(resolve => setTimeout(resolve, 2000));

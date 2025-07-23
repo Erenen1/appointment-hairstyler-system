@@ -29,9 +29,9 @@ export const servicesColumns: ColumnDef<Service>[] = [
         cell: ({ row }) => row.original.category?.name ?? "Kategori adı girilmemiş",
     },
     {
-        accessorKey: "title",
+        accessorKey: "name",
         header: "Başlık",
-        cell: ({ row }) => row.getValue("title") ?? "",
+        cell: ({ row }) => row.getValue("name") ?? "",
     },
     {
         accessorKey: "description",
@@ -51,29 +51,29 @@ export const servicesColumns: ColumnDef<Service>[] = [
             return val ? `${Number(val).toLocaleString('tr-TR')} ₺` : "—";
         },
     },
-    {
-        accessorKey: "isActive",
-        header: "Aktif Kullanılıyor mu?",
-        cell: ({ row }) => {
-            const isActive = row.getValue("isActive");
-            return isActive ? (
-                <div className='flex items-center gap-1.5'>
-                    <p>Aktif</p>
-                    <Check className='text-green-500 w-4 h-4' />
-                </div>
-            ) : (
-                <div className='flex items-center gap-1.5'>
-                    <p>Pasif</p>
-                    <X className='text-red-500 w-4 h-4' />
-                </div>
-            );
-        }
-    },
-    {
-        accessorKey: "isPopular",
-        header: "Popüler",
-        cell: ({ row }) => row.getValue("isPopular") ?? "",
-    },
+    // {
+    //     accessorKey: "isActive",
+    //     header: "Aktif Kullanılıyor mu?",
+    //     cell: ({ row }) => {
+    //         const isActive = row.getValue("isActive");
+    //         return isActive ? (
+    //             <div className='flex items-center gap-1.5'>
+    //                 <p>Aktif</p>
+    //                 <Check className='text-green-500 w-4 h-4' />
+    //             </div>
+    //         ) : (
+    //             <div className='flex items-center gap-1.5'>
+    //                 <p>Pasif</p>
+    //                 <X className='text-red-500 w-4 h-4' />
+    //             </div>
+    //         );
+    //     }
+    // },
+    // {
+    //     accessorKey: "isPopular",
+    //     header: "Popüler",
+    //     cell: ({ row }) => row.getValue("isPopular") ?? "",
+    // },
     {
         accessorKey: "createdAt",
         header: "Oluşturma Tarihi",
@@ -95,9 +95,8 @@ export const servicesColumns: ColumnDef<Service>[] = [
                 <div className="flex justify-center gap-3.5">
                     <DetailServiceModal service={service}>
                         <DetailButton
-                            onClick={() => deleteCustomers(service.id, token as string)}
-                            title='Detaylar'
-                        />
+                            onClick={() => { }}
+                            title='Detaylar' />
                     </DetailServiceModal>
                     <UpdateServiceModal selectedService={service}>
                         <UpdateButton
@@ -110,7 +109,7 @@ export const servicesColumns: ColumnDef<Service>[] = [
                         footer='Bu işlem geri alınamaz!'
                         onConfirm={() => {
                             toast.success("Hizmet başarıyla silindi!");
-                            deleteService(service.id, token as string);
+                            deleteService(service.id as string, token as string);
                         }}>
                         <DeleteButton
                             title='Sil'

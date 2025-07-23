@@ -12,10 +12,10 @@ export default async function createCustomers(adminData: CustomersRequest, token
             body: JSON.stringify(adminData)
         })
         const data = await res.json();
-        console.log('Kategori oluşturuldu api:', data);
+        console.log('Müşteri oluşturuldu api:', data);
         return data;
     } catch (error) {
-        console.error('Kategori oluşturulamadı api:', error);
+        console.error('Müşteri oluşturulamadı api:', error);
         throw error;
     };
 };

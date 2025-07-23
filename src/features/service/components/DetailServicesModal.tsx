@@ -12,7 +12,7 @@ const DetailServiceModal = ({ children, service, }: ServiceModalProps) => {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-lg">
                     <DialogHeader>
-                        <DialogTitle>{service.title}</DialogTitle>
+                        <DialogTitle>{service.name}</DialogTitle>
                         <DialogDescription>{service.description}</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-2 text-sm">

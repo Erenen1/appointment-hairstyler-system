@@ -19,7 +19,7 @@ const AllAppointmentsPage = () => {
     const { appointmentData, filterAppointment, handleAllAppointments } = useAllAppointments()
 
     useEffect(() => {
-        handleAllAppointments()
+        if (appointmentData.length === 0) handleAllAppointments()
     }, [])
 
     const table = useReactTable({

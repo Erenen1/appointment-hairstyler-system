@@ -8,16 +8,15 @@ export const createBusiness = async (adminData: CreateAdminRequest) => {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
-                'x-api-key': process.env.NEXT_PUBLIC_API_KEY as string,
             },
             body: JSON.stringify(adminData),
 
         });
         const data = await res.json()
-        console.log('admin kayıt edildi', data);
+        console.log('admin kayıt edildi api:', data);
         return data;
     } catch (error) {
-        console.log('admin kayıt edilirken bir hata oluştu', error)
+        console.log('admin kayıt edilirken bir hata oluştu api:', error)
         throw error;
 
     }

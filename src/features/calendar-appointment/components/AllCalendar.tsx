@@ -222,9 +222,9 @@ const AllCalendar = () => {
 
 
     useEffect(() => {
-        handleAllAppointments();
+        if (appointmentData?.length === 0) handleAllAppointments();
         console.log("Tüm randevular:", appointmentData);
-    }, [appointmentData]);
+    }, []);
 
     const handleDateClick = (arg: { dateStr: string }) => {
         setSelectedDate(arg.dateStr);
@@ -235,14 +235,14 @@ const AllCalendar = () => {
         setEvents((prev) => [...prev, appointment]);
     };
     return (
-        <div className="p-6">
+        <div className='!w-full !min-w-full !max-w-full overflow-y-auto'>
             <FullCalendar
                 plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin, listPlugin]}
                 locale={trLocale}
                 weekends={true}
                 events={
                     events.length > 0
-                        ? events.map((event) => ({
+                        ? (events ?? []).map((event) => ({
                             id: event.id.toString(),
                             title: `${event.customerId}: ${event.serviceId}`,
                             start: event.startTime,
@@ -252,7 +252,7 @@ const AllCalendar = () => {
                                 ...event,
                             },
                         }))
-                        : appointmentData.map((appointment) => ({
+                        : (appointmentData ?? []).map((appointment) => ({
                             id: appointment.id.toString(),
                             title: `${appointment.customerId}: ${appointment.serviceId}`,
                             start: appointment.startTime,
@@ -281,7 +281,6 @@ const AllCalendar = () => {
                 themeSystem="flaty"
                 expandRows={true}
                 height="auto"
-
                 dayHeaderFormat={{ weekday: 'long' }} // "Pazartesi"
 
                 titleFormat={{
@@ -309,7 +308,7 @@ const AllCalendar = () => {
                     }}
                 />
             </CalendarDialog>
-        </div>
+        </div >
     );
 };
 

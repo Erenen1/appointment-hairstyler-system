@@ -11,11 +11,14 @@ export interface StaffRequest {
 
 export type Staff = {
     id?: string
-    fullName: string
+    firstName: string
+    lastName: string;
     phone: string;
+    isAvailable: boolean;
+    description: string
     email: string;
-    isWorking: string
-    specialties: string;
+    businessId: string;
+    specialization: string;
     serviceIds?: string[];
     avatar?: string;
     isActive: string;

@@ -5,6 +5,9 @@ export type Appointment = {
     serviceId: number
     startTime: string
     endTime: string
+    status: string
+    appointmentDate: string
+    totalPrice: number
     notes: string
     price: number
     createdAt: string

@@ -31,8 +31,8 @@ const CreateServiceForm = () => {
     const [selectedCategories, setSelectedCategories] = useState<Categories[]>([])
 
     const handleSelect = (value: string) => {
-        const selected = categoriesData.find((cat) => cat.id.toString() === value) //
-        if (selected && !selectedCategories.some((c) => c.id === selected.id)) {
+        const selected = categoriesData.find((cat) => cat?.id?.toString() === value) //
+        if (selected && !selectedCategories.some((c) => c.id === selected?.id?.toString())) {
             setSelectedCategories((prev) => [...prev, selected])
         }
     };
@@ -43,14 +43,11 @@ const CreateServiceForm = () => {
     }
 
     useEffect(() => {
-        if (staffData.length === 0) handleAllStaff()
+        if (!staffData || staffData?.length === 0) handleAllStaff()
         console.log('Personel Seçimi için data çekildi 🎉')
-        if (categoriesData.length === 0) handleAllCategories()
+        if (!categoriesData || categoriesData?.length === 0) handleAllCategories()
         console.log('Kategori seçimi için data çekildi 🪄')
-    }, [staffData.length,
-        handleAllStaff,
-    categoriesData.length,
-        handleAllCategories])
+    }, [])
 
 
 
@@ -62,12 +59,12 @@ const CreateServiceForm = () => {
         mode: 'onChange',
         defaultValues: {
             categoryId: '',
-            title: '',
+            name: '',
             description: '',
             duration: 0,
             price: 0,
             image: undefined, // File için undefined kullan
-            staffIds: '[]', // Başlangıçta boş dizi olarak ayarla
+            // staffIds: '', // Başlangıçta boş dizi olarak ayarla
         }
     })
     type CreateServiceFormData = z.infer<typeof createServiceSchema>;
@@ -79,7 +76,14 @@ const CreateServiceForm = () => {
                 toast.error('Token Bulunamadı ❌');
                 return;
             }
-            await createServices(values, token);
+            if (!values.categoryId) {
+                toast.error('Kategori seçilmedi ❌');
+                return;
+            }
+            await createServices(
+                { ...values, categoryId: values.categoryId as string },
+                token
+            );
             toast.success('Hizmet Oluşturuldu ✅')
             form.reset()
         } catch (error) {
@@ -118,8 +122,9 @@ const CreateServiceForm = () => {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {Array.isArray(categoriesData) && categoriesData.length > 0 ? (
-                                                    categoriesData.map((cat) => {
+                                                {categoriesData && categoriesData?.length > 0 ? (
+                                                    (categoriesData || [])?.map((cat) => {
+                                                        if (!cat || !cat.name || !cat.id) return null; // kontrol
                                                         const isSelected = selectedCategories.some((c) => c.id === cat.id)
                                                         return (
                                                             <SelectItem key={cat.id}
@@ -138,25 +143,29 @@ const CreateServiceForm = () => {
                                         </Select>
                                         <FormMessage />
                                         <div className='mt-4 flex flex-nowrap gap-2'>
-                                            {selectedCategories && selectedCategories.map((cat, index) => {
-                                                const color = colorClasses[index % colorClasses.length]
-                                                return (
-                                                    <Badge key={cat.id}
-                                                        className={`flex items-center gap-1 text-sm font-medium transition-colors hover:scale-3d duration-700
+                                            {selectedCategories && selectedCategories?.length > 0 ?
+                                                (selectedCategories || []).map((cat, index) => {
+                                                    if (!cat.id || !cat.name) return null; // ID kontrolü
+                                                    const color = colorClasses[index % colorClasses.length]
+                                                    return (
+                                                        <Badge key={cat.id}
+                                                            className={`flex items-center gap-1 text-sm font-medium transition-colors hover:scale-3d duration-700
                                                     ${color}
                                                     `}
-                                                        onClick={() => handleRemove(Number(cat.id))}>
-                                                        {cat.name}
-                                                        <X className='w-3.5 h-3.5 cursor-pointer ml-1 hover:scale-3d'
-                                                        />
-                                                    </Badge>
-                                                )
-                                            })}
+                                                            onClick={() => handleRemove(Number(cat.id))}>
+                                                            {cat.name}
+                                                            <X className='w-3.5 h-3.5 cursor-pointer ml-1'
+                                                            />
+                                                        </Badge>
+                                                    )
+                                                }) : (
+                                                    <Badge variant='default' className='text-sm font-normal p-1.5 text-white'>Hiç kategori seçilmedi.</Badge>
+                                                )}
                                         </div>
                                     </FormItem>
                                 )}
                             />
-                            <FormField
+                            {/* <FormField
                                 control={form.control}
                                 name='staffIds'
                                 render={({ field }) => (
@@ -171,12 +180,15 @@ const CreateServiceForm = () => {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {Array.isArray(staffData) && staffData.length > 0 ? (
-                                                    staffData.map((staff) => (
-                                                        <SelectItem key={staff.id} value={staff.id}>
-                                                            {staff.fullName}
-                                                        </SelectItem>
-                                                    ))
+                                                {staffData && staffData?.length > 0 ? (
+                                                    (staffData || []).map((staff) => {
+                                                        if (!staff.id) return null; // ID kontrolü
+                                                        return (
+                                                            <SelectItem key={staff.id} value={staff.id?.toString() || 'Personel Seçimi'}>
+                                                                {staff.fullName}
+                                                            </SelectItem>
+                                                        )
+                                                    })
                                                 ) : (
                                                     <SelectItem disabled value="loading">Yükleniyor...</SelectItem>
                                                 )}
@@ -186,17 +198,17 @@ const CreateServiceForm = () => {
                                         <FormMessage />
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
                             <FormField
                                 control={form.control}
-                                name='title'
+                                name='name'
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>
-                                            Başlık
+                                            Hizmet Adı
                                         </FormLabel>
                                         <FormControl>
-                                            <Input placeholder='Hizmet başlığı' {...field} />
+                                            <Input placeholder='Sakal Traşı' {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

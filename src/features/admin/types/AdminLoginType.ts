@@ -7,7 +7,11 @@ export interface LoginAdminRequest {
 
 export interface CreateAdminRequest {
     password: string;
-    fullName: string;
+    businessName: string;
+    address: string;
+    city: string;
+    country: string;
     email: string;
     phone: string;
+    website: string;
 }

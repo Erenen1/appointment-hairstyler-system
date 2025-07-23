@@ -2,9 +2,7 @@ import { Staff } from "@/features/staff/types/StaffType";
 import React from "react";
 
 export interface ServiceRequest {
-    slug?: string;
     categoryId: string;
-    title: string;
     description?: string;
     duration: number;
     price: number;
@@ -19,21 +17,16 @@ export type Category = {
     name: string;
 };
 export type Service = {
-    slug: string;
+    name: string;
+    slug?: string;
     categoryId: string;
-    id: string;
+    id?: string;
     category: Category;
-    title: string;
-    description: string;
+    description?: string;
     duration: string;
     price: string;
-    staffMembers: Staff[]
-    serviceIds?: [];
-    isPopular?: string;
-    isActive?: string;
-    image?: string;
-    createdAt: string;
-    updatedAt: string;
+    staffMembers?: Staff[];
+
 }
 // export interface Service AI {
 //     id: string;

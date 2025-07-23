@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Check, ChevronsUpDown, RefreshCcw } from 'lucide-react';
+import { Check, ChevronsUpDown, Plus, RefreshCcw } from 'lucide-react';
 import { useAllService } from '@/features/service/hooks/useAllService';
 import { useAllStaff } from '@/features/staff/hooks/useAllStaff';
 import { useAllCustomers } from '@/features/customers/hooks/useAllCustomers';
@@ -63,10 +63,10 @@ const CalendarAppointmentForm = ({
                             variant="outline"
                             role="combobox"
                             aria-expanded={open}
-                            className="w-[200px] justify-between"
+                            className="w-[200px] justify-between text-gray-500 font-normal"
                         >
                             {value
-                                ? customerData.find((customer) => customer.fullName === value)?.fullName
+                                ? customerData?.find((customer) => customer.fullName === value)?.fullName
                                 : "Selin Yılmaz..."}
                             <ChevronsUpDown className="opacity-50" />
                         </Button>
@@ -77,24 +77,31 @@ const CalendarAppointmentForm = ({
                             <CommandList>
                                 <CommandEmpty>Müşteri bulunamadı.</CommandEmpty>
                                 <CommandGroup>
-                                    {customerData.map((customer) => (
-                                        <CommandItem
-                                            key={customer.id}
-                                            value={customer.fullName}
-                                            onSelect={(currentValue) => {
-                                                setValue(currentValue === customer.fullName ? "" : currentValue)
-                                                setOpen(false)
-                                            }}
-                                        >
-                                            {customer.fullName}
-                                            <Check
-                                                className={cn(
-                                                    "ml-auto",
-                                                    value === customer.fullName ? "opacity-100" : "opacity-0"
-                                                )}
-                                            />
-                                        </CommandItem>
-                                    ))}
+                                    {serviceData && serviceData?.length > 0
+                                        ? (customerData?.map((customer) => (
+                                            <CommandItem
+                                                key={customer.id}
+                                                value={customer.fullName}
+                                                onSelect={(currentValue) => {
+                                                    setValue(currentValue === customer.fullName ? "" : currentValue)
+                                                    setOpen(false)
+                                                }}
+                                            >
+                                                {customer.fullName}
+                                                <Check
+                                                    className={cn(
+                                                        "ml-auto",
+                                                        value === customer.fullName ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                />
+                                            </CommandItem>
+                                        )))
+                                        : (
+                                            <CommandItem disabled value='loading'>
+                                                Yükleniyor...
+                                            </CommandItem>
+                                        )
+                                    }
                                 </CommandGroup>
                             </CommandList>
                         </Command>
@@ -110,11 +117,16 @@ const CalendarAppointmentForm = ({
                         <SelectValue placeholder="Hizmet Türü" />
                     </SelectTrigger>
                     <SelectContent>
-                        {serviceData.map((item) => (
-                            <SelectItem key={item.id} value={item.title}>
-                                {item.title}
-                            </SelectItem>
-                        ))}
+                        {serviceData && serviceData?.length > 0 ?
+                            (serviceData ?? []).map((item) => (
+                                <SelectItem key={item.id} value={item.name}>
+                                    {item.name}
+                                </SelectItem>
+                            )) : (
+                                <SelectItem disabled value='loading'>
+                                    Yükleniyor...
+                                </SelectItem>
+                            )}
                     </SelectContent>
                 </Select>
 
@@ -128,11 +140,17 @@ const CalendarAppointmentForm = ({
                         <SelectValue placeholder="Personel Seçimi" />
                     </SelectTrigger>
                     <SelectContent>
-                        {staffData.map((item) => (
-                            <SelectItem key={item.id} value={item.fullName}>
-                                {item.fullName}
-                            </SelectItem>
-                        ))}
+                        {staffData && staffData?.length > 0 ?
+
+                            (staffData ?? []).map((item) => (
+                                <SelectItem key={item.id} value={item.fullName}>
+                                    {item.fullName}
+                                </SelectItem>
+                            )) : (
+                                <SelectItem disabled value='loading'>
+                                    Yükleniyor...
+                                </SelectItem>
+                            )}
                     </SelectContent>
                 </Select>
 
@@ -150,8 +168,22 @@ const CalendarAppointmentForm = ({
                 />
 
                 <Button onClick={handleSubmit} className='w-full mt-5' disabled={isSubmitting}>
-                    <RefreshCcw className="w-5 h-5 mr-2" />
-                    {existingAppointment ? 'Randevu Güncelle' : 'Randevu Oluştur'}
+                    {existingAppointment ?
+                        (
+                            <span className="flex gap-2">
+                                <RefreshCcw className="w-5 h-5 mr-2 text-green-500" />
+                                <p>
+                                    Randevu Güncelle
+                                </p>
+                            </span>
+                        ) : (
+                            <span className='flex items-center gap-3'>
+                                <Plus className="w-5 h-5 mr-2 text-[#efefef]" />
+                                <p>
+                                    Randevu Oluştur
+                                </p>
+                            </span>
+                        )}
                 </Button>
             </form>
         </div>

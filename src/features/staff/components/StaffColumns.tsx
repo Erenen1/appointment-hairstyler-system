@@ -10,12 +10,18 @@ import deleteCustomers from "@/features/customers/services/DeleteCustomersApi";
 import UpdateStaffModal from "./UpdateStaffModal";
 import { DeleteAlertDialogDemo } from "@/app/share/DeleteAlertDialog";
 import { toast } from "sonner";
+import DetailStaffModal from "./DetailStaffModal";
 
 export const staffColumns: ColumnDef<Staff>[] = [
     {
-        accessorKey: "fullName",
+        accessorKey: "firstName",
         header: "Personel Adı",
-        cell: ({ row }) => row.getValue("fullName") ?? "",
+        cell: ({ row }) => row.getValue("firstName") ?? "",
+    },
+    {
+        accessorKey: "lastName",
+        header: "Soyad",
+        cell: ({ row }) => row.getValue("lastName") ?? "",
     },
     {
         accessorKey: "phone",
@@ -28,17 +34,30 @@ export const staffColumns: ColumnDef<Staff>[] = [
         cell: ({ row }) => row.getValue("email") ?? "",
     },
     {
-        accessorKey: "isActive",
-        header: "Çalışıyor Mu?",
-        cell: ({ row }) => {
-            const isActive = row.getValue("isActive");
-            return isActive ? 'Çalışıyor ✔️' : 'Çalışmıyor ❌'
-        },
+        accessorKey: "description",
+        header: "Açıklama",
+        cell: ({ row }) => row.getValue("description") ?? "",
     },
     {
-        accessorKey: "specialties",
+        accessorKey: "isAvailable",
+        header: "Müsait mi?",
+        cell: ({ row }) => {
+            const isAvailable = row.getValue("isAvailable");
+            return isAvailable ? 'Evet ✔️' : 'Hayır ❌';
+        }
+    },
+    // {
+    //     accessorKey: "isActive",
+    //     header: "Çalışıyor Mu?",
+    //     cell: ({ row }) => {
+    //         const isActive = row.getValue("isActive");
+    //         return isActive ? 'Çalışıyor ✔️' : 'Çalışmıyor ❌'
+    //     },
+    // },
+    {
+        accessorKey: "specialization",
         header: "Verdiği Hizmet",
-        cell: ({ row }) => row.getValue("specialties") ?? "",
+        cell: ({ row }) => row.getValue("specialization") ?? "",
     },
     {
         accessorKey: "createdAt",
@@ -58,9 +77,11 @@ export const staffColumns: ColumnDef<Staff>[] = [
             const token = getTokenToLocalStorage()
             return (
                 <div className="flex justify-center gap-3.5">
-                    <DetailButton
-                        onClick={() => deleteCustomers(staff.id as string, token as string)}
-                        title='Detaylar' />
+                    <DetailStaffModal staff={staff}>
+                        <DetailButton
+                            onClick={() => { }}
+                            title='Detaylar' />
+                    </DetailStaffModal>
                     <UpdateStaffModal selectedStaff={staff} >
                         <UpdateButton
                             title="Güncelle"

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,74 +12,47 @@ import { getTokenToLocalStorage } from '@/features/admin/utils/auth';
 import createStaff from '../services/CreateStaffAPI';
 import { DialogTrigger, Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { GlobalDebuggerButton } from '@/app/share/GlobalDebuggerButton';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAllService } from '@/features/service/hooks/useAllService';
-import { Service } from '@/features/service/types/ServiceType';
-import { Badge } from '@/components/ui/badge';
-import { colorClasses } from '@/features/service/components/ColorBadge';
-import { X } from 'lucide-react';
 
-type CreateStaffFormData = z.infer<typeof createStaffSchema>;
 
 const CreateStaffForm = () => {
 
-    const [selectedServices, setSelectedServices] = useState<Service[]>([]);
 
     const form = useForm<CreateStaffFormData>({
         resolver: zodResolver(createStaffSchema),
         mode: 'onChange',
         defaultValues: {
-            fullName: '',
+            firstName: '',
+            lastName: '',
+            description: '',
             email: '',
             phone: '',
             specialties: '',
-            serviceIds: '[]',
             avatar: undefined,
         }
     })
+    type CreateStaffFormData = z.infer<typeof createStaffSchema>;
 
-    async function onSubmit(values: CreateStaffFormData) {
+    const onSubmit = async (values: CreateStaffFormData) => {
         try {
             const token = getTokenToLocalStorage();
             if (!token) {
                 toast.error('Token Bulunamadı ❌');
                 return;
             }
-            const submitValues: CreateStaffFormData = {
-                ...values,
-                serviceIds: JSON.stringify(selectedServices)
-            };
 
-            await createStaff(submitValues, token);
-            toast.success('Personel Oluşturuldu ✅')
-            form.reset()
+
+            await createStaff(values, token);
+
+            toast.success('Personel oluşturuldu ✅');
+            form.reset();
         } catch (error) {
-            toast.error('Personel Oluşturulamadı ❌')
+            toast.error('Personel oluşturulamadı ❌');
             throw error;
-        }
-        console.log('Form Gönderildi', values)
-        toast.success('Personel Oluşturulmuştur ✅')
-        form.reset();
-        setSelectedServices([]);
-    }
-
-    const { serviceData, handleAllServices } = useAllService()
-
-    useEffect(() => {
-        if (serviceData.length === 0) handleAllServices();
-    }, [])
-
-    const handleSelect = (value: string) => {
-        const selected = serviceData.find((cat) => cat.id.toString() === value) //
-        if (selected && !selectedServices.some((service) => service.id === selected.id)) {
-            setSelectedServices((prev) => [...prev, selected])
         }
     };
 
-    const handleRemove = (id: number) => {
-        setSelectedServices((prev) => prev.filter((service) => Number(service.id) !== id))
-        toast.success('Kategori kaldırıldı')
-    }
+
+
 
     return (
         <>
@@ -97,14 +70,29 @@ const CreateStaffForm = () => {
                         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-5 w-full'>
                             <FormField
                                 control={form.control}
-                                name='fullName'
+                                name='firstName'
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>
-                                            İsim Soyisim
+                                            İsim
                                         </FormLabel>
                                         <FormControl>
-                                            <Input placeholder='Ahmet Yılmaz' {...field} />
+                                            <Input placeholder='Ahmet' {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name='lastName'
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            Soyisim
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input placeholder='Yılmaz' {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -149,7 +137,7 @@ const CreateStaffForm = () => {
                                             Uzamanlıklar
                                         </FormLabel>
                                         <FormControl>
-                                            <Input placeholder='Uzmanlıklar' {...field} />
+                                            <Input placeholder='Saç Tasarımı' {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -157,65 +145,19 @@ const CreateStaffForm = () => {
                             />
                             <FormField
                                 control={form.control}
-                                name="serviceIds"
+                                name='description'
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Hizmet Türü</FormLabel>
-                                        <Select onValueChange={handleSelect}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Hizmet seçiniz" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    {Array.isArray(serviceData) && serviceData.length > 0 ? (
-                                                        serviceData.map((service) => {
-                                                            const isSelected = selectedServices.some((s) => s.id === service.id);
-                                                            return (
-                                                                <SelectItem
-                                                                    key={service.id}
-                                                                    value={service.id.toString()}
-                                                                    disabled={isSelected}
-                                                                >
-                                                                    {service.title || service.name || 'Başlık bulunamadı'}
-                                                                </SelectItem>
-                                                            );
-                                                        })
-                                                    ) : (
-                                                        <SelectItem disabled value="loading">
-                                                            Yükleniyor...
-                                                        </SelectItem>
-                                                    )}
-                                                </SelectGroup>
-
-                                                {/* Selected services badges */}
-                                            </SelectContent>
-                                        </Select>
+                                        <FormLabel>
+                                            Açıklama
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input placeholder='Sitilist' {...field} />
+                                        </FormControl>
                                         <FormMessage />
-                                        {selectedServices && selectedServices.length > 0 && (
-                                            <div className="mt-4 flex flex-wrap gap-2 p-2">
-                                                {selectedServices.map((service, index) => {
-                                                    const color = colorClasses[index % colorClasses.length];
-                                                    return (
-                                                        <Badge
-                                                            key={service.id}
-                                                            className={`flex items-center gap-1 text-sm font-medium transition-colors hover:scale-105 duration-200 cursor-pointer ${color}`}
-                                                            onClick={() => handleRemove(service.id)}
-                                                        >
-                                                            {service.title}
-
-
-                                                            <X className="w-3.5 h-3.5 cursor-pointer ml-1 hover:scale-105" />
-                                                        </Badge>
-                                                    );
-                                                })}
-                                            </div>
-                                        )}
                                     </FormItem>
                                 )}
                             />
-
                             <FormField
                                 control={form.control}
                                 name='avatar'
