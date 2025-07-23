@@ -235,7 +235,7 @@ const AllCalendar = () => {
         setEvents((prev) => [...prev, appointment]);
     };
     return (
-        <div className='!w-full !min-w-full !max-w-full overflow-y-auto'>
+        <div className='max-w-7xl mx-auto p-4 h-[calc(100vh-100px)] overflow-hidden'>
             <FullCalendar
                 plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin, listPlugin]}
                 locale={trLocale}
@@ -269,7 +269,7 @@ const AllCalendar = () => {
                     console.log('Seçilen Randevu Idsi', appointmentId);
                     console.log('Seçilen Randevu Bilgileri:', appointmentDate);
                 }}
-                dayHeaders={true}
+                // // dayHeaders={true}
                 initialView="dayGridMonth"
                 dateClick={handleDateClick}
                 editable={true}
@@ -281,12 +281,11 @@ const AllCalendar = () => {
                 themeSystem="flaty"
                 expandRows={true}
                 height="auto"
-                dayHeaderFormat={{ weekday: 'long' }} // "Pazartesi"
-
+                dayHeaderFormat={{ weekday: 'short' }} // "Pazartesi"
                 titleFormat={{
                     year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
+                    month: 'short',
+                    day: '2-digit',
                 }}
                 headerToolbar={{
                     left: 'prev,next today',
