@@ -301,8 +301,7 @@ const AllCalendar = () => {
             >
                 <CalendarAppointmentForm
                     onSubmit={(data: Appointment) => {
-                        const title = `${data.customerId}: ${data.serviceId}`;
-                        handleAddEvent(title);
+                        handleAddEvent(data);
                         setDialogOpen(false);
                     }}
                 />

@@ -15,7 +15,7 @@ export const data = {
             url: "/admin",
             items: [
                 {
-                    title: 'Özet',
+                    title: 'Randevu Takvimi',
                     isActive: true,
                     url: '/randevu-takvimi',
                 },
