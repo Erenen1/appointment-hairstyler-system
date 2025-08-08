@@ -15,41 +15,20 @@ import {
 class BusinessAuthController {
   private businessAuthService: BusinessAuthService;
 
-  constructor() {
-    const businessRepository = new BusinessAuthRepository();
-    this.businessAuthService = new BusinessAuthService(businessRepository);
+  constructor(_BusinessAuthService : BusinessAuthService) {
+    this.businessAuthService = _BusinessAuthService;
   }
 
-  /**
-   * Business kaydı oluşturur
-   * POST /api/business-auth/register
-   */
+
   public register: RequestHandler = async (req, res, next) => {
     try {
       const registerData: BusinessRegisterDto = req.body;
-
-      // Gerekli alanları kontrol et
-      if (!registerData.businessName || !registerData.ownerName || !registerData.email || !registerData.password) {
-        throw ApiError.badRequest('İşletme adı, sahip adı, email ve şifre gereklidir');
-      }
-
-      // Email format kontrolü
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(registerData.email)) {
-        throw ApiError.badRequest('Geçerli bir email adresi giriniz');
-      }
-
-      // Şifre uzunluk kontrolü
-      if (registerData.password.length < 6) {
-        throw ApiError.badRequest('Şifre en az 6 karakter olmalıdır');
-      }
 
       const result = await this.businessAuthService.register(registerData);
 
       res.status(201).json(
         ApiSuccess.created({
           business: result.business,
-          token: result.token,
           message: 'İşletme hesabınız başarıyla oluşturuldu'
         }, 'Kayıt başarılı')
       );
@@ -66,17 +45,12 @@ class BusinessAuthController {
     try {
       const loginData: BusinessLoginDto = req.body;
 
-      // Gerekli alanları kontrol et
-      if (!loginData.email || !loginData.password) {
-        throw ApiError.badRequest('Email ve şifre gereklidir');
-      }
-
       const result = await this.businessAuthService.login(loginData);
 
       res.json(
         ApiSuccess.item({
-          business: result.business,
           token: result.token,
+          business: result.business,
           message: 'Giriş başarılı'
         }, 'Giriş başarılı')
       );

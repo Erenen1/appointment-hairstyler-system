@@ -1,12 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.customerPaths = void 0;
-const env_1 = __importDefault(require("../../config/env"));
 exports.customerPaths = {
-    [`${env_1.default.API_PREFIX}/customers`]: {
+    [`/customers`]: {
         get: {
             tags: ['Customers'],
             summary: 'Tüm müşterileri getir',
@@ -62,7 +58,7 @@ exports.customerPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/customers/{id}`]: {
+    [`/customers/{id}`]: {
         get: {
             tags: ['Customers'],
             summary: 'Belirli bir müşteriyi getir',

@@ -41,9 +41,7 @@ class CategoryController {
         }
     };
 
-    /**
-     * Yeni kategori oluşturur
-     */
+
     public createCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const categoryDto = req.body as CategoryCreateDTO;
@@ -56,16 +54,13 @@ class CategoryController {
         }
     };
 
-    /**
-     * Kategori günceller
-     */
+
     public updateCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const { id } = req.params;
             const categoryDto = req.body as CategoryUpdateDTO;
-            const file = req.file;
             
-            const updatedCategory = await this.categoryService.updateCategory(id, categoryDto, file, req);
+            const updatedCategory = await this.categoryService.updateCategory(id, categoryDto, req);
             
             res.json(ApiSuccess.updated(updatedCategory, 'Kategori bilgileri başarıyla güncellendi'));
         } catch (error) {
@@ -73,9 +68,6 @@ class CategoryController {
         }
     };
 
-    /**
-     * Kategori siler
-     */
     public deleteCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const { id } = req.params;

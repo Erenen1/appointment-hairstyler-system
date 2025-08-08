@@ -31,30 +31,15 @@ class CategoryRepository extends BaseRepository<ICategory> {
         });
     }
 
-    /**
-     * ID'ye göre kategori getirir
-     * @param id Kategori ID
-     * @returns Kategori
-     */
     public async getCategoryById(id: string): Promise<ICategory | null> {
         return await ServiceCategory.findByPk(id);
     }
 
-    /**
-     * Yeni kategori oluşturur
-     * @param category Kategori bilgileri
-     * @returns Oluşturulan kategori
-     */
+
     public async createCategory(category: ICategory): Promise<ICategory> {
         return await ServiceCategory.create(category);
     }
 
-    /**
-     * Kategori günceller
-     * @param id Kategori ID
-     * @param category Güncellenecek kategori bilgileri
-     * @returns Güncellenen kategori
-     */
     public async updateCategory(id: string, category: Partial<ICategory>): Promise<ICategory | null> {
         const existingCategory = await ServiceCategory.findByPk(id);
         
@@ -66,11 +51,7 @@ class CategoryRepository extends BaseRepository<ICategory> {
         return existingCategory;
     }
 
-    /**
-     * Kategori siler
-     * @param id Kategori ID
-     * @returns Silme başarılı ise true
-     */
+
     public async deleteCategory(id: string): Promise<boolean> {
         const result = await ServiceCategory.destroy({
             where: { id }
@@ -79,11 +60,7 @@ class CategoryRepository extends BaseRepository<ICategory> {
         return result > 0;
     }
 
-    /**
-     * İsme göre kategori arar
-     * @param name Kategori adı
-     * @returns Bulunan kategori
-     */
+
     public async findCategoryByName(name: string): Promise<ICategory | null> {
         return await ServiceCategory.findOne({
             where: {

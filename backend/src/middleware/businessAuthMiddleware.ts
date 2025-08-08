@@ -51,6 +51,20 @@ export const requireBusiness = (req: Request, res: Response, next: NextFunction)
 /**
  * Admin token'ı doğrular ve admin context'i ekler
  */
+export const requireSuperAdmin = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const apiKey = req.headers['x-api-key'] as string;
+    if (!apiKey || apiKey !== process.env.SUPER_ADMIN_API_KEY) {
+      throw ApiError.authorization('Super admin API key bulunamadı veya geçersiz');
+    }
+    next();
+
+  } catch (error) {
+    next(error);
+  }
+}
+
+
 export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
   try {
     // Authorization header'dan token'ı al
@@ -117,31 +131,31 @@ export const requireBusinessOrAdmin = (req: Request, res: Response, next: NextFu
 
 /**
  * Super admin yetkisi kontrol eder
- */
-export const requireSuperAdmin = (req: Request, res: Response, next: NextFunction) => {
-  try {
-    // Authorization header'dan token'ı al
-    const authHeader = req.headers.authorization;
-    const token = JwtUtils.extractTokenFromHeader(authHeader);
+//  */
+// export const requireSuperAdmin = (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     // Authorization header'dan token'ı al
+//     const authHeader = req.headers.authorization;
+//     const token = JwtUtils.extractTokenFromHeader(authHeader);
     
-    // Token'ı doğrula
-    const payload = JwtUtils.verifyToken(token);
+//     // Token'ı doğrula
+//     const payload = JwtUtils.verifyToken(token);
     
-    // Super admin kontrolü
-    if (payload.role !== 'super_admin') {
-      throw ApiError.authorization('Bu işlem için super admin yetkisi gerekiyor');
-    }
+//     // Super admin kontrolü
+//     if (payload.role !== 'super_admin') {
+//       throw ApiError.authorization('Bu işlem için super admin yetkisi gerekiyor');
+//     }
     
-    // Request'e super admin bilgilerini ekle
-    req.user = payload;
-    req.isAdmin = true;
-    req.isSuperAdmin = true;
+//     // Request'e super admin bilgilerini ekle
+//     req.user = payload;
+//     req.isAdmin = true;
+//     req.isSuperAdmin = true;
     
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 /**
  * Business context middleware - sorguları businessId ile filtreler

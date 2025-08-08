@@ -11,9 +11,6 @@ module.exports = (sequelize, DataTypes) => {
         description: {
             type: DataTypes.TEXT,
         },
-        imagePath: {
-            type: DataTypes.STRING(255),
-        },
         orderIndex: {
             type: DataTypes.INTEGER,
             defaultValue: 0,

@@ -1,13 +1,13 @@
 import { ApiError, HashUtils, JwtUtils } from '../../utils';
 import BusinessAuthRepository from './business-auth.repository';
-import { 
-  IBusiness, 
-  IBusinessResponse, 
-  BusinessLoginDto, 
-  BusinessRegisterDto, 
-  BusinessUpdateDto, 
+import {
+  IBusiness,
+  IBusinessResponse,
+  BusinessLoginDto,
+  BusinessRegisterDto,
+  BusinessUpdateDto,
   BusinessChangePasswordDto,
-  BusinessJwtPayload 
+  BusinessJwtPayload
 } from './business-auth.interface';
 
 /**
@@ -43,56 +43,23 @@ class BusinessAuthService {
   /**
    * Yeni business kaydı oluşturur
    */
-  async register(registerData: BusinessRegisterDto): Promise<{
-    business: IBusinessResponse;
-    token: string;
-  }> {
+  async register(registerData: BusinessRegisterDto): Promise<{ business: IBusinessResponse; }> {
     try {
-      // Email kontrolü
       const existingBusiness = await this.businessRepository.findByEmail(registerData.email);
       if (existingBusiness) {
         throw ApiError.conflict('Bu email adresi zaten kullanılıyor');
       }
 
-      // Şifreyi hashle
       const hashedPassword = HashUtils.hashPassword(registerData.password);
 
-      // Varsayılan ayarları oluştur
-      const defaultSettings = {
-        workingHours: {
-          monday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-          tuesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-          wednesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-          thursday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-          friday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-          saturday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
-          sunday: { isOpen: false }
-        },
-        theme: {
-          primaryColor: '#3B82F6',
-          secondaryColor: '#F59E0B'
-        },
-        notifications: {
-          emailEnabled: true,
-          smsEnabled: false,
-          reminderHours: 24
-        }
-      };
-
-      // Business oluştur
       const business = await this.businessRepository.createBusiness({
         ...registerData,
         password: hashedPassword,
         isActive: true,
-        settings: defaultSettings
       });
-
-      // Token oluştur
-      const token = this.generateToken(business);
 
       return {
         business: this.sanitizeBusiness(business),
-        token
       };
     } catch (error) {
       throw error;
@@ -107,27 +74,22 @@ class BusinessAuthService {
     token: string;
   }> {
     try {
-      // Email ile business bul
       const business = await this.businessRepository.findByEmail(loginData.email);
       if (!business) {
         throw ApiError.authentication('Email veya şifre hatalı');
       }
 
-      // Şifre kontrolü
       const isPasswordValid = HashUtils.verifyPassword(loginData.password, business.password);
       if (!isPasswordValid) {
         throw ApiError.authentication('Email veya şifre hatalı');
       }
 
-      // Business aktif mi kontrol et
       if (!business.isActive) {
         throw ApiError.authentication('İşletme hesabınız aktif değil');
       }
 
-      // Son giriş zamanını güncelle
       await this.businessRepository.updateLastLogin(business.id);
 
-      // Token oluştur
       const token = this.generateToken(business);
 
       return {
@@ -184,7 +146,7 @@ class BusinessAuthService {
 
       // Mevcut şifre kontrolü
       const isCurrentPasswordValid = HashUtils.verifyPassword(
-        passwordData.currentPassword, 
+        passwordData.currentPassword,
         business.password
       );
       if (!isCurrentPasswordValid) {
@@ -227,7 +189,7 @@ class BusinessAuthService {
     try {
       // Token'ı doğrula
       const payload = JwtUtils.verifyToken(token);
-      
+
       if (payload.role !== 'business') {
         throw ApiError.authentication('Geçersiz token tipi');
       }

@@ -67,7 +67,7 @@ exports.testConnection = testConnection;
 const initializeAndSyncDatabase = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, exports.testConnection)();
-        const forceSync = false;
+        const forceSync = true;
         logger_1.default.info('Initializing database tables', {
             forceSync,
             environment: env_1.default.NODE_ENV

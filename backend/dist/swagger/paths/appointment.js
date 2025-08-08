@@ -1,12 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.appointmentPaths = void 0;
-const env_1 = __importDefault(require("../../config/env"));
 exports.appointmentPaths = {
-    [`${env_1.default.API_PREFIX}/appointments`]: {
+    [`/appointments`]: {
         get: {
             tags: ['Appointments'],
             summary: 'Tüm randevuları getir',
@@ -86,7 +82,7 @@ exports.appointmentPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/appointments/{id}`]: {
+    [`/appointments/{id}`]: {
         get: {
             tags: ['Appointments'],
             summary: 'Belirli bir randevuyu getir',

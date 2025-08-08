@@ -23,7 +23,7 @@ class ModuleRoutes {
      */
     private initializeRoutes(): void {
         // Business auth modülü rotaları
-        this.router.use("/business-auth", businessAuthRoutes);
+        this.router.use("/auth", businessAuthRoutes);
         
         // Super admin modülü rotaları
         this.router.use("/super-admin", superAdminRoutes);

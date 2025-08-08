@@ -7,23 +7,19 @@ module.exports = (sequelize: any, DataTypes: any) => {
     },
     businessName: {
       type: DataTypes.STRING,
-      allowNull: false,
       comment: 'İşletme adı'
     },
     ownerName: {
       type: DataTypes.STRING,
-      allowNull: false,
       comment: 'İşletme sahibinin adı'
     },
     email: {
       type: DataTypes.STRING,
-      unique: true,
-      allowNull: false,
+
       comment: 'Giriş email adresi'
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
       comment: 'Hashlenmiş şifre'
     },
     phone: {
@@ -43,11 +39,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
       defaultValue: true,
       comment: 'İşletme aktif mi?'
     },
-    settings: {
-      type: DataTypes.JSONB,
-      defaultValue: {},
-      comment: 'İşletme ayarları (çalışma saatleri, tema vb.)'
-    },
     lastLogin: {
       type: DataTypes.DATE,
       comment: 'Son giriş tarihi'
@@ -55,7 +46,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
   }, {
     tableName: 'businesses',
     timestamps: true,
-    paranoid: true, // soft delete için deletedAt
+    paranoid: true,
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     deletedAt: 'deletedAt',

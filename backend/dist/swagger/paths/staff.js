@@ -1,12 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.staffPaths = void 0;
-const env_1 = __importDefault(require("../../config/env"));
 exports.staffPaths = {
-    [`${env_1.default.API_PREFIX}/staff`]: {
+    [`/staff`]: {
         get: {
             tags: ['Staff'],
             summary: 'Tüm personeli getir',
@@ -62,7 +58,7 @@ exports.staffPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/staff/{id}`]: {
+    [`/staff/{id}`]: {
         get: {
             tags: ['Staff'],
             summary: 'Belirli bir personeli getir',
@@ -137,7 +133,7 @@ exports.staffPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/staff/{id}/available-slots`]: {
+    [`/staff/{id}/available-slots`]: {
         get: {
             tags: ['Staff'],
             summary: 'Belirli bir personel için müsait zaman aralıklarını getir',
@@ -170,7 +166,7 @@ exports.staffPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/staff/{id}/available-slots-range`]: {
+    [`/staff/{id}/available-slots-range`]: {
         get: {
             tags: ['Staff'],
             summary: 'Belirli bir personel için zaman aralığında müsait zaman aralıklarını getir',

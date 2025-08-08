@@ -1,12 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.servicePaths = void 0;
-const env_1 = __importDefault(require("../../config/env"));
 exports.servicePaths = {
-    [`${env_1.default.API_PREFIX}/services`]: {
+    [`/services`]: {
         get: {
             tags: ['Services'],
             summary: 'Tüm hizmetleri getir',
@@ -69,7 +65,7 @@ exports.servicePaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/services/{id}`]: {
+    [`/services/{id}`]: {
         get: {
             tags: ['Services'],
             summary: 'Belirli bir hizmeti getir',
@@ -144,7 +140,7 @@ exports.servicePaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/services/categories`]: {
+    [`/services/categories`]: {
         get: {
             tags: ['Services'],
             summary: 'Tüm hizmet kategorilerini getir',
@@ -166,7 +162,7 @@ exports.servicePaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/services/{id}/staff`]: {
+    [`/services/{id}/staff`]: {
         get: {
             tags: ['Services'],
             summary: 'Bir hizmet için uygun personeli getir',
@@ -192,7 +188,7 @@ exports.servicePaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/services/{id}/staff-availability`]: {
+    [`/services/{id}/staff-availability`]: {
         get: {
             tags: ['Services'],
             summary: 'Bir hizmet ve personel için müsaitlik getir',

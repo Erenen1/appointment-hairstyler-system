@@ -8,16 +8,10 @@ services:
       POSTGRES_DB: kuafor_test
       POSTGRES_USER: test_user
       POSTGRES_PASSWORD: test_password
-      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
-      - "5432"
-    volumes:
-      - postgres_test_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U test_user -d kuafor_test"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - "5432:5432"
+    # volumes:
+    #   - postgres_test_data:/var/lib/postgresql/data
     networks:
       - test-network
 
@@ -27,14 +21,7 @@ services:
       dockerfile: Dockerfile.test
     container_name: kuafor_backend_test
     depends_on:
-      postgres-test:
-        condition: service_healthy
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-      - ./backend/tests:/app/tests
-    working_dir: /app
-    command: npm run test:ci
+      - postgres-test
     networks:
       - test-network
 
@@ -43,4 +30,4 @@ volumes:
 
 networks:
   test-network:
-    driver: bridge 
+    driver: bridge

@@ -2,7 +2,8 @@ import { ICustomer } from "./customer.interface";
 import { BaseRepository } from "../common/base.repository";
 import db from "../../models";
 
-const { Customer } = db;
+
+const { Customer, CustomerBusiness } = db;
 
 /**
  * Müşteri veritabanı işlemleri için repository sınıfı
@@ -73,6 +74,10 @@ class CustomerRepository extends BaseRepository<ICustomer> {
      */
     public async deleteCustomer(id: string): Promise<boolean> {
         return await this.delete(id);
+    }
+
+    public async createCustomerBusinessAssociation(customerId: string, businessId: string): Promise<void> {
+        await CustomerBusiness.create({ customerId, businessId });
     }
 }
 

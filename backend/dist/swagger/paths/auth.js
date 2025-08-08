@@ -1,12 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authPaths = void 0;
-const env_1 = __importDefault(require("../../config/env"));
 exports.authPaths = {
-    [`${env_1.default.API_PREFIX}/business-auth/register`]: {
+    [`/business-auth/register`]: {
         post: {
             tags: ['Business Auth'],
             summary: 'Yeni bir işletme kaydı',
@@ -58,7 +54,7 @@ exports.authPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/business-auth/login`]: {
+    [`/business-auth/login`]: {
         post: {
             tags: ['Business Auth'],
             summary: 'İşletme girişi',

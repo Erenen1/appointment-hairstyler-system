@@ -1,12 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.contentPaths = void 0;
-const env_1 = __importDefault(require("../../config/env"));
 exports.contentPaths = {
-    [`${env_1.default.API_PREFIX}/gallery/categories`]: {
+    [`/gallery/categories`]: {
         get: {
             tags: ['Content'],
             summary: 'Tüm galeri kategorilerini getir',
@@ -62,7 +58,7 @@ exports.contentPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/gallery/categories/{id}`]: {
+    [`/gallery/categories/{id}`]: {
         get: {
             tags: ['Content'],
             summary: 'Belirli bir galeri kategorisini getir',
@@ -137,7 +133,7 @@ exports.contentPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/gallery/images`]: {
+    [`/gallery/images`]: {
         get: {
             tags: ['Content'],
             summary: 'Tüm galeri resimlerini getir',
@@ -200,7 +196,7 @@ exports.contentPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/gallery/images/{id}`]: {
+    [`/gallery/images/{id}`]: {
         get: {
             tags: ['Content'],
             summary: 'Belirli bir galeri resmini getir',

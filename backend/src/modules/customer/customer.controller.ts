@@ -3,9 +3,7 @@ import CustomerService from "./customer.service";
 import { ApiSuccess, ApiError } from "../../utils";
 import { CustomerCreateDTO, CustomerUpdateDTO } from "./dto";
 
-/**
- * Müşteri işlemleri için controller sınıfı
- */
+
 class CustomerController {
     private customerService: CustomerService;
 
@@ -13,12 +11,7 @@ class CustomerController {
         this.customerService = customerService;
     }
 
-    /**
-     * Tüm müşterileri getirir
-     * @param req Express isteği
-     * @param res Express yanıtı
-     * @param next Express sonraki fonksiyon
-     */
+
     public async getAllCustomers(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const customers = await this.customerService.getAllCustomers();
@@ -28,12 +21,7 @@ class CustomerController {
         }
     }
 
-    /**
-     * ID'ye göre müşteri getirir
-     * @param req Express isteği
-     * @param res Express yanıtı
-     * @param next Express sonraki fonksiyon
-     */
+
     public async getCustomerById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const id = req.params.id;
@@ -44,28 +32,18 @@ class CustomerController {
         }
     }
 
-    /**
-     * Yeni müşteri oluşturur
-     * @param req Express isteği
-     * @param res Express yanıtı
-     * @param next Express sonraki fonksiyon
-     */
+
     public async createCustomer(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const customerDto: CustomerCreateDTO = req.body;
-            const newCustomer = await this.customerService.createCustomer(customerDto);
+            const newCustomer = await this.customerService.createCustomer(customerDto,req);
             res.status(201).json(ApiSuccess.created(newCustomer, 'Müşteri başarıyla oluşturuldu'));
         } catch (error) {
             next(error);
         }
     }
 
-    /**
-     * Müşteri bilgilerini günceller
-     * @param req Express isteği
-     * @param res Express yanıtı
-     * @param next Express sonraki fonksiyon
-     */
+
     public async updateCustomer(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const id = req.params.id;
@@ -77,12 +55,7 @@ class CustomerController {
         }
     }
 
-    /**
-     * Müşteri kaydını siler
-     * @param req Express isteği
-     * @param res Express yanıtı
-     * @param next Express sonraki fonksiyon
-     */
+
     public async deleteCustomer(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const id = req.params.id;

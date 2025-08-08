@@ -18,6 +18,7 @@ const GalleryCategory = require('./GalleryCategory')(database_1.sequelize, seque
 const GalleryImage = require('./GalleryImage')(database_1.sequelize, sequelize_1.DataTypes);
 const StaffService = require('./StaffService')(database_1.sequelize, sequelize_1.DataTypes);
 const StaffAvailability = require('./StaffAvailability')(database_1.sequelize, sequelize_1.DataTypes);
+const CustomerBusiness = require('./CustomerBusiness')(database_1.sequelize, sequelize_1.DataTypes);
 const setupAssociations = () => {
     Business.hasMany(Staff, { foreignKey: 'businessId', as: 'staff' });
     Staff.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
@@ -26,7 +27,7 @@ const setupAssociations = () => {
     Business.hasMany(ServiceCategory, { foreignKey: 'businessId', as: 'serviceCategories' });
     ServiceCategory.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
     Business.hasMany(Customer, { foreignKey: 'businessId', as: 'customers' });
-    Customer.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
+    Customer.hasMany(Business, { foreignKey: 'businessId', as: 'businesses' });
     Business.hasMany(Appointment, { foreignKey: 'businessId', as: 'appointments' });
     Appointment.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
     Business.hasMany(Admin, { foreignKey: 'businessId', as: 'admins' });
@@ -62,6 +63,7 @@ const setupAssociations = () => {
 };
 setupAssociations();
 const db = {
+    CustomerBusiness,
     sequelize: database_1.sequelize,
     Business,
     Admin,

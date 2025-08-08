@@ -1,16 +1,12 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.healthPaths = void 0;
-const env_1 = __importDefault(require("../../config/env"));
 exports.healthPaths = {
-    [`${env_1.default.API_PREFIX}/health`]: {
+    [`/health`]: {
         get: {
             tags: ['Health'],
             summary: 'API sağlık kontrolü',
-            description: 'API"nin çalışır durumda olup olmadığını kontrol eder.',
+            description: 'API\'nin çalışır durumda olup olmadığını kontrol eder.',
             responses: {
                 '200': {
                     description: 'API çalışıyor.',
@@ -39,7 +35,7 @@ exports.healthPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/health/database`]: {
+    [`/health/database`]: {
         get: {
             tags: ['Health'],
             summary: 'Veritabanı sağlık kontrolü',

@@ -16,9 +16,9 @@ const GalleryCategory = require('./GalleryCategory')(sequelize, DataTypes);
 const GalleryImage = require('./GalleryImage')(sequelize, DataTypes);
 const StaffService = require('./StaffService')(sequelize, DataTypes);
 const StaffAvailability = require('./StaffAvailability')(sequelize, DataTypes);
+const CustomerBusiness = require('./CustomerBusiness')(sequelize, DataTypes);
 
 const setupAssociations = () => {
-  // Business ilişkileri
   Business.hasMany(Staff, { foreignKey: 'businessId', as: 'staff' });
   Staff.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
   
@@ -29,7 +29,7 @@ const setupAssociations = () => {
   ServiceCategory.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
   
   Business.hasMany(Customer, { foreignKey: 'businessId', as: 'customers' });
-  Customer.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
+  Customer.hasMany(Business, { foreignKey: 'businessId', as: 'businesses' });
   
   Business.hasMany(Appointment, { foreignKey: 'businessId', as: 'appointments' });
   Appointment.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
@@ -37,7 +37,6 @@ const setupAssociations = () => {
   Business.hasMany(Admin, { foreignKey: 'businessId', as: 'admins' });
   Admin.belongsTo(Business, { foreignKey: 'businessId', as: 'business' });
 
-  // Mevcut ilişkiler
   ServiceCategory.hasMany(Service, { foreignKey: 'categoryId', as: 'services' });
   Service.belongsTo(ServiceCategory, { foreignKey: 'categoryId', as: 'category' });
   Service.hasMany(ServiceImage, { foreignKey: 'serviceId', as: 'images' });
@@ -72,11 +71,13 @@ const setupAssociations = () => {
   // StaffAvailability ilişkileri
   Staff.hasMany(StaffAvailability, { foreignKey: 'staffId', as: 'availability' });
   StaffAvailability.belongsTo(Staff, { foreignKey: 'staffId', as: 'staff' });
+
 };
 
 setupAssociations();
 
 const db = {
+  CustomerBusiness,
   sequelize,
   Business,
   Admin,

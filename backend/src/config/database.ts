@@ -53,7 +53,7 @@ export const testConnection = async (): Promise<boolean> => {
 export const initializeAndSyncDatabase = async (): Promise<void> => {
   try {
     await testConnection();
-    const forceSync = false;
+    const forceSync = true;
     logger.info('Initializing database tables', { 
       forceSync, 
       environment: Enum.NODE_ENV 

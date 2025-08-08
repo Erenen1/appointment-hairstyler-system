@@ -9,8 +9,8 @@ const logger_1 = __importDefault(require("../config/logger"));
 const requestLogger_1 = require("./requestLogger");
 const errorHandler = (error, req, res, next) => {
     let apiError;
+    apiError = error;
     if (error instanceof utils_1.ApiError) {
-        apiError = error;
     }
     else if (error.name && error.name.startsWith('Sequelize')) {
         apiError = utils_1.ApiError.fromSequelize(error);
@@ -45,7 +45,7 @@ const errorHandler = (error, req, res, next) => {
         timestamp: apiError.timestamp || new Date().toISOString(),
         path: apiError.path || req.originalUrl
     };
-    if (process.env.NODE_ENV === 'development' && error.stack) {
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === "test" && error.stack) {
         responseData.stack = error.stack;
     }
     res.status(apiError.statusCode || 500).json(responseData);

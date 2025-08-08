@@ -1,12 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.availabilityPaths = void 0;
-const env_1 = __importDefault(require("../../config/env"));
 exports.availabilityPaths = {
-    [`${env_1.default.API_PREFIX}/availability/all`]: {
+    [`/availability/all`]: {
         get: {
             tags: ['Availability'],
             summary: 'Tüm personel müsaitliklerini getir',
@@ -18,7 +14,7 @@ exports.availabilityPaths = {
                 {
                     name: 'staffId',
                     in: 'query',
-                    description: 'Personel ID"si ile filtrele (isteğe bağlı)',
+                    description: 'Personel ID\'si ile filtrele (isteğe bağlı)',
                     required: false,
                     schema: { type: 'string', format: 'uuid' },
                 },
@@ -60,16 +56,16 @@ exports.availabilityPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/availability`]: {
+    [`/availability`]: {
         get: {
             tags: ['Availability'],
             summary: 'Belirli bir personel için müsaitliği getir',
-            description: 'Belirtilen personel ID"si ve tarihi için müsaitliği getirir.',
+            description: 'Belirtilen personel ID\'si ve tarihi için müsaitliği getirir.',
             parameters: [
                 {
                     name: 'staffId',
                     in: 'query',
-                    description: 'Personel ID"si',
+                    description: 'Personel ID\'si',
                     required: true,
                     schema: { type: 'string', format: 'uuid' },
                 },
@@ -94,7 +90,6 @@ exports.availabilityPaths = {
                 },
                 '400': { $ref: '#/components/responses/ValidationError' },
                 '401': { $ref: '#/components/responses/UnauthorizedError' },
-                '404': { $ref: '#/components/responses/NotFoundError' },
                 '500': { $ref: '#/components/responses/InternalServerError' },
             },
         },
@@ -129,7 +124,7 @@ exports.availabilityPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/availability/bulk`]: {
+    [`/availability/bulk`]: {
         post: {
             tags: ['Availability'],
             summary: 'Toplu müsaitlik oluştur',
@@ -164,11 +159,11 @@ exports.availabilityPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/availability/{id}`]: {
+    [`/availability/{id}`]: {
         put: {
             tags: ['Availability'],
             summary: 'Müsaitliği güncelle',
-            description: 'Belirtilen ID"ye sahip müsaitliği günceller.',
+            description: 'Belirtilen ID\'ye sahip müsaitliği günceller.',
             parameters: [
                 { $ref: '#/components/schemas/IdParam' },
             ],
@@ -202,7 +197,7 @@ exports.availabilityPaths = {
         delete: {
             tags: ['Availability'],
             summary: 'Müsaitliği sil',
-            description: 'Belirtilen ID"ye sahip müsaitliği siler.',
+            description: 'Belirtilen ID\'ye sahip müsaitliği siler.',
             parameters: [
                 { $ref: '#/components/schemas/IdParam' },
             ],

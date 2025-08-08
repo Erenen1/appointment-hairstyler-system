@@ -1,12 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.dashboardPaths = void 0;
-const env_1 = __importDefault(require("../../config/env"));
 exports.dashboardPaths = {
-    [`${env_1.default.API_PREFIX}/dashboard/summary`]: {
+    [`/dashboard/summary`]: {
         get: {
             tags: ['Dashboard'],
             summary: 'Kontrol Paneli Özeti',
@@ -27,7 +23,7 @@ exports.dashboardPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/dashboard/stats`]: {
+    [`/dashboard/stats`]: {
         get: {
             tags: ['Dashboard'],
             summary: 'Kontrol Paneli İstatistikleri',

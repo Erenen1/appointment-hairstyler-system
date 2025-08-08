@@ -10,8 +10,8 @@ export const errorHandler = (
   next: NextFunction
 ): void => {
   let apiError: ApiError;
+  apiError = error;
   if (error instanceof ApiError) {
-    apiError = error;
   }
   else if (error.name && error.name.startsWith('Sequelize')) {
     apiError = ApiError.fromSequelize(error);
@@ -56,7 +56,7 @@ export const errorHandler = (
     timestamp: apiError.timestamp || new Date().toISOString(),
     path: apiError.path || req.originalUrl
   };
-  if (process.env.NODE_ENV === 'development' && error.stack) {
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === "test" && error.stack) {
     responseData.stack = error.stack;
   }
   res.status(apiError.statusCode || 500).json(responseData);

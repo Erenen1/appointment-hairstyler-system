@@ -1,6 +1,3 @@
-/**
- * Müşteri oluşturma DTO
- */
 export class CustomerCreateDTO {
     fullName: string;
     email: string;

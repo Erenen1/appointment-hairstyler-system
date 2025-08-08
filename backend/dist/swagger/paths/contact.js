@@ -1,12 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.contactPaths = void 0;
-const env_1 = __importDefault(require("../../config/env"));
 exports.contactPaths = {
-    [`${env_1.default.API_PREFIX}/contact`]: {
+    [`/contact`]: {
         get: {
             tags: ['Contact'],
             summary: 'Tüm iletişim mesajlarını getir',
@@ -70,7 +66,7 @@ exports.contactPaths = {
             },
         },
     },
-    [`${env_1.default.API_PREFIX}/contact/{id}`]: {
+    [`/contact/{id}`]: {
         get: {
             tags: ['Contact'],
             summary: 'Belirli bir iletişim mesajını getir',
