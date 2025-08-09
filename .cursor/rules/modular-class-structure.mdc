@@ -1,0 +1,53 @@
+# Modüler Sınıf Yapısı ve SOLID Prensipleri
+
+## Tek Sorumluluk Prensibi (SRP)
+- Her sınıf tek bir sorumluluğa sahip olmalı
+- Her fonksiyon tek bir iş yapmalı
+- Bir sınıf değişmek için sadece bir nedene sahip olmalı
+- Büyük sınıfları daha küçük, odaklanmış sınıflara böl
+
+## Açık/Kapalı Prensibi (OCP)
+- Sınıflar genişlemeye açık, değişime kapalı olmalı
+- Yeni özellikler eklemek için mevcut kodu değiştirmek yerine genişlet
+- Soyutlamaları kullan (interface, abstract class)
+- Davranış değişikliklerini kalıtım veya kompozisyon ile sağla
+
+## Liskov Yerine Geçme Prensibi (LSP)
+- Alt sınıflar üst sınıfların yerine geçebilmeli
+- Alt sınıflar üst sınıfların davranışlarını korumalı
+- Tip dönüşümleri güvenli olmalı
+- Arayüz sözleşmelerine sadık kal
+
+## Arayüz Ayrımı Prensibi (ISP)
+- Büyük arayüzler yerine küçük ve özel arayüzler kullan
+- İstemcileri kullanmadıkları metodlara bağımlı yapma
+- Arayüzleri işlevselliğe göre grupla
+- Her arayüz belirli bir amaca hizmet etmeli
+
+## Bağımlılık Tersine Çevirme Prensibi (DIP)
+- Yüksek seviyeli modüller düşük seviyeli modüllere bağımlı olmamalı
+- Soyutlamalara bağımlı ol, somut uygulamalara değil
+- Bağımlılık enjeksiyonu kullan
+- Servis locator pattern'i kullan
+
+## Modüler Yapı
+- Her modül kendi içinde bağımsız olmalı
+- Modüller arası iletişim arayüzler üzerinden olmalı
+- Her modül kendi iç uygulamasını gizlemeli
+- Modüller kolayca değiştirilebilir ve test edilebilir olmalı
+
+## Katmanlı Mimari
+- Presentation, Business Logic ve Data Access katmanlarını ayır
+- Her katman sadece kendinden bir alt katmana bağımlı olmalı
+- Katmanlar arası iletişim için DTO (Data Transfer Object) kullan
+- İş mantığını controller'lardan service'lere taşı
+
+## Bağımlılık Yönetimi
+- Constructor enjeksiyonu tercih et
+- Bağımlılıkları açıkça belirt
+- Döngüsel bağımlılıklardan kaçın
+- Test için sahte (mock) nesneler kullanmayı kolaylaştır
+description:
+globs:
+alwaysApply: true
+---
