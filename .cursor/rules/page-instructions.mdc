@@ -1,0 +1,135 @@
+Aşağıda, emlakçılara özel hizmet sunan bir **SaaS Tanıtım Sayfası** için modern, gelişmiş bir UI tasarımına yönelik detaylı bir prompt hazırladım. Bu prompt, **yukarıda verdiğiniz tüm özellikleri** içerecek şekilde, kullanıcı dostu, estetik açıdan güçlü ve işlevsel bir tasarım öneriyor.
+
+---
+
+**Gelişmiş UI ile Emlakçılara Özel SaaS Tanıtım Sayfası Tasarımı için Prompt**
+
+---
+
+**1. Sayfa Genel Yapısı:**
+
+### **Header Bölümü (Üst Kısım)**
+
+* **Logo ve Branding**: Sayfanın sol üst köşesinde minimal bir logo yer alacak. Logo, SaaS platformunun ismi ve emlakçılara yönelik çözüm sunduğuna dair güçlü bir görsel kimlik taşıyacak.
+* **Navigasyon Menüsü**: Basit, şeffaf ve modern bir navigasyon menüsü olacak. Menüdeki başlıklar:
+
+  * **Ana Sayfa** (Homepage)
+  * **Hizmetlerimiz** (Our Services)
+  * **Paketler** (Pricing)
+  * **Müşteri Yorumları** (Testimonials)
+  * **Bize Ulaşın** (Contact Us)
+  * **Giriş / Kayıt Ol** (Login / Sign Up)
+* **CTA (Call to Action) Butonu**: **"Ücretsiz Deneyin"** şeklinde belirgin bir buton, dikkat çekici renkte olacak.
+
+---
+
+### **Hero Bölümü (Ana Başlık Alanı)**
+
+* **Başlık ve Alt Başlık**: Etkileyici bir ana başlık (örneğin, "Emlak Yönetiminizi Kolaylaştırın!") ve alt başlık (örneğin, "Gelişmiş yapay zeka ve otomasyonla iş süreçlerinizi hızlandırın, müşteri ilişkilerinizi güçlendirin.") ile ziyaretçiye ana hizmeti net bir şekilde sunacak.
+* **Görseller ve Animasyonlar**: Şık, yüksek çözünürlüklü bir video veya animasyonlu görsellerle, kullanıcıların dikkatini çekecek sanal turlar ve AI destekli öneriler gösterilecek. Görselde emlak ilanları, müşteri etkileşimleri ve otomatik işlem akışları yer alacak.
+* **CTA Butonu**: "Hizmetlerimizi Keşfedin" şeklinde ikinci bir buton ile kullanıcıyı detaylara yönlendirecek.
+
+---
+
+### **Hizmetlerimiz Bölümü (Features)**
+
+* **Başlık**: "Emlak Ofisiniz İçin Sunulan İleri Düzey Hizmetler"
+
+* **Kartlar veya Listeleme Sistemiyle Hizmet Tanıtımı**:
+
+  1. **Yapay Zeka Destekli Mülk Önerileri**:
+
+     * Detaylı açıklama ve AI'nın müşteri tercihlerine göre sunduğu kişiselleştirilmiş mülk önerileri.
+     * **Görsel/Animasyon**: Müşteriye önerilen mülklerin görselleri, AI'ın kullanıcı davranışlarını analiz etmesi.
+  2. **Otomatik E-posta ve SMS Gönderimi**:
+
+     * Müşteri etkileşimini artıran otomatik mesaj sisteminin tanıtımı.
+     * **Görsel/Animasyon**: E-posta/SMS gönderim ekranı, otomatik bildirim akışı.
+  3. **Portföy ve İlan Yönetimi**:
+
+     * Mülklerin durumu, fiyat güncellemeleri ve otomatik eşleştirme.
+     * **Görsel/Animasyon**: İlan güncellemelerinin otomatik olarak platforma gönderilmesi.
+  4. **Finansal Yönetim (Komisyon, Fatura Takibi)**:
+
+     * Komisyon paylaşımı ve ödeme takibi.
+     * **Görsel/Animasyon**: Finansal raporlama ekranı, gelir-gider analizi.
+  5. **Entegre API Desteği**:
+
+     * Emlak platformları ve muhasebe yazılımları ile entegre çalışabilme yeteneği.
+     * **Görsel/Animasyon**: API entegrasyonlarının ve veri senkronizasyonunun görselleştirilmesi.
+
+* **Alt Başlıklar ve Kısa Açıklamalar**: Her özelliğin kısa bir açıklaması, müşterinin ne kazanacağını net bir şekilde ifade edecek.
+
+---
+
+### **Paketler ve Fiyatlandırma Bölümü (Pricing)**
+
+* **Başlık**: "Fiyatlandırma Paketlerimiz"
+* **Fiyatlandırma Tablosu**: 3-4 farklı fiyatlandırma paketi (örneğin, Temel, Profesyonel, Kurumsal):
+
+  * **Temel Paket**: Temel işlevler (portföy yönetimi, temel müşteri ilişkileri yönetimi, vb.)
+  * **Profesyonel Paket**: Gelişmiş özellikler (otomatik e-posta, AI önerileri, raporlama, vb.)
+  * **Kurumsal Paket**: Tam özellikler (API entegrasyonu, özel destek, sınırsız erişim, vb.)
+  * **Her paket için CTA**: "Başla" butonları ile kullanıcıyı hemen kaydolmaya yönlendirecek.
+  * **Fiyatlandırma İpuçları**: "İlk 30 gün ücretsiz deneme", "Yıllık abonelikte %10 indirim" gibi promosyonlar.
+
+---
+
+### **Müşteri Yorumları Bölümü (Testimonials)**
+
+* **Başlık**: "Müşterilerimiz Ne Diyor?"
+* **Yorumlar**: Gerçek emlakçılardan alınan kısa ve öz yorumlar. Her yorumun altında müşteri adı, ofis adı ve fotoğrafı yer alacak.
+* **Slider veya Grid Formatı**: Yorumlar görsel ve metin formatında slayt veya grid düzeninde gösterilecek.
+
+---
+
+### **CTA (Call to Action) Bölümü**
+
+* **Başlık**: "Siz de Emlak Ofisinizi Dijital Dönüşüme Taşıyın!"
+* **Açıklama**: Kısa bir metinle, kullanıcıya hizmetlerin ne kadar verimli olduğunu hatırlatan bir paragraf.
+* **Buton**: "Hemen Başla" ya da "Ücretsiz Deneyin" gibi net ve dikkat çekici bir buton.
+
+---
+
+### **Sıkça Sorulan Sorular (FAQ) Bölümü**
+
+* **Başlık**: "Sıkça Sorulan Sorular"
+* **Accordion Yapısı**: Kullanıcıların sıkça sorduğu sorular ve cevapları bir arada, tıklanabilir accordion şeklinde sunulacak.
+
+  * Sorular örneğin: "Verdiğiniz hizmetlere nasıl erişebilirim?", "Sistem ne kadar güvenli?", "Veri entegrasyonları nasıl yapılır?" vb.
+
+---
+
+### **Footer Bölümü (Alt Kısım)**
+
+* **İletişim Bilgileri**: E-posta, telefon numarası, sosyal medya bağlantıları.
+* **Linkler**: Gizlilik politikası, kullanım şartları, blog vb.
+* **Abonelik Alanı**: "Bültene Abone Ol" formu.
+
+---
+
+### **Gelişmiş UI Tasarım Unsurları:**
+
+* **Modern ve Minimalist Tasarım**: Temiz ve sade renkler, büyük başlıklar, bol beyaz alanlar.
+* **Renk Paleti**: Genellikle mavi, yeşil tonları kullanılabilir (emlak sektörü için güven ve profesyonellik çağrıştıran renkler).
+* **Tipografi**: Okunabilir ve modern fontlar (örneğin, Open Sans, Roboto).
+* **Etkileşimli Öğeler**: Hover efektleri, animasyonlar, geçişler.
+* **Responsive Tasarım**: Mobil, tablet ve masaüstü cihazlarda uyumlu olacak şekilde tasarlanacak.
+* **Kullanıcı Dostu Arayüz**: Basit navigasyon, hızlı erişilebilir içerik.
+
+---
+
+### **Teknolojik Gereksinimler ve Entegrasyonlar**:
+
+* **n8n Entegrasyonu**: Otomatik e-posta/SMS gönderimi, AI sohbet botları, müşteri etkileşimleri ve veri akışları n8n üzerinden yönetilecek.
+* **WordPress Entegrasyonu**: İlanlar, müşteri talepleri ve portföy güncellemeleri WordPress üzerinden alınacak ve n8n ile işlenecek.
+* **API Bağlantıları**: Emlak platformları ve muhasebe yazılımlarıyla veri senkronizasyonu sağlayacak açık API entegrasyonları.
+
+---
+
+Bu kapsamlı tanıtım sayfası, SaaS hizmetinizin güçlü yönlerini vurgulayacak ve emlakçılara yönelik sunduğunuz çözümleri etkili bir şekilde sunacak şekilde tasarlanabilir. Modern UI unsurları ve kullanıcı odaklı tasarım ile ziyaretçileri ikna etmek için güçlü bir platform yaratacaktır.
+---
+description:
+globs:
+alwaysApply: true
+---

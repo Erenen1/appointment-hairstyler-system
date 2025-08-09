@@ -1,0 +1,168 @@
+0) Genel
+Hedef kitle: Türkiye’deki emlak ofisleri, franchise şubeleri, bağımsız emlak danışmanları.
+
+Değer önerisi: “Tek panelden ilan & iletişim & finans yönetimi + Sahibinden/Emlakjet entegrasyonu + WhatsApp’tan AI müşteri yanıtlama (n8n)”.
+
+Ton: Güven veren, net, modern, profesyonel; kısa cümleler, fayda odaklı.
+
+Yazım: Türkçe, sade; jargon boğucu olmasın.
+
+Dönüşüm hedefi: “Ücretsiz dene”, “Demo al”, “Satın al” CTA’ları.
+
+1) Teknik SEO öğeleri (en üste yaz)
+Title (≤60 karakter): ana anahtar kelime + marka.
+Örn: “Emlak CRM ve İlan Yönetimi | EmlakTakip”
+
+Meta description (≤155 karakter): fayda + entegrasyon + CTA.
+Örn: “Emlak ofisiniz için tek panel: Sahibinden/Emlakjet entegrasyonu, WhatsApp AI, CRM ve raporlama. EmlakTakip’i ücretsiz deneyin.”
+
+OG/Twitter etiketleri: og:title, og:description, og:image, og:url, twitter:card vb. Yer tutucu görsel URL ver.
+
+Önerilen URL slug: /emlak-crm-ilan-yonetimi
+
+Canonical: sayfanın kendi URL’si.
+
+2) Hero (üst bölüm)
+H1: Birinci faydayı net söyle (örn. “Emlak işinizi tek panelden yönetin”).
+
+Destekleyici alt başlık: Sahibinden/Emlakjet entegrasyonu + WhatsApp AI + raporlama vurgusu.
+
+Birincil CTA: “Ücretsiz Dene”
+
+İkincil CTA: “Demo Talep Et”
+
+Kısa sosyal kanıt: kullanıcı sayısı/portföy büyüklüğü/örnek ofis logoları (yer tutucu).
+
+Hero görsel alt metni: “EmlakTakip dashboard: tek panelde ilan, müşteri, mesaj ve raporlar”.
+
+3) Sorun → Çözüm → Sonuç (pain → solution → outcome)
+3–5 maddede sektör sorunları: dağınık ilan girişi, çift kayıt, kaçan WhatsApp mesajları, komisyon takibinde karışıklık, raporlama eksikliği.
+
+EmlakTakip çözümü: tek panel, otomatik senkron, AI asistan, görünür komisyon akışı, gerçek zamanlı rapor.
+
+Sonuç: daha hızlı kapanış, daha az iş yükü, daha tutarlı müşteri deneyimi.
+
+4) Öne çıkan özellikler (kart/ikon listesi; her biri 2–3 cümle + fayda)
+Tek Panelden Entegrasyon: Sahibinden & Emlakjet’e uygun alan eşlemesi ve toplu ilan yayını/güncelleme.
+
+WhatsApp AI (n8n ile): WP/WhatsApp’tan gelen soruları 7/24 yanıtlayan, randevu/teklif alan akıllı akış.
+
+CRM & Otomasyon: müşteri profilleri, etkileşim geçmişi, otomatik hatırlatıcılar.
+
+Raporlama & Analitik: portföy performansı, dönüşüm oranı, danışman bazlı metrikler, ısı haritası fikirleri.
+
+Finans & Komisyon: otomatik komisyon dağılımı, fatura/ödeme takibi, gelir-gider görünümü.
+
+Güvenlik & Yetkilendirme: RBAC, denetim izi, yedekleme.
+
+Mobil uyum: saha kullanımına uygun arayüz.
+
+Not: “Sahibinden”, “Emlakjet” üçüncü taraf markalardır; entegrasyon uygun API/iş ortaklığı koşullarına tabidir (kısa dipnot ekle).
+
+5) Nasıl çalışır? (3 adım)
+Bağla: Ofisini ve entegrasyonları tanımla (Sahibinden/Emlakjet, WhatsApp/n8n).
+
+Yönet: İlanları tek panelden yönet, AI yanıtlarını aç, otomatik senkronu etkinleştir.
+
+Büyü: Raporları izle, bütçe/komisyonu netleştir, ROI’yi artır.
+
+6) Entegrasyonlar bölümü
+Sahibinden & Emlakjet: alan eşleme, toplu yayın, durum & fiyat senkronu.
+
+WhatsApp + n8n: mesaj/lead yakalama, AI yanıt, CRM’e otomatik kayıt, webhook mantığı.
+
+Muhasebe (ör.): Paraşüt/Logo gibi sistemlere fatura/gelir akışı (genel ifade; marka adı verirken “ör.” de).
+
+Görsel yer tutucular + kısa açıklama + fayda.
+
+7) Fiyatlandırma (3 plan, net karşılaştırma)
+Başlangıç: tek ofis, temel CRM/ilan, sınırlı entegrasyon, e-posta desteği.
+
+Profesyonel: çok danışman, tam entegrasyon (Sahibinden/Emlakjet), WhatsApp AI, gelişmiş raporlar.
+
+Kurumsal: SSO/RBAC, özel SLA, özel alan eşlemesi, sınırsız rapor, öncelikli destek.
+
+Her plan için: ana faydalar, kullanıcı/ilan limitleri, aylık/yıllık fiyat (yer tutucu), CTA.
+
+8) Sosyal kanıt
+3–4 kısa müşteri yorumu (rol, şehir, ofis tipi yer tutucu).
+
+Öğrenilmiş sonuçlar: “%X zaman tasarrufu”, “%Y daha fazla randevu”, “%Z daha hızlı kapanış” (yer tutucu; aşırı iddia yok).
+
+9) SSS (FAQ) — SEO anahtar kelimeleri içersin
+En az 8 soru-cevap; anahtar kelimeleri doğal kullan:
+
+“Emlak CRM nedir, EmlakTakip ne sunar?”
+
+“Sahibinden/Emlakjet entegrasyonu nasıl çalışır?”
+
+“WhatsApp üzerinden gelen mesajları AI nasıl yanıtlıyor (n8n)?”
+
+“Fiyatlandırma ve kurulum süresi?”
+
+“Veri güvenliği ve KVKK uyumluluğu?”
+
+“Mevcut portföyümü içeri aktarabilir miyim?”
+
+“Destek ve eğitim?”
+
+“İptal & iade koşulları?”
+
+10) Ek SEO içerik blokları
+H2: Emlak yazılımı seçerken nelere dikkat etmeli? (kontrol listesi)
+
+H2: Tek panel yönetim neden kritik? (çok kanallı ilan, mesaj, finans akışı)
+
+İç bağlantı önerileri: Blog link metinleri (örn. “Sahibinden entegrasyon rehberi”, “Emlak CRM karşılaştırması”, “n8n ile WhatsApp otomasyonu nasıl kurulur?”).
+
+Görsel alt metinleri: her görsel için 8–12 kelimelik anahtar kelimeli alt metin yaz.
+
+11) Güven & Uyum
+KVKK: veri işleme, saklama, silme talepleri; link yer tutucu: /kvkk
+
+Gizlilik / Kullanım şartları: link yer tutucular: /gizlilik, /kullanim-sartlari
+
+Destek: e-posta, telefon, canlı destek saatleri (yer tutucu).
+
+Ofis adresi: yer tutucu (şehir, ülke).
+
+12) Alt CTA + Footer
+Son bir ikna paragrafı (kısa): fayda + risk azaltma (ücretsiz deneme, iptal kolay).
+
+CTA düğmeleri tekrar: “Ücretsiz Dene”, “Demo Talep Et”.
+
+Footer’da: telif, sosyal linkler, şirket bilgisi.
+
+13) Hedef anahtar kelimeler (doğal, spam yok)
+birincil: emlak crm, emlak yazılımı, emlak ilan yönetimi, sahibinden entegrasyon, emlakjet entegrasyon, whatsapp emlak botu, n8n entegrasyonu
+
+yardımcı: portföy yönetimi, emlak raporlama, emlak otomasyon, komisyon takibi, tek panel yönetim
+
+14) Şema işaretlemeleri (JSON-LD; sayfa sonuna <script type="application/ld+json"> ile)
+Organization (isim, logo, url, contactPoint)
+
+SoftwareApplication (name=EmlakTakip, applicationCategory=“BusinessApplication”, offers fiyat aralığı, operatingSystem=“Web”)
+
+FAQPage (SSS’lerdeki soru-cevapların her biri)
+
+BreadcrumbList (Anasayfa > Çözümler > EmlakTakip)
+
+15) Çıktı formatı
+Zengin metin/HTML bölümleri; inline CSS/JS yazma, sadece içerik ve semantik etiketler/h başlıkları kullanan basit HTML kabul (istersen düz metin olarak bölümlendir).
+
+Her görsel için alt metni ver.
+
+İddialarda aşırı vaat yok; rakamlar yer tutucu.
+
+Marka ve üçüncü taraf entegrasyonları açık, net ve hukuki dipnotla.
+
+Şimdi, yukarıdaki gereksinimlere uyan tam bir landing page içeriği üret.
+Marka adı: EmlakTakip.
+Dil: Türkçe.
+Odak: SEO + dönüşüm.
+Tekil, özgün ve tekrar yok.
+---
+description:
+globs:
+alwaysApply: true
+---

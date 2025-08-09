@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0b1020; /* daha koyu mavi-slate */
+  --foreground: #e9fbff; /* çok açık camgöbeği metin */
+  --muted: #9ad5e1; /* ikincil metin (teal açık) */
+  --primary: #22d3ee; /* teal */
+  --primary-foreground: #07151a;
+  --card: #0e1a2b; /* kart arka planı (daha nötr) */
+  --border: #1a2a3f;
+  --accent: #a3e635; /* lime aksan */
+}
+
+/* Açık tema (toggle ile etkinleşir) */
+html[data-theme="light"] {
+  --background: #f7fafc;
+  --foreground: #0b1020;
+  --muted: #475569;
+  --primary: #0ea5e9;
+  --primary-foreground: #e6f9ff;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --accent: #16a34a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Koyu temayı baz alıyoruz; gerekirse açık tema ayrı eklenir */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Marquee animasyonu */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+.marquee-content {
+  display: flex;
+  gap: 8rem;
+  width: max-content;
+  animation: marquee 100s linear infinite;
+}
+
+/* Noktalı grid arkaplan (çok silik) */
+.bg-grid {
+  background-image: radial-gradient(circle at 1px 1px, #1f2a44 1px, transparent 0);
+  background-size: 24px 24px;
+}
