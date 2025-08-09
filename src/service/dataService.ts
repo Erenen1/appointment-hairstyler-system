@@ -20,7 +20,7 @@ export interface Service {
 
 export interface Staff {
     id: number;
-    name: string;
+    fullName: string;
     position: string;
     email: string;
     phone: string;

@@ -16,6 +16,4 @@ export * from './current-accounts';
 export * from './admin';
 
 // Other
-export * from './calendar';
-export * from './team';
-export * from './contact';
+export * from './statistics';

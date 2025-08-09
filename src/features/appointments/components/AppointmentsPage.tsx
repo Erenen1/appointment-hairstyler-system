@@ -9,9 +9,9 @@ import { InputText } from "primereact/inputtext";
 import { useMemo, useState } from "react";
 import { SelectButton } from "primereact/selectbutton";
 import { parseISO, startOfISOWeek, startOfMonth, startOfYear, format, getISOWeek } from "date-fns";
-import { Appointment, AppointmentStatus } from "./types";
-import { Service } from "../services/types";
-import { Staff } from "../../service/dataService";
+import { Appointment, AppointmentStatus } from "../types/types";
+import { Service } from "../../services/types";
+import { Staff } from "../../../service/dataService";
 
 interface AppointmentsPageProps {
     appointments?: Appointment[];

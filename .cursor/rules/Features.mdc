@@ -1,0 +1,143 @@
+## title:Admin Panel Sayfaları ve Özellikler
+
+description:
+
+### ✅ Tamamlanan Sayfalar:
+
+- randevu-takvimi [x] - Takvim görünümü
+- randevular [x] - Grafik ve liste
+- musteriler [x] - Liste ve detay
+- personeller [x] - Çalışma günleri ve yük
+- serviceler [x] - Fiyat ve süre (✅ Refactored)
+- cari [x] - Müşteri bakiyeleri
+- adisyon [x] - Fatura ve ödemeler
+- gelir [x] - Gelir takibi
+- gider [x] - Gider takibi
+- istatistikler [x] - Emlak analitikleri (✅ Refactored)
+- ilan-analitikleri [x] - İlan performans analizi (✅ Refactored)
+- ayarlar [x] - İşletme ve profil ayarları (✅ New)
+- whatsapp-bot [x] - N8N webhook entegrasyonu (✅ New)
+
+### 🎨 Tasarım Güncellemeleri:
+
+- Mavi-beyaz tema uygulandı
+- Sidebar açma/kapama butonu daha belirgin hale getirildi
+- Hover efektleri ve geçiş animasyonları eklendi
+- Dashboard kartları yeniden tasarlandı
+- Responsive tasarım iyileştirildi
+
+### 🏗️ Proje Yapısı:
+
+- `src/features/admin/components/Sidebar.tsx` - Ana sidebar component
+- `src/app/(routes)/admin/layout.tsx` - Layout dosyası (sadece import)
+- Tüm sayfalar sidebar'da görünür ve erişilebilir
+
+### 🚀 Özellikler:
+
+- Sidebar collapse/expand animasyonu
+- Mobile responsive tasarım
+- Modern UI/UX
+- PrimeReact component'leri
+- TypeScript desteği
+
+### File Structure
+
+- Her zaman components,hooks,services,types ilgili dosyanın bulunduğu yere kaydet mesela service, servise içine ise tek bir import koy <Service components={component} /> gibi.
+
+### ✅ Refactored Features:
+
+**statistics** - Emlak İstatistikleri:
+
+```
+src/features/statistics/
+├── components/
+│   ├── PackageUpgradePrompt.tsx
+│   ├── PreviewBanner.tsx
+│   ├── AnalyticsContent.tsx
+│   └── index.ts
+├── hooks/
+│   └── useStatistics.ts
+├── types/
+│   └── index.ts
+└── index.ts
+```
+
+**services** - Hizmet Yönetimi:
+
+```
+src/features/services/
+├── components/
+│   ├── ServicesChart.tsx
+│   ├── ServicesFilters.tsx
+│   ├── ServicesTable.tsx
+│   ├── ServiceFormDialog.tsx
+│   └── index.ts
+├── hooks/
+│   └── useServices.ts
+├── types.ts
+└── index.ts
+```
+
+**property-analytics** - İlan Analitikleri:
+
+```
+src/features/property-analytics/
+├── components/
+│   ├── AnalyticsFilters.tsx
+│   ├── StatsCards.tsx
+│   ├── AnalyticsCharts.tsx
+│   ├── PropertiesTable.tsx
+│   └── index.ts
+├── hooks/
+│   └── usePropertyAnalytics.ts
+├── types/
+│   └── index.ts
+└── index.ts
+```
+
+**settings** - İşletme Ayarları:
+
+```
+src/features/settings/
+├── components/
+│   ├── BusinessSettingsTab.tsx
+│   ├── ProfileSettingsTab.tsx
+│   ├── SecuritySettingsTab.tsx
+│   ├── NotificationSettingsTab.tsx
+│   └── index.ts
+├── hooks/
+│   └── useSettings.ts
+├── types/
+│   └── index.ts
+├── context/
+│   └── SettingsContext.tsx
+└── index.ts
+```
+
+**whatsapp-bot** - WhatsApp Bot Entegrasyonu:
+
+```
+src/features/whatsapp-bot/
+├── components/
+│   ├── WhatsAppStats.tsx
+│   ├── ContactList.tsx
+│   ├── MessageList.tsx
+│   └── index.ts
+├── hooks/
+│   └── useWhatsApp.ts
+├── services/
+│   └── whatsappService.ts
+├── types/
+│   └── index.ts
+└── index.ts
+```
+
+### 📋 Pattern:
+
+- **Ana Sayfa**: Sadece import'lar ve hook kullanımı
+- **Components**: UI bileşenleri ayrı dosyalarda
+- **Hooks**: Tüm logic ve state yönetimi
+- **Types**: TypeScript interface'leri
+- **Index**: Barrel export'lar
+
+---
