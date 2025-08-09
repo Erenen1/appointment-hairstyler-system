@@ -1,0 +1,226 @@
+{
+    "income": [
+        {
+            "id": 1,
+            "category": "Satış Komisyonu",
+            "amount": 87500,
+            "date": "2024-01-22",
+            "description": "Villa satış komisyonu - Etimesgut",
+            "paymentMethod": "bank",
+            "source": "property_sale",
+            "propertyId": 5,
+            "agentId": 4,
+            "commission": 3.5
+        },
+        {
+            "id": 2,
+            "category": "Kiralama Komisyonu",
+            "amount": 15000,
+            "date": "2024-01-20",
+            "description": "Ofis kiralama komisyonu - Çankaya",
+            "paymentMethod": "card",
+            "source": "property_rental",
+            "propertyId": 3,
+            "agentId": 1,
+            "commission": 10.0
+        },
+        {
+            "id": 3,
+            "category": "Danışmanlık Ücreti",
+            "amount": 5000,
+            "date": "2024-01-18",
+            "description": "Gayrimenkul yatırım danışmanlığı",
+            "paymentMethod": "cash",
+            "source": "consulting",
+            "propertyId": null,
+            "agentId": 5,
+            "commission": 100.0
+        },
+        {
+            "id": 4,
+            "category": "Satış Komisyonu",
+            "amount": 63000,
+            "date": "2024-01-15",
+            "description": "Daire satış komisyonu - Keçiören",
+            "paymentMethod": "bank",
+            "source": "property_sale",
+            "propertyId": 4,
+            "agentId": 3,
+            "commission": 3.5
+        },
+        {
+            "id": 5,
+            "category": "Değerlendirme Ücreti",
+            "amount": 2500,
+            "date": "2024-01-12",
+            "description": "Emlak değerlendirme raporu",
+            "paymentMethod": "card",
+            "source": "valuation",
+            "propertyId": 2,
+            "agentId": 2,
+            "commission": 100.0
+        }
+    ],
+    "expenses": [
+        {
+            "id": 1,
+            "category": "Ofis Kirası",
+            "amount": 25000,
+            "date": "2024-01-01",
+            "description": "Aylık ofis kirası - Çankaya merkez",
+            "paymentMethod": "bank",
+            "vendor": "ABC Gayrimenkul"
+        },
+        {
+            "id": 2,
+            "category": "Emlak Portalı",
+            "amount": 3500,
+            "date": "2024-01-05",
+            "description": "Sahibinden.com premium üyelik",
+            "paymentMethod": "card",
+            "vendor": "Sahibinden.com"
+        },
+        {
+            "id": 3,
+            "category": "Reklam Giderleri",
+            "amount": 8500,
+            "date": "2024-01-10",
+            "description": "Google Ads ve Facebook reklam kampanyası",
+            "paymentMethod": "card",
+            "vendor": "Google Ireland"
+        },
+        {
+            "id": 4,
+            "category": "Yakıt",
+            "amount": 4200,
+            "date": "2024-01-12",
+            "description": "Araç yakıt gideri - müşteri gezdirilmesi",
+            "paymentMethod": "cash",
+            "vendor": "Petrol Ofisi"
+        },
+        {
+            "id": 5,
+            "category": "Lisans Ücreti",
+            "amount": 1200,
+            "date": "2024-01-15",
+            "description": "Emlakçı lisans yenileme ücreti",
+            "paymentMethod": "bank",
+            "vendor": "Emlak Odası"
+        },
+        {
+            "id": 6,
+            "category": "Telefon",
+            "amount": 850,
+            "date": "2024-01-18",
+            "description": "Kurumsal telefon faturası",
+            "paymentMethod": "bank",
+            "vendor": "Türk Telekom"
+        },
+        {
+            "id": 7,
+            "category": "Fotograf",
+            "amount": 2500,
+            "date": "2024-01-20",
+            "description": "Emlak fotoğraf çekimi - villa",
+            "paymentMethod": "cash",
+            "vendor": "ProFoto Studio"
+        }
+    ],
+    "customers": [
+        {
+            "id": 101,
+            "name": "Can Yıldırım",
+            "phone": "+90 533 123 4567",
+            "email": "can.yildirim@email.com",
+            "balance": 25000,
+            "lastTransaction": "2024-01-22",
+            "status": "active",
+            "totalPurchases": 2500000,
+            "commissionOwed": 87500,
+            "paymentHistory": [
+                {
+                    "date": "2024-01-22",
+                    "amount": 87500,
+                    "type": "commission",
+                    "description": "Villa satış komisyonu"
+                }
+            ]
+        },
+        {
+            "id": 102,
+            "name": "Ayşe Korkmaz",
+            "phone": "+90 544 987 6543", 
+            "email": "ayse.korkmaz@email.com",
+            "balance": -5000,
+            "lastTransaction": "2024-01-20",
+            "status": "overdue",
+            "totalPurchases": 0,
+            "commissionOwed": 5000,
+            "paymentHistory": [
+                {
+                    "date": "2024-01-15",
+                    "amount": 5000,
+                    "type": "deposit",
+                    "description": "Ev arama ücreti"
+                }
+            ]
+        },
+        {
+            "id": 103,
+            "name": "Emre Özdemir",
+            "phone": "+90 505 456 7890",
+            "email": "emre.ozdemir@email.com",
+            "balance": 15000,
+            "lastTransaction": "2024-01-20",
+            "status": "paid",
+            "totalPurchases": 0,
+            "commissionOwed": 15000,
+            "paymentHistory": [
+                {
+                    "date": "2024-01-20",
+                    "amount": 15000,
+                    "type": "commission",
+                    "description": "Ofis kiralama komisyonu"
+                }
+            ]
+        }
+    ],
+    "contracts": [
+        {
+            "id": 1,
+            "propertyId": 5,
+            "customerId": 105,
+            "agentId": 4,
+            "type": "Satış",
+            "amount": 6500000,
+            "commission": 227500,
+            "date": "2024-01-22",
+            "status": "completed",
+            "contractNumber": "SZL-2024-001"
+        },
+        {
+            "id": 2,
+            "propertyId": 3,
+            "customerId": 103,
+            "agentId": 1,
+            "type": "Kiralama",
+            "amount": 15000,
+            "commission": 15000,
+            "date": "2024-01-20",
+            "status": "completed",
+            "contractNumber": "KRL-2024-002"
+        },
+        {
+            "id": 3,
+            "propertyId": 4,
+            "customerId": 104,
+            "agentId": 3,
+            "type": "Satış",
+            "amount": 1800000,
+            "commission": 63000,
+            "date": "2024-01-15",
+            "status": "completed",
+            "contractNumber": "SZL-2024-003"
+        }
+    ]
+}

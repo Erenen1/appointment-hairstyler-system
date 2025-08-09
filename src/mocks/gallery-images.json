@@ -1,0 +1,112 @@
+[
+  {
+    "id": 1,
+    "categoryId": 1,
+    "title": "Bob Kesim",
+    "description": "Modern bob kesim örneği",
+    "imagePath": "/images/gallery/sac-kesim-1.jpg",
+    "orderIndex": 1,
+    "isVisible": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "categoryId": 1,
+    "title": "Pixie Kesim",
+    "description": "Şık pixie saç kesimi",
+    "imagePath": "/images/gallery/sac-kesim-2.jpg",
+    "orderIndex": 2,
+    "isVisible": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "categoryId": 2,
+    "title": "Balayage",
+    "description": "Doğal balayage tekniği",
+    "imagePath": "/images/gallery/sac-boyama-1.jpg",
+    "orderIndex": 1,
+    "isVisible": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "categoryId": 2,
+    "title": "Ombre",
+    "description": "Muhteşem ombre boyama",
+    "imagePath": "/images/gallery/sac-boyama-2.jpg",
+    "orderIndex": 2,
+    "isVisible": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "categoryId": 3,
+    "title": "Klasik Gelin Saçı",
+    "description": "Zarif topuz modeli",
+    "imagePath": "/images/gallery/gelin-sac-1.jpg",
+    "orderIndex": 1,
+    "isVisible": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "categoryId": 3,
+    "title": "Örgülü Gelin Saçı",
+    "description": "Romantik örgü modeli",
+    "imagePath": "/images/gallery/gelin-sac-2.jpg",
+    "orderIndex": 2,
+    "isVisible": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 7,
+    "categoryId": 4,
+    "title": "Gelin Makyajı",
+    "description": "Doğal gelin makyajı",
+    "imagePath": "/images/gallery/makyaj-1.jpg",
+    "orderIndex": 1,
+    "isVisible": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 8,
+    "categoryId": 4,
+    "title": "Gece Makyajı",
+    "description": "Dramatik gece makyajı",
+    "imagePath": "/images/gallery/makyaj-2.jpg",
+    "orderIndex": 2,
+    "isVisible": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 9,
+    "categoryId": 5,
+    "title": "Fade Kesim",
+    "description": "Modern fade saç kesimi",
+    "imagePath": "/images/gallery/erkek-kesim-1.jpg",
+    "orderIndex": 1,
+    "isVisible": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 10,
+    "categoryId": 5,
+    "title": "Klasik Tıraş",
+    "description": "Geleneksel ustura tıraşı",
+    "imagePath": "/images/gallery/erkek-tiras-1.jpg",
+    "orderIndex": 2,
+    "isVisible": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  }
+] 

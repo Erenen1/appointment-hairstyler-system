@@ -1,0 +1,345 @@
+{
+  "customers": [
+    {
+      "id": 1,
+      "name": "Ahmet Yılmaz",
+      "phone": "+90 532 123 4567",
+      "email": "ahmet@email.com",
+      "balance": 1250.5,
+      "lastTransaction": "2024-01-15",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "name": "Fatma Demir",
+      "phone": "+90 533 234 5678",
+      "email": "fatma@email.com",
+      "balance": -350.0,
+      "lastTransaction": "2024-01-14",
+      "status": "overdue"
+    },
+    {
+      "id": 3,
+      "name": "Mehmet Kaya",
+      "phone": "+90 534 345 6789",
+      "email": "mehmet@email.com",
+      "balance": 0.0,
+      "lastTransaction": "2024-01-13",
+      "status": "paid"
+    },
+    {
+      "id": 4,
+      "name": "Ayşe Özkan",
+      "phone": "+90 535 456 7890",
+      "email": "ayse@email.com",
+      "balance": 890.25,
+      "lastTransaction": "2024-01-12",
+      "status": "active"
+    },
+    {
+      "id": 5,
+      "name": "Ali Çelik",
+      "phone": "+90 536 567 8901",
+      "email": "ali@email.com",
+      "balance": -120.75,
+      "lastTransaction": "2024-01-11",
+      "status": "overdue"
+    }
+  ],
+  "adisyon": [
+    {
+      "id": 1,
+      "tableNumber": "A1",
+      "customerId": 1,
+      "customerName": "Ahmet Yılmaz",
+      "items": [
+        {
+          "id": 1,
+          "serviceId": 1,
+          "serviceName": "Saç Kesimi",
+          "quantity": 1,
+          "unitPrice": 150.0,
+          "totalPrice": 150.0
+        },
+        {
+          "id": 2,
+          "serviceId": 2,
+          "serviceName": "Saç Boyama",
+          "quantity": 1,
+          "unitPrice": 300.0,
+          "totalPrice": 300.0
+        }
+      ],
+      "subtotal": 450.0,
+      "tax": 81.0,
+      "discount": 0.0,
+      "total": 531.0,
+      "status": "open",
+      "openedAt": "2024-01-15T10:30:00",
+      "closedAt": null,
+      "paymentMethod": null,
+      "notes": "Saç boyası koyu kahve"
+    },
+    {
+      "id": 2,
+      "tableNumber": "B2",
+      "customerId": 2,
+      "customerName": "Fatma Demir",
+      "items": [
+        {
+          "id": 3,
+          "serviceId": 3,
+          "serviceName": "Manikür",
+          "quantity": 1,
+          "unitPrice": 120.0,
+          "totalPrice": 120.0
+        },
+        {
+          "id": 4,
+          "serviceId": 4,
+          "serviceName": "Pedikür",
+          "quantity": 1,
+          "unitPrice": 160.0,
+          "totalPrice": 160.0
+        }
+      ],
+      "subtotal": 280.0,
+      "tax": 50.4,
+      "discount": 0.0,
+      "total": 330.4,
+      "status": "closed",
+      "openedAt": "2024-01-15T11:00:00",
+      "closedAt": "2024-01-15T12:30:00",
+      "paymentMethod": "cash",
+      "notes": ""
+    },
+    {
+      "id": 3,
+      "tableNumber": "C3",
+      "customerId": 3,
+      "customerName": "Mehmet Kaya",
+      "items": [
+        {
+          "id": 5,
+          "serviceId": 1,
+          "serviceName": "Saç Kesimi",
+          "quantity": 1,
+          "unitPrice": 150.0,
+          "totalPrice": 150.0
+        }
+      ],
+      "subtotal": 150.0,
+      "tax": 27.0,
+      "discount": 0.0,
+      "total": 177.0,
+      "status": "closed",
+      "openedAt": "2024-01-15T13:00:00",
+      "closedAt": "2024-01-15T13:45:00",
+      "paymentMethod": "card",
+      "notes": ""
+    }
+  ],
+  "bills": [
+    {
+      "id": 1,
+      "customerId": 1,
+      "customerName": "Ahmet Yılmaz",
+      "amount": 450.0,
+      "tax": 81.0,
+      "total": 531.0,
+      "date": "2024-01-15",
+      "dueDate": "2024-01-30",
+      "status": "pending",
+      "items": ["Saç Kesimi", "Saç Boyama"]
+    },
+    {
+      "id": 2,
+      "customerId": 2,
+      "customerName": "Fatma Demir",
+      "amount": 280.0,
+      "tax": 50.4,
+      "total": 330.4,
+      "date": "2024-01-14",
+      "dueDate": "2024-01-29",
+      "status": "overdue",
+      "items": ["Manikür", "Pedikür"]
+    },
+    {
+      "id": 3,
+      "customerId": 3,
+      "customerName": "Mehmet Kaya",
+      "amount": 180.0,
+      "tax": 32.4,
+      "total": 212.4,
+      "date": "2024-01-13",
+      "dueDate": "2024-01-28",
+      "status": "paid",
+      "items": ["Saç Kesimi"]
+    },
+    {
+      "id": 4,
+      "customerId": 4,
+      "customerName": "Ayşe Özkan",
+      "amount": 320.0,
+      "tax": 57.6,
+      "total": 377.6,
+      "date": "2024-01-12",
+      "dueDate": "2024-01-27",
+      "status": "pending",
+      "items": ["Saç Boyama", "Fön"]
+    },
+    {
+      "id": 5,
+      "customerId": 5,
+      "customerName": "Ali Çelik",
+      "amount": 150.0,
+      "tax": 27.0,
+      "total": 177.0,
+      "date": "2024-01-11",
+      "dueDate": "2024-01-26",
+      "status": "overdue",
+      "items": ["Sakal Tıraşı"]
+    }
+  ],
+  "income": [
+    {
+      "id": 1,
+      "category": "Saç Hizmetleri",
+      "amount": 12500.0,
+      "date": "2024-01-15",
+      "description": "Ocak ayı saç hizmetleri geliri",
+      "paymentMethod": "cash",
+      "source": "service_sales"
+    },
+    {
+      "id": 2,
+      "category": "Cilt Bakımı",
+      "amount": 8900.0,
+      "date": "2024-01-15",
+      "description": "Ocak ayı cilt bakımı geliri",
+      "paymentMethod": "card",
+      "source": "service_sales"
+    },
+    {
+      "id": 3,
+      "category": "Manikür/Pedikür",
+      "amount": 5600.0,
+      "date": "2024-01-15",
+      "description": "Ocak ayı manikür/pedikür geliri",
+      "paymentMethod": "cash",
+      "source": "service_sales"
+    },
+    {
+      "id": 4,
+      "category": "Ürün Satışı",
+      "amount": 3200.0,
+      "date": "2024-01-15",
+      "description": "Ocak ayı ürün satış geliri",
+      "paymentMethod": "card",
+      "source": "product_sales"
+    },
+    {
+      "id": 5,
+      "category": "Diğer",
+      "amount": 1800.0,
+      "date": "2024-01-15",
+      "description": "Diğer gelirler",
+      "paymentMethod": "cash",
+      "source": "other"
+    }
+  ],
+  "expenses": [
+    {
+      "id": 1,
+      "category": "Personel Maaşları",
+      "amount": 45000.0,
+      "date": "2024-01-15",
+      "description": "Ocak ayı personel maaşları",
+      "paymentMethod": "bank",
+      "type": "operational"
+    },
+    {
+      "id": 2,
+      "category": "Kira",
+      "amount": 12000.0,
+      "date": "2024-01-15",
+      "description": "Ocak ayı kira ödemesi",
+      "paymentMethod": "bank",
+      "type": "fixed"
+    },
+    {
+      "id": 3,
+      "category": "Elektrik/Su/Doğalgaz",
+      "amount": 2800.0,
+      "date": "2024-01-15",
+      "description": "Ocak ayı faturalar",
+      "paymentMethod": "bank",
+      "type": "utility"
+    },
+    {
+      "id": 4,
+      "category": "Ürün Alımı",
+      "amount": 8500.0,
+      "date": "2024-01-15",
+      "description": "Ocak ayı ürün alımları",
+      "paymentMethod": "bank",
+      "type": "inventory"
+    },
+    {
+      "id": 5,
+      "category": "Pazarlama",
+      "amount": 3200.0,
+      "date": "2024-01-15",
+      "description": "Ocak ayı pazarlama giderleri",
+      "paymentMethod": "bank",
+      "type": "marketing"
+    },
+    {
+      "id": 6,
+      "category": "Diğer",
+      "amount": 1500.0,
+      "date": "2024-01-15",
+      "description": "Diğer giderler",
+      "paymentMethod": "cash",
+      "type": "other"
+    }
+  ],
+  "monthlyStats": [
+    {
+      "month": "Ocak 2024",
+      "income": 32000.0,
+      "expenses": 79000.0,
+      "profit": -47000.0
+    },
+    {
+      "month": "Aralık 2023",
+      "income": 35000.0,
+      "expenses": 72000.0,
+      "profit": -37000.0
+    },
+    {
+      "month": "Kasım 2023",
+      "income": 32000.0,
+      "expenses": 68000.0,
+      "profit": -36000.0
+    },
+    {
+      "month": "Ekim 2023",
+      "income": 38000.0,
+      "expenses": 65000.0,
+      "profit": -27000.0
+    },
+    {
+      "month": "Eylül 2023",
+      "income": 42000.0,
+      "expenses": 62000.0,
+      "profit": -20000.0
+    },
+    {
+      "month": "Ağustos 2023",
+      "income": 45000.0,
+      "expenses": 60000.0,
+      "profit": -15000.0
+    }
+  ]
+}

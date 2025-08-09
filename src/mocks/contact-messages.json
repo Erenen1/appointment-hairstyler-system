@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "fullName": "Aylin Güney",
+    "email": "aylin.guney@email.com",
+    "subject": "Randevu Talep Ediyorum",
+    "message": "Merhaba, gelin saçı için randevu almak istiyorum. 15 Şubat tarihi için müsaitlik var mı?",
+    "isRead": true,
+    "createdAt": "2024-01-10T14:30:00.000Z",
+    "updatedAt": "2024-01-10T15:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "fullName": "Mert Özcan",
+    "email": "mert.ozcan@email.com",
+    "subject": "Saç Dökülmesi Tedavisi",
+    "message": "Saç dökülmesi sorunum var. Hangi tedavileri önerirsiniz? Fiyat bilgisi alabilir miyim?",
+    "isRead": false,
+    "createdAt": "2024-01-12T10:15:00.000Z",
+    "updatedAt": "2024-01-12T10:15:00.000Z"
+  },
+  {
+    "id": 3,
+    "fullName": "Sema Kılıç",
+    "email": "sema.kilic@email.com",
+    "subject": "Keratin Tedavisi Hakkında",
+    "message": "Keratin tedavisi yaptırmak istiyorum. Ne kadar sürer ve fiyatı nedir?",
+    "isRead": true,
+    "createdAt": "2024-01-08T16:45:00.000Z",
+    "updatedAt": "2024-01-09T09:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "fullName": "Berk Yıldırım",
+    "email": "berk.yildirim@email.com",
+    "subject": "Açılış Saatleri",
+    "message": "Cumartesi günleri açık mısınız? Saatleriniz nedir?",
+    "isRead": true,
+    "createdAt": "2024-01-05T12:20:00.000Z",
+    "updatedAt": "2024-01-05T14:30:00.000Z"
+  },
+  {
+    "id": 5,
+    "fullName": "Nur Aksoy",
+    "email": "nur.aksoy@email.com",
+    "subject": "Grup Randevusu",
+    "message": "6 kişilik bir grup için aynı gün randevu alabilir miyiz? Arkadaşlarımla birlikte gelmek istiyoruz.",
+    "isRead": false,
+    "createdAt": "2024-01-14T09:10:00.000Z",
+    "updatedAt": "2024-01-14T09:10:00.000Z"
+  }
+] 

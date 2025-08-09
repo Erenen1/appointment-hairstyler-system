@@ -1,0 +1,45 @@
+---
+description: Gelişmiş AI ve Otomasyonlu Emlak SaaS Platformu için Entegre Sistem ve İş Akışı:
+
+1. Yapay Zeka Destekli Öneriler ve Davranışsal Analizler
+
+Yapay Zeka Destekli Mülk Önerileri: Müşterilerin daha önceki arama geçmişi, ilgi alanları ve bölgesel tercihlerine dayalı olarak, AI algoritmalarından faydalanarak otomatik olarak mülk önerileri yapılacaktır. AI, müşteri davranışlarını analiz edip kişiselleştirilmiş mülk önerileri sunarak, satış ya da kiralama işlemlerinin hızlanmasını sağlar. Müşteri verisi sürekli olarak güncellenir ve her etkileşimden öğrenir.
+
+Davranışsal Analizler ve Kişiselleştirilmiş İçerik: AI, müşteri davranışlarını takip eder ve gelecekteki etkileşimler için tahminlerde bulunur. Müşterilerin gösterdiği ilgiye göre, kişiselleştirilmiş içerikler, ilanlar ve tekliflerle hedef kitleye ulaşılır. AI destekli veri analizi sayesinde, emlakçılar müşteri segmentasyonunu doğru yapabilir ve pazarlama stratejilerini geliştirebilir.
+
+2. Otomatik İletişim ve Yapay Zeka ile Sohbet
+
+n8n Workflow Entegrasyonu ile Otomatik E-posta ve SMS Gönderimi: n8n entegrasyonu kullanılarak, müşteri ile etkileşimde bulunan tüm sorulara anında yanıt veren bir sistem kurulacaktır. Müşterinin taleplerine göre otomatik e-posta, SMS veya uygulama içi mesajlar gönderilebilir.
+
+E-posta ve SMS Gönderimi: Müşteri verileriyle ilişkilendirilmiş otomatik hatırlatıcılar, ödeme bildirimleri, yeni ilan bildirimleri ve ödeme takibi gibi mesajlar, AI tarafından müşterilere gönderilir.
+
+Müşteri Soruları için AI Sohbet Botu: n8n üzerinden çalışan bir iş akışı ile müşteri aramalarına veya sorularına AI destekli chatbot cevaplar sunar. Bu sistem, WordPress üzerinden gelen müşteri sorularını, doğal dil işleme (NLP) kullanarak anlamlandırır ve doğru yanıtlara dönüştürür.
+
+Sohbet Botu Entegrasyonu: Müşteri sorularını AI ile sohbet ettirerek, hem geleneksel destek taleplerini hem de site üzerinden gelen talepleri otomatik olarak yanıtlayabilirsiniz. AI, müşterilerin sorularına anında cevap verir ve ihtiyaçlarına göre mülk önerileri sunar.
+
+3. Emlak Portföy ve İlan Yönetimi
+
+Portföy Takibi ve Güncelleme: Emlakçılar için portföylerini yönetmelerini kolaylaştıran bir sistem geliştirilir. Her mülkün durumu (satışta, kirada, teklif aşamasında vb.), fiyat değişiklikleri ve güncellemeler anlık olarak sistemde görünür. AI, mülk fiyatlarını analiz eder ve pazar trendlerine göre önerilerde bulunur.
+
+Otomatik İlan Yayınlama: Sistemdeki her yeni mülk, otomatik olarak emlakçıların web sitelerine ve popüler platformlara (Sahibinden, Emlakjet vb.) gönderilir. Bu işlem, AI tarafından yönlendirilir ve sürekli olarak güncel tutulur. Ayrıca, portföydeki mülklerin satışı ya da kiralanması durumunda ilgili değişiklikler anında yapılır.
+
+Sanal Turlar ve 3D Görselleştirme: Mülklerin sanal gezileri ve 3D artırılmış gerçeklik (AR) sunumlarıyla müşterilere daha etkileşimli deneyimler sunulur. Bu özellikler, AI tarafından önerilen mülklerle entegre edilerek satış süreçlerini hızlandırır.
+
+4. Finans ve Komisyon Yönetimi
+
+Komisyon Dağılımı: Emlakçılar ve ofis arasında adil komisyon paylaşımı için bir algoritma çalıştırılır. Her mülk satışında, danışmanlara ve ofis yöneticilerine otomatik olarak paylaştırılacak komisyon oranları hesaplanır. Bu süreç, AI tarafından yönetilir.
+
+Fatura ve Ödeme Takibi: Satış ve kiralama işlemleriyle ilgili tüm faturalar otomatik olarak oluşturulur. Ödemeler takip edilir, ödeme hatırlatıcıları ve faturaların durumu AI destekli bir sistem tarafından izlenir.
+
+Gelir-Gider Raporları: Aylık ve yıllık mali analizler için gelişmiş raporlama araçları sunulur. Gelir, komisyonlar ve giderler AI tarafından analiz edilerek detaylı raporlar oluşturulur.
+
+5. API Entegrasyonu ve Web Erişimi
+
+Popüler Emlak Portalları ile Entegrasyon: Sahibinden, Emlakjet gibi emlak platformlarıyla veri paylaşımı için API bağlantıları kurulur. n8n ile otomatik veri entegrasyonu yapılır ve ilanlar, fiyat güncellemeleri ve müşteri talepleri anlık olarak platformlara gönderilir.
+
+Muhasebe ve ERP Sistemleri ile Entegrasyon: Finansal verilerin merkezi bir platformda toplanması sağlanır. Gelir-gider verileri, muhasebe sistemlerine otomatik olarak aktarılır. Bu entegrasyonla, emlakçılar tüm finansal süreçleri tek bir platform üzerinden yönetebilir.
+
+Web Erişimi: Her cihazdan erişilebilen web tabanlı yönetim paneli sağlanır. Bu sayede, emlakçılar ve yöneticiler ofiste, sahada ya da uzaktan, tüm veriye kolayca erişebilirler.
+globs:
+alwaysApply: true
+---

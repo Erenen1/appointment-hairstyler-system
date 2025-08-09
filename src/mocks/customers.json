@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "fullName": "Fatma Yıldız",
+    "phone": "+90 532 111 2222",
+    "email": "fatma.yildiz@email.com",
+    "loyaltyPoints": 150,
+    "notes": "Hassas cilt, kimyasal ürünlerde dikkatli olunmalı",
+    "createdAt": "2023-05-01T10:00:00.000Z",
+    "updatedAt": "2024-01-10T15:30:00.000Z"
+  },
+  {
+    "id": 2,
+    "fullName": "Emre Kılıç",
+    "phone": "+90 541 333 4444",
+    "email": "emre.kilic@email.com",
+    "loyaltyPoints": 75,
+    "notes": "Düzenli müşteri, ayda 2 kez geliyor",
+    "createdAt": "2023-06-15T11:00:00.000Z",
+    "updatedAt": "2024-01-12T09:45:00.000Z"
+  },
+  {
+    "id": 3,
+    "fullName": "Ayşe Çelik",
+    "phone": "+90 555 777 8888",
+    "email": "ayse.celik@email.com",
+    "loyaltyPoints": 220,
+    "notes": "VIP müşteri, özel günlerde öncelik",
+    "createdAt": "2023-03-20T12:00:00.000Z",
+    "updatedAt": "2024-01-14T16:20:00.000Z"
+  },
+  {
+    "id": 4,
+    "fullName": "Burak Özdemir",
+    "phone": "+90 534 999 0000",
+    "email": "burak.ozdemir@email.com",
+    "loyaltyPoints": 45,
+    "notes": "Yeni müşteri, saç dökülmesi sorunu var",
+    "createdAt": "2023-12-01T14:00:00.000Z",
+    "updatedAt": "2024-01-05T13:15:00.000Z"
+  },
+  {
+    "id": 5,
+    "fullName": "Sevgi Akar",
+    "phone": "+90 542 444 5555",
+    "email": "sevgi.akar@email.com",
+    "loyaltyPoints": 180,
+    "notes": "Gelin saçı konusunda uzman arıyor",
+    "createdAt": "2023-08-10T09:30:00.000Z",
+    "updatedAt": "2024-01-08T11:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "fullName": "Kerem Sönmez",
+    "phone": "+90 533 666 7777",
+    "email": null,
+    "loyaltyPoints": 30,
+    "notes": null,
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "updatedAt": "2024-01-01T10:00:00.000Z"
+  }
+] 

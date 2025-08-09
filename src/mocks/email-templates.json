@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "randevu_onay",
+    "subject": "Randevunuz Onaylandı",
+    "body": "Merhaba {{customerName}},\n\n{{appointmentDate}} tarihindeki {{startTime}} saatindeki randevunuz onaylanmıştır.\n\nHizmet: {{serviceName}}\nPersonel: {{staffName}}\nFiyat: {{price}} TL\n\nRandevunuzu iptal etmek için lütfen bizimle iletişime geçin.\n\nTeşekkürler,\n{{salonName}}",
+    "variables": "{\"customerName\": \"Müşteri Adı\", \"appointmentDate\": \"Randevu Tarihi\", \"startTime\": \"Başlangıç Saati\", \"serviceName\": \"Hizmet Adı\", \"staffName\": \"Personel Adı\", \"price\": \"Fiyat\", \"salonName\": \"Salon Adı\"}",
+    "created_at": "2023-01-01T10:00:00.000Z",
+    "updated_at": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "name": "randevu_hatirlatma",
+    "subject": "Randevu Hatırlatması",
+    "body": "Merhaba {{customerName}},\n\nYarın {{appointmentDate}} tarihinde saat {{startTime}}'da randevunuz bulunmaktadır.\n\nHizmet: {{serviceName}}\nPersonel: {{staffName}}\n\nRandevunuzu iptal etmeniz gerekiyorsa lütfen en az 2 saat öncesinden haber verin.\n\nGörüşmek üzere,\n{{salonName}}",
+    "variables": "{\"customerName\": \"Müşteri Adı\", \"appointmentDate\": \"Randevu Tarihi\", \"startTime\": \"Başlangıç Saati\", \"serviceName\": \"Hizmet Adı\", \"staffName\": \"Personel Adı\", \"salonName\": \"Salon Adı\"}",
+    "created_at": "2023-01-01T10:00:00.000Z",
+    "updated_at": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "name": "randevu_iptal",
+    "subject": "Randevunuz İptal Edildi",
+    "body": "Merhaba {{customerName}},\n\n{{appointmentDate}} tarihindeki {{startTime}} saatindeki randevunuz iptal edilmiştir.\n\nİptal Nedeni: {{cancelReason}}\n\nYeni randevu almak için bizimle iletişime geçebilirsiniz.\n\nTeşekkürler,\n{{salonName}}",
+    "variables": "{\"customerName\": \"Müşteri Adı\", \"appointmentDate\": \"Randevu Tarihi\", \"startTime\": \"Başlangıç Saati\", \"cancelReason\": \"İptal Nedeni\", \"salonName\": \"Salon Adı\"}",
+    "created_at": "2023-01-01T10:00:00.000Z",
+    "updated_at": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "name": "dogum_gunu",
+    "subject": "Doğum Günün Kutlu Olsun! 🎉",
+    "body": "Sevgili {{customerName}},\n\nDoğum gününüz kutlu olsun! 🎂\n\nBu özel günde size özel %20 indirim fırsatımız var. Bu ayın sonuna kadar geçerlidir.\n\nKod: DOGUMGUNU20\n\nKendini şımartmak için bizi ziyaret et!\n\nİyi dileklerimizle,\n{{salonName}}",
+    "variables": "{\"customerName\": \"Müşteri Adı\", \"salonName\": \"Salon Adı\"}",
+    "created_at": "2023-01-01T10:00:00.000Z",
+    "updated_at": "2023-01-01T10:00:00.000Z"
+  }
+] 

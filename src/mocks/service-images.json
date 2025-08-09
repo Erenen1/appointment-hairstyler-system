@@ -1,0 +1,98 @@
+[
+  {
+    "id": 1,
+    "serviceId": 1,
+    "imagePath": "/images/services/kadin-sac-kesimi-1.jpg",
+    "isMain": true,
+    "orderIndex": 1,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "serviceId": 1,
+    "imagePath": "/images/services/kadin-sac-kesimi-2.jpg",
+    "isMain": false,
+    "orderIndex": 2,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "serviceId": 2,
+    "imagePath": "/images/services/erkek-sac-kesimi-1.jpg",
+    "isMain": true,
+    "orderIndex": 1,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "serviceId": 2,
+    "imagePath": "/images/services/erkek-sac-kesimi-2.jpg",
+    "isMain": false,
+    "orderIndex": 2,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "serviceId": 3,
+    "imagePath": "/images/services/sac-boyama-1.jpg",
+    "isMain": true,
+    "orderIndex": 1,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "serviceId": 3,
+    "imagePath": "/images/services/sac-boyama-2.jpg",
+    "isMain": false,
+    "orderIndex": 2,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 7,
+    "serviceId": 4,
+    "imagePath": "/images/services/highlights-1.jpg",
+    "isMain": true,
+    "orderIndex": 1,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 8,
+    "serviceId": 5,
+    "imagePath": "/images/services/keratin-1.jpg",
+    "isMain": true,
+    "orderIndex": 1,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 9,
+    "serviceId": 6,
+    "imagePath": "/images/services/gelin-makyaji-1.jpg",
+    "isMain": true,
+    "orderIndex": 1,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 10,
+    "serviceId": 7,
+    "imagePath": "/images/services/sakal-tirasi-1.jpg",
+    "isMain": true,
+    "orderIndex": 1,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 11,
+    "serviceId": 8,
+    "imagePath": "/images/services/gelin-saci-1.jpg",
+    "isMain": true,
+    "orderIndex": 1,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 12,
+    "serviceId": 8,
+    "imagePath": "/images/services/gelin-saci-2.jpg",
+    "isMain": false,
+    "orderIndex": 2,
+    "createdAt": "2023-01-01T10:00:00.000Z"
+  }
+] 

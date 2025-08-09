@@ -1,0 +1,39 @@
+## title:Admin Panel Sayfaları ve Özellikler
+
+description:
+
+### ✅ Tamamlanan Sayfalar:
+
+- randevu-takvimi [x] - Takvim görünümü
+- randevular [x] - Grafik ve liste
+- musteriler [x] - Liste ve detay
+- personeller [x] - Çalışma günleri ve yük
+- serviceler [x] - Fiyat ve süre
+- cari [x] - Müşteri bakiyeleri
+- adisyon [x] - Fatura ve ödemeler
+- gelir [x] - Gelir takibi
+- gider [x] - Gider takibi
+
+### 🎨 Tasarım Güncellemeleri:
+
+- Mavi-beyaz tema uygulandı
+- Sidebar açma/kapama butonu daha belirgin hale getirildi
+- Hover efektleri ve geçiş animasyonları eklendi
+- Dashboard kartları yeniden tasarlandı
+- Responsive tasarım iyileştirildi
+
+### 🏗️ Proje Yapısı:
+
+- `src/features/admin/components/Sidebar.tsx` - Ana sidebar component
+- `src/app/(routes)/admin/layout.tsx` - Layout dosyası (sadece import)
+- Tüm sayfalar sidebar'da görünür ve erişilebilir
+
+### 🚀 Özellikler:
+
+- Sidebar collapse/expand animasyonu
+- Mobile responsive tasarım
+- Modern UI/UX
+- PrimeReact component'leri
+- TypeScript desteği
+
+---

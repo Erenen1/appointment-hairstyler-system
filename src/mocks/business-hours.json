@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1,
+    "dayOfWeek": 1,
+    "openTime": "09:00:00",
+    "closeTime": "18:00:00",
+    "isClosed": false,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "dayOfWeek": 2,
+    "openTime": "09:00:00",
+    "closeTime": "18:00:00",
+    "isClosed": false,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "dayOfWeek": 3,
+    "openTime": "09:00:00",
+    "closeTime": "18:00:00",
+    "isClosed": false,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "dayOfWeek": 4,
+    "openTime": "09:00:00",
+    "closeTime": "18:00:00",
+    "isClosed": false,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "dayOfWeek": 5,
+    "openTime": "09:00:00",
+    "closeTime": "18:00:00",
+    "isClosed": false,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "dayOfWeek": 6,
+    "openTime": "10:00:00",
+    "closeTime": "17:00:00",
+    "isClosed": false,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  },
+  {
+    "id": 7,
+    "dayOfWeek": 7,
+    "openTime": null,
+    "closeTime": null,
+    "isClosed": true,
+    "createdAt": "2023-01-01T10:00:00.000Z",
+    "updatedAt": "2023-01-01T10:00:00.000Z"
+  }
+] 
