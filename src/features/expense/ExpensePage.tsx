@@ -22,7 +22,6 @@ interface ExpensePageProps {
 
 export default function ExpensePage({ expenses: initialExpenses = [] }: ExpensePageProps) {
     const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
-    const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
     const [globalFilter, setGlobalFilter] = useState<string>("");
     const [categoryFilter, setCategoryFilter] = useState<string>("");
     const [dateFilter, setDateFilter] = useState<Date | null>(null);
@@ -311,12 +310,48 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                             dateFormat="dd/mm/yy"
                         />
                     </div>
-                    <Button
-                        icon="pi pi-plus"
-                        label="Yeni Gider"
-                        onClick={openAddDialog}
-                        severity="danger"
-                    />
+                    <div className="flex gap-2 items-center">
+                        <Button
+                            icon="pi pi-download"
+                            label="Excel İndir"
+                            onClick={() => {
+                                // CSV Export Function
+                                const headers = [
+                                    "ID", "Kategori", "Tutar", "Tarih", "Açıklama", "Ödeme Yöntemi"
+                                ];
+
+                                const csvData = filteredExpenses.map(expense => [
+                                    expense.id,
+                                    expense.category,
+                                    expense.amount.toFixed(2) + " ₺",
+                                    new Date(expense.date).toLocaleDateString('tr-TR'),
+                                    expense.description,
+                                    getPaymentMethodLabel(expense.paymentMethod)
+                                ]);
+
+                                const csvContent = [headers, ...csvData]
+                                    .map(row => row.map(field => `"${field}"`).join(','))
+                                    .join('\n');
+
+                                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                                const link = document.createElement('a');
+                                const url = URL.createObjectURL(blob);
+                                link.setAttribute('href', url);
+                                link.setAttribute('download', `gider_listesi_${new Date().toISOString().split('T')[0]}.csv`);
+                                link.style.visibility = 'hidden';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            }}
+                            className="bg-green-600 hover:bg-green-700 border-green-600"
+                        />
+                        <Button
+                            icon="pi pi-plus"
+                            label="Yeni Gider"
+                            onClick={openAddDialog}
+                            severity="danger"
+                        />
+                    </div>
                 </div>
 
                 <DataTable
@@ -325,9 +360,6 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                     rows={10}
                     stripedRows
                     tableStyle={{ minWidth: "100%" }}
-                    selectionMode="single"
-                    selection={selectedExpense}
-                    onSelectionChange={(e) => setSelectedExpense(e.value as Expense)}
                     sortMode="multiple"
                     removableSort
                     globalFilter={globalFilter}
@@ -381,14 +413,17 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                                 <Button
                                     icon="pi pi-pencil"
                                     size="small"
-                                    outlined
+                                    severity="warning"
+                                    text
+                                    tooltip="Düzenle"
                                     onClick={() => openEditDialog(rowData)}
                                 />
                                 <Button
                                     icon="pi pi-trash"
                                     size="small"
                                     severity="danger"
-                                    outlined
+                                    text
+                                    tooltip="Sil"
                                     onClick={() => deleteExpense(rowData)}
                                 />
                             </div>
@@ -478,6 +513,8 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                     </div>
                 </div>
             </Dialog>
+
+
         </div>
     );
 }

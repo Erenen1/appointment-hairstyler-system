@@ -1,23 +1,19 @@
 "use client";
 
 import { Card } from "primereact/card";
-import { Button } from "primereact/button";
 import { Badge } from "primereact/badge";
 import { Avatar } from "primereact/avatar";
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { ProcessedWhatsAppMessage } from "../types";
 
 interface MessageListProps {
     messages: ProcessedWhatsAppMessage[];
     selectedContact: string | null;
-    onDeleteMessage: (messageId: string) => Promise<boolean>;
     loading?: boolean;
 }
 
 export const MessageList = ({
     messages,
     selectedContact,
-    onDeleteMessage,
     loading = false
 }: MessageListProps) => {
 
@@ -42,38 +38,28 @@ export const MessageList = ({
         if (!fromMe) return null;
 
         switch (status) {
-            case 'sent': return 'pi pi-check text-gray-400';
-            case 'delivered': return 'pi pi-check-circle text-gray-400';
-            case 'read': return 'pi pi-check-circle text-blue-500';
-            default: return 'pi pi-clock text-gray-400';
+            case 'sent': return 'pi pi-check text-green-100';
+            case 'delivered': return 'pi pi-check-circle text-green-100';
+            case 'read': return 'pi pi-check-circle text-blue-200';
+            default: return 'pi pi-clock text-green-100';
         }
-    };
-
-    const confirmDelete = (messageId: string, content: string) => {
-        confirmDialog({
-            message: `"${content.substring(0, 50)}..." mesajını silmek istediğinizden emin misiniz?`,
-            header: 'Mesajı Sil',
-            icon: 'pi pi-exclamation-triangle',
-            acceptClassName: 'p-button-danger',
-            acceptLabel: 'Sil',
-            rejectLabel: 'İptal',
-            accept: () => onDeleteMessage(messageId)
-        });
     };
 
     if (loading) {
         return (
-            <Card title="Mesajlar" className="h-full">
-                <div className="space-y-4">
-                    {[1, 2, 3, 4].map(i => (
-                        <div key={i} className="flex gap-3 animate-pulse">
-                            <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
-                            <div className="flex-1">
-                                <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                                <div className="h-16 bg-gray-200 rounded"></div>
+            <Card className="bg-white rounded-xl border-0 h-full">
+                <div className="p-6">
+                    <div className="space-y-4">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="flex gap-3 animate-pulse">
+                                <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                                <div className="flex-1">
+                                    <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                                    <div className="h-16 bg-gray-200 rounded"></div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </Card>
         );
@@ -84,109 +70,109 @@ export const MessageList = ({
         : "Tüm Mesajlar";
 
     return (
-        <>
-            <Card title={title} className="h-full">
+        <Card className="bg-white rounded-xl border-0 h-full flex flex-col">
+            <div className="p-6 border-b border-gray-100">
+                <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                    {messages.length} mesaj • AI Bot konuşma geçmişi
+                </p>
+            </div>
+
+            <div className="flex-1 overflow-hidden">
                 {messages.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                        <i className="pi pi-comments text-4xl mb-3"></i>
-                        <p>{selectedContact ? "Bu kişi ile henüz mesaj geçmişi yok" : "Henüz mesaj bulunmuyor"}</p>
+                    <div className="text-center py-12 text-gray-500 px-6">
+                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i className="pi pi-comments text-3xl text-gray-400"></i>
+                        </div>
+                        <p className="text-gray-500 font-medium mb-2">
+                            {selectedContact ? "Bu kişi ile henüz mesaj geçmişi yok" : "Henüz mesaj bulunmuyor"}
+                        </p>
+                        <p className="text-sm text-gray-400">
+                            {selectedContact ? "İlk mesajı göndererek konuşmayı başlatın" : "Yeni mesajlar geldiğinde burada görünecek"}
+                        </p>
                     </div>
                 ) : (
-                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                    <div className="h-full overflow-y-auto px-6 py-4 space-y-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                         {messages.map((message) => (
-                            <div
-                                key={message.id}
-                                className={`flex gap-3 ${message.fromMe ? 'flex-row-reverse' : 'flex-row'} group`}
-                            >
-                                {/* Avatar */}
-                                <div className="flex-shrink-0">
-                                    <Avatar
-                                        icon="pi pi-user"
-                                        size="normal"
-                                        shape="circle"
-                                        className="border-2 border-gray-200"
-                                        style={{
-                                            backgroundColor: message.fromMe ? '#3b82f6' : '#10b981',
-                                            color: 'white'
-                                        }}
-                                    />
-                                </div>
-
-                                {/* Message Bubble */}
-                                <div className={`flex-1 max-w-xs ${message.fromMe ? 'text-right' : 'text-left'}`}>
-                                    {/* Sender Info */}
-                                    <div className={`flex items-center gap-2 mb-1 ${message.fromMe ? 'justify-end' : 'justify-start'}`}>
-                                        <span className="text-sm font-semibold text-gray-900">
-                                            {message.fromMe ? 'Siz' : message.senderName}
-                                        </span>
-                                        {!selectedContact && (
-                                            <Badge value={message.phoneNumber} className="text-xs" />
-                                        )}
-                                        <span className="text-xs text-gray-500">
-                                            {formatMessageTime(message.timestamp)}
-                                        </span>
+                            <div key={message.id} className="group">
+                                <div className={`flex gap-4 ${message.fromMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                                    {/* Avatar */}
+                                    <div className="flex-shrink-0">
+                                        <Avatar
+                                            image={message.fromMe ? undefined : undefined}
+                                            icon={message.fromMe ? "pi pi-robot" : "pi pi-user"}
+                                            size="normal"
+                                            shape="circle"
+                                            className="border border-gray-200"
+                                            style={{
+                                                backgroundColor: message.fromMe ? '#10b981' : '#6b7280',
+                                                color: 'white'
+                                            }}
+                                        />
                                     </div>
 
-                                    {/* Message Content */}
-                                    <div
-                                        className={`p-3 rounded-lg shadow-sm ${message.fromMe
-                                                ? 'bg-blue-500 text-white'
-                                                : 'bg-gray-100 text-gray-900 border border-gray-200'
-                                            }`}
-                                    >
-                                        <div className="flex items-start gap-2">
-                                            <i className={`${getMessageTypeIcon(message.messageType)} ${message.fromMe ? 'text-blue-200' : 'text-gray-500'
-                                                } flex-shrink-0 mt-0.5`}></i>
+                                    {/* Message Bubble */}
+                                    <div className={`flex-1 max-w-xs ${message.fromMe ? 'text-right' : 'text-left'}`}>
+                                        {/* Sender Info */}
+                                        <div className={`flex items-center gap-2 mb-2 ${message.fromMe ? 'justify-end' : 'justify-start'}`}>
+                                            <span className={`text-sm font-semibold ${message.fromMe ? 'text-green-700' : 'text-gray-700'}`}>
+                                                {message.fromMe ? 'AI Bot' : message.senderName}
+                                            </span>
+                                            {!selectedContact && (
+                                                <Badge value={message.phoneNumber} className="text-xs bg-gray-100 text-gray-600" />
+                                            )}
+                                            <span className="text-xs text-gray-500">
+                                                {formatMessageTime(message.timestamp)}
+                                            </span>
+                                        </div>
 
-                                            <div className="flex-1">
-                                                <p className="text-sm leading-relaxed break-words">
-                                                    {message.content}
-                                                </p>
+                                        {/* Message Content */}
+                                        <div
+                                            className={`p-4 rounded-xl border ${message.fromMe
+                                                ? 'bg-green-50 text-gray-900 border-green-200'
+                                                : 'bg-white text-gray-900 border-gray-200'
+                                                }`}
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                <i className={`${getMessageTypeIcon(message.messageType)} ${message.fromMe ? 'text-green-600' : 'text-gray-500'
+                                                    } flex-shrink-0 mt-1 text-lg`}></i>
 
-                                                {/* Message Footer */}
-                                                <div className={`flex items-center justify-between mt-2 ${message.fromMe ? 'text-blue-200' : 'text-gray-500'
-                                                    }`}>
-                                                    <span className="text-xs">{message.messageType}</span>
-                                                    {message.fromMe && (
-                                                        <i className={`${getStatusIcon(message.status, message.fromMe)} text-xs`}></i>
-                                                    )}
+                                                <div className="flex-1">
+                                                    <p className="text-sm leading-relaxed break-words">
+                                                        {message.content}
+                                                    </p>
+
+                                                    {/* Message Footer */}
+                                                    <div className={`flex items-center justify-between mt-3 ${message.fromMe ? 'text-green-600' : 'text-gray-500'
+                                                        }`}>
+                                                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${message.fromMe
+                                                            ? 'bg-green-100 text-green-700'
+                                                            : 'bg-gray-100 text-gray-600'
+                                                            }`}>
+                                                            {message.messageType}
+                                                        </span>
+                                                        {message.fromMe && (
+                                                            <i className={`${getStatusIcon(message.status, message.fromMe)} text-sm`}></i>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* Actions (visible on hover) */}
-                                    <div className={`flex gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${message.fromMe ? 'justify-end' : 'justify-start'
-                                        }`}>
-                                        <Button
-                                            icon="pi pi-trash"
-                                            text
-                                            rounded
-                                            size="small"
-                                            className="text-red-500 hover:bg-red-50"
-                                            onClick={() => confirmDelete(message.id, message.content)}
-                                            tooltip="Mesajı Sil"
-                                            tooltipOptions={{ position: 'top' }}
-                                        />
-                                        <Button
-                                            icon="pi pi-copy"
-                                            text
-                                            rounded
-                                            size="small"
-                                            className="text-gray-500 hover:bg-gray-50"
-                                            onClick={() => navigator.clipboard.writeText(message.content)}
-                                            tooltip="Kopyala"
-                                            tooltipOptions={{ position: 'top' }}
-                                        />
-                                    </div>
                                 </div>
                             </div>
                         ))}
+
+                        {/* Scroll to bottom indicator */}
+                        <div className="text-center py-4">
+                            <div className="inline-flex items-center gap-2 text-xs text-gray-400">
+                                <i className="pi pi-arrow-down"></i>
+                                <span>Konuşma sonu</span>
+                            </div>
+                        </div>
                     </div>
                 )}
-            </Card>
-
-            <ConfirmDialog />
-        </>
+            </div>
+        </Card>
     );
 };

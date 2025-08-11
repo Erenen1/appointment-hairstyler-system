@@ -3,96 +3,233 @@ import { WhatsAppWebhookPayload, ProcessedWhatsAppMessage, WhatsAppContact, What
 // Mock WhatsApp messages data (simulating N8N webhook data)
 const mockWhatsAppMessages: ProcessedWhatsAppMessage[] = [
     {
-        id: "3FB5FCFDE0661C4E5696",
-        sender: "905330873779@s.whatsapp.net",
-        senderName: "Kaan",
-        content: "Merhaba, emlak konusunda bilgi alabilir miyim?",
+        id: "msg1",
+        sender: "+905551234567",
+        senderName: "Ahmet Yılmaz",
+        content: "Merhaba, ev ilanınız hakkında bilgi alabilir miyim?",
         messageType: "text",
-        timestamp: new Date("2025-01-09T17:43:38.649Z"),
+        timestamp: new Date("2024-01-15T10:30:00.000Z"),
         fromMe: false,
         status: "delivered",
-        phoneNumber: "+90 533 087 37 79"
+        phoneNumber: "+905551234567"
     },
     {
-        id: "3FB5FCFDE0661C4E5697",
-        sender: "businesswp@s.whatsapp.net",
-        senderName: "Estate Pro Emlak",
-        content: "Merhaba! Elbette yardımcı olabilirim. Hangi bölgede emlak arıyorsunuz?",
+        id: "msg2",
+        sender: "+905559876543",
+        senderName: "Fatma Demir",
+        content: "Teşekkürler, yarın görüşelim",
         messageType: "text",
-        timestamp: new Date("2025-01-09T17:45:12.123Z"),
+        timestamp: new Date("2024-01-15T09:15:00.000Z"),
+        fromMe: false,
+        status: "read",
+        phoneNumber: "+905559876543"
+    },
+    {
+        id: "msg16",
+        sender: "AI Bot",
+        senderName: "AI Bot",
+        content: "Harika! Yarın saat 14:00'te ofisimizde görüşelim. Size tüm ev seçeneklerini gösterebilirim. Adres: Kadıköy, Rıhtım Caddesi No:45.",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T09:16:00.000Z"),
         fromMe: true,
         status: "read",
-        phoneNumber: "+90 533 087 37 79"
+        phoneNumber: "+905559876543"
     },
     {
-        id: "3FB5FCFDE0661C4E5698",
-        sender: "905330873779@s.whatsapp.net",
-        senderName: "Kaan",
-        content: "Kadıköy tarafında 2+1 daire arıyorum. Bütçem 8M civarında.",
+        id: "msg17",
+        sender: "AI Bot",
+        senderName: "AI Bot",
+        content: "Görüşme öncesi hangi bölge ve özelliklerde ev aradığınızı belirtirseniz, size en uygun seçenekleri hazırlayabilirim.",
         messageType: "text",
-        timestamp: new Date("2025-01-09T17:46:30.456Z"),
-        fromMe: false,
-        status: "delivered",
-        phoneNumber: "+90 533 087 37 79"
-    },
-    {
-        id: "3FB5FCFDE0661C4E5699",
-        sender: "905551234567@s.whatsapp.net",
-        senderName: "Ayşe Yılmaz",
-        content: "Satılık ev fiyatları hakkında bilgi almak istiyorum",
-        messageType: "text",
-        timestamp: new Date("2025-01-09T16:30:15.789Z"),
-        fromMe: false,
-        status: "delivered",
-        phoneNumber: "+90 555 123 45 67"
-    },
-    {
-        id: "3FB5FCFDE0661C4E5700",
-        sender: "businesswp@s.whatsapp.net",
-        senderName: "Estate Pro Emlak",
-        content: "Merhaba Ayşe Hanım, hangi bölgede ev arıyorsunuz?",
-        messageType: "text",
-        timestamp: new Date("2025-01-09T16:32:45.321Z"),
+        timestamp: new Date("2024-01-15T09:17:00.000Z"),
         fromMe: true,
         status: "read",
-        phoneNumber: "+90 555 123 45 67"
+        phoneNumber: "+905559876543"
     },
     {
-        id: "3FB5FCFDE0661C4E5701",
-        sender: "905559876543@s.whatsapp.net",
-        senderName: "Mehmet Demir",
-        content: "Kiralık daire var mı?",
+        id: "msg3",
+        sender: "+905553456789",
+        senderName: "Mehmet Kaya",
+        content: "Fiyat konusunda pazarlık yapabilir miyiz?",
         messageType: "text",
-        timestamp: new Date("2025-01-09T15:20:12.654Z"),
+        timestamp: new Date("2024-01-15T11:45:00.000Z"),
         fromMe: false,
         status: "delivered",
-        phoneNumber: "+90 555 987 65 43"
+        phoneNumber: "+905553456789"
+    },
+    {
+        id: "msg14",
+        sender: "AI Bot",
+        senderName: "AI Bot",
+        content: "Merhaba Mehmet Bey! Elbette fiyat konusunda esnek olabiliriz. Hangi ev hakkında konuşuyoruz? Size en uygun fiyatı bulalım.",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T11:46:00.000Z"),
+        fromMe: true,
+        status: "read",
+        phoneNumber: "+905553456789"
+    },
+    {
+        id: "msg15",
+        sender: "AI Bot",
+        senderName: "AI Bot",
+        content: "Ayrıca kredi imkanları ve ödeme planları da mevcut. Size en uygun seçeneği sunabiliriz. Detaylı görüşme için ofisimize gelebilir misiniz?",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T11:47:00.000Z"),
+        fromMe: true,
+        status: "read",
+        phoneNumber: "+905553456789"
+    },
+    {
+        id: "msg4",
+        sender: "+905557890123",
+        senderName: "Ayşe Özkan",
+        content: "Emlak ofisiniz nerede?",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T08:20:00.000Z"),
+        fromMe: false,
+        status: "read",
+        phoneNumber: "+905557890123"
+    },
+    {
+        id: "msg12",
+        sender: "AI Bot",
+        senderName: "AI Bot",
+        content: "Merhaba Ayşe Hanım! Ofisimiz Kadıköy'de, Rıhtım Caddesi No:45'te bulunuyor. Metro ve otobüs duraklarına çok yakın.",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T08:21:00.000Z"),
+        fromMe: true,
+        status: "read",
+        phoneNumber: "+905557890123"
+    },
+    {
+        id: "msg13",
+        sender: "AI Bot",
+        senderName: "AI Bot",
+        content: "Çalışma saatlerimiz: Hafta içi 09:00-18:00, Cumartesi 10:00-16:00. Pazar günü kapalıyız. Randevu almak isterseniz size yardımcı olabilirim.",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T08:22:00.000Z"),
+        fromMe: true,
+        status: "read",
+        phoneNumber: "+905557890123"
+    },
+    {
+        id: "msg5",
+        sender: "+905551112223",
+        senderName: "Ali Veli",
+        content: "Kredi imkanları hakkında bilgi verir misiniz?",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T12:00:00.000Z"),
+        fromMe: false,
+        status: "delivered",
+        phoneNumber: "+905551112223"
+    },
+    {
+        id: "msg10",
+        sender: "AI Bot",
+        senderName: "AI Bot",
+        content: "Merhaba Ali Bey! Kredi imkanları konusunda size yardımcı olabilirim. Hangi tür kredi düşünüyorsunuz? Konut kredisi mi yoksa iş kredisi mi?",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T12:01:00.000Z"),
+        fromMe: true,
+        status: "read",
+        phoneNumber: "+905551112223"
+    },
+    {
+        id: "msg11",
+        sender: "AI Bot",
+        senderName: "AI Bot",
+        content: "Konut kredisi için gerekli belgeler: Kimlik fotokopisi, maaş bordrosu, banka hesap ekstresi. Size en uygun bankayı bulabiliriz.",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T12:02:00.000Z"),
+        fromMe: true,
+        status: "read",
+        phoneNumber: "+905551112223"
+    },
+    {
+        id: "msg6",
+        sender: "AI Bot",
+        senderName: "AI Bot",
+        content: "Merhaba! Size nasıl yardımcı olabilirim? Emlak konusunda hangi bilgiyi arıyorsunuz?",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T10:31:00.000Z"),
+        fromMe: true,
+        status: "read",
+        phoneNumber: "+905551234567"
+    },
+    {
+        id: "msg7",
+        sender: "AI Bot",
+        senderName: "AI Bot",
+        content: "Tabii ki! Hangi ev ilanı hakkında bilgi almak istiyorsunuz? Bölge, oda sayısı ve bütçe bilgilerinizi paylaşırsanız size en uygun seçenekleri sunabilirim.",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T10:32:00.000Z"),
+        fromMe: true,
+        status: "read",
+        phoneNumber: "+905551234567"
+    },
+    {
+        id: "msg8",
+        sender: "AI Bot",
+        senderName: "AI Bot",
+        content: "Kadıköy bölgesinde 2+1 daire arayışınız için size yardımcı olabilirim. 8M bütçe ile bu bölgede güzel seçenekler bulunuyor. Detaylı bilgi için ofisimize gelebilir veya randevu alabilirsiniz.",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T10:33:00.000Z"),
+        fromMe: true,
+        status: "read",
+        phoneNumber: "+905551234567"
+    },
+    {
+        id: "msg9",
+        sender: "AI Bot",
+        senderName: "AI Bot",
+        content: "Ayrıca kredi imkanları konusunda da size yardımcı olabilirim. Bankalarla anlaşmalarımız var ve en uygun faiz oranlarını bulabiliriz.",
+        messageType: "text",
+        timestamp: new Date("2024-01-15T10:34:00.000Z"),
+        fromMe: true,
+        status: "read",
+        phoneNumber: "+905551234567"
     }
 ];
 
 const mockContacts: WhatsAppContact[] = [
     {
-        phoneNumber: "+90 533 087 37 79",
-        name: "Kaan",
+        phoneNumber: "+905551234567",
+        name: "Ahmet Yılmaz",
+        lastMessage: mockWhatsAppMessages[0],
+        unreadCount: 3,
+        isOnline: true,
+        profileImage: undefined
+    },
+    {
+        phoneNumber: "+905559876543",
+        name: "Fatma Demir",
+        lastMessage: mockWhatsAppMessages[1],
+        unreadCount: 0,
+        isOnline: false,
+        profileImage: undefined
+    },
+    {
+        phoneNumber: "+905553456789",
+        name: "Mehmet Kaya",
         lastMessage: mockWhatsAppMessages[2],
         unreadCount: 1,
         isOnline: true,
         profileImage: undefined
     },
     {
-        phoneNumber: "+90 555 123 45 67",
-        name: "Ayşe Yılmaz",
-        lastMessage: mockWhatsAppMessages[4],
+        phoneNumber: "+905557890123",
+        name: "Ayşe Özkan",
+        lastMessage: mockWhatsAppMessages[3],
         unreadCount: 0,
         isOnline: false,
         profileImage: undefined
     },
     {
-        phoneNumber: "+90 555 987 65 43",
-        name: "Mehmet Demir",
-        lastMessage: mockWhatsAppMessages[5],
-        unreadCount: 1,
-        isOnline: false,
+        phoneNumber: "+905551112223",
+        name: "Ali Veli",
+        lastMessage: mockWhatsAppMessages[4],
+        unreadCount: 2,
+        isOnline: true,
         profileImage: undefined
     }
 ];

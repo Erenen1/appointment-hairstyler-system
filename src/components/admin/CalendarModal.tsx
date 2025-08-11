@@ -1,12 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Dialog } from "primereact/dialog";
-import { Calendar } from "primereact/calendar";
-import { Dropdown } from "primereact/dropdown";
-import { InputTextarea } from "primereact/inputtextarea";
-import { Button } from "primereact/button";
-import { Message } from "primereact/message";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon, Trash2, X, Save, Plus } from "lucide-react";
+import { format } from "date-fns";
+import { tr } from "date-fns/locale";
 
 interface Customer {
     id: number;
@@ -81,6 +86,7 @@ export default function CalendarModal({
     });
 
     const [errors, setErrors] = useState<string[]>([]);
+    const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
     useEffect(() => {
         if (selectedAppointment) {
@@ -96,9 +102,10 @@ export default function CalendarModal({
                 notes: selectedAppointment.notes || ""
             });
         } else if (selectedDate) {
-            // Create mode - set selected date
+            // Create mode - automatically set the clicked date
+            const formattedDate = format(selectedDate, 'yyyy-MM-dd');
             setFormData({
-                date: selectedDate.toISOString().split('T')[0],
+                date: formattedDate,
                 time: "",
                 customerId: null,
                 serviceId: null,
@@ -172,170 +179,213 @@ export default function CalendarModal({
         return status?.color || "#6c757d";
     };
 
+    const handleDateSelect = (date: Date | undefined) => {
+        if (date) {
+            setFormData(prev => ({ ...prev, date: format(date, 'yyyy-MM-dd') }));
+            setIsDatePickerOpen(false);
+        }
+    };
+
     return (
-        <Dialog
-            visible={visible}
-            onHide={onHide}
-            header={selectedAppointment ? "Randevu Düzenle" : "Yeni Randevu"}
-            style={{ width: '600px' }}
-            modal
-            className="p-fluid"
-            onShow={resetForm}
-        >
-            {errors.length > 0 && (
-                <Message
-                    severity="error"
-                    text={errors.join(", ")}
-                    className="mb-4"
-                />
-            )}
+        <Dialog open={visible} onOpenChange={onHide}>
+            <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                    <DialogTitle className="text-xl font-semibold text-gray-900">
+                        {selectedAppointment ? "Randevu Düzenle" : "Yeni Randevu"}
+                    </DialogTitle>
+                </DialogHeader>
 
-            <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                    <label htmlFor="date" className="font-medium text-gray-700 mb-2 block">
-                        Randevu Tarihi
-                    </label>
-                    <Calendar
-                        id="date"
-                        value={formData.date ? new Date(formData.date) : null}
-                        onChange={(e) => setFormData(prev => ({ ...prev, date: e.value?.toISOString().split('T')[0] || "" }))}
-                        dateFormat="dd/mm/yy"
-                        className="w-full"
-                    />
-                </div>
-
-                <div>
-                    <label htmlFor="time" className="font-medium text-gray-700 mb-2 block">
-                        Randevu Saati
-                    </label>
-                    <Dropdown
-                        id="time"
-                        value={formData.time}
-                        options={timeOptions}
-                        onChange={(e) => setFormData(prev => ({ ...prev, time: e.value }))}
-                        placeholder="Saat seçin"
-                        className="w-full"
-                    />
-                </div>
-
-                <div>
-                    <label htmlFor="status" className="font-medium text-gray-700 mb-2 block">
-                        Durum
-                    </label>
-                    <Dropdown
-                        id="status"
-                        value={formData.statusId}
-                        options={statuses}
-                        onChange={(e) => setFormData(prev => ({ ...prev, statusId: e.value }))}
-                        optionLabel="name"
-                        optionValue="id"
-                        placeholder="Durum seçin"
-                        className="w-full"
-                        itemTemplate={(option) => (
-                            <div className="flex items-center gap-2">
-                                <div
-                                    className="w-3 h-3 rounded-full"
-                                    style={{ backgroundColor: option.color }}
-                                ></div>
-                                <span>{option.name}</span>
-                            </div>
-                        )}
-                    />
-                </div>
-
-                <div>
-                    <label htmlFor="customer" className="font-medium text-gray-700 mb-2 block">
-                        Müşteri
-                    </label>
-                    <Dropdown
-                        id="customer"
-                        value={formData.customerId}
-                        options={customers}
-                        onChange={(e) => setFormData(prev => ({ ...prev, customerId: e.value }))}
-                        optionLabel="name"
-                        optionValue="id"
-                        placeholder="Müşteri seçin"
-                        className="w-full"
-                    />
-                </div>
-
-                <div>
-                    <label htmlFor="service" className="font-medium text-gray-700 mb-2 block">
-                        Hizmet
-                    </label>
-                    <Dropdown
-                        id="service"
-                        value={formData.serviceId}
-                        options={services}
-                        onChange={(e) => setFormData(prev => ({ ...prev, serviceId: e.value }))}
-                        optionLabel="name"
-                        optionValue="id"
-                        placeholder="Hizmet seçin"
-                        className="w-full"
-                        itemTemplate={(option) => (
-                            <div className="flex justify-between items-center w-full">
-                                <span>{option.name}</span>
-                                <span className="text-sm text-gray-500">{option.price}₺</span>
-                            </div>
-                        )}
-                    />
-                </div>
-
-                <div>
-                    <label htmlFor="staff" className="font-medium text-gray-700 mb-2 block">
-                        Personel
-                    </label>
-                    <Dropdown
-                        id="staff"
-                        value={formData.staffId}
-                        options={staff}
-                        onChange={(e) => setFormData(prev => ({ ...prev, staffId: e.value }))}
-                        optionLabel="name"
-                        optionValue="id"
-                        placeholder="Personel seçin"
-                        className="w-full"
-                    />
-                </div>
-
-                <div className="col-span-2">
-                    <label htmlFor="notes" className="font-medium text-gray-700 mb-2 block">
-                        Notlar
-                    </label>
-                    <InputTextarea
-                        id="notes"
-                        value={formData.notes || ""}
-                        onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                        rows={3}
-                        placeholder="Randevu notları..."
-                        className="w-full"
-                    />
-                </div>
-            </div>
-
-            <div className="flex justify-end gap-2 mt-6">
-                {selectedAppointment && (
-                    <Button
-                        label="Sil"
-                        icon="pi pi-trash"
-                        severity="danger"
-                        onClick={handleDelete}
-                        className="px-4"
-                    />
+                {errors.length > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                        <div className="text-sm text-red-600">
+                            {errors.map((error, index) => (
+                                <div key={index}>• {error}</div>
+                            ))}
+                        </div>
+                    </div>
                 )}
-                <Button
-                    label="İptal"
-                    icon="pi pi-times"
-                    severity="secondary"
-                    onClick={onHide}
-                    className="px-4"
-                />
-                <Button
-                    label={selectedAppointment ? "Güncelle" : "Kaydet"}
-                    icon={selectedAppointment ? "pi pi-check" : "pi pi-plus"}
-                    onClick={handleSave}
-                    className="px-4"
-                />
-            </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                        <Label htmlFor="date" className="text-sm font-medium text-gray-700 mb-2 block">
+                            Randevu Tarihi
+                        </Label>
+                        <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className="w-full justify-start text-left font-normal border-gray-300 hover:bg-gray-50"
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {formData.date ? format(new Date(formData.date), 'dd MMMM yyyy', { locale: tr }) : "Tarih seçin"}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={formData.date ? new Date(formData.date) : undefined}
+                                    onSelect={handleDateSelect}
+                                    initialFocus
+                                    locale={tr}
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+
+                    <div>
+                        <Label htmlFor="time" className="text-sm font-medium text-gray-700 mb-2 block">
+                            Randevu Saati
+                        </Label>
+                        <Select value={formData.time || ""} onValueChange={(value) => setFormData(prev => ({ ...prev, time: value }))}>
+                            <SelectTrigger className="w-full border-gray-300">
+                                <SelectValue placeholder="Saat seçin" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {timeOptions.map((time) => (
+                                    <SelectItem key={time} value={time}>
+                                        {time}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div>
+                        <Label htmlFor="status" className="text-sm font-medium text-gray-700 mb-2 block">
+                            Durum
+                        </Label>
+                        <Select value={formData.statusId?.toString() || ""} onValueChange={(value) => setFormData(prev => ({ ...prev, statusId: parseInt(value) }))}>
+                            <SelectTrigger className="w-full border-gray-300">
+                                <SelectValue placeholder="Durum seçin" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {statuses.map((status) => (
+                                    <SelectItem key={status.id} value={status.id.toString()}>
+                                        <div className="flex items-center gap-2">
+                                            <div
+                                                className="w-3 h-3 rounded-full"
+                                                style={{ backgroundColor: status.color }}
+                                            ></div>
+                                            <span>{status.name}</span>
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div>
+                        <Label htmlFor="customer" className="text-sm font-medium text-gray-700 mb-2 block">
+                            Müşteri
+                        </Label>
+                        <Select value={formData.customerId?.toString() || ""} onValueChange={(value) => setFormData(prev => ({ ...prev, customerId: parseInt(value) }))}>
+                            <SelectTrigger className="w-full border-gray-300">
+                                <SelectValue placeholder="Müşteri seçin" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {customers.map((customer) => (
+                                    <SelectItem key={customer.id} value={customer.id.toString()}>
+                                        {customer.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div>
+                        <Label htmlFor="service" className="text-sm font-medium text-gray-700 mb-2 block">
+                            Hizmet
+                        </Label>
+                        <Select value={formData.serviceId?.toString() || ""} onValueChange={(value) => setFormData(prev => ({ ...prev, serviceId: parseInt(value) }))}>
+                            <SelectTrigger className="w-full border-gray-300">
+                                <SelectValue placeholder="Hizmet seçin" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {services.map((service) => (
+                                    <SelectItem key={service.id} value={service.id.toString()}>
+                                        <div className="flex justify-between items-center w-full">
+                                            <span>{service.name}</span>
+                                            <span className="text-sm text-gray-500 ml-2">{service.price}₺</span>
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div>
+                        <Label htmlFor="staff" className="text-sm font-medium text-gray-700 mb-2 block">
+                            Personel
+                        </Label>
+                        <Select value={formData.staffId?.toString() || ""} onValueChange={(value) => setFormData(prev => ({ ...prev, staffId: parseInt(value) }))}>
+                            <SelectTrigger className="w-full border-gray-300">
+                                <SelectValue placeholder="Personel seçin" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {staff.map((staffMember) => (
+                                    <SelectItem key={staffMember.id} value={staffMember.id.toString()}>
+                                        {staffMember.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="col-span-2">
+                        <Label htmlFor="notes" className="text-sm font-medium text-gray-700 mb-2 block">
+                            Notlar
+                        </Label>
+                        <Textarea
+                            id="notes"
+                            value={formData.notes || ""}
+                            onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                            rows={3}
+                            placeholder="Randevu notları..."
+                            className="w-full border-gray-300 resize-none"
+                        />
+                    </div>
+                </div>
+
+                <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+                    {selectedAppointment && (
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleDelete}
+                            className="flex items-center gap-2"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            Sil
+                        </Button>
+                    )}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={onHide}
+                        className="flex items-center gap-2"
+                    >
+                        <X className="h-4 w-4" />
+                        İptal
+                    </Button>
+                    <Button
+                        size="sm"
+                        onClick={handleSave}
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                    >
+                        {selectedAppointment ? (
+                            <>
+                                <Save className="h-4 w-4" />
+                                Güncelle
+                            </>
+                        ) : (
+                            <>
+                                <Plus className="h-4 w-4" />
+                                Kaydet
+                            </>
+                        )}
+                    </Button>
+                </div>
+            </DialogContent>
         </Dialog>
     );
 }

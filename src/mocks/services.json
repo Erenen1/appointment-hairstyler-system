@@ -10,10 +10,17 @@
     "icon": "scissors",
     "isActive": true,
     "orderIndex": 1,
-    "benefits": ["Uzman kuaför", "Yüz şekline uygun kesim", "Şekillendirme dahil"],
+    "benefits": [
+      "Uzman kuaför",
+      "Yüz şekline uygun kesim",
+      "Şekillendirme dahil"
+    ],
     "includes": ["Yıkama", "Kesim", "Şekillendirme", "Kuru fön"],
     "recommendedFor": ["Tüm saç tipleri", "Değişim isteyen kadınlar"],
-    "beforeAfterImages": ["/images/before-after/kesim-1.jpg", "/images/before-after/kesim-2.jpg"],
+    "beforeAfterImages": [
+      "/images/before-after/kesim-1.jpg",
+      "/images/before-after/kesim-2.jpg"
+    ],
     "createdAt": "2023-01-01T10:00:00.000Z",
     "updatedAt": "2023-01-01T10:00:00.000Z"
   },
@@ -49,7 +56,10 @@
     "benefits": ["Organik boyalar", "Uzun süre kalıcı", "Saça zarar vermez"],
     "includes": ["Renk analizi", "Boyama", "Bakım maskesi", "Şekillendirme"],
     "recommendedFor": ["Renk değişimi isteyenler", "Beyazları kapatmak"],
-    "beforeAfterImages": ["/images/before-after/boyama-1.jpg", "/images/before-after/boyama-2.jpg"],
+    "beforeAfterImages": [
+      "/images/before-after/boyama-1.jpg",
+      "/images/before-after/boyama-2.jpg"
+    ],
     "createdAt": "2023-01-01T10:00:00.000Z",
     "updatedAt": "2023-01-01T10:00:00.000Z"
   },
@@ -83,9 +93,17 @@
     "isActive": true,
     "orderIndex": 5,
     "benefits": ["Saçı güçlendirir", "Parlaklık verir", "3 ay etkili"],
-    "includes": ["Derin temizlik", "Keratin uygulaması", "Isı tedavisi", "Bakım ürünleri"],
+    "includes": [
+      "Derin temizlik",
+      "Keratin uygulaması",
+      "Isı tedavisi",
+      "Bakım ürünleri"
+    ],
     "recommendedFor": ["Yıpranmış saçlar", "Elektriklenen saçlar"],
-    "beforeAfterImages": ["/images/before-after/keratin-1.jpg", "/images/before-after/keratin-2.jpg"],
+    "beforeAfterImages": [
+      "/images/before-after/keratin-1.jpg",
+      "/images/before-after/keratin-2.jpg"
+    ],
     "createdAt": "2023-01-01T10:00:00.000Z",
     "updatedAt": "2023-01-01T10:00:00.000Z"
   },
@@ -101,7 +119,12 @@
     "isActive": true,
     "orderIndex": 6,
     "benefits": ["Uzun süre kalıcı", "Profesyonel ürünler", "Deneme seansı"],
-    "includes": ["Cilt hazırlığı", "Tam makyaj", "Kirpik uygulaması", "Dudak makyajı"],
+    "includes": [
+      "Cilt hazırlığı",
+      "Tam makyaj",
+      "Kirpik uygulaması",
+      "Dudak makyajı"
+    ],
     "recommendedFor": ["Gelinler", "Özel günler"],
     "beforeAfterImages": ["/images/before-after/gelin-makyaj-1.jpg"],
     "createdAt": "2023-01-01T10:00:00.000Z",
@@ -139,8 +162,11 @@
     "benefits": ["Özel tasarım", "Aksesuvar uyumu", "Fotoğraf uyumlu"],
     "includes": ["Konsültasyon", "Saç modeli", "Aksesuvar", "Sabitleyici"],
     "recommendedFor": ["Gelinler", "Özel davetler"],
-    "beforeAfterImages": ["/images/before-after/gelin-sac-1.jpg", "/images/before-after/gelin-sac-2.jpg"],
+    "beforeAfterImages": [
+      "/images/before-after/gelin-sac-1.jpg",
+      "/images/before-after/gelin-sac-2.jpg"
+    ],
     "createdAt": "2023-01-01T10:00:00.000Z",
     "updatedAt": "2023-01-01T10:00:00.000Z"
   }
-] 
+]

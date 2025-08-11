@@ -2,10 +2,6 @@ import { useState, useMemo } from "react";
 import { Property, ChartData, StatisticsStats } from "../types";
 
 export const useStatistics = (properties: Property[]) => {
-    // Package and preview states
-    const [hasAnalyticsPackage, setHasAnalyticsPackage] = useState(false);
-    const [isPreviewMode, setIsPreviewMode] = useState(false);
-
     // Charts data
     const propertyTypeChart: ChartData = useMemo(() => {
         const types = properties.reduce((acc, prop) => {
@@ -67,38 +63,10 @@ export const useStatistics = (properties: Property[]) => {
         };
     }, [properties]);
 
-    // Handlers
-    const handleMoreInfo = () => {
-        // Kullanıcıyı ödeme sayfasına yönlendir (gerçek uygulamada router kullanılacak)
-        alert('🔄 Ödeme sayfasına yönlendiriliyorsunuz...');
-        // router.push('/admin/odeme') gibi
-    };
-
-    const handlePreviewPackage = () => {
-        setHasAnalyticsPackage(true);
-        setIsPreviewMode(true);
-        alert('🎉 Paket önizleme modunda aktif! İstediğiniz kadar inceleyebilirsiniz.');
-    };
-
-    const handleEndPreview = () => {
-        setHasAnalyticsPackage(false);
-        setIsPreviewMode(false);
-    };
-
     return {
-        // States
-        hasAnalyticsPackage,
-        setHasAnalyticsPackage,
-        isPreviewMode,
-
         // Data
         propertyTypeChart,
         clicksChart,
-        stats,
-
-        // Handlers
-        handleMoreInfo,
-        handlePreviewPackage,
-        handleEndPreview
+        stats
     };
 };

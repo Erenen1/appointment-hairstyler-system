@@ -57,146 +57,166 @@ export const ContactList = ({
 
     if (loading) {
         return (
-            <Card title="İletişimler" className="h-full">
-                <div className="space-y-4">
-                    {[1, 2, 3, 4, 5].map(i => (
-                        <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
-                            <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
-                            <div className="flex-1">
-                                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            <Card className="bg-white rounded-xl border-0 h-full flex flex-col">
+                <div className="p-6 border-b border-gray-100">
+                    <h3 className="text-xl font-bold text-gray-900">👥 İletişimler</h3>
+                    <p className="text-sm text-gray-500 mt-1">Yükleniyor...</p>
+                </div>
+                <div className="flex-1 p-6">
+                    <div className="space-y-4">
+                        {[1, 2, 3, 4, 5].map(i => (
+                            <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
+                                <div className="w-12 h-12 bg-green-200 rounded-full"></div>
+                                <div className="flex-1">
+                                    <div className="h-4 bg-green-200 rounded w-3/4 mb-2"></div>
+                                    <div className="h-3 bg-green-200 rounded w-1/2"></div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </Card>
         );
     }
 
     return (
-        <Card title="İletişimler" className="h-full">
-            {/* Filters */}
-            <div className="space-y-3 mb-4">
-                <span className="p-input-icon-left w-full">
-                    <i className="pi pi-search" />
-                    <InputText
-                        value={globalFilter}
-                        onChange={(e) => onGlobalFilterChange(e.target.value)}
-                        placeholder="İletişim ara..."
-                        className="w-full"
-                    />
-                </span>
+        <Card className="bg-white rounded-xl border-0 h-full flex flex-col">
+            <div className="p-6 border-b border-gray-100">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">👥 İletişimler</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                    {contacts.length} kişi • {contacts.filter(c => c.unreadCount > 0).length} okunmamış
+                </p>
 
-                <Dropdown
-                    value={contactFilter}
-                    onChange={(e) => onContactFilterChange(e.value)}
-                    options={contactFilterOptions}
-                    placeholder="Filtrele"
-                    className="w-full"
-                />
+                {/* Enhanced Filters */}
+                <div className="space-y-3">
+                    <div className="relative">
+                        <span className="p-input-icon-left w-full">
+                            <i className="pi pi-search text-gray-400" />
+                            <InputText
+                                value={globalFilter}
+                                onChange={(e) => onGlobalFilterChange(e.target.value)}
+                                placeholder="İletişim ara..."
+                                className="w-full rounded-lg border-gray-200 focus:border-green-500 focus:ring-green-500"
+                            />
+                        </span>
+                    </div>
+
+                    <Dropdown
+                        value={contactFilter}
+                        onChange={(e) => onContactFilterChange(e.value)}
+                        options={contactFilterOptions}
+                        placeholder="Filtrele"
+                        className="w-full rounded-lg border-gray-200 focus:border-green-500 focus:ring-green-500"
+                    />
+                </div>
             </div>
 
             {/* Contact List */}
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            <div className="flex-1 overflow-hidden">
                 {contacts.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                        <i className="pi pi-users text-4xl mb-3"></i>
-                        <p>Henüz iletişim bulunmuyor</p>
+                    <div className="text-center py-8 text-gray-500 px-6">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i className="pi pi-users text-2xl text-gray-400"></i>
+                        </div>
+                        <p className="text-gray-500 font-medium">Henüz iletişim bulunmuyor</p>
+                        <p className="text-sm text-gray-400">Yeni mesajlar geldiğinde burada görünecek</p>
                     </div>
                 ) : (
-                    contacts.map((contact) => (
-                        <div
-                            key={contact.phoneNumber}
-                            className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:bg-gray-50 ${selectedContact === contact.phoneNumber
-                                    ? "bg-blue-50 border-blue-200"
-                                    : "border-gray-200"
-                                }`}
-                            onClick={() => onContactSelect(contact.phoneNumber)}
-                        >
-                            {/* Avatar */}
-                            <div className="relative">
-                                <Avatar
-                                    image={contact.profileImage}
-                                    icon={!contact.profileImage ? "pi pi-user" : undefined}
-                                    size="large"
-                                    shape="circle"
-                                    className="border-2 border-gray-200"
-                                    style={{
-                                        backgroundColor: !contact.profileImage ? '#10b981' : undefined,
-                                        color: !contact.profileImage ? 'white' : undefined
-                                    }}
-                                />
-                                {contact.isOnline && (
-                                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
-                                )}
-                                {contact.unreadCount > 0 && (
-                                    <Badge
-                                        value={contact.unreadCount}
-                                        severity="danger"
-                                        className="absolute -top-2 -right-2"
+                    <div className="h-full overflow-y-auto px-6 py-4 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                        {contacts.map((contact) => (
+                            <div
+                                key={contact.phoneNumber}
+                                className={`flex items-center gap-4 p-4 rounded-lg border cursor-pointer transition-all duration-200 ${selectedContact === contact.phoneNumber
+                                        ? "bg-green-50 border-green-200 shadow-sm"
+                                        : "border-gray-100 hover:border-green-200 hover:bg-gray-50"
+                                    }`}
+                                onClick={() => onContactSelect(contact.phoneNumber)}
+                            >
+                                {/* Avatar */}
+                                <div className="relative">
+                                    <Avatar
+                                        image={contact.profileImage}
+                                        icon={!contact.profileImage ? "pi pi-user" : undefined}
+                                        size="large"
+                                        shape="circle"
+                                        className="border border-gray-200"
+                                        style={{
+                                            backgroundColor: !contact.profileImage ? '#10b981' : undefined,
+                                            color: !contact.profileImage ? 'white' : undefined
+                                        }}
                                     />
-                                )}
-                            </div>
-
-                            {/* Contact Info */}
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1">
-                                    <h4 className="font-semibold text-gray-900 truncate">{contact.name}</h4>
-                                    {contact.lastMessage && (
-                                        <span className="text-xs text-gray-500 ml-2">
-                                            {formatTime(contact.lastMessage.timestamp)}
-                                        </span>
+                                    {contact.isOnline && (
+                                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                                    )}
+                                    {contact.unreadCount > 0 && (
+                                        <Badge
+                                            value={contact.unreadCount}
+                                            severity="danger"
+                                            className="absolute -top-2 -right-2"
+                                        />
                                     )}
                                 </div>
-                                <p className="text-sm text-gray-600 truncate">
-                                    {contact.phoneNumber}
-                                </p>
-                                {contact.lastMessage && (
-                                    <p className={`text-sm truncate mt-1 ${contact.unreadCount > 0 ? "text-gray-900 font-medium" : "text-gray-500"
-                                        }`}>
-                                        {contact.lastMessage.fromMe && (
-                                            <i className="pi pi-check text-blue-500 mr-1"></i>
-                                        )}
-                                        {truncateMessage(contact.lastMessage.content)}
-                                    </p>
-                                )}
-                            </div>
 
-                            {/* Actions */}
-                            <div className="flex flex-col gap-1">
-                                {contact.unreadCount > 0 && (
+                                {/* Contact Info */}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <h4 className="font-semibold text-gray-900 truncate">{contact.name}</h4>
+                                        {contact.lastMessage && (
+                                            <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                                                {formatTime(contact.lastMessage.timestamp)}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-sm text-gray-600 truncate">
+                                        {contact.phoneNumber}
+                                    </p>
+                                    {contact.lastMessage && (
+                                        <p className={`text-sm truncate mt-1 ${contact.unreadCount > 0 ? "text-gray-900 font-medium" : "text-gray-500"
+                                            }`}>
+                                            {contact.lastMessage.fromMe && (
+                                                <i className="pi pi-check text-blue-500 mr-1"></i>
+                                            )}
+                                            {truncateMessage(contact.lastMessage.content)}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex flex-col gap-1">
+                                    {contact.unreadCount > 0 && (
+                                        <Button
+                                            icon="pi pi-check"
+                                            text
+                                            rounded
+                                            size="small"
+                                            className="text-green-600 hover:bg-green-50"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onMarkAsRead(contact.phoneNumber);
+                                            }}
+                                            tooltip="Okundu İşaretle"
+                                            tooltipOptions={{ position: 'top' }}
+                                        />
+                                    )}
                                     <Button
-                                        icon="pi pi-check"
+                                        icon="pi pi-external-link"
                                         text
                                         rounded
                                         size="small"
-                                        className="text-green-600 hover:bg-green-50"
+                                        className="text-blue-600 hover:bg-blue-50"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            onMarkAsRead(contact.phoneNumber);
+                                            // WhatsApp Web link
+                                            const cleanNumber = contact.phoneNumber.replace(/[^\d]/g, '');
+                                            window.open(`https://wa.me/${cleanNumber}`, '_blank');
                                         }}
-                                        tooltip="Okundu İşaretle"
+                                        tooltip="WhatsApp'ta Aç"
                                         tooltipOptions={{ position: 'top' }}
                                     />
-                                )}
-                                <Button
-                                    icon="pi pi-external-link"
-                                    text
-                                    rounded
-                                    size="small"
-                                    className="text-blue-600 hover:bg-blue-50"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        // WhatsApp Web link
-                                        const cleanNumber = contact.phoneNumber.replace(/[^\d]/g, '');
-                                        window.open(`https://wa.me/${cleanNumber}`, '_blank');
-                                    }}
-                                    tooltip="WhatsApp&apos;ta Aç"
-                                    tooltipOptions={{ position: 'top' }}
-                                />
+                                </div>
                             </div>
-                        </div>
-                    ))
+                        ))}
+                    </div>
                 )}
             </div>
         </Card>

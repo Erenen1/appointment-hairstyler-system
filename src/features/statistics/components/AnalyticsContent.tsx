@@ -1,39 +1,21 @@
 import { Card } from "primereact/card";
 import { Chart } from "primereact/chart";
-import { Button } from "primereact/button";
 import { Badge } from "primereact/badge";
 import { ChartData, StatisticsStats } from "../types";
-import { PreviewBanner } from "./PreviewBanner";
 
 interface AnalyticsContentProps {
     propertyTypeChart: ChartData;
     clicksChart: ChartData;
     stats: StatisticsStats;
-    isPreviewMode: boolean;
-    onPurchaseClick: () => void;
-    onEndPreview: () => void;
-    onDeactivatePackage: () => void;
 }
 
 export const AnalyticsContent = ({
     propertyTypeChart,
     clicksChart,
-    stats,
-    isPreviewMode,
-    onPurchaseClick,
-    onEndPreview,
-    onDeactivatePackage
+    stats
 }: AnalyticsContentProps) => {
     return (
         <div className="p-4 md:p-6 space-y-6">
-            {/* Preview Mode Warning */}
-            {isPreviewMode && (
-                <PreviewBanner
-                    onPurchaseClick={onPurchaseClick}
-                    onEndPreview={onEndPreview}
-                />
-            )}
-
             {/* Header */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-100">
                 <div className="flex justify-between items-center">
@@ -49,29 +31,9 @@ export const AnalyticsContent = ({
                     </div>
                     <div className="flex items-center gap-2">
                         <Badge
-                            value={isPreviewMode ? "ÖNİZLEME" : "PREMIUM"}
-                            severity={isPreviewMode ? "warning" : "success"}
+                            value="ÜCRETSİZ"
+                            severity="success"
                         />
-                        {!isPreviewMode && (
-                            <Button
-                                icon="pi pi-cog"
-                                text
-                                rounded
-                                tooltip="Paket Ayarları"
-                                className="text-blue-600"
-                            />
-                        )}
-                        {/* Demo: Test Button */}
-                        {!isPreviewMode && (
-                            <Button
-                                label="Demo: Paketi Deaktif Et"
-                                icon="pi pi-times"
-                                text
-                                size="small"
-                                className="text-red-500 hover:bg-red-50"
-                                onClick={onDeactivatePackage}
-                            />
-                        )}
                     </div>
                 </div>
             </div>

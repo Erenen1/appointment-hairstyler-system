@@ -1,14 +1,10 @@
 "use client";
 
 import { CustomersPage } from "@/features/customers";
-import customers from "@/mocks/real-estate-customers.json";
+import customersData from "@/mocks/customers.json";
 
 export default function AdminCustomersPage() {
-    return (
-        <CustomersPage
-            customers={customers}
-        />
-    );
+    return <CustomersPage customers={customersData} />;
 }
 
 

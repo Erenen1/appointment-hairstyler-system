@@ -1,0 +1,189 @@
+{
+  "contacts": [
+    {
+      "phoneNumber": "+905551234567",
+      "name": "Ahmet Yılmaz",
+      "unreadCount": 3,
+      "isOnline": true,
+      "profileImage": null,
+      "lastMessage": {
+        "id": "msg1",
+        "sender": "+905551234567",
+        "senderName": "Ahmet Yılmaz",
+        "content": "Merhaba, ev ilanınız hakkında bilgi alabilir miyim?",
+        "messageType": "text",
+        "timestamp": "2024-01-15T10:30:00Z",
+        "fromMe": false,
+        "status": "delivered",
+        "phoneNumber": "+905551234567"
+      }
+    },
+    {
+      "phoneNumber": "+905559876543",
+      "name": "Fatma Demir",
+      "unreadCount": 0,
+      "isOnline": false,
+      "profileImage": null,
+      "lastMessage": {
+        "id": "msg2",
+        "sender": "+905559876543",
+        "senderName": "Fatma Demir",
+        "content": "Teşekkürler, yarın görüşelim",
+        "messageType": "text",
+        "timestamp": "2024-01-15T09:15:00Z",
+        "fromMe": false,
+        "status": "read",
+        "phoneNumber": "+905559876543"
+      }
+    },
+    {
+      "phoneNumber": "+905553456789",
+      "name": "Mehmet Kaya",
+      "unreadCount": 1,
+      "isOnline": true,
+      "profileImage": null,
+      "lastMessage": {
+        "id": "msg3",
+        "sender": "+905553456789",
+        "senderName": "Mehmet Kaya",
+        "content": "Fiyat konusunda pazarlık yapabilir miyiz?",
+        "messageType": "text",
+        "timestamp": "2024-01-15T11:45:00Z",
+        "fromMe": false,
+        "status": "delivered",
+        "phoneNumber": "+905553456789"
+      }
+    },
+    {
+      "phoneNumber": "+905557890123",
+      "name": "Ayşe Özkan",
+      "unreadCount": 0,
+      "isOnline": false,
+      "profileImage": null,
+      "lastMessage": {
+        "id": "msg4",
+        "sender": "+905557890123",
+        "senderName": "Ayşe Özkan",
+        "content": "Emlak ofisiniz nerede?",
+        "messageType": "text",
+        "timestamp": "2024-01-15T08:20:00Z",
+        "fromMe": false,
+        "status": "read",
+        "phoneNumber": "+905557890123"
+      }
+    },
+    {
+      "phoneNumber": "+905551112223",
+      "name": "Ali Veli",
+      "unreadCount": 2,
+      "isOnline": true,
+      "profileImage": null,
+      "lastMessage": {
+        "id": "msg5",
+        "sender": "+905551112223",
+        "senderName": "Ali Veli",
+        "content": "Kredi imkanları hakkında bilgi verir misiniz?",
+        "messageType": "text",
+        "timestamp": "2024-01-15T12:00:00Z",
+        "fromMe": false,
+        "status": "delivered",
+        "phoneNumber": "+905551112223"
+      }
+    }
+  ],
+  "messages": [
+    {
+      "id": "msg1",
+      "sender": "+905551234567",
+      "senderName": "Ahmet Yılmaz",
+      "content": "Merhaba, ev ilanınız hakkında bilgi alabilir miyim?",
+      "messageType": "text",
+      "timestamp": "2024-01-15T10:30:00Z",
+      "fromMe": false,
+      "status": "delivered",
+      "phoneNumber": "+905551234567"
+    },
+    {
+      "id": "msg2",
+      "sender": "+905559876543",
+      "senderName": "Fatma Demir",
+      "content": "Teşekkürler, yarın görüşelim",
+      "messageType": "text",
+      "timestamp": "2024-01-15T09:15:00Z",
+      "fromMe": false,
+      "status": "read",
+      "phoneNumber": "+905559876543"
+    },
+    {
+      "id": "msg3",
+      "sender": "+905553456789",
+      "senderName": "Mehmet Kaya",
+      "content": "Fiyat konusunda pazarlık yapabilir miyiz?",
+      "messageType": "text",
+      "timestamp": "2024-01-15T11:45:00Z",
+      "fromMe": false,
+      "status": "delivered",
+      "phoneNumber": "+905553456789"
+    },
+    {
+      "id": "msg4",
+      "sender": "+905557890123",
+      "senderName": "Ayşe Özkan",
+      "content": "Emlak ofisiniz nerede?",
+      "messageType": "text",
+      "timestamp": "2024-01-15T08:20:00Z",
+      "fromMe": false,
+      "status": "read",
+      "phoneNumber": "+905557890123"
+    },
+    {
+      "id": "msg5",
+      "sender": "+905551112223",
+      "senderName": "Ali Veli",
+      "content": "Kredi imkanları hakkında bilgi verir misiniz?",
+      "messageType": "text",
+      "timestamp": "2024-01-15T12:00:00Z",
+      "fromMe": false,
+      "status": "delivered",
+      "phoneNumber": "+905551112223"
+    },
+    {
+      "id": "msg6",
+      "sender": "Bot",
+      "senderName": "Siz",
+      "content": "Merhaba! Size nasıl yardımcı olabilirim?",
+      "messageType": "text",
+      "timestamp": "2024-01-15T10:31:00Z",
+      "fromMe": true,
+      "status": "read",
+      "phoneNumber": "+905551234567"
+    },
+    {
+      "id": "msg7",
+      "sender": "Bot",
+      "senderName": "Siz",
+      "content": "Tabii ki! Hangi ev ilanı hakkında bilgi almak istiyorsunuz?",
+      "messageType": "text",
+      "timestamp": "2024-01-15T10:32:00Z",
+      "fromMe": true,
+      "status": "read",
+      "phoneNumber": "+905551234567"
+    }
+  ],
+  "stats": {
+    "totalMessages": 156,
+    "totalContacts": 23,
+    "todayMessages": 12,
+    "responseRate": 87,
+    "avgResponseTime": "2.3 dk",
+    "activeChats": 5
+  },
+  "botConfig": {
+    "instanceId": "whatsapp_bot_001",
+    "instanceName": "Estate Pro Emlak",
+    "phoneNumber": "+905551234567",
+    "isActive": true,
+    "webhookUrl": "https://api.estate-saas.com/webhooks/whatsapp",
+    "lastActivity": "2024-01-15T12:00:00.000Z"
+  }
+}

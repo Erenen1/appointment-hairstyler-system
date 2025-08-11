@@ -3,11 +3,11 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Card } from "primereact/card";
-import { Toast } from "primereact/toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarModal } from "@/components/admin";
 import { Calendar } from "@/components/admin";
 import { useAppointments } from "@/hooks";
+import { toast } from "sonner";
 
 interface CalendarPageProps {
     appointments?: any[];
@@ -33,7 +33,6 @@ export default function CalendarPage({
     const [showModal, setShowModal] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
-    const toast = useRef<Toast>(null);
 
     // Transform mock data to match our interfaces
     const transformAppointments = (appointments: any[]) => {
@@ -102,69 +101,47 @@ export default function CalendarPage({
             if (selectedAppointment) {
                 // Update existing appointment
                 await updateAppointment(selectedAppointment.id, appointmentData);
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Başarılı',
-                    detail: 'Randevu başarıyla güncellendi',
-                    life: 3000
-                });
+                toast.success('Randevu başarıyla güncellendi');
             } else {
                 // Create new appointment
                 await createAppointment(appointmentData);
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Başarılı',
-                    detail: 'Randevu başarıyla oluşturuldu',
-                    life: 3000
-                });
+                toast.success('Randevu başarıyla oluşturuldu');
             }
             setShowModal(false);
         } catch (error) {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Hata',
-                detail: 'Randevu kaydedilirken hata oluştu',
-                life: 3000
-            });
+            toast.error('Randevu kaydedilirken hata oluştu');
         }
     };
 
     const handleDelete = async (appointmentId: number) => {
         try {
             await deleteAppointment(appointmentId);
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Başarılı',
-                detail: 'Randevu başarıyla silindi',
-                life: 3000
-            });
+            toast.success('Randevu başarıyla silindi');
             setShowModal(false);
         } catch (error) {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Hata',
-                detail: 'Randevu silinirken hata oluştu',
-                life: 3000
-            });
+            toast.error('Randevu silinirken hata oluştu');
         }
     };
 
     return (
         <div className="space-y-6">
             <Card>
-                <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800">Randevu Takvimi</h1>
-                </div>
-
-                <Calendar
-                    appointments={transformedAppointments}
-                    customers={transformedCustomers}
-                    services={transformedServices}
-                    staff={transformedStaff}
-                    statuses={transformedStatuses}
-                    onDateClickAction={handleDateClick}
-                    onEventClickAction={handleEventClick}
-                />
+                <CardHeader>
+                    <CardTitle className="text-2xl font-bold text-gray-800">
+                        Randevu Takvimi
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Calendar
+                        appointments={transformedAppointments}
+                        customers={transformedCustomers}
+                        services={transformedServices}
+                        staff={transformedStaff}
+                        statuses={transformedStatuses}
+                        onDateClickAction={handleDateClick}
+                        onEventClickAction={handleEventClick}
+                    />
+                </CardContent>
             </Card>
 
             <CalendarModal
@@ -179,8 +156,6 @@ export default function CalendarPage({
                 onSave={handleSave}
                 onDelete={handleDelete}
             />
-
-            <Toast ref={toast} />
         </div>
     );
 }

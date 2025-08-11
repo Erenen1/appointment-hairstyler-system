@@ -8,7 +8,7 @@ import BusinessInfo from "./BusinessInfo";
 import { usePageTitle } from "@/hooks";
 
 const menuModel = [
-    { label: "Özet", icon: "pi pi-home", url: "/admin" },
+    { label: "Randevu Takvimi", icon: "pi pi-home", url: "/admin/randevu-takvimi" },
     { label: "İstatistikler", icon: "pi pi-chart-bar", url: "/admin/istatistikler" },
     { label: "İlan Analitikleri", icon: "pi pi-chart-pie", url: "/admin/ilan-analitikleri" },
     { label: "Müşteriler", icon: "pi pi-users", url: "/admin/musteriler" },

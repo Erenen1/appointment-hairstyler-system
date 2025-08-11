@@ -73,8 +73,8 @@ export default function Calendar({
                 title: `${customer?.name || 'Bilinmeyen'} - ${service?.name || 'Bilinmeyen'}`,
                 start: `${appointment.date}T${appointment.time}`,
                 end: `${appointment.date}T${appointment.time}`,
-                backgroundColor: status?.color || '#6c757d',
-                borderColor: status?.color || '#6c757d',
+                backgroundColor: status?.color || '#3b82f6',
+                borderColor: status?.color || '#1d4ed8',
                 textColor: '#ffffff',
                 extendedProps: {
                     appointment: appointment
@@ -93,7 +93,7 @@ export default function Calendar({
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="w-full">
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
@@ -128,9 +128,6 @@ export default function Calendar({
                     hour12: false
                 }}
                 eventDisplay="block"
-                eventColor="#3b82f6"
-                eventTextColor="#ffffff"
-                eventBorderColor="#1d4ed8"
                 dayHeaderFormat={{ weekday: 'long' }}
                 titleFormat={{ month: 'long', year: 'numeric' }}
                 buttonText={{
@@ -141,7 +138,6 @@ export default function Calendar({
                 }}
                 moreLinkText="+{count} daha"
                 noEventsText="Bu tarihte randevu bulunmuyor"
-                // loading prop'u kaldırıldı, FullCalendar'da bu prop bir fonksiyon olmalı
                 eventDidMount={(info) => {
                     // Add custom styling or tooltips if needed
                     const eventEl = info.el;

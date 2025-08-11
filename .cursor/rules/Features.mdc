@@ -141,3 +141,42 @@ src/features/whatsapp-bot/
 - **Index**: Barrel export'lar
 
 ---
+
+# Action Buttons Template
+
+- Eğer update, view yada delete buttonu istersem bunları döndür.
+
+```tsx
+import { Button } from "primereact/button";
+
+const actionTemplate = (rowData: Customer) => (
+    <div className="flex gap-2">
+        <Button
+            icon="pi pi-eye"
+            size="small"
+            severity="info"
+            text
+            tooltip="Detayları Görüntüle"
+            onClick={() => handleViewDetails(rowData)}
+        />
+        <Button
+            icon="pi pi-pencil"
+            size="small"
+            severity="warning"
+            text
+            tooltip="Düzenle"
+            onClick={() => handleEditCustomer(rowData)}
+        />
+        <Button
+            icon="pi pi-trash"
+            size="small"
+            severity="danger"
+            text
+            tooltip="Sil"
+            onClick={() => handleDeleteCustomer(rowData.id)}
+        />
+    </div>
+);
+
+---
+```
