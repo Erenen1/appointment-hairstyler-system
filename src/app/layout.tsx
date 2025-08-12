@@ -5,6 +5,7 @@ import "./globals.css";
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
+import { Toaster } from "sonner";
 
 
 const geistSans = Geist({
@@ -30,6 +31,12 @@ export default function RootLayout({
       >
         {/* Geist Fontu yüklenecek */}
         {children}
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          duration={4000}
+        />
       </body>
     </html>
   );

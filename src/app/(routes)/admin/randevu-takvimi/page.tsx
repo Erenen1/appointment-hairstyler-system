@@ -3,11 +3,10 @@
 import { useState, useEffect } from "react";
 import CalendarPage from "@/features/calendar/components/CalendarPage";
 import { PageSkeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/ui/PageHeader";
 import appointments from "@/mocks/appointments.json";
 import customers from "@/mocks/customers.json";
-import services from "@/mocks/services.json";
 import staff from "@/mocks/staff.json";
-import statuses from "@/mocks/appointment-statuses.json";
 
 export default function AdminRandevuTakvimi() {
     const [isLoading, setIsLoading] = useState(true);
@@ -15,7 +14,7 @@ export default function AdminRandevuTakvimi() {
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
-        }, 2000);
+        }, 1000);
 
         return () => clearTimeout(timer);
     }, []);
@@ -25,12 +24,22 @@ export default function AdminRandevuTakvimi() {
     }
 
     return (
-        <CalendarPage
-            appointments={appointments}
-            customers={customers}
-            services={services}
-            staff={staff}
-            statuses={statuses}
-        />
+        <div className="space-y-6">
+            <PageHeader
+                title="Randevu Takvimi"
+                description="Müşteri randevularını görüntüleyin, yeni randevu oluşturun ve mevcut randevuları yönetin."
+                icon="pi pi-calendar"
+                iconBgColor="from-blue-500 to-indigo-600"
+                gradientFrom="from-blue-50"
+                gradientTo="to-indigo-100"
+                borderColor="border-blue-200"
+            />
+
+            <CalendarPage
+                appointments={appointments}
+                customers={customers}
+                staff={staff}
+            />
+        </div>
     );
 }

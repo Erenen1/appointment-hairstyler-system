@@ -3,24 +3,24 @@
 import { Card } from "primereact/card";
 import { Chart } from "primereact/chart";
 import "chart.js/auto";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { InputText } from "primereact/inputtext";
 import { useMemo, useState } from "react";
-import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { InputNumber } from "primereact/inputnumber";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { InputTextarea } from 'primereact/inputtextarea';
-import { ProgressBar } from "primereact/progressbar";
 import { Expense } from "./types";
 import { useCrudOperations } from "../../hooks";
-import { ExpenseActionButtons, ExpenseStatsCard, ExpenseTransparentHeader } from "../../components/ui";
 import { exportExpensesToCsv } from "../../lib/exportUtils";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog } from "primereact/confirmdialog";
-import { ExportButton } from "../../components/ui/ExportButton";
+import {
+    ResponsiveHero,
+    ResponsiveGrid,
+    ResponsiveStatsCard,
+    ResponsiveDialog,
+    VirtualDataTable
+} from "../../components/ui";
 
 interface ExpensePageProps {
     expenses?: Expense[];
@@ -29,8 +29,8 @@ interface ExpensePageProps {
 export default function ExpensePage({ expenses: initialExpenses = [] }: ExpensePageProps) {
     const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
     const [globalFilter, setGlobalFilter] = useState<string>("");
-    const [categoryFilter, setCategoryFilter] = useState<string>("");
-    const [dateFilter, setDateFilter] = useState<Date | null>(null);
+    const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+    const [dateFilter] = useState<Date | null>(null);
 
     const defaultForm: Partial<Expense> = {
         category: "",
@@ -57,7 +57,6 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
     } = useCrudOperations<Expense>(expenses, defaultForm, 'id', setExpenses);
 
     const categoryOptions = [
-        { label: "Tümü", value: "" },
         { label: "Personel Maaşları", value: "Personel Maaşları" },
         { label: "Kira", value: "Kira" },
         { label: "Elektrik/Su/Doğalgaz", value: "Elektrik/Su/Doğalgaz" },
@@ -75,7 +74,7 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
 
     const filteredExpenses = useMemo(() => {
         return hookExpenses.filter((e) => {
-            const okCategory = !categoryFilter || e.category === categoryFilter;
+            const okCategory = categoryFilter.length === 0 || categoryFilter.includes(e.category);
             const okDate = !dateFilter || new Date(e.date).toDateString() === dateFilter.toDateString();
             const text = (e.category + " " + e.description).toLowerCase();
             const okSearch = !globalFilter || text.includes(globalFilter.toLowerCase());
@@ -98,12 +97,15 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                     backgroundColor: [
                         "#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#8B5CF6",
                         "#06B6D4", "#84CC16", "#F97316", "#EC4899", "#6B7280"
-                    ]
+                    ],
+                    borderWidth: 0
                 }]
             },
             options: {
-                plugins: { legend: { position: "bottom" } },
-                maintainAspectRatio: false
+                cutout: "65%",
+                plugins: { legend: { position: "right" } },
+                maintainAspectRatio: false,
+                responsive: true
             }
         };
     }, [hookExpenses]);
@@ -123,64 +125,30 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                     data: Object.values(monthlyData),
                     backgroundColor: 'rgba(239, 68, 68, 0.2)',
                     borderColor: 'rgb(239, 68, 68)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true
+                    borderWidth: 2,
+                    tension: 0.4
                 }]
             },
             options: {
                 plugins: { legend: { display: false } },
                 maintainAspectRatio: false,
+                responsive: true,
                 scales: {
-                    y: { beginAtZero: true }
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value: number) {
+                                return value + '₺';
+                            }
+                        }
+                    }
                 }
             }
         };
     }, [hookExpenses]);
 
-    const paymentMethodChart = useMemo(() => {
-        const methodData = hookExpenses.reduce((acc, e) => {
-            acc[e.paymentMethod] = (acc[e.paymentMethod] || 0) + e.amount;
-            return acc;
-        }, {} as Record<string, number>);
-
-        return {
-            data: {
-                labels: Object.keys(methodData).map(m =>
-                    m === "cash" ? "Nakit" : m === "card" ? "Kart" : m === "bank" ? "Banka" : "Çek"
-                ),
-                datasets: [{
-                    data: Object.values(methodData),
-                    backgroundColor: ["#EF4444", "#3B82F6", "#8B5CF6", "#F59E0B"]
-                }]
-            },
-            options: {
-                plugins: { legend: { position: "bottom" } },
-                maintainAspectRatio: false
-            }
-        };
-    }, [hookExpenses]);
-
-    const totalExpenses = hookExpenses.reduce((sum, e) => sum + e.amount, 0);
-    const avgExpenses = totalExpenses / hookExpenses.length;
-    const maxExpenses = Math.max(...hookExpenses.map(e => e.amount));
-
-    // Kategori bazlı yüzde hesaplama
-    const categoryPercentages = useMemo(() => {
-        const categoryData = hookExpenses.reduce((acc, e) => {
-            acc[e.category] = (acc[e.category] || 0) + e.amount;
-            return acc;
-        }, {} as Record<string, number>);
-
-        return Object.entries(categoryData).map(([category, amount]) => ({
-            category,
-            amount,
-            percentage: (amount / totalExpenses) * 100
-        })).sort((a, b) => b.percentage - a.percentage);
-    }, [hookExpenses, totalExpenses]);
-
     const validateForm = () => {
-        return !!(form.category && form.amount);
+        return !!(form.category && form.amount && form.description);
     };
 
     const createExpense = (formData: Partial<Expense>): Expense => {
@@ -191,7 +159,7 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
             date: formData.date || new Date().toISOString().split('T')[0],
             description: formData.description || "",
             paymentMethod: formData.paymentMethod || "bank",
-            type: "expense"
+            type: formData.type || "expense"
         };
     };
 
@@ -203,7 +171,7 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
             date: formData.date || new Date().toISOString().split('T')[0],
             description: formData.description || "",
             paymentMethod: formData.paymentMethod || "bank",
-            type: "expense"
+            type: formData.type || "expense"
         };
     };
 
@@ -217,289 +185,297 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
         }
     };
 
-    const getPaymentMethodColor = (method: string) => {
+    const getPaymentMethodSeverity = (method: string) => {
         switch (method) {
-            case "cash": return "text-red-600";
-            case "card": return "text-blue-600";
-            case "bank": return "text-purple-600";
-            case "check": return "text-yellow-600";
-            default: return "text-gray-600";
+            case "cash": return "success";
+            case "card": return "info";
+            case "bank": return "warning";
+            case "check": return "secondary";
+            default: return "secondary";
         }
     };
 
+    // Stats
+    const totalExpenses = hookExpenses.reduce((sum, e) => sum + e.amount, 0);
+    const avgExpense = hookExpenses.length > 0 ? totalExpenses / hookExpenses.length : 0;
+    const monthlyExpense = monthlyChart.data.datasets[0].data[monthlyChart.data.datasets[0].data.length - 1] || 0;
+    const categoryCount = new Set(hookExpenses.map(e => e.category)).size;
+
+    // Table Columns
+    const columns = [
+        { field: 'id', header: 'ID', sortable: true, style: { minWidth: '60px' }, mobileHidden: true },
+        { field: 'category', header: 'Kategori', sortable: true, style: { minWidth: '120px' } },
+        { field: 'amount', header: 'Tutar', sortable: true, style: { minWidth: '100px' }, body: (rowData: Expense) => `${rowData.amount.toLocaleString()} ₺` },
+        { field: 'date', header: 'Tarih', sortable: true, style: { minWidth: '100px' }, body: (rowData: Expense) => new Date(rowData.date).toLocaleDateString('tr-TR') },
+        { field: 'description', header: 'Açıklama', style: { minWidth: '150px' }, mobileHidden: true },
+        {
+            field: 'paymentMethod',
+            header: 'Ödeme Yöntemi',
+            style: { minWidth: '120px' },
+            body: (rowData: Expense) => (
+                <span className={`px-2 py-1 rounded-full text-xs font-medium bg-${getPaymentMethodSeverity(rowData.paymentMethod)}-100 text-${getPaymentMethodSeverity(rowData.paymentMethod)}-800`}>
+                    {getPaymentMethodLabel(rowData.paymentMethod)}
+                </span>
+            )
+        },
+        {
+            field: 'actions',
+            header: 'İşlemler',
+            style: { minWidth: '120px' },
+            body: (rowData: Expense) => (
+                <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
+                    <Button
+                        icon="pi pi-pencil"
+                        size="small"
+                        severity="warning"
+                        text
+                        tooltip="Düzenle"
+                        onClick={() => openEdit(rowData)}
+                        className="w-full sm:w-auto"
+                    />
+                    <Button
+                        icon="pi pi-trash"
+                        size="small"
+                        severity="danger"
+                        text
+                        tooltip="Sil"
+                        onClick={() => handleDelete(rowData)}
+                        className="w-full sm:w-auto"
+                    />
+                </div>
+            ),
+            frozen: true
+        }
+    ];
+
+    // Filters
+    const filters = [
+        {
+            key: 'category',
+            label: 'Kategori Filtresi',
+            options: categoryOptions,
+            value: categoryFilter,
+            onChange: setCategoryFilter,
+            type: 'multiselect' as const
+        }
+    ];
+
+    // Actions
+    const actions = [
+        {
+            label: 'Yeni Gider',
+            icon: 'pi pi-plus',
+            onClick: openAdd,
+            className: 'bg-red-600 hover:bg-red-700 border-red-600'
+        }
+    ];
+
     return (
-        <div className="p-4 md:p-6 space-y-6">
+        <div className="p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
             <Toast ref={toast} />
             <ConfirmDialog />
 
-            {/* Gider Sayfası Header */}
-            <ExpenseTransparentHeader
+            {/* Hero Section */}
+            <ResponsiveHero
                 title="Gider Yönetimi"
-                description="Gider kayıtlarınızı takip edin, analiz edin ve yönetin"
+                subtitle="Gider kayıtlarınızı takip edin ve analiz edin"
+                icon="pi-credit-card"
+                iconBgColor="bg-gradient-to-br from-red-500 to-pink-600"
             />
 
-            {/* Özet Kartları */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <ExpenseStatsCard
+            {/* Stats Cards */}
+            <ResponsiveGrid cols={{ mobile: 1, tablet: 2, desktop: 4 }} gap="gap-4 sm:gap-6">
+                <ResponsiveStatsCard
                     title="Toplam Gider"
-                    value={`${totalExpenses.toFixed(2)}₺`}
-                    subtitle="Toplam gider tutarı"
+                    value={`${totalExpenses.toLocaleString()} ₺`}
+                    subtitle="Tüm zamanlar"
+                    icon="pi-credit-card"
+                    iconBgColor="bg-red-500"
+                    gradient={{ from: 'red-50', to: 'red-100' }}
+                    borderColor="border-red-200"
                 />
-                <ExpenseStatsCard
+                <ResponsiveStatsCard
                     title="Ortalama Gider"
-                    value={`${avgExpenses.toFixed(2)}₺`}
-                    subtitle="Ortalama gider tutarı"
+                    value={`${avgExpense.toLocaleString()} ₺`}
+                    subtitle="İşlem başına"
+                    icon="pi-chart-line"
+                    iconBgColor="bg-blue-500"
+                    gradient={{ from: 'blue-50', to: 'blue-100' }}
+                    borderColor="border-blue-200"
                 />
-                <ExpenseStatsCard
-                    title="En Yüksek Gider"
-                    value={`${maxExpenses.toFixed(2)}₺`}
-                    subtitle="En yüksek gider tutarı"
+                <ResponsiveStatsCard
+                    title="Bu Ay"
+                    value={`${monthlyExpense.toLocaleString()} ₺`}
+                    subtitle="Aylık gider"
+                    icon="pi-calendar"
+                    iconBgColor="bg-purple-500"
+                    gradient={{ from: 'purple-50', to: 'purple-100' }}
+                    borderColor="border-purple-200"
                 />
-                <ExpenseStatsCard
-                    title="Toplam Kayıt"
-                    value={hookExpenses.length}
-                    subtitle="Toplam gider kaydı"
+                <ResponsiveStatsCard
+                    title="Kategori Sayısı"
+                    value={categoryCount}
+                    subtitle="Farklı kategoriler"
+                    icon="pi-tags"
+                    iconBgColor="bg-orange-500"
+                    gradient={{ from: 'orange-50', to: 'orange-100' }}
+                    borderColor="border-orange-200"
                 />
-            </div>
+            </ResponsiveGrid>
 
-            {/* Grafikler */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card title="Kategori Bazlı Gider" className="h-96">
-                    <Chart type="doughnut" data={categoryChart.data} options={categoryChart.options} style={{ height: '280px' }} />
-                </Card>
-                <Card title="Aylık Gider Trendi" className="h-96">
-                    <Chart type="line" data={monthlyChart.data} options={monthlyChart.options} style={{ height: '280px' }} />
-                </Card>
-                <Card title="Ödeme Yöntemi Dağılımı" className="h-96">
-                    <Chart type="doughnut" data={paymentMethodChart.data} options={paymentMethodChart.options} style={{ height: '280px' }} />
-                </Card>
-            </div>
-
-            {/* Kategori Yüzde Dağılımı */}
-            <Card title="Kategori Bazlı Gider Dağılımı">
-                <div className="space-y-4">
-                    {categoryPercentages.map((item, index) => (
-                        <div key={index} className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <span className="font-medium">{item.category}</span>
-                                <span className="text-sm text-gray-600">
-                                    {item.amount.toFixed(2)}₺ ({item.percentage.toFixed(1)}%)
-                                </span>
-                            </div>
-                            <ProgressBar
-                                value={item.percentage}
-                                color={index === 0 ? "#EF4444" : index === 1 ? "#F59E0B" : index === 2 ? "#10B981" : "#3B82F6"}
-                                showValue={false}
-                            />
-                        </div>
-                    ))}
-                </div>
-            </Card>
-
-            {/* Gider Listesi */}
-            <Card title="Gider Kayıtları">
-                <div className="flex flex-wrap gap-2 justify-between items-center pb-3">
-                    <div className="flex gap-2 items-center">
-                        <span className="p-input-icon-left">
-                            <i className="pi pi-search" />
-                            <InputText
-                                value={globalFilter}
-                                onChange={(e) => setGlobalFilter(e.target.value)}
-                                placeholder="Gider ara..."
-                            />
-                        </span>
-                        <Dropdown
-                            value={categoryFilter}
-                            onChange={(e) => setCategoryFilter(e.value)}
-                            options={categoryOptions}
-                            placeholder="Kategori Filtrele"
-                            className="min-w-[12rem]"
-                        />
-                        <Calendar
-                            value={dateFilter}
-                            onChange={(e) => setDateFilter(e.value || null)}
-                            placeholder="Tarih Filtrele"
-                            showIcon
-                            dateFormat="dd/mm/yy"
+            {/* Charts */}
+            <ResponsiveGrid cols={{ mobile: 1, desktop: 2 }} gap="gap-4 sm:gap-6">
+                <Card title="Gider Kategori Dağılımı" className="h-auto min-h-[400px] sm:h-[440px]">
+                    <div className="w-full h-[300px] sm:h-[350px]">
+                        <Chart
+                            type="doughnut"
+                            data={categoryChart.data}
+                            options={categoryChart.options}
+                            style={{ height: '100%', width: '100%' }}
                         />
                     </div>
-                    <div className="flex gap-2 items-center">
-                        <ExportButton
-                            onExport={() => {
-                                exportExpensesToCsv(filteredExpenses);
-                                toast.current?.show({
-                                    severity: 'success',
-                                    summary: 'Başarılı',
-                                    detail: 'Gider listesi CSV formatında indirildi',
-                                    life: 3000
-                                });
-                            }}
-                            label="Excel İndir"
-                        />
-                        <Button
-                            icon="pi pi-plus"
-                            label="Yeni Gider"
-                            onClick={openAdd}
-                            severity="danger"
+                </Card>
+                <Card title="Aylık Gider Trendi" className="h-auto min-h-[400px] sm:h-[440px]">
+                    <div className="w-full h-[300px] sm:h-[350px]">
+                        <Chart
+                            type="line"
+                            data={monthlyChart.data}
+                            options={monthlyChart.options}
+                            style={{ height: '100%', width: '100%' }}
                         />
                     </div>
-                </div>
+                </Card>
+            </ResponsiveGrid>
 
-                <DataTable
-                    value={filteredExpenses}
-                    paginator
-                    rows={10}
-                    stripedRows
-                    tableStyle={{ minWidth: "100%" }}
-                    sortMode="multiple"
-                    removableSort
+            {/* Expense Management */}
+            <Card className="bg-white rounded-xl border-0 shadow-sm">
+                <VirtualDataTable
+                    data={filteredExpenses}
+                    columns={columns}
+                    globalFilterFields={["category", "description", "paymentMethod"]}
                     globalFilter={globalFilter}
-                    globalFilterFields={["category", "description"]}
-                    className="w-full"
-                >
-                    <Column field="category" header="Kategori" sortable filter style={{ minWidth: '120px' }} />
-                    <Column
-                        field="amount"
-                        header="Tutar"
-                        sortable
-                        style={{ minWidth: '100px' }}
-                        body={(rowData) => (
-                            <span className="font-bold text-red-600 text-lg">{rowData.amount.toFixed(2)}₺</span>
-                        )}
-                    />
-                    <Column
-                        field="date"
-                        header="Tarih"
-                        sortable
-                        style={{ minWidth: '100px' }}
-                        body={(rowData) => new Date(rowData.date).toLocaleDateString('tr-TR')}
-                    />
-                    <Column
-                        field="description"
-                        header="Açıklama"
-                        sortable
-                        style={{ minWidth: '200px', maxWidth: '300px' }}
-                        body={(rowData) => (
-                            <div className="max-w-xs truncate block" title={rowData.description}>
-                                {rowData.description}
-                            </div>
-                        )}
-                    />
-                    <Column
-                        field="paymentMethod"
-                        header="Ödeme Yöntemi"
-                        sortable
-                        style={{ minWidth: '120px' }}
-                        body={(rowData) => (
-                            <span className={`font-medium ${getPaymentMethodColor(rowData.paymentMethod)}`}>
-                                {getPaymentMethodLabel(rowData.paymentMethod)}
-                            </span>
-                        )}
-                    />
-                    <Column
-                        header="İşlemler"
-                        style={{ minWidth: '120px' }}
-                        body={(rowData) => (
-                            <ExpenseActionButtons
-                                item={rowData}
-                                onEdit={openEdit}
-                                onDelete={() => handleDelete(rowData, rowData.category)}
-                                showView={false}
-                            />
-                        )}
-                    />
-                </DataTable>
+                    onGlobalFilterChange={setGlobalFilter}
+                    filters={filters}
+                    actions={actions}
+                    exportButton={{
+                        label: "Excel İndir",
+                        onClick: () => {
+                            exportExpensesToCsv(filteredExpenses);
+                            toast.current?.show({
+                                severity: 'success',
+                                summary: 'Başarılı',
+                                detail: 'Gider listesi CSV formatında indirildi',
+                                life: 3000
+                            });
+                        }
+                    }}
+                    virtualScrollerOptions={{ itemSize: 46 }}
+                />
             </Card>
 
-            {/* Gider Ekleme/Düzenleme Dialog */}
-            <Dialog
-                header={dialogMode === "edit" ? "Gider Düzenle" : "Yeni Gider"}
+            {/* Add/Edit Dialog */}
+            <ResponsiveDialog
                 visible={showDialog}
-                style={{ width: "500px" }}
-                onHide={() => {
-                    setShowDialog(false);
-                    resetForm(defaultForm);
-                }}
+                onHide={() => setShowDialog(false)}
+                header={
+                    <div className="flex items-center gap-3">
+                        <i className={`pi ${dialogMode === 'add' ? 'pi-plus text-green-600' : 'pi-pencil text-orange-600'} text-xl`}></i>
+                        <span>{dialogMode === 'add' ? 'Yeni Gider Ekle' : 'Gider Düzenle'}</span>
+                    </div>
+                }
             >
-                <div className="grid gap-4">
-                    <div className="grid grid-cols-2 gap-3">
-                        <span className="p-float-label">
+                <div className="space-y-4 sm:space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Kategori *</label>
                             <Dropdown
-                                inputId="category"
                                 value={form.category}
                                 onChange={(e) => setForm({ ...form, category: e.value })}
-                                options={categoryOptions.filter(c => c.value !== "")}
+                                options={categoryOptions}
                                 className="w-full"
+                                placeholder="Gider kategorisi seçin"
                             />
-                            <label htmlFor="category">Kategori</label>
-                        </span>
-                        <span className="p-float-label">
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Tutar *</label>
                             <InputNumber
-                                inputId="amount"
                                 value={form.amount}
-                                onValueChange={(e) => setForm({ ...form, amount: Number(e.value) || 0 })}
+                                onValueChange={(e) => setForm({ ...form, amount: e.value || 0 })}
                                 className="w-full"
-                                suffix=" ₺"
-                                min={0}
+                                mode="currency"
+                                currency="TRY"
+                                placeholder="0.00"
                             />
-                            <label htmlFor="amount">Tutar</label>
-                        </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <span className="p-float-label">
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Tarih *</label>
                             <Calendar
-                                inputId="date"
                                 value={form.date ? new Date(form.date) : null}
-                                onChange={(e) => setForm({ ...form, date: e.value?.toISOString().split('T')[0] || "" })}
+                                onChange={(e) => setForm({ ...form, date: e.value ? e.value.toISOString().split('T')[0] : '' })}
                                 className="w-full"
+                                showIcon
                                 dateFormat="dd/mm/yy"
                             />
-                            <label htmlFor="date">Tarih</label>
-                        </span>
-                        <span className="p-float-label">
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Ödeme Yöntemi</label>
                             <Dropdown
-                                inputId="paymentMethod"
                                 value={form.paymentMethod}
                                 onChange={(e) => setForm({ ...form, paymentMethod: e.value })}
                                 options={paymentMethodOptions}
                                 className="w-full"
+                                placeholder="Ödeme yöntemi seçin"
                             />
-                            <label htmlFor="paymentMethod">Ödeme Yöntemi</label>
-                        </span>
+                        </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-2">Açıklama</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Açıklama *</label>
                         <InputTextarea
                             value={form.description}
                             onChange={(e) => setForm({ ...form, description: e.target.value })}
-                            rows={3}
                             className="w-full"
-                            placeholder="Gider açıklaması..."
+                            rows={3}
+                            placeholder="Gider açıklaması"
                         />
                     </div>
 
-                    <div className="flex justify-end gap-2">
+                    <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
                         <Button
-                            label="Vazgeç"
+                            label="İptal"
+                            icon="pi pi-times"
                             outlined
-                            onClick={() => {
-                                setShowDialog(false);
-                                resetForm(defaultForm);
-                            }}
+                            onClick={() => setShowDialog(false)}
+                            className="w-full sm:w-auto"
                         />
                         <Button
-                            label="Kaydet"
+                            label={dialogMode === 'add' ? 'Ekle' : 'Güncelle'}
                             icon="pi pi-check"
-                            onClick={() => handleSave(validateForm, createExpense, updateExpense)}
-                            severity="danger"
+                            onClick={() => {
+                                if (validateForm()) {
+                                    if (dialogMode === 'add') {
+                                        const newExpense = createExpense(form);
+                                        handleSave(newExpense);
+                                    } else {
+                                        const updatedExpense = updateExpense(form.id!, form);
+                                        handleSave(updatedExpense);
+                                    }
+                                    resetForm();
+                                    setShowDialog(false);
+                                } else {
+                                    toast.current?.show({
+                                        severity: 'error',
+                                        summary: 'Hata',
+                                        detail: 'Lütfen tüm gerekli alanları doldurun',
+                                        life: 3000
+                                    });
+                                }
+                            }}
+                            className="bg-red-600 hover:bg-red-700 border-red-600 w-full sm:w-auto"
                         />
                     </div>
                 </div>
-            </Dialog>
-
-
+            </ResponsiveDialog>
         </div>
     );
 }

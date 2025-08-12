@@ -2,22 +2,25 @@
 
 import { useState, useMemo } from "react";
 import { Card } from "primereact/card";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { Badge } from "primereact/badge";
 import { Dropdown } from "primereact/dropdown";
 import { MultiSelect } from "primereact/multiselect";
-import { Dialog } from "primereact/dialog";
 import { InputNumber } from "primereact/inputnumber";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { useRef } from "react";
 import { Customer, CustomerForm } from "./types";
-import { ExportButton } from "../../components/ui/ExportButton";
+import {
+    ResponsiveHero,
+    ResponsiveStatsCard,
+    ResponsiveGrid,
+    ResponsiveDialog,
+    VirtualDataTable
+} from "../../components/ui";
 import { exportCustomersToCsv } from "../../lib/exportUtils";
 
 interface CustomersPageProps {
@@ -199,9 +202,72 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
     const highPriorityCustomers = customers.filter(c => c.priority === "high").length;
     const totalBudget = customers.reduce((sum, c) => sum + c.budget, 0);
 
-    // Action Column Template
-    const actionTemplate = (rowData: Customer) => (
-        <div className="flex gap-2">
+    // Table Columns
+    const columns = [
+        { field: 'id', header: 'ID', sortable: true, style: { minWidth: '60px' }, mobileHidden: true },
+        { field: 'fullName', header: 'Ad Soyad', sortable: true, style: { minWidth: '150px' } },
+        { field: 'phone', header: 'Telefon', sortable: true, style: { minWidth: '120px' } },
+        { field: 'email', header: 'E-posta', sortable: true, style: { minWidth: '180px' }, mobileHidden: true },
+        { field: 'profession', header: 'Meslek', sortable: true, style: { minWidth: '120px' }, mobileHidden: true },
+        {
+            field: 'preferredType',
+            header: 'İlgi Alanı',
+            sortable: true,
+            style: { minWidth: '100px' },
+            body: (rowData: Customer) => getTypeTag(rowData.preferredType)
+        },
+        {
+            field: 'budget',
+            header: 'Bütçe',
+            sortable: true,
+            style: { minWidth: '120px' },
+            body: (rowData: Customer) => formatBudget(rowData.budget, rowData.preferredType)
+        },
+        {
+            field: 'preferredCategory',
+            header: 'Kategori',
+            sortable: true,
+            style: { minWidth: '100px' },
+            mobileHidden: true
+        },
+        {
+            field: 'priority',
+            header: 'Öncelik',
+            sortable: true,
+            style: { minWidth: '100px' },
+            body: (rowData: Customer) => getPriorityBadge(rowData.priority)
+        },
+        {
+            field: 'isActive',
+            header: 'Durum',
+            style: { minWidth: '80px' },
+            body: (rowData: Customer) => (
+                <Tag
+                    value={rowData.isActive ? "Aktif" : "Pasif"}
+                    severity={getStatusSeverity(rowData.isActive)}
+                />
+            )
+        },
+        {
+            field: 'lastContact',
+            header: 'Son İletişim',
+            sortable: true,
+            style: { minWidth: '120px' },
+            mobileHidden: true,
+            body: (rowData: Customer) => new Date(rowData.lastContact).toLocaleDateString('tr-TR')
+        },
+        {
+            field: 'favoriteProperties',
+            header: 'Favori',
+            style: { minWidth: '80px' },
+            mobileHidden: true,
+            body: (rowData: Customer) => `${rowData.favoriteProperties.length} İlan`
+        },
+        {
+            header: 'İşlemler',
+            style: { minWidth: '150px' },
+            body: (rowData: Customer) => (
+                <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
             <Button
                 icon="pi pi-eye"
                 size="small"
@@ -209,6 +275,7 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                 text
                 tooltip="Detayları Görüntüle"
                 onClick={() => handleViewDetails(rowData)}
+                        className="w-full sm:w-auto"
             />
             <Button
                 icon="pi pi-pencil"
@@ -217,6 +284,7 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                 text
                 tooltip="Düzenle"
                 onClick={() => handleEditCustomer(rowData)}
+                        className="w-full sm:w-auto"
             />
             <Button
                 icon="pi pi-trash"
@@ -225,116 +293,110 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                 text
                 tooltip="Sil"
                 onClick={() => handleDeleteCustomer(rowData.id)}
+                        className="w-full sm:w-auto"
             />
         </div>
-    );
+            ),
+            frozen: true
+        }
+    ];
+
+    // Filters
+    const filters = [
+        {
+            key: 'priority',
+            label: 'Öncelik Filtresi',
+            options: priorityOptions,
+            value: priorityFilter,
+            onChange: setPriorityFilter,
+            type: 'multiselect' as const
+        },
+        {
+            key: 'type',
+            label: 'Tür Filtresi',
+            options: typeOptions,
+            value: typeFilter,
+            onChange: setTypeFilter,
+            type: 'multiselect' as const
+        }
+    ];
+
+    // Actions
+    const actions = [
+        {
+            label: 'Yeni Müşteri',
+            icon: 'pi pi-plus',
+            onClick: () => setShowNewCustomerDialog(true),
+            className: 'bg-blue-600 hover:bg-blue-700 border-blue-600'
+        }
+    ];
 
     return (
-        <div className="p-4 md:p-6 space-y-6">
+        <div className="p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
             <Toast ref={toast} />
             <ConfirmDialog />
 
             {/* Hero Section */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-8 border border-blue-200">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-6 shadow-lg">
-                        <i className="pi pi-users text-white text-3xl"></i>
-                    </div>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3">Müşteri Yönetimi</h1>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                        Müşteri portföyünüzü profesyonel şekilde yönetin, analiz edin ve geliştirin
-                    </p>
-                </div>
-            </div>
+            <ResponsiveHero
+                title="Müşteri Yönetimi"
+                subtitle="Müşteri portföyünüzü profesyonel şekilde yönetin, analiz edin ve geliştirin"
+                icon="pi-users"
+                iconBgColor="bg-gradient-to-br from-blue-500 to-indigo-600"
+            />
 
-            {/* Stats Cards with Icons */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition-all duration-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-blue-600 mb-2">Toplam Müşteri</p>
-                            <p className="text-3xl font-bold text-blue-800">{totalCustomers}</p>
-                            <p className="text-xs text-blue-600">Kayıtlı müşteri sayısı</p>
-                        </div>
-                        <div className="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i className="pi pi-users text-white text-xl"></i>
-                        </div>
-                    </div>
-                </Card>
-
-                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-all duration-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-green-600 mb-2">Aktif Müşteri</p>
-                            <p className="text-3xl font-bold text-green-800">{activeCustomers}</p>
-                            <p className="text-xs text-green-600">Aktif müşteri sayısı</p>
-                        </div>
-                        <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i className="pi pi-check-circle text-white text-xl"></i>
-                        </div>
-                    </div>
-                </Card>
-
-                <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200 hover:shadow-lg transition-all duration-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-red-600 mb-2">Öncelikli</p>
-                            <p className="text-3xl font-bold text-red-800">{highPriorityCustomers}</p>
-                            <p className="text-xs text-red-600">Yüksek öncelikli</p>
-                        </div>
-                        <div className="w-14 h-14 bg-red-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i className="pi pi-exclamation-triangle text-white text-xl"></i>
-                        </div>
-                    </div>
-                </Card>
-
-                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition-all duration-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-purple-600 mb-2">Toplam Bütçe</p>
-                            <p className="text-3xl font-bold text-purple-800">{(totalBudget / 1000000).toFixed(1)}M ₺</p>
-                            <p className="text-xs text-purple-600">Müşteri bütçeleri</p>
-                        </div>
-                        <div className="w-14 h-14 bg-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i className="pi pi-wallet text-white text-xl"></i>
-                        </div>
-                    </div>
-                </Card>
-            </div>
+            {/* Stats Cards */}
+            <ResponsiveGrid cols={{ mobile: 1, tablet: 2, desktop: 4 }} gap="gap-4 sm:gap-6">
+                <ResponsiveStatsCard
+                    title="Toplam Müşteri"
+                    value={totalCustomers}
+                    subtitle="Kayıtlı müşteri sayısı"
+                    icon="pi-users"
+                    iconBgColor="bg-blue-500"
+                    gradient={{ from: 'blue-50', to: 'blue-100' }}
+                    borderColor="border-blue-200"
+                />
+                <ResponsiveStatsCard
+                    title="Aktif Müşteri"
+                    value={activeCustomers}
+                    subtitle="Aktif müşteri sayısı"
+                    icon="pi-check-circle"
+                    iconBgColor="bg-green-500"
+                    gradient={{ from: 'green-50', to: 'green-100' }}
+                    borderColor="border-green-200"
+                />
+                <ResponsiveStatsCard
+                    title="Öncelikli"
+                    value={highPriorityCustomers}
+                    subtitle="Yüksek öncelikli"
+                    icon="pi-exclamation-triangle"
+                    iconBgColor="bg-red-500"
+                    gradient={{ from: 'red-50', to: 'red-100' }}
+                    borderColor="border-red-200"
+                />
+                <ResponsiveStatsCard
+                    title="Toplam Bütçe"
+                    value={`${(totalBudget / 1000000).toFixed(1)}M ₺`}
+                    subtitle="Müşteri bütçeleri"
+                    icon="pi-wallet"
+                    iconBgColor="bg-purple-500"
+                    gradient={{ from: 'purple-50', to: 'purple-100' }}
+                    borderColor="border-purple-200"
+                />
+            </ResponsiveGrid>
 
             {/* Customer Management */}
             <Card className="bg-white rounded-xl border-0 shadow-sm">
-                <div className="flex flex-wrap gap-4 justify-between items-center pb-6 border-b border-gray-100">
-                    <div className="flex gap-3 items-center">
-                        <span className="p-input-icon-left">
-                            <i className="pi pi-search" />
-                            <InputText
-                                value={globalFilter}
-                                onChange={(e) => setGlobalFilter(e.target.value)}
-                                placeholder="Müşteri ara..."
-                                className="w-80"
-                            />
-                        </span>
-                        <MultiSelect
-                            display="chip"
-                            value={priorityFilter}
-                            onChange={(e) => setPriorityFilter(e.value)}
-                            options={priorityOptions}
-                            placeholder="Öncelik Filtresi"
-                            className="min-w-[10rem]"
-                        />
-                        <MultiSelect
-                            display="chip"
-                            value={typeFilter}
-                            onChange={(e) => setTypeFilter(e.value)}
-                            options={typeOptions}
-                            placeholder="Tür Filtresi"
-                            className="min-w-[10rem]"
-                        />
-                    </div>
-                    <div className="flex gap-3">
-                        <ExportButton
-                            onExport={() => {
+                <VirtualDataTable
+                    data={filteredCustomers}
+                    columns={columns}
+                    globalFilterFields={["fullName", "phone", "email", "profession"]}
+                    globalFilter={globalFilter}
+                    onGlobalFilterChange={setGlobalFilter}
+                    filters={filters}
+                    actions={actions}
+                    exportButton={{
+                        label: "Excel İndir",
+                        onClick: () => {
                                 exportCustomersToCsv(filteredCustomers);
                                 toast.current?.show({
                                     severity: 'success',
@@ -342,121 +404,35 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                                     detail: 'Müşteri listesi CSV formatında indirildi',
                                     life: 3000
                                 });
-                            }}
-                            label="Excel İndir"
-                        />
-                        <Button
-                            icon="pi pi-plus"
-                            label="Yeni Müşteri"
-                            className="bg-blue-600 hover:bg-blue-700 border-blue-600"
-                            onClick={() => setShowNewCustomerDialog(true)}
-                        />
-                    </div>
-                </div>
-
-                <DataTable
-                    value={filteredCustomers}
-                    paginator
-                    rows={15}
-                    stripedRows
-                    tableStyle={{ minWidth: "100%" }}
+                        }
+                    }}
                     selectionMode="single"
                     selection={selected}
-                    onSelectionChange={(e) => setSelected(e.value as Customer)}
-                    sortMode="multiple"
-                    removableSort
-                    globalFilter={globalFilter}
-                    globalFilterFields={["fullName", "phone", "email", "profession"]}
-                    className="w-full"
-                    emptyMessage="Müşteri bulunamadı"
-                >
-                    <Column field="id" header="ID" sortable style={{ minWidth: '60px' }} />
-                    <Column field="fullName" header="Ad Soyad" sortable style={{ minWidth: '150px' }} />
-                    <Column field="phone" header="Telefon" sortable style={{ minWidth: '120px' }} />
-                    <Column field="email" header="E-posta" sortable style={{ minWidth: '180px' }} />
-                    <Column field="profession" header="Meslek" sortable style={{ minWidth: '120px' }} />
-                    <Column
-                        field="preferredType"
-                        header="İlgi Alanı"
-                        sortable
-                        style={{ minWidth: '100px' }}
-                        body={(rowData) => getTypeTag(rowData.preferredType)}
-                    />
-                    <Column
-                        field="budget"
-                        header="Bütçe"
-                        sortable
-                        style={{ minWidth: '120px' }}
-                        body={(rowData) => formatBudget(rowData.budget, rowData.preferredType)}
-                    />
-                    <Column
-                        field="preferredCategory"
-                        header="Kategori"
-                        sortable
-                        style={{ minWidth: '100px' }}
-                    />
-                    <Column
-                        field="priority"
-                        header="Öncelik"
-                        sortable
-                        style={{ minWidth: '100px' }}
-                        body={(rowData) => getPriorityBadge(rowData.priority)}
-                    />
-                    <Column
-                        field="isActive"
-                        header="Durum"
-                        style={{ minWidth: '80px' }}
-                        body={(rowData) => (
-                            <Tag
-                                value={rowData.isActive ? "Aktif" : "Pasif"}
-                                severity={getStatusSeverity(rowData.isActive)}
-                            />
-                        )}
-                    />
-                    <Column
-                        field="lastContact"
-                        header="Son İletişim"
-                        sortable
-                        style={{ minWidth: '120px' }}
-                        body={(rowData) => new Date(rowData.lastContact).toLocaleDateString('tr-TR')}
-                    />
-                    <Column
-                        field="favoriteProperties"
-                        header="Favori"
-                        style={{ minWidth: '80px' }}
-                        body={(rowData) => `${rowData.favoriteProperties.length} İlan`}
-                    />
-                    <Column
-                        header="İşlemler"
-                        style={{ minWidth: '150px' }}
-                        body={actionTemplate}
-                        frozen={true}
-                    />
-                </DataTable>
+                    onSelectionChange={(e) => setSelected(e as Customer)}
+                    virtualScrollerOptions={{ itemSize: 46 }}
+                />
             </Card>
 
             {/* Customer Detail Dialog */}
-            <Dialog
+            <ResponsiveDialog
+                visible={showDetailDialog}
+                onHide={() => setShowDetailDialog(false)}
                 header={
                     <div className="flex items-center gap-3">
                         <i className="pi pi-user text-blue-600 text-xl"></i>
                         <span>Müşteri Detayları</span>
                     </div>
                 }
-                visible={showDetailDialog}
-                style={{ width: "700px" }}
-                onHide={() => setShowDetailDialog(false)}
-                className="p-0"
             >
                 {selected && (
-                    <div className="p-6 space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                         {/* Basic Info */}
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
-                            <h3 className="text-xl font-bold text-blue-800 mb-4 flex items-center gap-2">
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 sm:p-6 border border-blue-200">
+                            <h3 className="text-lg sm:text-xl font-bold text-blue-800 mb-4 flex items-center gap-2">
                                 <i className="pi pi-info-circle"></i>
                                 Temel Bilgiler
                             </h3>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div className="flex items-center gap-2">
                                     <i className="pi pi-user text-blue-600"></i>
                                     <span><strong>Ad Soyad:</strong> {selected.fullName}</span>
@@ -485,12 +461,12 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                         </div>
 
                         {/* Property Preferences */}
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
-                            <h3 className="text-xl font-bold text-green-800 mb-4 flex items-center gap-2">
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 sm:p-6 border border-green-200">
+                            <h3 className="text-lg sm:text-xl font-bold text-green-800 mb-4 flex items-center gap-2">
                                 <i className="pi pi-home"></i>
                                 Gayrimenkul Tercihleri
                             </h3>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div>
                                     <strong>Kategori:</strong> {selected.preferredCategory}
                                 </div>
@@ -522,12 +498,12 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                         </div>
 
                         {/* Activity Info */}
-                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
-                            <h3 className="text-xl font-bold text-purple-800 mb-4 flex items-center gap-2">
+                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 sm:p-6 border border-purple-200">
+                            <h3 className="text-lg sm:text-xl font-bold text-purple-800 mb-4 flex items-center gap-2">
                                 <i className="pi pi-chart-line"></i>
                                 Aktivite Bilgileri
                             </h3>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div>
                                     <strong>Kayıt Tarihi:</strong> {new Date(selected.registrationDate).toLocaleDateString('tr-TR')}
                                 </div>
@@ -544,8 +520,8 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                         </div>
 
                         {selected.notes && (
-                            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-6 border border-orange-200">
-                                <h3 className="text-xl font-bold text-orange-800 mb-4 flex items-center gap-2">
+                            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-4 sm:p-6 border border-orange-200">
+                                <h3 className="text-lg sm:text-xl font-bold text-orange-800 mb-4 flex items-center gap-2">
                                     <i className="pi pi-sticky-note"></i>
                                     Notlar
                                 </h3>
@@ -553,7 +529,7 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                             </div>
                         )}
 
-                        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
                             <Button
                                 label="Düzenle"
                                 icon="pi pi-pencil"
@@ -561,35 +537,34 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                                     setShowDetailDialog(false);
                                     handleEditCustomer(selected);
                                 }}
-                                className="bg-blue-600 hover:bg-blue-700 border-blue-600"
+                                className="bg-blue-600 hover:bg-blue-700 border-blue-600 w-full sm:w-auto"
                             />
                             <Button
                                 label="Kapat"
                                 icon="pi pi-times"
                                 outlined
                                 onClick={() => setShowDetailDialog(false)}
+                                className="w-full sm:w-auto"
                             />
                         </div>
                     </div>
                 )}
-            </Dialog>
+            </ResponsiveDialog>
 
             {/* Customer Edit Dialog */}
-            <Dialog
+            <ResponsiveDialog
+                visible={showEditDialog}
+                onHide={() => setShowEditDialog(false)}
                 header={
                     <div className="flex items-center gap-3">
                         <i className="pi pi-pencil text-orange-600 text-xl"></i>
                         <span>Müşteri Düzenle</span>
                     </div>
                 }
-                visible={showEditDialog}
-                style={{ width: "800px" }}
-                onHide={() => setShowEditDialog(false)}
-                className="p-0"
             >
                 {editingForm && (
-                    <div className="p-6 space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-4 sm:space-y-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Ad Soyad</label>
                                 <InputText
@@ -672,7 +647,7 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Alan (m²)</label>
                                 <InputNumber
@@ -701,39 +676,38 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                             />
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
                             <Button
                                 label="İptal"
                                 icon="pi pi-times"
                                 outlined
                                 onClick={() => setShowEditDialog(false)}
+                                className="w-full sm:w-auto"
                             />
                             <Button
                                 label="Güncelle"
                                 icon="pi pi-check"
                                 onClick={handleUpdateCustomer}
-                                className="bg-green-600 hover:bg-green-700 border-green-600"
+                                className="bg-green-600 hover:bg-green-700 border-green-600 w-full sm:w-auto"
                             />
                         </div>
                     </div>
                 )}
-            </Dialog>
+            </ResponsiveDialog>
 
             {/* New Customer Dialog */}
-            <Dialog
+            <ResponsiveDialog
+                visible={showNewCustomerDialog}
+                onHide={() => setShowNewCustomerDialog(false)}
                 header={
                     <div className="flex items-center gap-3">
                         <i className="pi pi-plus text-green-600 text-xl"></i>
                         <span>Yeni Müşteri Ekle</span>
                     </div>
                 }
-                visible={showNewCustomerDialog}
-                style={{ width: "800px" }}
-                onHide={() => setShowNewCustomerDialog(false)}
-                className="p-0"
             >
-                <div className="p-6 space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4 sm:space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Ad Soyad</label>
                             <InputText
@@ -816,7 +790,7 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Alan (m²)</label>
                             <InputNumber
@@ -845,12 +819,13 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                         />
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                    <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
                         <Button
                             label="İptal"
                             icon="pi pi-times"
                             outlined
                             onClick={() => setShowNewCustomerDialog(false)}
+                            className="w-full sm:w-auto"
                         />
                         <Button
                             label="Müşteri Ekle"
@@ -895,11 +870,11 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                                     life: 3000
                                 });
                             }}
-                            className="bg-green-600 hover:bg-green-700 border-green-600"
+                            className="bg-green-600 hover:bg-green-700 border-green-600 w-full sm:w-auto"
                         />
                     </div>
                 </div>
-            </Dialog>
+            </ResponsiveDialog>
         </div>
     );
 }

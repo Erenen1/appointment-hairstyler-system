@@ -12,19 +12,16 @@ import { toast } from "sonner";
 interface CalendarPageProps {
     appointments?: any[];
     customers?: any[];
-    services?: any[];
     staff?: any[];
-    statuses?: any[];
 }
 
 export default function CalendarPage({
     appointments: initialAppointments = [],
     customers: initialCustomers = [],
-    services: initialServices = [],
-    staff: initialStaff = [],
-    statuses: initialStatuses = []
+    staff: initialStaff = []
 }: CalendarPageProps) {
     const {
+        appointments: hookAppointments,
         createAppointment,
         updateAppointment,
         deleteAppointment
@@ -38,12 +35,10 @@ export default function CalendarPage({
     const transformAppointments = (appointments: any[]) => {
         return appointments.map((apt: any) => ({
             id: apt.id,
-            date: apt.appointmentDate,
-            time: apt.startTime,
+            date: apt.date,
+            time: apt.time,
             customerId: apt.customerId,
-            serviceId: apt.serviceId,
             staffId: apt.staffId,
-            statusId: apt.statusId,
             notes: apt.notes
         }));
     };
@@ -54,15 +49,6 @@ export default function CalendarPage({
             name: customer.fullName,
             email: customer.email || '',
             phone: customer.phone
-        }));
-    };
-
-    const transformServices = (services: any[]) => {
-        return services.map((service: any) => ({
-            id: service.id,
-            name: service.title,
-            price: parseFloat(service.price),
-            duration: parseInt(service.duration)
         }));
     };
 
@@ -77,17 +63,21 @@ export default function CalendarPage({
         }));
     };
 
-    // Transform data
-    const transformedAppointments = transformAppointments(initialAppointments);
+    // Transform data - use hook appointments if available, otherwise use initial
+    const transformedAppointments = transformAppointments(hookAppointments.length > 0 ? hookAppointments : initialAppointments);
     const transformedCustomers = transformCustomers(initialCustomers);
-    const transformedServices = transformServices(initialServices);
     const transformedStaff = transformStaff(initialStaff);
-    const transformedStatuses = initialStatuses;
+    const transformedStatuses = []; // No statuses passed in props, so empty array
 
     const handleDateClick = (date: Date) => {
         setSelectedDate(date);
         setSelectedAppointment(null);
         setShowModal(true);
+        // Test toast mesajı
+        toast.info('📅 Tarih seçildi', {
+            description: `${date.toLocaleDateString('tr-TR')} tarihi seçildi`,
+            duration: 3000
+        });
     };
 
     const handleEventClick = (appointment: any) => {
@@ -101,25 +91,41 @@ export default function CalendarPage({
             if (selectedAppointment) {
                 // Update existing appointment
                 await updateAppointment(selectedAppointment.id, appointmentData);
-                toast.success('Randevu başarıyla güncellendi');
+                toast.success('✅ Randevu başarıyla güncellendi', {
+                    duration: 5000,
+                    description: `${appointmentData.date} tarihindeki randevu güncellendi`
+                });
+                setShowModal(false);
             } else {
                 // Create new appointment
-                await createAppointment(appointmentData);
-                toast.success('Randevu başarıyla oluşturuldu');
+                const newAppointment = await createAppointment(appointmentData);
+                toast.success('✅ Yeni randevu başarıyla oluşturuldu', {
+                    duration: 5000,
+                    description: `${appointmentData.date} tarihinde ${appointmentData.time} saatinde randevu oluşturuldu`
+                });
+                setShowModal(false);
             }
-            setShowModal(false);
         } catch (error) {
-            toast.error('Randevu kaydedilirken hata oluştu');
+            toast.error('❌ Randevu kaydedilirken hata oluştu', {
+                duration: 5000,
+                description: 'Lütfen tekrar deneyin'
+            });
         }
     };
 
     const handleDelete = async (appointmentId: number) => {
         try {
             await deleteAppointment(appointmentId);
-            toast.success('Randevu başarıyla silindi');
+            toast.success('✅ Randevu başarıyla silindi', {
+                duration: 5000,
+                description: 'Randevu takvimden kaldırıldı'
+            });
             setShowModal(false);
         } catch (error) {
-            toast.error('Randevu silinirken hata oluştu');
+            toast.error('❌ Randevu silinirken hata oluştu', {
+                duration: 5000,
+                description: 'Lütfen tekrar deneyin'
+            });
         }
     };
 
@@ -135,9 +141,7 @@ export default function CalendarPage({
                     <Calendar
                         appointments={transformedAppointments}
                         customers={transformedCustomers}
-                        services={transformedServices}
                         staff={transformedStaff}
-                        statuses={transformedStatuses}
                         onDateClickAction={handleDateClick}
                         onEventClickAction={handleEventClick}
                     />
@@ -150,9 +154,7 @@ export default function CalendarPage({
                 selectedDate={selectedDate}
                 selectedAppointment={selectedAppointment}
                 customers={transformedCustomers}
-                services={transformedServices}
                 staff={transformedStaff}
-                statuses={transformedStatuses}
                 onSave={handleSave}
                 onDelete={handleDelete}
             />

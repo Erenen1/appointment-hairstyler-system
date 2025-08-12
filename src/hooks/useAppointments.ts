@@ -1,14 +1,27 @@
 import { useState, useEffect } from 'react';
 import appointmentsData from '@/mocks/appointments.json';
 
+interface MockAppointment {
+    id: number;
+    appointmentDate: string;
+    startTime: string;
+    endTime: string;
+    customerId: number;
+    staffId: number;
+    notes: string;
+    duration: number;
+    price: number;
+    createdByAdmin: number | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface Appointment {
     id: number;
     date: string;
     time: string;
     customerId: number;
-    serviceId: number;
     staffId: number;
-    statusId: number;
     notes?: string;
 }
 
@@ -24,7 +37,18 @@ export const useAppointments = () => {
                 setLoading(true);
                 // Simulate network delay
                 await new Promise(resolve => setTimeout(resolve, 500));
-                setAppointments(appointmentsData as Appointment[]);
+
+                // Transform mock data to match our interface
+                const transformedAppointments = appointmentsData.map((apt: MockAppointment) => ({
+                    id: apt.id,
+                    date: apt.appointmentDate,
+                    time: apt.startTime,
+                    customerId: apt.customerId,
+                    staffId: apt.staffId,
+                    notes: apt.notes
+                }));
+
+                setAppointments(transformedAppointments);
                 setError(null);
             } catch (err) {
                 setError('Randevular yüklenirken hata oluştu');

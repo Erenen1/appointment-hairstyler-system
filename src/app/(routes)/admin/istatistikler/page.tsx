@@ -34,15 +34,16 @@ export default function IstatistiklerPage() {
         return () => clearTimeout(timer);
     }, []);
 
-    if (isLoading) {
-        return <StatisticsPageSkeleton />;
-    }
-
+    // Always call useStatistics hook, regardless of loading state
     const {
         propertyTypeChart,
         clicksChart,
         stats
     } = useStatistics(mockProperties);
+
+    if (isLoading) {
+        return <StatisticsPageSkeleton />;
+    }
 
     return (
         <AnalyticsContent

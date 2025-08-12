@@ -3,25 +3,26 @@
 import { Card } from "primereact/card";
 import { Chart } from "primereact/chart";
 import "chart.js/auto";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { useMemo, useState } from "react";
-import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import { InputNumber } from "primereact/inputnumber";
-import { MultiSelect } from "primereact/multiselect";
 import { Calendar } from "primereact/calendar";
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Tag } from "primereact/tag";
 import { Income } from "./types";
 import { useCrudOperations } from "../../hooks";
-import { IncomeActionButtons, IncomeStatsCard, IncomeTransparentHeader } from "../../components/ui";
 import { exportIncomeToCsv } from "../../lib/exportUtils";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog } from "primereact/confirmdialog";
-import { ExportButton } from "../../components/ui/ExportButton";
+import {
+    ResponsiveHero,
+    ResponsiveGrid,
+    ResponsiveStatsCard,
+    ResponsiveDialog,
+    VirtualDataTable
+} from "../../components/ui";
 
 interface IncomePageProps {
     income?: Income[];
@@ -32,7 +33,7 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
     const [globalFilter, setGlobalFilter] = useState<string>("");
     const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     const [sourceFilter, setSourceFilter] = useState<string[]>([]);
-    const [dateFilter, setDateFilter] = useState<Date | null>(null);
+    const [dateFilter] = useState<Date | null>(null);
 
     const defaultForm: Partial<Income> = {
         category: "",
@@ -198,256 +199,323 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
         }
     };
 
+    // Stats
     const totalIncome = hookIncome.reduce((sum, i) => sum + i.amount, 0);
-    const thisMonthIncome = hookIncome
-        .filter(i => new Date(i.date).getMonth() === new Date().getMonth())
-        .reduce((sum, i) => sum + i.amount, 0);
-    const todayIncome = hookIncome
-        .filter(i => new Date(i.date).toDateString() === new Date().toDateString())
-        .reduce((sum, i) => sum + i.amount, 0);
+    const avgIncome = hookIncome.length > 0 ? totalIncome / hookIncome.length : 0;
+    const monthlyIncome = monthlyData.data.datasets[0].data[monthlyData.data.datasets[0].data.length - 1] || 0;
+    const categoryCount = new Set(hookIncome.map(i => i.category)).size;
 
-    const categories = Array.from(new Set(hookIncome.map(i => i.category)));
-    const sources = Array.from(new Set(hookIncome.map(i => i.source)));
-    const paymentMethods = [
-        { label: "Nakit", value: "cash" },
-        { label: "Kart", value: "card" },
-        { label: "Banka", value: "bank" }
+    // Table Columns
+    const columns = [
+        { field: 'id', header: 'ID', sortable: true, style: { minWidth: '60px' }, mobileHidden: true },
+        { field: 'category', header: 'Kategori', sortable: true, style: { minWidth: '120px' } },
+        { field: 'amount', header: 'Tutar', sortable: true, style: { minWidth: '100px' }, body: (rowData: Income) => `${rowData.amount.toLocaleString()} ₺` },
+        { field: 'date', header: 'Tarih', sortable: true, style: { minWidth: '100px' }, body: (rowData: Income) => new Date(rowData.date).toLocaleDateString('tr-TR') },
+        { field: 'description', header: 'Açıklama', style: { minWidth: '150px' }, mobileHidden: true },
+        {
+            field: 'paymentMethod',
+            header: 'Ödeme Yöntemi',
+            style: { minWidth: '120px' },
+            body: (rowData: Income) => (
+                <Tag value={getPaymentMethodLabel(rowData.paymentMethod)} severity={getPaymentMethodSeverity(rowData.paymentMethod)} />
+            )
+        },
+        {
+            field: 'source',
+            header: 'Kaynak',
+            style: { minWidth: '120px' },
+            mobileHidden: true,
+            body: (rowData: Income) => (
+                <Tag value={getSourceLabel(rowData.source)} severity={getSourceSeverity(rowData.source)} />
+            )
+        },
+        {
+            field: 'actions',
+            header: 'İşlemler',
+            style: { minWidth: '120px' },
+            body: (rowData: Income) => (
+                <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
+                    <Button
+                        icon="pi pi-pencil"
+                        size="small"
+                        severity="warning"
+                        text
+                        tooltip="Düzenle"
+                        onClick={() => openEdit(rowData)}
+                        className="w-full sm:w-auto"
+                    />
+                    <Button
+                        icon="pi pi-trash"
+                        size="small"
+                        severity="danger"
+                        text
+                        tooltip="Sil"
+                        onClick={() => handleDelete(rowData)}
+                        className="w-full sm:w-auto"
+                    />
+                </div>
+            ),
+            frozen: true
+        }
+    ];
+
+    // Filters
+    const filters = [
+        {
+            key: 'category',
+            label: 'Kategori Filtresi',
+            options: Array.from(new Set(hookIncome.map(i => i.category))).map(cat => ({ label: cat, value: cat })),
+            value: categoryFilter,
+            onChange: setCategoryFilter,
+            type: 'multiselect' as const
+        },
+        {
+            key: 'source',
+            label: 'Kaynak Filtresi',
+            options: [
+                { label: 'Hizmet Satışı', value: 'service_sales' },
+                { label: 'Ürün Satışı', value: 'product_sales' },
+                { label: 'Diğer', value: 'other' }
+            ],
+            value: sourceFilter,
+            onChange: setSourceFilter,
+            type: 'multiselect' as const
+        }
+    ];
+
+    // Actions
+    const actions = [
+        {
+            label: 'Yeni Gelir',
+            icon: 'pi pi-plus',
+            onClick: openAdd,
+            className: 'bg-green-600 hover:bg-green-700 border-green-600'
+        }
     ];
 
     return (
-        <div className="p-4 md:p-6 space-y-6">
+        <div className="p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
             <Toast ref={toast} />
             <ConfirmDialog />
 
-            {/* Gelir Sayfası Header */}
-            <IncomeTransparentHeader
+            {/* Hero Section */}
+            <ResponsiveHero
                 title="Gelir Yönetimi"
-                description="Gelir kayıtlarınızı takip edin, analiz edin ve yönetin"
+                subtitle="Gelir kayıtlarınızı takip edin ve analiz edin"
+                icon="pi-money-bill"
+                iconBgColor="bg-gradient-to-br from-green-500 to-emerald-600"
             />
 
-            {/* Özet Kartları */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <IncomeStatsCard
+            {/* Stats Cards */}
+            <ResponsiveGrid cols={{ mobile: 1, tablet: 2, desktop: 4 }} gap="gap-4 sm:gap-6">
+                <ResponsiveStatsCard
                     title="Toplam Gelir"
-                    value={`${totalIncome.toFixed(0)}₺`}
-                    subtitle="Toplam gelir tutarı"
+                    value={`${totalIncome.toLocaleString()} ₺`}
+                    subtitle="Tüm zamanlar"
+                    icon="pi-wallet"
+                    iconBgColor="bg-green-500"
+                    gradient={{ from: 'green-50', to: 'green-100' }}
+                    borderColor="border-green-200"
                 />
-                <IncomeStatsCard
+                <ResponsiveStatsCard
+                    title="Ortalama Gelir"
+                    value={`${avgIncome.toLocaleString()} ₺`}
+                    subtitle="İşlem başına"
+                    icon="pi-chart-line"
+                    iconBgColor="bg-blue-500"
+                    gradient={{ from: 'blue-50', to: 'blue-100' }}
+                    borderColor="border-blue-200"
+                />
+                <ResponsiveStatsCard
                     title="Bu Ay"
-                    value={`${thisMonthIncome.toFixed(0)}₺`}
-                    subtitle="Bu ayki gelir"
+                    value={`${monthlyIncome.toLocaleString()} ₺`}
+                    subtitle="Aylık gelir"
+                    icon="pi-calendar"
+                    iconBgColor="bg-purple-500"
+                    gradient={{ from: 'purple-50', to: 'purple-100' }}
+                    borderColor="border-purple-200"
                 />
-                <IncomeStatsCard
-                    title="Bugün"
-                    value={`${todayIncome.toFixed(0)}₺`}
-                    subtitle="Bugünkü gelir"
+                <ResponsiveStatsCard
+                    title="Kategori Sayısı"
+                    value={categoryCount}
+                    subtitle="Farklı kategoriler"
+                    icon="pi-tags"
+                    iconBgColor="bg-orange-500"
+                    gradient={{ from: 'orange-50', to: 'orange-100' }}
+                    borderColor="border-orange-200"
                 />
-                <IncomeStatsCard
-                    title="Toplam Kayıt"
-                    value={hookIncome.length}
-                    subtitle="Toplam gelir kaydı"
-                />
-            </div>
+            </ResponsiveGrid>
 
-            {/* Grafikler */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card title="Kategori Bazlı Gelir Dağılımı">
-                    <div style={{ height: 300 }}>
-                        <Chart type="doughnut" data={chartData.data} options={chartData.options} />
+            {/* Charts */}
+            <ResponsiveGrid cols={{ mobile: 1, desktop: 2 }} gap="gap-4 sm:gap-6">
+                <Card title="Gelir Kategori Dağılımı" className="h-auto min-h-[400px] sm:h-[440px]">
+                    <div className="w-full h-[300px] sm:h-[350px]">
+                        <Chart
+                            type="doughnut"
+                            data={chartData.data}
+                            options={chartData.options}
+                            style={{ height: '100%', width: '100%' }}
+                        />
                     </div>
                 </Card>
-                <Card title="Aylık Gelir Trendi">
-                    <div style={{ height: 300 }}>
-                        <Chart type="line" data={monthlyData.data} options={monthlyData.options} />
+                <Card title="Aylık Gelir Trendi" className="h-auto min-h-[400px] sm:h-[440px]">
+                    <div className="w-full h-[300px] sm:h-[350px]">
+                        <Chart
+                            type="line"
+                            data={monthlyData.data}
+                            options={monthlyData.options}
+                            style={{ height: '100%', width: '100%' }}
+                        />
                     </div>
                 </Card>
-            </div>
+            </ResponsiveGrid>
 
-            {/* Gelir Listesi */}
-            <Card title="Gelir Yönetimi">
-                <div className="flex flex-wrap gap-2 justify-between items-center pb-3">
-                    <div className="flex gap-2 items-center">
-                        <span className="p-input-icon-left">
-                            <i className="pi pi-search" />
-                            <InputText value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder="Ara..." />
-                        </span>
-                        <MultiSelect
-                            display="chip"
-                            value={categoryFilter}
-                            onChange={(e) => setCategoryFilter(e.value)}
-                            options={categories.map(c => ({ label: c, value: c }))}
-                            placeholder="Kategoriler"
-                            className="min-w-[12rem]"
-                        />
-                        <MultiSelect
-                            display="chip"
-                            value={sourceFilter}
-                            onChange={(e) => setSourceFilter(e.value)}
-                            options={sources.map(s => ({ label: getSourceLabel(s), value: s }))}
-                            placeholder="Kaynaklar"
-                            className="min-w-[12rem]"
-                        />
-                        <Calendar
-                            value={dateFilter}
-                            onChange={(e) => setDateFilter(e.value || null)}
-                            placeholder="Tarih Filtresi"
-                            showIcon
-                        />
-                    </div>
-                    <div className="flex gap-2">
-                        <ExportButton
-                            onExport={() => {
-                                exportIncomeToCsv(filteredIncome);
-                                toast.current?.show({
-                                    severity: 'success',
-                                    summary: 'Başarılı',
-                                    detail: 'Gelir listesi CSV formatında indirildi',
-                                    life: 3000
-                                });
-                            }}
-                            label="Excel İndir"
-                        />
-                        <Button icon="pi pi-plus" label="Yeni Gelir" onClick={openAdd} />
-                    </div>
-                </div>
-
-                <DataTable
-                    value={filteredIncome}
-                    paginator
-                    rows={10}
-                    stripedRows
-                    tableStyle={{ minWidth: "100%" }}
-                    sortMode="multiple"
-                    removableSort
-                    globalFilter={globalFilter}
+            {/* Income Management */}
+            <Card className="bg-white rounded-xl border-0 shadow-sm">
+                <VirtualDataTable
+                    data={filteredIncome}
+                    columns={columns}
                     globalFilterFields={["category", "description", "paymentMethod"]}
-                    className="w-full"
-                >
-                    <Column field="category" header="Kategori" sortable style={{ minWidth: '120px' }} />
-                    <Column field="amount" header="Tutar" sortable style={{ minWidth: '100px' }} body={(rowData) => `${rowData.amount.toFixed(2)}₺`} />
-                    <Column field="description" header="Açıklama" sortable style={{ minWidth: '200px', maxWidth: '300px' }} />
-                    <Column field="date" header="Tarih" sortable style={{ minWidth: '100px' }} body={(rowData) => new Date(rowData.date).toLocaleDateString('tr-TR')} />
-                    <Column field="paymentMethod" header="Ödeme Yöntemi" sortable style={{ minWidth: '120px' }} body={(rowData) => (
-                        <Tag value={getPaymentMethodLabel(rowData.paymentMethod)} severity={getPaymentMethodSeverity(rowData.paymentMethod)} />
-                    )} />
-                    <Column field="source" header="Kaynak" sortable style={{ minWidth: '120px' }} body={(rowData) => (
-                        <Tag value={getSourceLabel(rowData.source)} severity={getSourceSeverity(rowData.source)} />
-                    )} />
-                    <Column
-                        header="İşlemler"
-                        style={{ minWidth: '120px' }}
-                        body={(rowData) => (
-                            <IncomeActionButtons
-                                item={rowData}
-                                onEdit={openEdit}
-                                onDelete={() => handleDelete(rowData, rowData.category)}
-                                showView={false}
-                            />
-                        )}
-                    />
-                </DataTable>
+                    globalFilter={globalFilter}
+                    onGlobalFilterChange={setGlobalFilter}
+                    filters={filters}
+                    actions={actions}
+                    exportButton={{
+                        label: "Excel İndir",
+                        onClick: () => {
+                            exportIncomeToCsv(filteredIncome);
+                            toast.current?.show({
+                                severity: 'success',
+                                summary: 'Başarılı',
+                                detail: 'Gelir listesi CSV formatında indirildi',
+                                life: 3000
+                            });
+                        }
+                    }}
+                    virtualScrollerOptions={{ itemSize: 46 }}
+                />
             </Card>
 
-            {/* Gelir Ekleme/Düzenleme Dialog */}
-            <Dialog
-                header={dialogMode === "edit" ? "Gelir Düzenle" : "Yeni Gelir"}
+            {/* Add/Edit Dialog */}
+            <ResponsiveDialog
                 visible={showDialog}
-                style={{ width: "600px" }}
-                onHide={() => {
-                    setShowDialog(false);
-                    resetForm(defaultForm);
-                }}
+                onHide={() => setShowDialog(false)}
+                header={
+                    <div className="flex items-center gap-3">
+                        <i className={`pi ${dialogMode === 'add' ? 'pi-plus text-green-600' : 'pi-pencil text-orange-600'} text-xl`}></i>
+                        <span>{dialogMode === 'add' ? 'Yeni Gelir Ekle' : 'Gelir Düzenle'}</span>
+                    </div>
+                }
             >
-                <div className="grid gap-4">
-                    <span className="p-float-label">
-                        <InputText
-                            id="category"
-                            value={form.category}
-                            onChange={(e) => setForm({ ...form, category: e.target.value })}
-                            className="w-full"
-                        />
-                        <label htmlFor="category">Kategori</label>
-                    </span>
+                <div className="space-y-4 sm:space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Kategori *</label>
+                            <InputText
+                                value={form.category}
+                                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                                className="w-full"
+                                placeholder="Gelir kategorisi"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Tutar *</label>
+                            <InputNumber
+                                value={form.amount}
+                                onValueChange={(e) => setForm({ ...form, amount: e.value || 0 })}
+                                className="w-full"
+                                mode="currency"
+                                currency="TRY"
+                                placeholder="0.00"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Tarih *</label>
+                            <Calendar
+                                value={form.date ? new Date(form.date) : null}
+                                onChange={(e) => setForm({ ...form, date: e.value ? e.value.toISOString().split('T')[0] : '' })}
+                                className="w-full"
+                                showIcon
+                                dateFormat="dd/mm/yy"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Ödeme Yöntemi</label>
+                            <Dropdown
+                                value={form.paymentMethod}
+                                onChange={(e) => setForm({ ...form, paymentMethod: e.value })}
+                                options={[
+                                    { label: 'Nakit', value: 'cash' },
+                                    { label: 'Kart', value: 'card' },
+                                    { label: 'Banka', value: 'bank' }
+                                ]}
+                                className="w-full"
+                                placeholder="Ödeme yöntemi seçin"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Kaynak</label>
+                            <Dropdown
+                                value={form.source}
+                                onChange={(e) => setForm({ ...form, source: e.value })}
+                                options={[
+                                    { label: 'Hizmet Satışı', value: 'service_sales' },
+                                    { label: 'Ürün Satışı', value: 'product_sales' },
+                                    { label: 'Diğer', value: 'other' }
+                                ]}
+                                className="w-full"
+                                placeholder="Gelir kaynağı seçin"
+                            />
+                        </div>
+                    </div>
 
-                    <span className="p-float-label">
-                        <InputNumber
-                            inputId="amount"
-                            value={form.amount}
-                            onValueChange={(e) => setForm({ ...form, amount: Number(e.value || 0) })}
-                            className="w-full"
-                            suffix=" ₺"
-                            min={0}
-                            mode="decimal"
-                        />
-                        <label htmlFor="amount">Tutar</label>
-                    </span>
-
-                    <span className="p-float-label">
-                        <Calendar
-                            inputId="date"
-                            value={form.date ? new Date(form.date) : null}
-                            onChange={(e) => setForm({ ...form, date: e.value?.toISOString().split('T')[0] || "" })}
-                            className="w-full"
-                            dateFormat="dd/mm/yy"
-                        />
-                        <label htmlFor="date">Tarih</label>
-                    </span>
-
-                    <span className="p-float-label">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Açıklama *</label>
                         <InputTextarea
-                            id="description"
                             value={form.description}
                             onChange={(e) => setForm({ ...form, description: e.target.value })}
                             className="w-full"
                             rows={3}
+                            placeholder="Gelir açıklaması"
                         />
-                        <label htmlFor="description">Açıklama</label>
-                    </span>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <span className="p-float-label">
-                            <Dropdown
-                                inputId="paymentMethod"
-                                value={form.paymentMethod}
-                                onChange={(e) => setForm({ ...form, paymentMethod: e.value })}
-                                options={paymentMethods}
-                                className="w-full"
-                            />
-                            <label htmlFor="paymentMethod">Ödeme Yöntemi</label>
-                        </span>
-                        <span className="p-float-label">
-                            <Dropdown
-                                inputId="source"
-                                value={form.source}
-                                onChange={(e) => setForm({ ...form, source: e.value })}
-                                options={[
-                                    { label: "Hizmet Satışı", value: "service_sales" },
-                                    { label: "Ürün Satışı", value: "product_sales" },
-                                    { label: "Diğer", value: "other" }
-                                ]}
-                                className="w-full"
-                            />
-                            <label htmlFor="source">Kaynak</label>
-                        </span>
                     </div>
 
-                    <div className="flex justify-end gap-2">
+                    <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
                         <Button
-                            label="Vazgeç"
+                            label="İptal"
+                            icon="pi pi-times"
                             outlined
-                            onClick={() => {
-                                setShowDialog(false);
-                                resetForm(defaultForm);
-                            }}
+                            onClick={() => setShowDialog(false)}
+                            className="w-full sm:w-auto"
                         />
                         <Button
-                            label="Kaydet"
+                            label={dialogMode === 'add' ? 'Ekle' : 'Güncelle'}
                             icon="pi pi-check"
-                            onClick={() => handleSave(validateForm, createIncome, updateIncome)}
+                            onClick={() => {
+                                if (validateForm()) {
+                                    if (dialogMode === 'add') {
+                                        const newIncome = createIncome(form);
+                                        handleSave(newIncome);
+                                    } else {
+                                        const updatedIncome = updateIncome(form.id!, form);
+                                        handleSave(updatedIncome);
+                                    }
+                                    resetForm();
+                                    setShowDialog(false);
+                                } else {
+                                    toast.current?.show({
+                                        severity: 'error',
+                                        summary: 'Hata',
+                                        detail: 'Lütfen tüm gerekli alanları doldurun',
+                                        life: 3000
+                                    });
+                                }
+                            }}
+                            className="bg-green-600 hover:bg-green-700 border-green-600 w-full sm:w-auto"
                         />
                     </div>
                 </div>
-            </Dialog>
+            </ResponsiveDialog>
         </div>
     );
 }

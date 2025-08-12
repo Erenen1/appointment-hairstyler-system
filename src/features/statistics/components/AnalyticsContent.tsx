@@ -1,7 +1,9 @@
 import { Card } from "primereact/card";
 import { Chart } from "primereact/chart";
 import { Badge } from "primereact/badge";
+import { Button } from "primereact/button";
 import { ChartData, StatisticsStats } from "../types";
+import { ResponsiveGrid, ResponsiveStatsCard } from "../../../components/ui";
 
 interface AnalyticsContentProps {
     propertyTypeChart: ChartData;
@@ -15,64 +17,158 @@ export const AnalyticsContent = ({
     stats
 }: AnalyticsContentProps) => {
     return (
-        <div className="p-4 md:p-6 space-y-6">
-            {/* Header */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-100">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <h1 className="text-3xl font-bold text-blue-800 mb-2">Emlak İstatistikleri</h1>
-                        <p className="text-blue-600">Sahibinden.com scraped ilanlar performans özeti</p>
-                        <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
-                            <i className="pi pi-clock"></i>
-                            <span>Son güncelleme: {new Date().toLocaleString('tr-TR')}</span>
-                            <i className="pi pi-database ml-4"></i>
-                            <span>Aktif scraping: Sahibinden.com</span>
-                        </div>
+        <div className="p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+            {/* Enhanced Page Header */}
+            <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-xl border border-blue-200 p-4 sm:p-6 md:p-8">
+                <div className="text-center mb-6 sm:mb-8">
+                    {/* Icon */}
+                    <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-4 sm:mb-6 shadow-lg">
+                        <i className="pi pi-chart-line text-white text-2xl sm:text-3xl"></i>
                     </div>
-                    <div className="flex items-center gap-2">
+
+                    {/* Title */}
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
+                        Emlak İstatistikleri
+                    </h1>
+
+                    {/* Subtitle */}
+                    <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-3xl mx-auto px-4 mb-4">
+                        Sahibinden.com&apos;dan çekilen ilanların detaylı performans analizi ve istatistiksel verileri
+                    </p>
+
+                    {/* Status Badges */}
+                    <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 mb-4">
+                        <Badge
+                            value="LIVE DATA"
+                            severity="success"
+                            className="text-xs sm:text-sm"
+                        />
+                        <Badge
+                            value="REAL-TIME"
+                            severity="info"
+                            className="text-xs sm:text-sm"
+                        />
                         <Badge
                             value="ÜCRETSİZ"
-                            severity="success"
+                            severity="warning"
+                            className="text-xs sm:text-sm"
+                        />
+                    </div>
+                </div>
+
+                {/* Header Actions & Info */}
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-8">
+                    {/* Left Side - Info */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                            <i className="pi pi-clock text-blue-500"></i>
+                            <span>Son güncelleme: <strong>{new Date().toLocaleString('tr-TR')}</strong></span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <i className="pi pi-database text-indigo-500"></i>
+                            <span>Veri kaynağı: <strong>Sahibinden.com</strong></span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <i className="pi pi-sync text-green-500"></i>
+                            <span>Scraping durumu: <strong>Aktif</strong></span>
+                        </div>
+                    </div>
+
+                    {/* Right Side - Actions */}
+                    <div className="flex flex-col sm:flex-row items-center gap-3">
+                        <Button
+                            icon="pi pi-download"
+                            label="Rapor İndir"
+                            size="small"
+                            severity="secondary"
+                            outlined
+                            className="w-full sm:w-auto"
+                        />
+                        <Button
+                            icon="pi pi-refresh"
+                            label="Yenile"
+                            size="small"
+                            severity="info"
+                            outlined
+                            className="w-full sm:w-auto"
+                        />
+                        <Button
+                            icon="pi pi-cog"
+                            label="Ayarlar"
+                            size="small"
+                            severity="help"
+                            outlined
+                            className="w-full sm:w-auto"
                         />
                     </div>
                 </div>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow">
-                    <div className="text-4xl font-bold text-blue-600 mb-2">{stats.totalProperties}</div>
-                    <div className="text-lg font-semibold text-blue-800">Scraped İlanlar</div>
-                    <div className="text-sm text-blue-600">Sahibinden.com&apos;dan çekilen</div>
-                </Card>
-                <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow">
-                    <div className="text-4xl font-bold text-green-600 mb-2">{stats.totalViews.toLocaleString()}</div>
-                    <div className="text-lg font-semibold text-blue-800">Toplam Görüntüleme</div>
-                    <div className="text-sm text-blue-600">Sistemimiz üzerinden</div>
-                </Card>
-                <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow">
-                    <div className="text-4xl font-bold text-orange-600 mb-2">{stats.totalClicks}</div>
-                    <div className="text-lg font-semibold text-blue-800">İlan Tıklamaları</div>
-                    <div className="text-sm text-blue-600">Sahibinden&apos;e yönlendirme</div>
-                </Card>
-                <Card className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow">
-                    <div className="text-4xl font-bold text-purple-600 mb-2">{stats.avgPrice.toLocaleString()}₺</div>
-                    <div className="text-lg font-semibold text-blue-800">Ortalama Fiyat</div>
-                    <div className="text-sm text-blue-600">Scraped ilanlar</div>
-                </Card>
-            </div>
+            <ResponsiveGrid cols={{ mobile: 1, tablet: 2, desktop: 4 }} gap="gap-4 sm:gap-6">
+                <ResponsiveStatsCard
+                    title="Scraped İlanlar"
+                    value={stats.totalProperties}
+                    subtitle="Sahibinden.com'dan çekilen"
+                    icon="pi-home"
+                    iconBgColor="bg-blue-500"
+                    gradient={{ from: 'blue-50', to: 'blue-100' }}
+                    borderColor="border-blue-200"
+                />
+                <ResponsiveStatsCard
+                    title="Toplam Görüntüleme"
+                    value={stats.totalViews.toLocaleString()}
+                    subtitle="Sistemimiz üzerinden"
+                    icon="pi-eye"
+                    iconBgColor="bg-green-500"
+                    gradient={{ from: 'green-50', to: 'green-100' }}
+                    borderColor="border-green-200"
+                />
+                <ResponsiveStatsCard
+                    title="İlan Tıklamaları"
+                    value={stats.totalClicks}
+                    subtitle="Sahibinden'e yönlendirme"
+                    icon="pi-mouse"
+                    iconBgColor="bg-orange-500"
+                    gradient={{ from: 'orange-50', to: 'orange-100' }}
+                    borderColor="border-orange-200"
+                />
+                <ResponsiveStatsCard
+                    title="Ortalama Fiyat"
+                    value={`${stats.avgPrice.toLocaleString()}₺`}
+                    subtitle="Scraped ilanlar"
+                    icon="pi-wallet"
+                    iconBgColor="bg-purple-500"
+                    gradient={{ from: 'purple-50', to: 'purple-100' }}
+                    borderColor="border-purple-200"
+                />
+            </ResponsiveGrid>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card title="Scraped İlan Türü Dağılımı" className="h-[440px]">
+            <ResponsiveGrid cols={{ mobile: 1, desktop: 2 }} gap="gap-4 sm:gap-6">
+                <Card title="Scraped İlan Türü Dağılımı" className="h-auto min-h-[400px] sm:h-[440px]">
                     <div className="text-sm text-gray-600 mb-4">Sahibinden.com&apos;dan çekilen ilanların kategori dağılımı</div>
-                    <Chart type="doughnut" data={propertyTypeChart.data} options={propertyTypeChart.options} style={{ height: '300px' }} />
+                    <div className="w-full h-[300px] sm:h-[350px]">
+                        <Chart
+                            type="doughnut"
+                            data={propertyTypeChart.data}
+                            options={propertyTypeChart.options}
+                            style={{ height: '100%', width: '100%' }}
+                        />
+                    </div>
                 </Card>
-                <Card title="En Çok Tıklanan Scraped İlanlar" className="h-[440px]">
+                <Card title="En Çok Tıklanan Scraped İlanlar" className="h-auto min-h-[400px] sm:h-[440px]">
                     <div className="text-sm text-gray-600 mb-4">Sistemimiz üzerinden en çok tıklanan ilanlar</div>
-                    <Chart type="doughnut" data={clicksChart.data} options={clicksChart.options} style={{ height: '300px' }} />
+                    <div className="w-full h-[300px] sm:h-[350px]">
+                        <Chart
+                            type="bar"
+                            data={clicksChart.data}
+                            options={clicksChart.options}
+                            style={{ height: '100%', width: '100%' }}
+                        />
+                    </div>
                 </Card>
-            </div>
+            </ResponsiveGrid>
         </div>
     );
 };
