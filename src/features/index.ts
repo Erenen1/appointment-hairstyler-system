@@ -30,9 +30,7 @@ export * from './expense';
 
 // 🏢 Business Operations
 export * from './customers';
-export * from './services';
 export * from './appointments';  // ⭐ NEW & COMPLETE
-export * from './bills';
 export * from './current-accounts';
 
 // 👨‍💼 Administration

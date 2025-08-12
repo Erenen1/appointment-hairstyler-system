@@ -17,6 +17,8 @@ import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { useRef } from "react";
 import { Customer, CustomerForm } from "./types";
+import { ExportButton } from "../../components/ui/ExportButton";
+import { exportCustomersToCsv } from "../../lib/exportUtils";
 
 interface CustomersPageProps {
     customers?: Customer[];
@@ -117,51 +119,6 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
         return isActive ? "success" : "secondary";
     };
 
-    // CSV Export Function
-    const exportToCSV = () => {
-        const headers = [
-            "ID", "Ad Soyad", "E-posta", "Telefon", "Adres", "Meslek", "Bütçe",
-            "İlgi Alanı", "Kategori", "Öncelik", "Durum", "Son İletişim", "Kayıt Tarihi"
-        ];
-
-        const csvData = filteredCustomers.map(customer => [
-            customer.id,
-            customer.fullName,
-            customer.email,
-            customer.phone,
-            customer.address,
-            customer.profession,
-            customer.budget,
-            customer.preferredType,
-            customer.preferredCategory,
-            customer.priority,
-            customer.isActive ? "Aktif" : "Pasif",
-            new Date(customer.lastContact).toLocaleDateString('tr-TR'),
-            new Date(customer.registrationDate).toLocaleDateString('tr-TR')
-        ]);
-
-        const csvContent = [headers, ...csvData]
-            .map(row => row.map(field => `"${field}"`).join(','))
-            .join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `musteriler_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        toast.current?.show({
-            severity: 'success',
-            summary: 'Başarılı',
-            detail: 'Müşteri listesi CSV formatında indirildi',
-            life: 3000
-        });
-    };
-
     // Customer Operations
     const handleViewDetails = (customer: Customer) => {
         setSelected(customer);
@@ -222,6 +179,8 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
             header: 'Müşteri Silme Onayı',
             icon: 'pi pi-exclamation-triangle',
             acceptClassName: 'p-button-danger',
+            acceptLabel: 'Evet',
+            rejectLabel: 'Hayır',
             accept: () => {
                 setCustomers(prev => prev.filter(c => c.id !== customerId));
                 toast.current?.show({
@@ -374,12 +333,17 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                         />
                     </div>
                     <div className="flex gap-3">
-                        <Button
-                            icon="pi pi-download"
-                            label="CSV İndir"
-                            severity="success"
-                            onClick={exportToCSV}
-                            className="bg-green-600 hover:bg-green-700 border-green-600"
+                        <ExportButton
+                            onExport={() => {
+                                exportCustomersToCsv(filteredCustomers);
+                                toast.current?.show({
+                                    severity: 'success',
+                                    summary: 'Başarılı',
+                                    detail: 'Müşteri listesi CSV formatında indirildi',
+                                    life: 3000
+                                });
+                            }}
+                            label="Excel İndir"
                         />
                         <Button
                             icon="pi pi-plus"

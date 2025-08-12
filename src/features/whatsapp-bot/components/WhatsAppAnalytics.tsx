@@ -319,7 +319,7 @@ export const WhatsAppAnalytics = ({
     return (
         <div className="space-y-8">
             {/* Analytics Header */}
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
                 <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
                     <div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">📊 Analitik Dashboard</h2>
@@ -348,9 +348,9 @@ export const WhatsAppAnalytics = ({
                 <Card className="bg-white rounded-2xl shadow-sm border-0 overflow-hidden">
                     <div className="p-6">
                         <h3 className="text-xl font-bold text-gray-900 mb-4">📈 Mesaj Aktivitesi</h3>
-                        <div className="h-80">
-                            <Chart type="line" data={chartData.messages} options={chartOptions} />
-                        </div>
+
+                        <Chart type="line" data={chartData.messages} options={chartOptions} className="h-80" />
+
                     </div>
                 </Card>
 
@@ -368,9 +368,9 @@ export const WhatsAppAnalytics = ({
                 <Card className="bg-white rounded-2xl shadow-sm border-0 overflow-hidden">
                     <div className="p-6">
                         <h3 className="text-xl font-bold text-gray-900 mb-4">👥 Yeni İletişimler</h3>
-                        <div className="h-80">
-                            <Chart type="bar" data={chartData.contacts} options={chartOptions} />
-                        </div>
+
+                        <Chart type="bar" data={chartData.contacts} options={chartOptions} className="h-80" />
+
                     </div>
                 </Card>
 
@@ -392,9 +392,8 @@ export const WhatsAppAnalytics = ({
                     <div className="p-6">
                         <h3 className="text-xl font-bold text-gray-900 mb-4">🕐 Saatlik Aktivite</h3>
                         <p className="text-sm text-gray-600 mb-4">24 saat boyunca mesaj aktivite yoğunluğu</p>
-                        <div className="h-80">
-                            <Chart type="line" data={chartData.hourlyActivity} options={chartOptions} />
-                        </div>
+                        <Chart type="line" data={chartData.hourlyActivity} options={chartOptions} className="h-80" />
+
                     </div>
                 </Card>
 
@@ -413,7 +412,7 @@ export const WhatsAppAnalytics = ({
             {/* Quick Stats Summary */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
-                    { title: "Ortalama Günlük Mesaj", value: "67", icon: "📨", color: "from-green-500 to-emerald-500" },
+                    { title: "Ortalama Günlük Mesaj", value: "67", icon: "📨", color: "from-blue-500 to-indigo-500" },
                     { title: "Yanıt Oranı", value: "87%", icon: "✅", color: "from-blue-500 to-indigo-500" },
                     { title: "Yeni Müşteri", value: "15", icon: "👤", color: "from-purple-500 to-pink-500" },
                     { title: "Müşteri Memnuniyeti", value: "92%", icon: "😊", color: "from-orange-500 to-red-500" }

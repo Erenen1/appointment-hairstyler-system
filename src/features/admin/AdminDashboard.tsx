@@ -23,11 +23,10 @@ interface Status {
 
 interface AdminDashboardProps {
     appointments: Appointment[];
-    services: { id: number }[];
     statuses: Status[];
 }
 
-export default function AdminDashboard({ appointments, services, statuses }: AdminDashboardProps) {
+export default function AdminDashboard({ appointments, statuses }: AdminDashboardProps) {
     const total = appointments.length;
     const byStatus = statuses.map((s) => ({
         label: s.displayName,
@@ -60,13 +59,7 @@ export default function AdminDashboard({ appointments, services, statuses }: Adm
                     </div>
                 </Card>
 
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <div className="text-center">
-                        <div className="text-4xl font-bold text-blue-600 mb-2">{services.length}</div>
-                        <div className="text-lg font-semibold text-blue-800">Hizmetler</div>
-                        <div className="text-sm text-blue-600">Aktif hizmet sayısı</div>
-                    </div>
-                </Card>
+
 
                 <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
                     <div className="text-center">
@@ -108,25 +101,7 @@ export default function AdminDashboard({ appointments, services, statuses }: Adm
                     </Card>
                 </Link>
 
-                <Link href="/admin/personeller" className="no-underline group">
-                    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-105 cursor-pointer">
-                        <div className="text-center p-4">
-                            <i className="pi pi-id-card text-4xl text-blue-600 mb-3"></i>
-                            <div className="text-lg font-semibold text-blue-800">Personeller</div>
-                            <div className="text-sm text-blue-600">Çalışma günleri ve yük</div>
-                        </div>
-                    </Card>
-                </Link>
 
-                <Link href="/admin/servisler" className="no-underline group">
-                    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-105 cursor-pointer">
-                        <div className="text-center p-4">
-                            <i className="pi pi-briefcase text-4xl text-blue-600 mb-3"></i>
-                            <div className="text-lg font-semibold text-blue-800">Servisler</div>
-                            <div className="text-sm text-blue-600">Fiyat ve süre</div>
-                        </div>
-                    </Card>
-                </Link>
 
                 <Link href="/admin/cari" className="no-underline group">
                     <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-105 cursor-pointer">
@@ -138,15 +113,7 @@ export default function AdminDashboard({ appointments, services, statuses }: Adm
                     </Card>
                 </Link>
 
-                <Link href="/admin/adisyon" className="no-underline group">
-                    <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-105 cursor-pointer">
-                        <div className="text-center p-4">
-                            <i className="pi pi-receipt text-4xl text-blue-600 mb-3"></i>
-                            <div className="text-lg font-semibold text-blue-800">Adisyon</div>
-                            <div className="text-sm text-blue-600">Fatura ve ödemeler</div>
-                        </div>
-                    </Card>
-                </Link>
+
 
                 <Link href="/admin/gelir" className="no-underline group">
                     <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-105 cursor-pointer">

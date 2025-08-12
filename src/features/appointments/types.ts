@@ -1,25 +1,36 @@
 export interface Appointment {
     id: number;
+    customerId: number;
+    staffId: number;
+    serviceId: number;
+    statusId: number;
     appointmentDate: string;
     startTime: string;
     endTime: string;
-    customerId: number;
-    serviceId: number;
-    staffId: number;
-    statusId: number;
     notes?: string;
-    duration: number;
-    price: number;
-    createdAt: string;
-    updatedAt: string;
 }
 
 export interface AppointmentStatus {
     id: number;
-    name: string;
     displayName: string;
     color: string;
-    description?: string;
+}
+
+// Minimal types for compatibility
+export interface Service {
+    id: number;
+    title: string;
+    price: string;
+    duration: string;
+}
+
+export interface Staff {
+    id: number;
+    fullName: string;
+    specialties: string;
+    email: string;
+    phone: string;
+    isActive: boolean;
 }
 
 export interface AppointmentFilter {

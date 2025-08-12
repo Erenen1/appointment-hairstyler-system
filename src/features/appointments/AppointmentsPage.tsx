@@ -12,11 +12,11 @@ import { useMemo, useState } from "react";
 import { SelectButton } from "primereact/selectbutton";
 import { parseISO, startOfISOWeek, startOfMonth, startOfYear, format, getISOWeek } from "date-fns";
 import { Appointment, AppointmentStatus } from "./types";
-import { Service } from "../services/types";
-import { Staff } from "../../service/dataService";
+import { Service, Staff } from "./types";
 import AppointmentForm from "./components/AppointmentForm";
 import AppointmentStats from "./components/AppointmentStats";
-import { exportAppointmentsToExcel } from "./utils/exportUtils";
+import { ExportButton } from "../../components/ui/ExportButton";
+import { exportAppointmentsToCsv } from "../../lib/exportUtils";
 
 interface AppointmentsPageProps {
     appointments?: Appointment[];
@@ -206,7 +206,7 @@ export default function AppointmentsPage({
     };
 
     const handleExport = () => {
-        exportAppointmentsToExcel(appointments, initialServices, initialStaff);
+        exportAppointmentsToCsv(appointments);
     };
 
     const actionBodyTemplate = (rowData: Appointment & { service?: string; staff?: string; status?: string }) => {
@@ -329,12 +329,9 @@ export default function AppointmentsPage({
                     </div>
 
                     <div className="flex gap-3">
-                        <Button
-                            icon="pi pi-download"
+                        <ExportButton
+                            onExport={handleExport}
                             label="Excel İndir"
-                            severity="success"
-                            onClick={handleExport}
-                            className="bg-green-600 hover:bg-green-700 border-green-600"
                         />
                         <Button
                             icon="pi pi-plus"

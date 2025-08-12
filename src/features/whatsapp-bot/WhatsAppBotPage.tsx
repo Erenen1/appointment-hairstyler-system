@@ -8,9 +8,10 @@ import { Badge } from "primereact/badge";
 import { ProgressBar } from "primereact/progressbar";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { InputText } from "primereact/inputtext";
+
 import { useWhatsApp } from "./hooks/useWhatsApp";
 import { ContactList, MessageList, WhatsAppAnalytics } from "./components";
+import { PageHeader } from "../../components/ui/PageHeader";
 
 export default function WhatsAppBotPage() {
     const {
@@ -37,9 +38,9 @@ export default function WhatsAppBotPage() {
     const renderOverviewTab = () => (
         <div className="space-y-8">
             {/* Hero Section with Business Name */}
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-8 border border-green-100">
+            <div className="bg-white rounded-xl p-8 border border-gray-200">
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mb-6 shadow-lg">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-6 shadow-lg">
                         <i className="pi pi-whatsapp text-white text-3xl"></i>
                     </div>
                     <h1 className="text-4xl font-bold text-gray-900 mb-3">
@@ -52,16 +53,16 @@ export default function WhatsAppBotPage() {
 
                 {/* Status Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white rounded-lg p-6 text-center border border-green-100">
-                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i className="pi pi-check-circle text-green-600 text-xl"></i>
+                    <div className="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i className="pi pi-check-circle text-blue-600 text-xl"></i>
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">Webhook Durumu</h3>
                         <Badge value="Aktif" severity="success" className="text-sm" />
                         <p className="text-sm text-gray-600 mt-2">Gerçek zamanlı veri akışı</p>
                     </div>
 
-                    <div className="bg-white rounded-lg p-6 text-center border border-green-100">
+                    <div className="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
                         <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i className="pi pi-server text-blue-600 text-xl"></i>
                         </div>
@@ -70,7 +71,7 @@ export default function WhatsAppBotPage() {
                         <p className="text-sm text-gray-600 mt-2">Stabil bağlantı</p>
                     </div>
 
-                    <div className="bg-white rounded-lg p-6 text-center border border-green-100">
+                    <div className="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
                         <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i className="pi pi-database text-purple-600 text-xl"></i>
                         </div>
@@ -116,7 +117,7 @@ export default function WhatsAppBotPage() {
                         <Button
                             icon="pi pi-refresh"
                             label="Yenile"
-                            className="bg-green-600 hover:bg-green-700 border-green-600 px-6 py-3 rounded-xl shadow-sm"
+                            className="!bg-green-600 hover:!bg-green-700 !border-green-600 px-6 py-3 rounded-xl shadow-sm"
                             onClick={refreshData}
                         />
                         <Button
@@ -278,51 +279,125 @@ export default function WhatsAppBotPage() {
 
     const renderMessagesTab = () => (
         <div className="space-y-6">
-            {/* Messages Header */}
-            <Card className="bg-white rounded-xl border-0">
-                <div className="p-6">
-                    <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
-                        <div>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-2">AI Bot Konuşma Geçmişi</h3>
-                            <p className="text-gray-600">Webhook üzerinden gelen tüm AI konuşmalarını görüntüleyin ve analiz edin</p>
+            {/* Messages Header - Yeşil Transparent */}
+            <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl p-8 border border-green-200/50">
+                <div className="text-center mb-6">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mb-6 shadow-lg">
+                        <i className="pi pi-comments text-white text-3xl"></i>
+                    </div>
+                    <h3 className="text-4xl font-bold text-gray-900 mb-3">AI Bot Konuşma Geçmişi</h3>
+                    <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                        Webhook üzerinden gelen tüm AI konuşmalarını görüntüleyin, müşterilerinizle olan konuşmaları takip edin ve analiz edin
+                    </p>
+                </div>
+
+                {/* Quick Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 text-center border border-green-200/50">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i className="pi pi-comments text-green-600 text-xl"></i>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <InputText
-                                placeholder="Mesaj ara..."
-                                value={globalFilter}
-                                onChange={(e) => setGlobalFilter(e.target.value)}
-                                className="w-full sm:w-80 rounded-lg border-gray-200 focus:border-green-500 focus:ring-green-500"
+                        <h4 className="text-lg font-semibold text-gray-900 mb-1">Toplam Mesaj</h4>
+                        <p className="text-2xl font-bold text-green-600">{messages.length}</p>
+                    </div>
+
+                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 text-center border border-green-200/50">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i className="pi pi-users text-blue-600 text-xl"></i>
+                        </div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-1">Aktif Müşteri</h4>
+                        <p className="text-2xl font-bold text-blue-600">{contacts.length}</p>
+                    </div>
+
+                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 text-center border border-green-200/50">
+                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i className="pi pi-bolt text-purple-600 text-xl"></i>
+                        </div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-1">AI Yanıtları</h4>
+                        <p className="text-2xl font-bold text-purple-600">{messages.filter(m => m.fromMe).length}</p>
+                    </div>
+
+                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 text-center border border-green-200/50">
+                        <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i className="pi pi-clock text-orange-600 text-xl"></i>
+                        </div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-1">Ortalama Süre</h4>
+                        <p className="text-2xl font-bold text-orange-600">2.3dk</p>
+                    </div>
+                </div>
+            </div>
+
+
+
+            {/* Enhanced Split View with Scrollbars */}
+            <div className="h-[700px] bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div className="grid grid-cols-1 lg:grid-cols-3 h-full">
+                    {/* Contacts Panel - Sol Taraf */}
+                    <div className="lg:col-span-1 border-r border-gray-200 bg-gray-50/50">
+                        <div className="p-4 border-b border-gray-200 bg-white">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                                    <i className="pi pi-users text-green-600 text-xl"></i>
+                                </div>
+                                <h4 className="text-lg font-bold text-gray-900">Müşteri Listesi</h4>
+                                <Badge value={contacts.length} className="bg-green-100 text-green-800" />
+                            </div>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Müşterilerinizi seçin ve konuşma geçmişini görüntüleyin
+                            </p>
+                        </div>
+
+                        <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-green-300 scrollbar-track-gray-100">
+                            <ContactList
+                                contacts={contacts}
+                                selectedContact={selectedContact}
+                                onContactSelect={loadContactMessages}
+                                onMarkAsRead={markContactAsRead}
+                                globalFilter={globalFilter}
+                                onGlobalFilterChange={setGlobalFilter}
+                                contactFilter={contactFilter}
+                                onContactFilterChange={setContactFilter}
+                                loading={loading}
                             />
                         </div>
                     </div>
-                </div>
-            </Card>
 
-            {/* Enhanced Split View */}
-            <div className="h-[800px]">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-                    {/* Contacts Panel */}
-                    <div className="lg:col-span-1">
-                        <ContactList
-                            contacts={contacts}
-                            selectedContact={selectedContact}
-                            onContactSelect={loadContactMessages}
-                            onMarkAsRead={markContactAsRead}
-                            globalFilter={globalFilter}
-                            onGlobalFilterChange={setGlobalFilter}
-                            contactFilter={contactFilter}
-                            onContactFilterChange={setContactFilter}
-                            loading={loading}
-                        />
-                    </div>
+                    {/* Messages Panel - Sağ Taraf */}
+                    <div className="lg:col-span-2 bg-white">
+                        <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                                    <i className="pi pi-bolt text-green-600 text-xl"></i>
+                                </div>
+                                <h4 className="text-lg font-bold text-gray-900">AI Assistant Konuşması</h4>
+                                {selectedContact && (
+                                    <Badge
+                                        value={selectedContactMessages.length}
+                                        className="bg-green-100 text-green-800"
+                                    />
+                                )}
+                            </div>
+                            <p className="text-sm text-gray-600">
+                                {selectedContact
+                                    ? `${contacts.find(c => c.phoneNumber === selectedContact)?.name || selectedContact} ile olan konuşma`
+                                    : "Bir müşteri seçin ve konuşma geçmişini görüntüleyin"
+                                }
+                            </p>
+                        </div>
 
-                    {/* Messages Panel */}
-                    <div className="lg:col-span-2">
-                        <MessageList
-                            messages={selectedContact ? selectedContactMessages : messages}
-                            selectedContact={selectedContact}
-                            loading={loading}
-                        />
+                        <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-green-300 scrollbar-track-gray-100">
+                            <MessageList
+                                messages={selectedContact ? selectedContactMessages : messages}
+                                selectedContact={selectedContact}
+                                loading={loading}
+                                onSendMessage={() => {
+                                    if (selectedContact) {
+                                        const cleanNumber = selectedContact.replace(/[^\d]/g, '');
+                                        window.open(`https://wa.me/${cleanNumber}`, '_blank');
+                                    }
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -330,39 +405,36 @@ export default function WhatsAppBotPage() {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50 to-emerald-50">
-            <div className="max-w-7xl mx-auto p-6 space-y-8">
-                {/* Page Header */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mb-4 shadow-lg">
-                        <i className="pi pi-whatsapp text-white text-2xl"></i>
-                    </div>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3">WhatsApp Bot Yönetimi</h1>
-                    <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                        {botConfig?.instanceName || 'Business'} için gelişmiş WhatsApp bot yönetim paneli.
-                        Webhook entegrasyonu ile gerçek zamanlı veri akışı ve kapsamlı analitik.
-                    </p>
-                </div>
+        <div className="w-full p-4 md:p-6 space-y-6">
+            {/* Page Header */}
+            <PageHeader
+                title="WhatsApp Bot Yönetimi"
+                description={`${botConfig?.instanceName || 'Business'} için gelişmiş WhatsApp bot yönetim paneli. Webhook entegrasyonu ile gerçek zamanlı veri akışı ve kapsamlı analitik.`}
+                icon="pi pi-whatsapp"
+                iconBgColor="from-green-500 to-emerald-600"
+                gradientFrom="from-green-50"
+                gradientTo="to-emerald-100"
+                borderColor="border-green-200"
+            />
 
-                {/* Main Content */}
-                <Card className="bg-white rounded-xl border-0 overflow-hidden">
-                    <TabView
-                        activeIndex={activeTabIndex}
-                        onTabChange={(e) => setActiveTabIndex(e.index)}
-                        className="border-0"
-                    >
-                        <TabPanel header="Genel Bakış" className="p-8">
-                            {renderOverviewTab()}
-                        </TabPanel>
-                        <TabPanel header="Analitik" className="p-8">
-                            {renderAnalyticsTab()}
-                        </TabPanel>
-                        <TabPanel header="Mesajlar" className="p-8">
-                            {renderMessagesTab()}
-                        </TabPanel>
-                    </TabView>
-                </Card>
-            </div>
+            {/* Main Content */}
+            <Card className="bg-white rounded-xl border-0 overflow-hidden">
+                <TabView
+                    activeIndex={activeTabIndex}
+                    onTabChange={(e) => setActiveTabIndex(e.index)}
+                    className="border-0 [&_.p-tabview-nav]:border-gray-200 [&_.p-tabview-nav-link]:text-gray-600 [&_.p-tabview-nav-link]:border-transparent [&_.p-tabview-nav-link]:bg-transparent [&_.p-tabview-nav-link.p-highlight]:text-green-600 [&_.p-tabview-nav-link.p-highlight]:border-green-500 [&_.p-tabview-nav-link.p-highlight]:bg-green-50 [&_.p-tabview-nav-link]:hover:text-green-600 [&_.p-tabview-nav-link]:hover:border-green-300 [&_.p-tabview-nav-link]:hover:bg-green-50"
+                >
+                    <TabPanel header="Genel Bakış" className="p-8">
+                        {renderOverviewTab()}
+                    </TabPanel>
+                    <TabPanel header="Analitik" className="p-8">
+                        {renderAnalyticsTab()}
+                    </TabPanel>
+                    <TabPanel header="Mesajlar" className="p-8">
+                        {renderMessagesTab()}
+                    </TabPanel>
+                </TabView>
+            </Card>
         </div>
     );
 }

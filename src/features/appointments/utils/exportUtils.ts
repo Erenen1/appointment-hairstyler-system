@@ -1,6 +1,5 @@
 import { Appointment } from '../types';
-import { Service } from '../../services/types';
-import { Staff } from '../../../service/dataService';
+import { Service, Staff } from '../types';
 
 export const exportAppointmentsToCSV = (
     appointments: Appointment[],

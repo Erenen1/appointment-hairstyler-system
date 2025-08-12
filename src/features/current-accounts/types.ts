@@ -1,15 +1,11 @@
 export interface CurrentAccount {
     id: number;
-    customerId: number;
-    type: 'receivable' | 'payable';
-    amount: number;
+    name: string;
+    phone: string;
+    email: string;
     balance: number;
-    dueDate?: string;
-    description: string;
+    lastTransaction: string;
     status: 'active' | 'paid' | 'overdue' | 'cancelled';
-    notes?: string;
-    createdAt: string;
-    updatedAt: string;
 }
 
 export interface CurrentAccountTransaction {

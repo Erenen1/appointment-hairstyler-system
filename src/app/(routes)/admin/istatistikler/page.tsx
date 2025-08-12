@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import "chart.js/auto";
 import { AnalyticsContent, useStatistics, Property } from "@/features/statistics";
+import { StatisticsPageSkeleton } from "@/components/ui/skeleton";
 import properties from "@/mocks/properties.json";
 
 // Transform properties data for analytics
@@ -22,6 +24,20 @@ const mockProperties: Property[] = properties.map(p => ({
 }));
 
 export default function IstatistiklerPage() {
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (isLoading) {
+        return <StatisticsPageSkeleton />;
+    }
+
     const {
         propertyTypeChart,
         clicksChart,

@@ -9,10 +9,7 @@ const menuModel = [
     { label: "Randevu Takvimi", icon: "pi pi-calendar", url: "/admin/randevu-takvimi" },
     { label: "Randevular", icon: "pi pi-chart-line", url: "/admin/randevular" },
     { label: "Müşteriler", icon: "pi pi-users", url: "/admin/musteriler" },
-    { label: "Personeller", icon: "pi pi-id-card", url: "/admin/personeller" },
-    { label: "Servisler", icon: "pi pi-briefcase", url: "/admin/servisler" },
     { label: "Cari", icon: "pi pi-credit-card", url: "/admin/cari" },
-    { label: "Adisyon", icon: "pi pi-receipt", url: "/admin/adisyon" },
     { label: "Gelir", icon: "pi pi-arrow-up", url: "/admin/gelir" },
     { label: "Gider", icon: "pi pi-arrow-down", url: "/admin/gider" },
 ];

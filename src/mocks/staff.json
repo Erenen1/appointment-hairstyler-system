@@ -1,62 +1,10 @@
 [
   {
     "id": 1,
-    "fullName": "Elif Şahin",
-    "phone": "+90 532 444 5566",
-    "email": "elif@kuafor.com",
-    "password": "$2b$10$staff_password_hash_1",
-    "specialties": "Saç kesimi, saç boyama, highlights",
-    "lastLogin": "2024-01-15T08:00:00.000Z",
-    "profileImage": "/images/staff/elif-sahin.jpg",
-    "isActive": true,
-    "workingDays": "1,2,3,4,5",
-    "orderIndex": 1,
-    "createdAt": "2023-01-01T10:00:00.000Z",
-    "updatedAt": "2024-01-15T08:00:00.000Z"
-  },
-  {
-    "id": 2,
-    "fullName": "Zeynep Özkan",
-    "phone": "+90 541 777 8899",
-    "email": "zeynep@kuafor.com",
-    "password": "$2b$10$staff_password_hash_2",
-    "specialties": "Makyaj, gelin saçı, özel günler",
-    "lastLogin": "2024-01-14T09:30:00.000Z",
-    "profileImage": "/images/staff/zeynep-ozkan.jpg",
-    "isActive": true,
-    "workingDays": "1,2,3,4,5,6",
-    "orderIndex": 2,
-    "createdAt": "2023-02-01T10:00:00.000Z",
-    "updatedAt": "2024-01-14T09:30:00.000Z"
-  },
-  {
-    "id": 3,
-    "fullName": "Can Arslan",
-    "phone": "+90 555 333 4444",
-    "email": "can@kuafor.com",
-    "password": "$2b$10$staff_password_hash_3",
-    "specialties": "Erkek saç kesimi, sakal tıraşı, stil danışmanlığı",
-    "lastLogin": "2024-01-13T10:15:00.000Z",
-    "profileImage": "/images/staff/can-arslan.jpg",
-    "isActive": true,
-    "workingDays": "1,2,3,4,5,6",
-    "orderIndex": 3,
-    "createdAt": "2023-03-01T10:00:00.000Z",
-    "updatedAt": "2024-01-13T10:15:00.000Z"
-  },
-  {
-    "id": 4,
-    "fullName": "Selin Korkmaz",
-    "phone": "+90 534 666 7777",
-    "email": "selin@kuafor.com",
-    "password": "$2b$10$staff_password_hash_4",
-    "specialties": "Perma, keratin bakımı, saç tedavileri",
-    "lastLogin": "2024-01-12T11:00:00.000Z",
-    "profileImage": "/images/staff/selin-korkmaz.jpg",
-    "isActive": true,
-    "workingDays": "2,3,4,5,6",
-    "orderIndex": 4,
-    "createdAt": "2023-04-01T10:00:00.000Z",
-    "updatedAt": "2024-01-12T11:00:00.000Z"
+    "fullName": "Genel Personel",
+    "specialties": "Genel",
+    "email": "personel@example.com",
+    "phone": "+90 555 000 0000",
+    "isActive": true
   }
 ]

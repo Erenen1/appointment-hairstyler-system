@@ -66,7 +66,7 @@ export const WhatsAppStatsComponent = ({ stats, botConfig, loading = false, onRe
     return (
         <div className="space-y-6">
             {/* Bot Status Card */}
-            <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">

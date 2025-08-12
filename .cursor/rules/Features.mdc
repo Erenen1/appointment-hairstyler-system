@@ -180,3 +180,91 @@ const actionTemplate = (rowData: Customer) => (
 
 ---
 ```
+
+# Müşteri Düzenleme / Güncelleme / Silme İşlemleri
+
+## Bağlam
+
+Bu kod parçacığı, PrimeReact bileşenleri kullanan React + TypeScript tabanlı bir uygulamaya aittir.  
+Aşağıdaki işlevleri tanımlar:
+
+- `handleEditCustomer`: Müşteriyi düzenleme formuna yükler
+- `handleUpdateCustomer`: Müşteri bilgilerini günceller
+- `handleDeleteCustomer`: Müşteriyi siler (onay penceresi ile)
+
+## Amaç [örnek]
+
+Bu fonksiyonlar, müşteri listesini (`customers`) günceller ve PrimeReact `Toast` bileşeni ile kullanıcıya geri bildirim verir.  
+Silme işlemi öncesinde `confirmDialog` kullanılarak onay alınır.
+
+## Kod
+
+```tsx
+const handleEditCustomer = (customer: Customer) => {
+  setEditingCustomer(customer);
+  setEditingForm({
+    fullName: customer.fullName,
+    email: customer.email,
+    phone: customer.phone,
+    address: customer.address,
+    profession: customer.profession,
+    budget: customer.budget,
+    preferredType: customer.preferredType,
+    preferredCategory: customer.preferredCategory,
+    preferredDistricts: customer.preferredDistricts,
+    minArea: customer.minArea,
+    maxArea: customer.maxArea,
+    minRooms: customer.minRooms,
+    requirements: customer.requirements,
+    priority: customer.priority,
+    notes: customer.notes,
+    assignedAgent: customer.assignedAgent,
+  });
+  setShowEditDialog(true);
+};
+
+const handleUpdateCustomer = () => {
+  if (editingCustomer && editingForm) {
+    const updatedCustomer = {
+      ...editingCustomer,
+      ...editingForm,
+      lastContact: new Date().toISOString(),
+    };
+
+    setCustomers((prev) =>
+      prev.map((c) => (c.id === editingCustomer.id ? updatedCustomer : c))
+    );
+
+    setShowEditDialog(false);
+    setEditingCustomer(null);
+    setEditingForm(null);
+
+    toast.current?.show({
+      severity: "success",
+      summary: "Başarılı",
+      detail: "Müşteri bilgileri güncellendi",
+      life: 3000,
+    });
+  }
+};
+
+const handleDeleteCustomer = (customerId: number) => {
+  confirmDialog({
+    message: `${
+      customers.find((c) => c.id === customerId)?.fullName
+    } müşterisini silmek istediğinizden emin misiniz?`,
+    header: "Müşteri Silme Onayı",
+    icon: "pi pi-exclamation-triangle",
+    acceptClassName: "p-button-danger",
+    accept: () => {
+      setCustomers((prev) => prev.filter((c) => c.id !== customerId));
+      toast.current?.show({
+        severity: "success",
+        summary: "Başarılı",
+        detail: "Müşteri silindi",
+        life: 3000,
+      });
+    },
+  });
+};
+```

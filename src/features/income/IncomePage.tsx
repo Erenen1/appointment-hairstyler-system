@@ -15,31 +15,51 @@ import { MultiSelect } from "primereact/multiselect";
 import { Calendar } from "primereact/calendar";
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Tag } from "primereact/tag";
-import { Income, IncomeForm } from "./types";
+import { Income } from "./types";
+import { useCrudOperations } from "../../hooks";
+import { IncomeActionButtons, IncomeStatsCard, IncomeTransparentHeader } from "../../components/ui";
+import { exportIncomeToCsv } from "../../lib/exportUtils";
+import { Toast } from "primereact/toast";
+import { ConfirmDialog } from "primereact/confirmdialog";
+import { ExportButton } from "../../components/ui/ExportButton";
 
 interface IncomePageProps {
     income?: Income[];
 }
 
 export default function IncomePage({ income: initialIncome = [] }: IncomePageProps) {
-    const [incomeState, setIncomeState] = useState<Income[]>(initialIncome);
-    const [selected, setSelected] = useState<Income | null>(null);
+    const [income, setIncome] = useState<Income[]>(initialIncome);
     const [globalFilter, setGlobalFilter] = useState<string>("");
     const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     const [sourceFilter, setSourceFilter] = useState<string[]>([]);
     const [dateFilter, setDateFilter] = useState<Date | null>(null);
-    const [showDialog, setShowDialog] = useState(false);
-    const [form, setForm] = useState<IncomeForm>({
+
+    const defaultForm: Partial<Income> = {
         category: "",
         amount: 0,
         date: new Date().toISOString().split('T')[0],
         description: "",
         paymentMethod: "cash",
         source: "service_sales"
-    });
+    };
+
+    const {
+        items: hookIncome,
+        showDialog,
+        setShowDialog,
+        form,
+        setForm,
+        dialogMode,
+        toast,
+        openAdd,
+        openEdit,
+        handleDelete,
+        handleSave,
+        resetForm
+    } = useCrudOperations<Income>(income, defaultForm, 'id', setIncome);
 
     const filteredIncome = useMemo(() => {
-        return incomeState.filter((i) => {
+        return hookIncome.filter((i) => {
             const okCategory = categoryFilter.length === 0 || categoryFilter.includes(i.category);
             const okSource = sourceFilter.length === 0 || sourceFilter.includes(i.source);
             const okDate = !dateFilter || new Date(i.date).toDateString() === dateFilter.toDateString();
@@ -47,10 +67,10 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
             const okSearch = !globalFilter || text.includes(globalFilter.toLowerCase());
             return okCategory && okSource && okDate && okSearch;
         });
-    }, [incomeState, categoryFilter, sourceFilter, dateFilter, globalFilter]);
+    }, [hookIncome, categoryFilter, sourceFilter, dateFilter, globalFilter]);
 
     const chartData = useMemo(() => {
-        const categoryTotals = incomeState.reduce((acc, income) => {
+        const categoryTotals = hookIncome.reduce((acc, income) => {
             acc[income.category] = (acc[income.category] || 0) + income.amount;
             return acc;
         }, {} as Record<string, number>);
@@ -75,10 +95,10 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
                 responsive: true
             }
         };
-    }, [incomeState]);
+    }, [hookIncome]);
 
     const monthlyData = useMemo(() => {
-        const monthlyTotals = incomeState.reduce((acc, income) => {
+        const monthlyTotals = hookIncome.reduce((acc, income) => {
             const month = new Date(income.date).toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
             acc[month] = (acc[month] || 0) + income.amount;
             return acc;
@@ -112,66 +132,34 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
                 }
             }
         };
-    }, [incomeState]);
+    }, [hookIncome]);
 
-    const openAdd = () => {
-        setForm({
-            category: "",
-            amount: 0,
-            date: new Date().toISOString().split('T')[0],
-            description: "",
-            paymentMethod: "cash",
-            source: "service_sales"
-        });
-        setShowDialog(true);
+    const validateForm = () => {
+        return !!(form.category && form.amount && form.description);
     };
 
-    const openEdit = () => {
-        if (!selected) return;
-        setForm({
-            id: selected.id,
-            category: selected.category,
-            amount: selected.amount,
-            date: selected.date,
-            description: selected.description,
-            paymentMethod: selected.paymentMethod,
-            source: selected.source
-        });
-        setShowDialog(true);
+    const createIncome = (formData: Partial<Income>): Income => {
+        return {
+            id: Math.max(0, ...hookIncome.map(i => i.id)) + 1,
+            category: formData.category || "",
+            amount: formData.amount || 0,
+            date: formData.date || new Date().toISOString().split('T')[0],
+            description: formData.description || "",
+            paymentMethod: formData.paymentMethod || "cash",
+            source: formData.source || "service_sales"
+        };
     };
 
-    const onDelete = () => {
-        if (!selected) return;
-        setIncomeState((arr) => arr.filter((i) => i.id !== selected.id));
-        setSelected(null);
-    };
-
-    const onSave = () => {
-        if (!form.category.trim() || form.amount <= 0 || !form.description.trim()) return;
-
-        if (form.id) {
-            setIncomeState((arr) => arr.map((i) => (i.id === form.id ? {
-                ...i,
-                category: form.category,
-                amount: form.amount,
-                date: form.date,
-                description: form.description,
-                paymentMethod: form.paymentMethod,
-                source: form.source
-            } : i)));
-        } else {
-            const newId = Math.max(0, ...incomeState.map((i) => i.id)) + 1;
-            setIncomeState((arr) => [...arr, {
-                id: newId,
-                category: form.category,
-                amount: form.amount,
-                date: form.date,
-                description: form.description,
-                paymentMethod: form.paymentMethod,
-                source: form.source
-            }]);
-        }
-        setShowDialog(false);
+    const updateIncome = (id: number, formData: Partial<Income>): Income => {
+        return {
+            id,
+            category: formData.category || "",
+            amount: formData.amount || 0,
+            date: formData.date || new Date().toISOString().split('T')[0],
+            description: formData.description || "",
+            paymentMethod: formData.paymentMethod || "cash",
+            source: formData.source || "service_sales"
+        };
     };
 
     const getPaymentMethodLabel = (method: string) => {
@@ -210,16 +198,16 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
         }
     };
 
-    const totalIncome = incomeState.reduce((sum, i) => sum + i.amount, 0);
-    const thisMonthIncome = incomeState
+    const totalIncome = hookIncome.reduce((sum, i) => sum + i.amount, 0);
+    const thisMonthIncome = hookIncome
         .filter(i => new Date(i.date).getMonth() === new Date().getMonth())
         .reduce((sum, i) => sum + i.amount, 0);
-    const todayIncome = incomeState
+    const todayIncome = hookIncome
         .filter(i => new Date(i.date).toDateString() === new Date().toDateString())
         .reduce((sum, i) => sum + i.amount, 0);
 
-    const categories = Array.from(new Set(incomeState.map(i => i.category)));
-    const sources = Array.from(new Set(incomeState.map(i => i.source)));
+    const categories = Array.from(new Set(hookIncome.map(i => i.category)));
+    const sources = Array.from(new Set(hookIncome.map(i => i.source)));
     const paymentMethods = [
         { label: "Nakit", value: "cash" },
         { label: "Kart", value: "card" },
@@ -228,32 +216,37 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
 
     return (
         <div className="p-4 md:p-6 space-y-6">
+            <Toast ref={toast} />
+            <ConfirmDialog />
+
+            {/* Gelir Sayfası Header */}
+            <IncomeTransparentHeader
+                title="Gelir Yönetimi"
+                description="Gelir kayıtlarınızı takip edin, analiz edin ve yönetin"
+            />
+
             {/* Özet Kartları */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
-                        {totalIncome.toFixed(0)}₺
-                    </div>
-                    <div className="text-sm text-gray-600">Toplam Gelir</div>
-                </Card>
-                <Card className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">
-                        {thisMonthIncome.toFixed(0)}₺
-                    </div>
-                    <div className="text-sm text-gray-600">Bu Ay</div>
-                </Card>
-                <Card className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">
-                        {todayIncome.toFixed(0)}₺
-                    </div>
-                    <div className="text-sm text-gray-600">Bugün</div>
-                </Card>
-                <Card className="text-center">
-                    <div className="text-2xl font-bold text-orange-600">
-                        {incomeState.length}
-                    </div>
-                    <div className="text-sm text-gray-600">Toplam Kayıt</div>
-                </Card>
+                <IncomeStatsCard
+                    title="Toplam Gelir"
+                    value={`${totalIncome.toFixed(0)}₺`}
+                    subtitle="Toplam gelir tutarı"
+                />
+                <IncomeStatsCard
+                    title="Bu Ay"
+                    value={`${thisMonthIncome.toFixed(0)}₺`}
+                    subtitle="Bu ayki gelir"
+                />
+                <IncomeStatsCard
+                    title="Bugün"
+                    value={`${todayIncome.toFixed(0)}₺`}
+                    subtitle="Bugünkü gelir"
+                />
+                <IncomeStatsCard
+                    title="Toplam Kayıt"
+                    value={hookIncome.length}
+                    subtitle="Toplam gelir kaydı"
+                />
             </div>
 
             {/* Grafikler */}
@@ -302,9 +295,19 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
                         />
                     </div>
                     <div className="flex gap-2">
+                        <ExportButton
+                            onExport={() => {
+                                exportIncomeToCsv(filteredIncome);
+                                toast.current?.show({
+                                    severity: 'success',
+                                    summary: 'Başarılı',
+                                    detail: 'Gelir listesi CSV formatında indirildi',
+                                    life: 3000
+                                });
+                            }}
+                            label="Excel İndir"
+                        />
                         <Button icon="pi pi-plus" label="Yeni Gelir" onClick={openAdd} />
-                        <Button icon="pi pi-pencil" label="Düzenle" onClick={openEdit} disabled={!selected} />
-                        <Button icon="pi pi-trash" label="Sil" severity="danger" onClick={onDelete} disabled={!selected} />
                     </div>
                 </div>
 
@@ -314,9 +317,6 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
                     rows={10}
                     stripedRows
                     tableStyle={{ minWidth: "100%" }}
-                    selectionMode="single"
-                    selection={selected}
-                    onSelectionChange={(e) => setSelected(e.value as Income)}
                     sortMode="multiple"
                     removableSort
                     globalFilter={globalFilter}
@@ -333,15 +333,30 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
                     <Column field="source" header="Kaynak" sortable style={{ minWidth: '120px' }} body={(rowData) => (
                         <Tag value={getSourceLabel(rowData.source)} severity={getSourceSeverity(rowData.source)} />
                     )} />
+                    <Column
+                        header="İşlemler"
+                        style={{ minWidth: '120px' }}
+                        body={(rowData) => (
+                            <IncomeActionButtons
+                                item={rowData}
+                                onEdit={openEdit}
+                                onDelete={() => handleDelete(rowData, rowData.category)}
+                                showView={false}
+                            />
+                        )}
+                    />
                 </DataTable>
             </Card>
 
             {/* Gelir Ekleme/Düzenleme Dialog */}
             <Dialog
-                header={form.id ? "Gelir Düzenle" : "Yeni Gelir"}
+                header={dialogMode === "edit" ? "Gelir Düzenle" : "Yeni Gelir"}
                 visible={showDialog}
                 style={{ width: "600px" }}
-                onHide={() => setShowDialog(false)}
+                onHide={() => {
+                    setShowDialog(false);
+                    resetForm(defaultForm);
+                }}
             >
                 <div className="grid gap-4">
                     <span className="p-float-label">
@@ -417,8 +432,19 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
                     </div>
 
                     <div className="flex justify-end gap-2">
-                        <Button label="Vazgeç" outlined onClick={() => setShowDialog(false)} />
-                        <Button label="Kaydet" icon="pi pi-check" onClick={onSave} />
+                        <Button
+                            label="Vazgeç"
+                            outlined
+                            onClick={() => {
+                                setShowDialog(false);
+                                resetForm(defaultForm);
+                            }}
+                        />
+                        <Button
+                            label="Kaydet"
+                            icon="pi pi-check"
+                            onClick={() => handleSave(validateForm, createIncome, updateIncome)}
+                        />
                     </div>
                 </div>
             </Dialog>

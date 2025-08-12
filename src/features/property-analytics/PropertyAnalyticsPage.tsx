@@ -2,12 +2,23 @@
 
 import "chart.js/auto";
 import { Card } from "primereact/card";
+import { Button } from "primereact/button";
 import { Property } from "./types";
 import { usePropertyAnalytics } from "./hooks/usePropertyAnalytics";
 import {
     AnalyticsCharts,
     PropertiesTable
 } from "./components";
+import { useState } from "react";
+import { Dialog } from "primereact/dialog";
+import { InputText } from "primereact/inputtext";
+import { InputNumber } from "primereact/inputnumber";
+import { Dropdown } from "primereact/dropdown";
+import { Toast } from "primereact/toast";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { useRef } from "react";
+import { exportPropertyAnalyticsToCsv } from "../../lib/exportUtils";
+import { ExportButton } from "../../components/ui/ExportButton";
 
 interface PropertyAnalyticsPageProps {
     properties?: Property[];
@@ -16,6 +27,11 @@ interface PropertyAnalyticsPageProps {
 export default function PropertyAnalyticsPage({
     properties: initialProperties = []
 }: PropertyAnalyticsPageProps) {
+    const [properties, setProperties] = useState<Property[]>(initialProperties);
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [editForm, setEditForm] = useState<Partial<Property>>({});
+    const toast = useRef<Toast>(null);
+
     const {
         filterState,
         setGlobalFilter,
@@ -32,10 +48,80 @@ export default function PropertyAnalyticsPage({
         stats,
         typeDistributionChart,
         performanceChart
-    } = usePropertyAnalytics(initialProperties);
+    } = usePropertyAnalytics(properties);
+
+    const handleView = (property: Property) => {
+        // You can implement a view dialog here if needed
+        toast.current?.show({
+            severity: 'info',
+            summary: 'İlan Detayı',
+            detail: `${property.title} ilanı görüntüleniyor`,
+            life: 3000
+        });
+    };
+
+    const handleEdit = (property: Property) => {
+        setEditForm(property);
+        setShowEditDialog(true);
+    };
+
+    const handleDelete = (property: Property) => {
+        confirmDialog({
+            message: `"${property.title}" ilanını silmek istediğinizden emin misiniz?`,
+            header: 'İlan Silme Onayı',
+            icon: 'pi pi-exclamation-triangle',
+            acceptClassName: 'p-button-danger',
+            acceptLabel: 'Evet',
+            rejectLabel: 'Hayır',
+            accept: () => {
+                setProperties(prev => prev.filter(p => p.id !== property.id));
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Başarılı',
+                    detail: 'İlan başarıyla silindi',
+                    life: 3000
+                });
+            }
+        });
+    };
+
+    const handleSaveEdit = () => {
+        if (!editForm.title || !editForm.price) return;
+
+        setProperties(prev => prev.map(p =>
+            p.id === editForm.id ? { ...p, ...editForm } : p
+        ));
+
+        setShowEditDialog(false);
+        setEditForm({});
+
+        toast.current?.show({
+            severity: 'success',
+            summary: 'Başarılı',
+            detail: 'İlan başarıyla güncellendi',
+            life: 3000
+        });
+    };
+
+    const categoryOptions = [
+        { label: "Daire", value: "Daire" },
+        { label: "Müstakil", value: "Müstakil" },
+        { label: "Villa", value: "Villa" },
+        { label: "Ofis", value: "Ofis" },
+        { label: "Dükkan", value: "Dükkan" },
+        { label: "Arsa", value: "Arsa" }
+    ];
+
+    const typeOptions = [
+        { label: "Satılık", value: "Satılık" },
+        { label: "Kiralık", value: "Kiralık" }
+    ];
 
     return (
         <div className="p-4 md:p-6 space-y-6">
+            <Toast ref={toast} />
+            <ConfirmDialog />
+
             {/* Hero Section */}
             <div className="bg-gradient-to-br from-indigo-50 to-purple-100 rounded-xl p-8 border border-indigo-200">
                 <div className="text-center mb-8">
@@ -48,6 +134,33 @@ export default function PropertyAnalyticsPage({
                     </p>
                 </div>
             </div>
+
+            {/* Featured Properties Section */}
+            {topProperties.length > 0 && (
+                <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
+                    <div className="text-center mb-6">
+                        <h2 className="text-2xl font-bold text-amber-800 mb-2">⭐ Öne Çıkan İlanlar</h2>
+                        <p className="text-amber-600">En yüksek performans gösteren ilanlarınız</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {topProperties.slice(0, 3).map((property) => (
+                            <div key={property.id} className="bg-white rounded-lg p-4 border border-amber-200 hover:shadow-md transition-shadow">
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="font-semibold text-gray-800 truncate">{property.title}</h3>
+                                    <span className="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-medium rounded-full">
+                                        ⭐ Öne Çıkan
+                                    </span>
+                                </div>
+                                <p className="text-sm text-gray-600 mb-2">{property.location}</p>
+                                <div className="flex items-center justify-between text-sm">
+                                    <span className="font-semibold text-green-600">₺{property.price.toLocaleString()}</span>
+                                    <span className="text-gray-500">{property.views} görüntüleme</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+            )}
 
             {/* Stats Cards with Icons */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
@@ -159,51 +272,18 @@ export default function PropertyAnalyticsPage({
                         </select>
                     </div>
                     <div className="flex gap-3">
-                        <button
-                            onClick={() => {
-                                // CSV Export Function
-                                const headers = [
-                                    "ID", "İlan Başlığı", "Tür", "Kategori", "Konum", "Fiyat",
-                                    "Alan (m²)", "Görüntüleme", "Tıklama", "Tıklama Oranı", "Durum", "Oluşturulma Tarihi"
-                                ];
-
-                                const csvData = filteredProperties.map(property => {
-                                    const clickRate = property.views > 0 ? (property.clicks / property.views) * 100 : 0;
-                                    return [
-                                        property.id,
-                                        property.title,
-                                        property.type,
-                                        property.category,
-                                        property.location,
-                                        property.price,
-                                        property.area,
-                                        property.views,
-                                        property.clicks,
-                                        `${clickRate.toFixed(1)}%`,
-                                        property.featured ? "Öne Çıkan" : "Normal",
-                                        new Date(property.createdAt).toLocaleDateString('tr-TR')
-                                    ];
+                        <ExportButton
+                            onExport={() => {
+                                exportPropertyAnalyticsToCsv(filteredProperties);
+                                toast.current?.show({
+                                    severity: 'success',
+                                    summary: 'Başarılı',
+                                    detail: 'İlan analitikleri CSV formatında indirildi',
+                                    life: 3000
                                 });
-
-                                const csvContent = [headers, ...csvData]
-                                    .map(row => row.map(field => `"${field}"`).join(','))
-                                    .join('\n');
-
-                                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                                const link = document.createElement('a');
-                                const url = URL.createObjectURL(blob);
-                                link.setAttribute('href', url);
-                                link.setAttribute('download', `ilan_analitikleri_${new Date().toISOString().split('T')[0]}.csv`);
-                                link.style.visibility = 'hidden';
-                                document.body.appendChild(link);
-                                link.click();
-                                document.body.removeChild(link);
                             }}
-                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2 transition-colors duration-200"
-                        >
-                            <i className="pi pi-download"></i>
-                            CSV İndir
-                        </button>
+                            label="Excel İndir"
+                        />
                         <select
                             value={filterState.sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
@@ -234,8 +314,111 @@ export default function PropertyAnalyticsPage({
                 <PropertiesTable
                     properties={filteredProperties}
                     globalFilter={filterState.global}
+                    onView={handleView}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
                 />
             </Card>
+
+            {/* Edit Property Dialog */}
+            <Dialog
+                header="İlan Düzenle"
+                visible={showEditDialog}
+                style={{ width: "600px" }}
+                onHide={() => {
+                    setShowEditDialog(false);
+                    setEditForm({});
+                }}
+            >
+                <div className="grid gap-4">
+                    <span className="p-float-label">
+                        <InputText
+                            id="title"
+                            value={editForm.title || ""}
+                            onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                            className="w-full"
+                        />
+                        <label htmlFor="title">İlan Başlığı</label>
+                    </span>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <span className="p-float-label">
+                            <Dropdown
+                                inputId="type"
+                                value={editForm.type || ""}
+                                onChange={(e) => setEditForm({ ...editForm, type: e.value })}
+                                options={typeOptions}
+                                className="w-full"
+                            />
+                            <label htmlFor="type">İlan Türü</label>
+                        </span>
+                        <span className="p-float-label">
+                            <Dropdown
+                                inputId="category"
+                                value={editForm.category || ""}
+                                onChange={(e) => setEditForm({ ...editForm, category: e.value })}
+                                options={categoryOptions}
+                                className="w-full"
+                            />
+                            <label htmlFor="category">Kategori</label>
+                        </span>
+                    </div>
+
+                    <span className="p-float-label">
+                        <InputText
+                            id="location"
+                            value={editForm.location || ""}
+                            onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                            className="w-full"
+                        />
+                        <label htmlFor="location">Konum</label>
+                    </span>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <span className="p-float-label">
+                            <InputNumber
+                                inputId="price"
+                                value={editForm.price || 0}
+                                onValueChange={(e) => setEditForm({ ...editForm, price: Number(e.value) || 0 })}
+                                className="w-full"
+                                suffix=" ₺"
+                                min={0}
+                                mode="decimal"
+                            />
+                            <label htmlFor="price">Fiyat</label>
+                        </span>
+                        <span className="p-float-label">
+                            <InputNumber
+                                inputId="area"
+                                value={editForm.area || 0}
+                                onValueChange={(e) => setEditForm({ ...editForm, area: Number(e.value) || 0 })}
+                                className="w-full"
+                                suffix=" m²"
+                                min={0}
+                                mode="decimal"
+                            />
+                            <label htmlFor="area">Alan</label>
+                        </span>
+                    </div>
+                </div>
+
+                <div className="flex justify-end gap-2 mt-6">
+                    <Button
+                        label="Vazgeç"
+                        outlined
+                        onClick={() => {
+                            setShowEditDialog(false);
+                            setEditForm({});
+                        }}
+                    />
+                    <Button
+                        label="Kaydet"
+                        icon="pi pi-check"
+                        onClick={handleSaveEdit}
+                        severity="success"
+                    />
+                </div>
+            </Dialog>
         </div>
     );
 }

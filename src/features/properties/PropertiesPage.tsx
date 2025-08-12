@@ -14,6 +14,12 @@ import { Dialog } from "primereact/dialog";
 import { Checkbox } from "primereact/checkbox";
 import { InputTextarea } from "primereact/inputtextarea";
 import { useMemo, useState } from "react";
+import { useCrudOperations } from "../../hooks";
+import { PropertyActionButtons, PropertyStatsCard } from "../../components/ui";
+import { ExportButton } from "../../components/ui/ExportButton";
+import { exportPropertiesToCsv } from "../../lib/exportUtils";
+import { Toast } from "primereact/toast";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 interface Property {
     id: number;
@@ -44,7 +50,7 @@ interface PropertiesPageProps {
     agents?: Agent[];
 }
 
-export default function PropertiesPage({ 
+export default function PropertiesPage({
     properties: initialProperties = [],
     agents: initialAgents = []
 }: PropertiesPageProps) {
@@ -54,15 +60,13 @@ export default function PropertiesPage({
     const [typeFilter, setTypeFilter] = useState<string[]>([]);
     const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
     const [statusFilter, setStatusFilter] = useState<string[]>([]);
-    const [showDialog, setShowDialog] = useState(false);
-    const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
 
-    const [form, setForm] = useState({
+    const defaultForm: Partial<Property> = {
         id: 0,
         title: "",
         price: 0,
         type: "Satılık",
-        category: "Daire", 
+        category: "Daire",
         location: "",
         area: 0,
         rooms: "2+1",
@@ -70,7 +74,21 @@ export default function PropertiesPage({
         featured: false,
         status: "active",
         agentId: 1
-    });
+    };
+
+    const {
+        showDialog,
+        setShowDialog,
+        form,
+        setForm,
+        dialogMode,
+        toast,
+        openAdd,
+        openEdit,
+        handleDelete,
+        handleSave,
+        resetForm
+    } = useCrudOperations<Property>(properties, defaultForm, 'id', setProperties);
 
     const typeOptions = [
         { label: "Satılık", value: "Satılık" },
@@ -113,95 +131,21 @@ export default function PropertiesPage({
         });
     }, [properties, typeFilter, categoryFilter, statusFilter, globalFilter]);
 
-    const openAdd = () => {
-        setForm({
-            id: 0,
-            title: "",
-            price: 0,
-            type: "Satılık",
-            category: "Daire",
-            location: "",
-            area: 0,
-            rooms: "2+1",
-            description: "",
-            featured: false,
-            status: "active",
-            agentId: 1
-        });
-        setDialogMode("add");
-        setShowDialog(true);
-    };
-
-    const openEdit = () => {
+    const handleOpenEdit = () => {
         if (!selected) return;
-        setForm({
-            id: selected.id,
-            title: selected.title,
-            price: selected.price,
-            type: selected.type,
-            category: selected.category,
-            location: selected.location,
-            area: selected.area,
-            rooms: selected.rooms,
-            description: "",
-            featured: selected.featured,
-            status: selected.status,
-            agentId: selected.agentId
-        });
-        setDialogMode("edit");
-        setShowDialog(true);
+        openEdit(selected);
     };
 
-    const onDelete = () => {
+    const handleOpenDelete = () => {
         if (!selected) return;
-        setProperties((arr) => arr.filter((p) => p.id !== selected.id));
-        setSelected(null);
-    };
-
-    const onSave = () => {
-        if (!form.title.trim() || form.price <= 0) return;
-
-        if (dialogMode === "edit") {
-            setProperties((arr) => arr.map((p) => (p.id === form.id ? {
-                ...p,
-                title: form.title,
-                price: form.price,
-                type: form.type,
-                category: form.category,
-                location: form.location,
-                area: form.area,
-                rooms: form.rooms,
-                featured: form.featured,
-                status: form.status,
-                agentId: form.agentId
-            } : p)));
-        } else {
-            const newId = Math.max(0, ...properties.map((p) => p.id)) + 1;
-            setProperties((arr) => [...arr, {
-                id: newId,
-                title: form.title,
-                price: form.price,
-                type: form.type,
-                category: form.category,
-                location: form.location,
-                area: form.area,
-                rooms: form.rooms,
-                views: 0,
-                clicks: 0,
-                featured: form.featured,
-                status: form.status,
-                agentId: form.agentId,
-                createdAt: new Date().toISOString()
-            }]);
-        }
-        setShowDialog(false);
+        handleDelete(selected, selected.title);
     };
 
     const getTypeTag = (type: string) => {
         return (
-            <Tag 
-                value={type} 
-                severity={type === "Satılık" ? "info" : "warning"} 
+            <Tag
+                value={type}
+                severity={type === "Satılık" ? "info" : "warning"}
             />
         );
     };
@@ -209,16 +153,16 @@ export default function PropertiesPage({
     const getCategoryTag = (category: string) => {
         const severities: Record<string, any> = {
             "Daire": "secondary",
-            "Müstakil": "success", 
+            "Müstakil": "success",
             "Villa": "danger",
             "Ofis": "info",
             "Dükkan": "warning",
             "Arsa": "contrast"
         };
         return (
-            <Tag 
-                value={category} 
-                severity={severities[category] || "secondary"} 
+            <Tag
+                value={category}
+                severity={severities[category] || "secondary"}
             />
         );
     };
@@ -252,26 +196,75 @@ export default function PropertiesPage({
     const totalViews = properties.reduce((sum, p) => sum + (p.views || 0), 0);
     const featuredProperties = properties.filter(p => p.featured).length;
 
+    const validateForm = () => {
+        return !!(form.title && form.price > 0);
+    };
+
+    const createProperty = (formData: Partial<Property>): Property => {
+        return {
+            id: Math.max(0, ...properties.map(p => p.id)) + 1,
+            title: formData.title || "",
+            price: formData.price || 0,
+            type: formData.type || "Satılık",
+            category: formData.category || "Daire",
+            location: formData.location || "",
+            area: formData.area || 0,
+            rooms: formData.rooms || "2+1",
+            views: 0,
+            clicks: 0,
+            featured: formData.featured || false,
+            status: formData.status || "active",
+            agentId: formData.agentId || 1,
+            createdAt: new Date().toISOString()
+        };
+    };
+
+    const updateProperty = (id: number, formData: Partial<Property>): Property => {
+        const existingProperty = properties.find(p => p.id === id);
+        if (!existingProperty) throw new Error('Property not found');
+
+        return {
+            ...existingProperty,
+            title: formData.title || existingProperty.title,
+            price: formData.price || existingProperty.price,
+            type: formData.type || existingProperty.type,
+            category: formData.category || existingProperty.category,
+            location: formData.location || existingProperty.location,
+            area: formData.area || existingProperty.area,
+            rooms: formData.rooms || existingProperty.rooms,
+            featured: formData.featured ?? existingProperty.featured,
+            status: formData.status || existingProperty.status,
+            agentId: formData.agentId || existingProperty.agentId
+        };
+    };
+
     return (
         <div className="p-4 md:p-6 space-y-6">
+            <Toast ref={toast} />
+            <ConfirmDialog />
+
             {/* Header Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">{totalProperties}</div>
-                    <div className="text-gray-600">Toplam İlan</div>
-                </Card>
-                <Card className="text-center">
-                    <div className="text-2xl font-bold text-green-600">{activeProperties}</div>
-                    <div className="text-gray-600">Aktif İlan</div>
-                </Card>
-                <Card className="text-center">
-                    <div className="text-2xl font-bold text-orange-600">{totalViews.toLocaleString()}</div>
-                    <div className="text-gray-600">Toplam Görüntüleme</div>
-                </Card>
-                <Card className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">{featuredProperties}</div>
-                    <div className="text-gray-600">Öne Çıkan İlan</div>
-                </Card>
+                <PropertyStatsCard
+                    title="Toplam İlan"
+                    value={totalProperties}
+                    subtitle="Toplam ilan sayısı"
+                />
+                <PropertyStatsCard
+                    title="Aktif İlan"
+                    value={activeProperties}
+                    subtitle="Aktif ilan sayısı"
+                />
+                <PropertyStatsCard
+                    title="Toplam Görüntüleme"
+                    value={totalViews.toLocaleString()}
+                    subtitle="Toplam görüntüleme sayısı"
+                />
+                <PropertyStatsCard
+                    title="Öne Çıkan İlan"
+                    value={featuredProperties}
+                    subtitle="Öne çıkan ilan sayısı"
+                />
             </div>
 
             {/* Properties Management */}
@@ -280,10 +273,10 @@ export default function PropertiesPage({
                     <div className="flex gap-2 items-center">
                         <span className="p-input-icon-left">
                             <i className="pi pi-search" />
-                            <InputText 
-                                value={globalFilter} 
-                                onChange={(e) => setGlobalFilter(e.target.value)} 
-                                placeholder="İlan ara..." 
+                            <InputText
+                                value={globalFilter}
+                                onChange={(e) => setGlobalFilter(e.target.value)}
+                                placeholder="İlan ara..."
                             />
                         </span>
                         <MultiSelect
@@ -312,9 +305,21 @@ export default function PropertiesPage({
                         />
                     </div>
                     <div className="flex gap-2">
+                        <ExportButton
+                            onExport={() => {
+                                exportPropertiesToCsv(filteredProperties);
+                                toast.current?.show({
+                                    severity: 'success',
+                                    summary: 'Başarılı',
+                                    detail: 'Emlak ilanları CSV formatında indirildi',
+                                    life: 3000
+                                });
+                            }}
+                            label="Excel İndir"
+                        />
                         <Button icon="pi pi-plus" label="Yeni İlan" onClick={openAdd} />
-                        <Button icon="pi pi-pencil" label="Düzenle" onClick={openEdit} disabled={!selected} />
-                        <Button icon="pi pi-trash" label="Sil" severity="danger" onClick={onDelete} disabled={!selected} />
+                        <Button icon="pi pi-pencil" label="Düzenle" onClick={handleOpenEdit} disabled={!selected} />
+                        <Button icon="pi pi-trash" label="Sil" severity="danger" onClick={handleOpenDelete} disabled={!selected} />
                     </div>
                 </div>
 
@@ -353,7 +358,10 @@ export default function PropertiesPage({
                 header={dialogMode === "add" ? "Yeni İlan Ekle" : "İlan Düzenle"}
                 visible={showDialog}
                 style={{ width: "800px" }}
-                onHide={() => setShowDialog(false)}
+                onHide={() => {
+                    setShowDialog(false);
+                    resetForm(defaultForm);
+                }}
             >
                 <div className="grid gap-4">
                     <span className="p-float-label">
@@ -479,8 +487,19 @@ export default function PropertiesPage({
                     </div>
 
                     <div className="flex justify-end gap-2">
-                        <Button label="Vazgeç" outlined onClick={() => setShowDialog(false)} />
-                        <Button label="Kaydet" icon="pi pi-check" onClick={onSave} />
+                        <Button
+                            label="Vazgeç"
+                            outlined
+                            onClick={() => {
+                                setShowDialog(false);
+                                resetForm(defaultForm);
+                            }}
+                        />
+                        <Button
+                            label="Kaydet"
+                            icon="pi pi-check"
+                            onClick={() => handleSave(validateForm, createProperty, updateProperty)}
+                        />
                     </div>
                 </div>
             </Dialog>

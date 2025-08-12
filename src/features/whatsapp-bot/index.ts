@@ -47,8 +47,7 @@ export { default as WhatsAppMessageAnalytics } from './components/WhatsAppMessag
 // Types
 export * from './types';
 
-// Services
-export * from './services/whatsappService';
+
 
 // ========================================
 // 🎯 USAGE TEMPLATE

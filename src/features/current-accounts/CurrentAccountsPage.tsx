@@ -13,6 +13,8 @@ import { InputNumber } from "primereact/inputnumber";
 import { Dropdown } from "primereact/dropdown";
 import { Badge } from "primereact/badge";
 import { CurrentAccount } from "./types";
+import { ExportButton } from "../../components/ui/ExportButton";
+import { exportCurrentAccountsToCsv } from "../../lib/exportUtils";
 
 interface CurrentAccountsPageProps {
     customers?: CurrentAccount[];
@@ -196,7 +198,16 @@ export default function CurrentAccountsPage({ customers: initialCustomers = [] }
                             className="min-w-[12rem]"
                         />
                     </div>
-
+                    <div className="flex gap-2">
+                        <ExportButton
+                            onExport={() => {
+                                exportCurrentAccountsToCsv(filteredCustomers);
+                                // Simple success feedback
+                                alert('Cari hesaplar CSV formatında indirildi');
+                            }}
+                            label="Excel İndir"
+                        />
+                    </div>
                 </div>
 
                 <DataTable

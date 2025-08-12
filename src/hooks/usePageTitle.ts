@@ -12,9 +12,7 @@ const pageMap: Record<string, string> = {
     "/admin/gelir": "Gelir Yönetimi",
     "/admin/gider": "Gider Yönetimi",
     "/admin/cari": "Cari Hesaplar",
-    "/admin/adisyon": "Adisyon Yönetimi",
-    "/admin/personeller": "Personeller",
-    "/admin/servisler": "Servisler",
+
     "/admin/ayarlar": "Ayarlar"
 };
 

@@ -8,8 +8,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { InputNumber } from 'primereact/inputnumber';
 import { Appointment, AppointmentStatus } from '../types';
-import { Service } from '../../services/types';
-import { Staff } from '../../../service/dataService';
+import { Service, Staff } from '../types';
 
 interface AppointmentFormProps {
     visible: boolean;

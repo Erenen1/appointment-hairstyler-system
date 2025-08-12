@@ -15,6 +15,12 @@ import { Calendar } from "primereact/calendar";
 import { InputTextarea } from 'primereact/inputtextarea';
 import { ProgressBar } from "primereact/progressbar";
 import { Expense } from "./types";
+import { useCrudOperations } from "../../hooks";
+import { ExpenseActionButtons, ExpenseStatsCard, ExpenseTransparentHeader } from "../../components/ui";
+import { exportExpensesToCsv } from "../../lib/exportUtils";
+import { Toast } from "primereact/toast";
+import { ConfirmDialog } from "primereact/confirmdialog";
+import { ExportButton } from "../../components/ui/ExportButton";
 
 interface ExpensePageProps {
     expenses?: Expense[];
@@ -25,14 +31,30 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
     const [globalFilter, setGlobalFilter] = useState<string>("");
     const [categoryFilter, setCategoryFilter] = useState<string>("");
     const [dateFilter, setDateFilter] = useState<Date | null>(null);
-    const [showDialog, setShowDialog] = useState(false);
-    const [form, setForm] = useState<Partial<Expense>>({
+
+    const defaultForm: Partial<Expense> = {
         category: "",
         amount: 0,
         date: new Date().toISOString().split('T')[0],
         description: "",
-        paymentMethod: "bank"
-    });
+        paymentMethod: "bank",
+        type: "expense"
+    };
+
+    const {
+        items: hookExpenses,
+        showDialog,
+        setShowDialog,
+        form,
+        setForm,
+        dialogMode,
+        toast,
+        openAdd,
+        openEdit,
+        handleDelete,
+        handleSave,
+        resetForm
+    } = useCrudOperations<Expense>(expenses, defaultForm, 'id', setExpenses);
 
     const categoryOptions = [
         { label: "Tümü", value: "" },
@@ -52,18 +74,18 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
     ];
 
     const filteredExpenses = useMemo(() => {
-        return expenses.filter((e) => {
+        return hookExpenses.filter((e) => {
             const okCategory = !categoryFilter || e.category === categoryFilter;
             const okDate = !dateFilter || new Date(e.date).toDateString() === dateFilter.toDateString();
             const text = (e.category + " " + e.description).toLowerCase();
             const okSearch = !globalFilter || text.includes(globalFilter.toLowerCase());
             return okCategory && okDate && okSearch;
         });
-    }, [expenses, categoryFilter, dateFilter, globalFilter]);
+    }, [hookExpenses, categoryFilter, dateFilter, globalFilter]);
 
     // Grafik verileri
     const categoryChart = useMemo(() => {
-        const categoryData = expenses.reduce((acc, e) => {
+        const categoryData = hookExpenses.reduce((acc, e) => {
             acc[e.category] = (acc[e.category] || 0) + e.amount;
             return acc;
         }, {} as Record<string, number>);
@@ -84,10 +106,10 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                 maintainAspectRatio: false
             }
         };
-    }, [expenses]);
+    }, [hookExpenses]);
 
     const monthlyChart = useMemo(() => {
-        const monthlyData = expenses.reduce((acc, e) => {
+        const monthlyData = hookExpenses.reduce((acc, e) => {
             const month = new Date(e.date).toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
             acc[month] = (acc[month] || 0) + e.amount;
             return acc;
@@ -114,10 +136,10 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                 }
             }
         };
-    }, [expenses]);
+    }, [hookExpenses]);
 
     const paymentMethodChart = useMemo(() => {
-        const methodData = expenses.reduce((acc, e) => {
+        const methodData = hookExpenses.reduce((acc, e) => {
             acc[e.paymentMethod] = (acc[e.paymentMethod] || 0) + e.amount;
             return acc;
         }, {} as Record<string, number>);
@@ -137,15 +159,15 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                 maintainAspectRatio: false
             }
         };
-    }, [expenses]);
+    }, [hookExpenses]);
 
-    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-    const avgExpenses = totalExpenses / expenses.length;
-    const maxExpenses = Math.max(...expenses.map(e => e.amount));
+    const totalExpenses = hookExpenses.reduce((sum, e) => sum + e.amount, 0);
+    const avgExpenses = totalExpenses / hookExpenses.length;
+    const maxExpenses = Math.max(...hookExpenses.map(e => e.amount));
 
     // Kategori bazlı yüzde hesaplama
     const categoryPercentages = useMemo(() => {
-        const categoryData = expenses.reduce((acc, e) => {
+        const categoryData = hookExpenses.reduce((acc, e) => {
             acc[e.category] = (acc[e.category] || 0) + e.amount;
             return acc;
         }, {} as Record<string, number>);
@@ -155,48 +177,34 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
             amount,
             percentage: (amount / totalExpenses) * 100
         })).sort((a, b) => b.percentage - a.percentage);
-    }, [expenses, totalExpenses]);
+    }, [hookExpenses, totalExpenses]);
 
-    const openAddDialog = () => {
-        setForm({
-            category: "",
-            amount: 0,
-            date: new Date().toISOString().split('T')[0],
-            description: "",
-            paymentMethod: "bank"
-        });
-        setShowDialog(true);
+    const validateForm = () => {
+        return !!(form.category && form.amount);
     };
 
-    const openEditDialog = (expense: Expense) => {
-        setForm(expense);
-        setShowDialog(true);
-    };
-
-    const saveExpense = () => {
-        if (!form.category || !form.amount) return;
-
-        const newExpense: Expense = {
-            id: form.id || Math.max(0, ...expenses.map(e => e.id)) + 1,
-            category: form.category,
-            amount: form.amount || 0,
-            date: form.date || new Date().toISOString().split('T')[0],
-            description: form.description || "",
-            paymentMethod: form.paymentMethod || "bank"
+    const createExpense = (formData: Partial<Expense>): Expense => {
+        return {
+            id: Math.max(0, ...hookExpenses.map(e => e.id)) + 1,
+            category: formData.category || "",
+            amount: formData.amount || 0,
+            date: formData.date || new Date().toISOString().split('T')[0],
+            description: formData.description || "",
+            paymentMethod: formData.paymentMethod || "bank",
+            type: "expense"
         };
-
-        if (form.id) {
-            setExpenses(prev => prev.map(e => e.id === form.id ? newExpense : e));
-        } else {
-            setExpenses(prev => [...prev, newExpense]);
-        }
-
-        setShowDialog(false);
-        setForm({});
     };
 
-    const deleteExpense = (expense: Expense) => {
-        setExpenses(prev => prev.filter(e => e.id !== expense.id));
+    const updateExpense = (id: number, formData: Partial<Expense>): Expense => {
+        return {
+            id,
+            category: formData.category || "",
+            amount: formData.amount || 0,
+            date: formData.date || new Date().toISOString().split('T')[0],
+            description: formData.description || "",
+            paymentMethod: formData.paymentMethod || "bank",
+            type: "expense"
+        };
     };
 
     const getPaymentMethodLabel = (method: string) => {
@@ -221,32 +229,37 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
 
     return (
         <div className="p-4 md:p-6 space-y-6">
+            <Toast ref={toast} />
+            <ConfirmDialog />
+
+            {/* Gider Sayfası Header */}
+            <ExpenseTransparentHeader
+                title="Gider Yönetimi"
+                description="Gider kayıtlarınızı takip edin, analiz edin ve yönetin"
+            />
+
             {/* Özet Kartları */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card className="bg-gradient-to-r from-red-500 to-red-600 text-white">
-                    <div className="text-center">
-                        <div className="text-2xl font-bold">{totalExpenses.toFixed(2)}₺</div>
-                        <div className="text-sm opacity-90">Toplam Gider</div>
-                    </div>
-                </Card>
-                <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-                    <div className="text-center">
-                        <div className="text-2xl font-bold">{avgExpenses.toFixed(2)}₺</div>
-                        <div className="text-sm opacity-90">Ortalama Gider</div>
-                    </div>
-                </Card>
-                <Card className="bg-gradient-to-r from-pink-500 to-pink-600 text-white">
-                    <div className="text-center">
-                        <div className="text-2xl font-bold">{maxExpenses.toFixed(2)}₺</div>
-                        <div className="text-sm opacity-90">En Yüksek Gider</div>
-                    </div>
-                </Card>
-                <Card className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white">
-                    <div className="text-center">
-                        <div className="text-2xl font-bold">{expenses.length}</div>
-                        <div className="text-sm opacity-90">Toplam Kayıt</div>
-                    </div>
-                </Card>
+                <ExpenseStatsCard
+                    title="Toplam Gider"
+                    value={`${totalExpenses.toFixed(2)}₺`}
+                    subtitle="Toplam gider tutarı"
+                />
+                <ExpenseStatsCard
+                    title="Ortalama Gider"
+                    value={`${avgExpenses.toFixed(2)}₺`}
+                    subtitle="Ortalama gider tutarı"
+                />
+                <ExpenseStatsCard
+                    title="En Yüksek Gider"
+                    value={`${maxExpenses.toFixed(2)}₺`}
+                    subtitle="En yüksek gider tutarı"
+                />
+                <ExpenseStatsCard
+                    title="Toplam Kayıt"
+                    value={hookExpenses.length}
+                    subtitle="Toplam gider kaydı"
+                />
             </div>
 
             {/* Grafikler */}
@@ -311,44 +324,22 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                         />
                     </div>
                     <div className="flex gap-2 items-center">
-                        <Button
-                            icon="pi pi-download"
-                            label="Excel İndir"
-                            onClick={() => {
-                                // CSV Export Function
-                                const headers = [
-                                    "ID", "Kategori", "Tutar", "Tarih", "Açıklama", "Ödeme Yöntemi"
-                                ];
-
-                                const csvData = filteredExpenses.map(expense => [
-                                    expense.id,
-                                    expense.category,
-                                    expense.amount.toFixed(2) + " ₺",
-                                    new Date(expense.date).toLocaleDateString('tr-TR'),
-                                    expense.description,
-                                    getPaymentMethodLabel(expense.paymentMethod)
-                                ]);
-
-                                const csvContent = [headers, ...csvData]
-                                    .map(row => row.map(field => `"${field}"`).join(','))
-                                    .join('\n');
-
-                                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                                const link = document.createElement('a');
-                                const url = URL.createObjectURL(blob);
-                                link.setAttribute('href', url);
-                                link.setAttribute('download', `gider_listesi_${new Date().toISOString().split('T')[0]}.csv`);
-                                link.style.visibility = 'hidden';
-                                document.body.appendChild(link);
-                                link.click();
-                                document.body.removeChild(link);
+                        <ExportButton
+                            onExport={() => {
+                                exportExpensesToCsv(filteredExpenses);
+                                toast.current?.show({
+                                    severity: 'success',
+                                    summary: 'Başarılı',
+                                    detail: 'Gider listesi CSV formatında indirildi',
+                                    life: 3000
+                                });
                             }}
-                            className="bg-green-600 hover:bg-green-700 border-green-600"
+                            label="Excel İndir"
                         />
                         <Button
                             icon="pi pi-plus"
                             label="Yeni Gider"
-                            onClick={openAddDialog}
+                            onClick={openAdd}
                             severity="danger"
                         />
                     </div>
@@ -409,24 +400,12 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                         header="İşlemler"
                         style={{ minWidth: '120px' }}
                         body={(rowData) => (
-                            <div className="flex gap-2">
-                                <Button
-                                    icon="pi pi-pencil"
-                                    size="small"
-                                    severity="warning"
-                                    text
-                                    tooltip="Düzenle"
-                                    onClick={() => openEditDialog(rowData)}
-                                />
-                                <Button
-                                    icon="pi pi-trash"
-                                    size="small"
-                                    severity="danger"
-                                    text
-                                    tooltip="Sil"
-                                    onClick={() => deleteExpense(rowData)}
-                                />
-                            </div>
+                            <ExpenseActionButtons
+                                item={rowData}
+                                onEdit={openEdit}
+                                onDelete={() => handleDelete(rowData, rowData.category)}
+                                showView={false}
+                            />
                         )}
                     />
                 </DataTable>
@@ -434,10 +413,13 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
 
             {/* Gider Ekleme/Düzenleme Dialog */}
             <Dialog
-                header={form.id ? "Gider Düzenle" : "Yeni Gider"}
+                header={dialogMode === "edit" ? "Gider Düzenle" : "Yeni Gider"}
                 visible={showDialog}
                 style={{ width: "500px" }}
-                onHide={() => setShowDialog(false)}
+                onHide={() => {
+                    setShowDialog(false);
+                    resetForm(defaultForm);
+                }}
             >
                 <div className="grid gap-4">
                     <div className="grid grid-cols-2 gap-3">
@@ -502,12 +484,15 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                         <Button
                             label="Vazgeç"
                             outlined
-                            onClick={() => setShowDialog(false)}
+                            onClick={() => {
+                                setShowDialog(false);
+                                resetForm(defaultForm);
+                            }}
                         />
                         <Button
                             label="Kaydet"
                             icon="pi pi-check"
-                            onClick={saveExpense}
+                            onClick={() => handleSave(validateForm, createExpense, updateExpense)}
                             severity="danger"
                         />
                     </div>
