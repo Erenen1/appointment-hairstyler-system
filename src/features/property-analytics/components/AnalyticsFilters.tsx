@@ -47,6 +47,7 @@ export const AnalyticsFilters = ({
                     onChange={(e) => setGlobalFilter(e.target.value)}
                     placeholder="İlan ara..."
                     className="w-64"
+                    style={{ paddingLeft: '2.5rem', paddingRight: '1.5rem' }}
                 />
             </span>
 

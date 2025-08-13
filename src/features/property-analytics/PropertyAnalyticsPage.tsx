@@ -18,7 +18,8 @@ import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { useRef } from "react";
 import { exportPropertyAnalyticsToCsv } from "../../lib/exportUtils";
-import { ExportButton } from "../../components/ui/ExportButton";
+import { ExportButton, ResponsiveHero } from "../../components/ui";
+import { Checkbox } from "primereact/checkbox";
 
 interface PropertyAnalyticsPageProps {
     properties?: Property[];
@@ -29,7 +30,28 @@ export default function PropertyAnalyticsPage({
 }: PropertyAnalyticsPageProps) {
     const [properties, setProperties] = useState<Property[]>(initialProperties);
     const [showEditDialog, setShowEditDialog] = useState(false);
+    const [showAddDialog, setShowAddDialog] = useState(false);
     const [editForm, setEditForm] = useState<Partial<Property>>({});
+    const [addForm, setAddForm] = useState<Partial<Property>>({
+        title: '',
+        description: '',
+        price: 0,
+        type: '',
+        category: '',
+        location: '',
+        city: '',
+        district: '',
+        address: '',
+        area: 0,
+        rooms: '',
+        age: 0,
+        floor: 0,
+        heating: '',
+        furnished: false,
+        parking: false,
+        elevator: false,
+        featured: false
+    });
     const toast = useRef<Toast>(null);
 
     const {
@@ -44,7 +66,6 @@ export default function PropertyAnalyticsPage({
         uniqueTypes,
         uniqueCategories,
         filteredProperties,
-        topProperties,
         stats,
         typeDistributionChart,
         performanceChart
@@ -103,6 +124,43 @@ export default function PropertyAnalyticsPage({
         });
     };
 
+    const handleSaveAdd = () => {
+        if (!addForm.title || !addForm.price || !addForm.type || !addForm.category || !addForm.location) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Hata',
+                detail: 'Lütfen tüm zorunlu alanları doldurun',
+                life: 3000
+            });
+            return;
+        }
+
+        const newProperty: Property = {
+            id: Math.max(...properties.map(p => p.id)) + 1,
+            title: addForm.title!,
+            price: addForm.price!,
+            type: addForm.type!,
+            category: addForm.category!,
+            location: addForm.location!,
+            area: addForm.area || 0,
+            views: 0,
+            clicks: 0,
+            featured: addForm.featured || false,
+            createdAt: new Date().toISOString()
+        };
+
+        setProperties(prev => [newProperty, ...prev]);
+        setShowAddDialog(false);
+        resetAddForm();
+
+        toast.current?.show({
+            severity: 'success',
+            summary: 'Başarılı',
+            detail: 'Yeni ilan başarıyla eklendi',
+            life: 3000
+        });
+    };
+
     const categoryOptions = [
         { label: "Daire", value: "Daire" },
         { label: "Müstakil", value: "Müstakil" },
@@ -117,118 +175,59 @@ export default function PropertyAnalyticsPage({
         { label: "Kiralık", value: "Kiralık" }
     ];
 
+    const cityOptions = [
+        { label: "Ankara", value: "Ankara" },
+        { label: "İstanbul", value: "İstanbul" },
+        { label: "İzmir", value: "İzmir" },
+        { label: "Bursa", value: "Bursa" },
+        { label: "Antalya", value: "Antalya" }
+    ];
+
+    const districtOptions = [
+        { label: "Merkez", value: "Merkez" },
+        { label: "Çankaya", value: "Çankaya" },
+        { label: "Bahçelievler", value: "Bahçelievler" },
+        { label: "Keçiören", value: "Keçiören" },
+        { label: "Mamak", value: "Mamak" }
+    ];
+
+    const resetAddForm = () => {
+        setAddForm({
+            title: '',
+            description: '',
+            price: 0,
+            type: '',
+            category: '',
+            location: '',
+            city: '',
+            district: '',
+            address: '',
+            area: 0,
+            rooms: '',
+            age: 0,
+            floor: 0,
+            heating: '',
+            furnished: false,
+            parking: false,
+            elevator: false,
+            featured: false
+        });
+    };
+
     return (
         <div className="p-4 md:p-6 space-y-6">
             <Toast ref={toast} />
             <ConfirmDialog />
 
             {/* Hero Section */}
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-100 rounded-xl p-8 border border-indigo-200">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mb-6 shadow-lg">
-                        <i className="pi pi-chart-line text-white text-3xl"></i>
-                    </div>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3">İlan Analitikleri</h1>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                        Emlak ilanlarınızın performansını analiz edin, detaylı raporlar alın ve stratejik kararlar verin
-                    </p>
-                </div>
-            </div>
-
-            {/* Featured Properties Section */}
-            {topProperties.length > 0 && (
-                <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
-                    <div className="text-center mb-6">
-                        <h2 className="text-2xl font-bold text-amber-800 mb-2">⭐ Öne Çıkan İlanlar</h2>
-                        <p className="text-amber-600">En yüksek performans gösteren ilanlarınız</p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {topProperties.slice(0, 3).map((property) => (
-                            <div key={property.id} className="bg-white rounded-lg p-4 border border-amber-200 hover:shadow-md transition-shadow">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h3 className="font-semibold text-gray-800 truncate">{property.title}</h3>
-                                    <span className="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-medium rounded-full">
-                                        ⭐ Öne Çıkan
-                                    </span>
-                                </div>
-                                <p className="text-sm text-gray-600 mb-2">{property.location}</p>
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="font-semibold text-green-600">₺{property.price.toLocaleString()}</span>
-                                    <span className="text-gray-500">{property.views} görüntüleme</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </Card>
-            )}
-
-            {/* Stats Cards with Icons */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition-all duration-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-blue-600 mb-2">Toplam İlan</p>
-                            <p className="text-3xl font-bold text-blue-800">{stats.totalProperties}</p>
-                            <p className="text-xs text-blue-600">Aktif ilan sayısı</p>
-                        </div>
-                        <div className="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i className="pi pi-home text-white text-xl"></i>
-                        </div>
-                    </div>
-                </Card>
-
-                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-all duration-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-green-600 mb-2">Toplam Görüntüleme</p>
-                            <p className="text-3xl font-bold text-green-800">{stats.totalViews.toLocaleString()}</p>
-                            <p className="text-xs text-green-600">İlan görüntüleme</p>
-                        </div>
-                        <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i className="pi pi-eye text-white text-xl"></i>
-                        </div>
-                    </div>
-                </Card>
-
-                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 hover:shadow-lg transition-all duration-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-orange-600 mb-2">Toplam Tıklama</p>
-                            <p className="text-3xl font-bold text-orange-800">{stats.totalClicks.toLocaleString()}</p>
-                            <p className="text-xs text-orange-600">İlan tıklama</p>
-                        </div>
-                        <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i className="pi pi-mouse text-white text-xl"></i>
-                        </div>
-                    </div>
-                </Card>
-
-                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition-all duration-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-purple-600 mb-2">Ortalama Fiyat</p>
-                            <p className="text-3xl font-bold text-purple-800">₺{Math.round(stats.avgPrice).toLocaleString()}</p>
-                            <p className="text-xs text-purple-600">İlan fiyat ortalaması</p>
-                        </div>
-                        <div className="w-14 h-14 bg-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i className="pi pi-wallet text-white text-xl"></i>
-                        </div>
-                    </div>
-                </Card>
-
-                <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200 hover:shadow-lg transition-all duration-200">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-red-600 mb-2">Tıklama Oranı</p>
-                            <p className="text-3xl font-bold text-red-800">%{stats.clickRate.toFixed(1)}</p>
-                            <p className="text-xs text-red-600">Görüntüleme/Tıklama</p>
-                        </div>
-                        <div className="w-14 h-14 bg-red-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i className="pi pi-percentage text-white text-xl"></i>
-                        </div>
-                    </div>
-                </Card>
-            </div>
+            <ResponsiveHero
+                title="İlan Analitikleri"
+                subtitle="Emlak ilanlarınızın performansını analiz edin, detaylı raporlar alın ve stratejik kararlar verin"
+                icon="pi-chart-line"
+                iconBgColor="bg-gradient-to-br from-indigo-500 to-purple-600"
+                gradient={{ from: 'indigo-50', to: 'purple-100' }}
+                borderColor="border-indigo-200"
+            />
 
             {/* Charts */}
             <AnalyticsCharts
@@ -248,6 +247,7 @@ export default function PropertyAnalyticsPage({
                                 onChange={(e) => setGlobalFilter(e.target.value)}
                                 placeholder="İlan ara..."
                                 className="w-80 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                style={{ paddingLeft: '2.5rem', paddingRight: '1.5rem' }}
                             />
                         </span>
                         <select
@@ -272,6 +272,12 @@ export default function PropertyAnalyticsPage({
                         </select>
                     </div>
                     <div className="flex gap-3">
+                        <Button
+                            label="Yeni İlan Ekle"
+                            icon="pi pi-plus"
+                            className="bg-green-600 hover:bg-green-700 border-green-600"
+                            onClick={() => setShowAddDialog(true)}
+                        />
                         <ExportButton
                             onExport={() => {
                                 exportPropertyAnalyticsToCsv(filteredProperties);
@@ -319,6 +325,272 @@ export default function PropertyAnalyticsPage({
                     onDelete={handleDelete}
                 />
             </Card>
+
+            {/* Add Property Dialog */}
+            <Dialog
+                header="Yeni İlan Ekle"
+                visible={showAddDialog}
+                style={{ width: "800px" }}
+                onHide={() => {
+                    setShowAddDialog(false);
+                    setAddForm({});
+                }}
+            >
+                <div className="grid gap-4">
+                    {/* Basic Information */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <span className="p-float-label">
+                            <InputText
+                                id="title"
+                                value={addForm.title || ""}
+                                onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+                                className="w-full"
+                            />
+                            <label htmlFor="title">İlan Başlığı *</label>
+                        </span>
+
+                        <span className="p-float-label">
+                            <InputText
+                                id="description"
+                                value={addForm.description || ""}
+                                onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
+                                className="w-full"
+                            />
+                            <label htmlFor="description">Açıklama</label>
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <span className="p-float-label">
+                            <Dropdown
+                                inputId="type"
+                                value={addForm.type || ""}
+                                onChange={(e) => setAddForm({ ...addForm, type: e.value })}
+                                options={typeOptions}
+                                className="w-full"
+                                placeholder="İlan Türü Seçin"
+                            />
+                            <label htmlFor="type">İlan Türü *</label>
+                        </span>
+
+                        <span className="p-float-label">
+                            <Dropdown
+                                inputId="category"
+                                value={addForm.category || ""}
+                                onChange={(e) => setAddForm({ ...addForm, category: e.value })}
+                                options={categoryOptions}
+                                className="w-full"
+                                placeholder="Kategori Seçin"
+                            />
+                            <label htmlFor="category">Kategori *</label>
+                        </span>
+
+                        <span className="p-float-label">
+                            <InputText
+                                id="rooms"
+                                value={addForm.rooms || ""}
+                                onChange={(e) => setAddForm({ ...addForm, rooms: e.target.value })}
+                                className="w-full"
+                            />
+                            <label htmlFor="rooms">Oda Sayısı</label>
+                        </span>
+                    </div>
+
+                    {/* Location Information */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <span className="p-float-label">
+                            <Dropdown
+                                inputId="city"
+                                value={addForm.city || ""}
+                                onChange={(e) => setAddForm({ ...addForm, city: e.value })}
+                                options={cityOptions}
+                                className="w-full"
+                                placeholder="Şehir Seçin"
+                            />
+                            <label htmlFor="city">Şehir</label>
+                        </span>
+
+                        <span className="p-float-label">
+                            <Dropdown
+                                inputId="district"
+                                value={addForm.district || ""}
+                                onChange={(e) => setAddForm({ ...addForm, district: e.value })}
+                                options={districtOptions}
+                                className="w-full"
+                                placeholder="İlçe Seçin"
+                            />
+                            <label htmlFor="district">İlçe</label>
+                        </span>
+
+                        <span className="p-float-label">
+                            <InputText
+                                id="location"
+                                value={addForm.location || ""}
+                                onChange={(e) => setAddForm({ ...addForm, location: e.target.value })}
+                                className="w-full"
+                            />
+                            <label htmlFor="location">Konum *</label>
+                        </span>
+                    </div>
+
+                    <span className="p-float-label">
+                        <InputText
+                            id="address"
+                            value={addForm.address || ""}
+                            onChange={(e) => setAddForm({ ...addForm, address: e.target.value })}
+                            className="w-full"
+                        />
+                        <label htmlFor="address">Detaylı Adres</label>
+                    </span>
+
+                    {/* Property Details */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <span className="p-float-label">
+                            <InputNumber
+                                inputId="price"
+                                value={addForm.price || 0}
+                                onValueChange={(e) => setAddForm({ ...addForm, price: Number(e.value) || 0 })}
+                                className="w-full"
+                                suffix=" ₺"
+                                min={0}
+                                mode="decimal"
+                            />
+                            <label htmlFor="price">Fiyat *</label>
+                        </span>
+
+                        <span className="p-float-label">
+                            <InputNumber
+                                inputId="area"
+                                value={addForm.area || 0}
+                                onValueChange={(e) => setAddForm({ ...addForm, area: Number(e.value) || 0 })}
+                                className="w-full"
+                                suffix=" m²"
+                                min={0}
+                                mode="decimal"
+                            />
+                            <label htmlFor="area">Alan (m²)</label>
+                        </span>
+
+                        <span className="p-float-label">
+                            <InputNumber
+                                inputId="age"
+                                value={addForm.age || 0}
+                                onValueChange={(e) => setAddForm({ ...addForm, age: Number(e.value) || 0 })}
+                                className="w-full"
+                                suffix=" yıl"
+                                min={0}
+                                mode="decimal"
+                            />
+                            <label htmlFor="age">Bina Yaşı</label>
+                        </span>
+
+                        <span className="p-float-label">
+                            <InputNumber
+                                inputId="floor"
+                                value={addForm.floor || 0}
+                                onValueChange={(e) => setAddForm({ ...addForm, floor: Number(e.value) || 0 })}
+                                className="w-full"
+                                min={0}
+                                mode="decimal"
+                            />
+                            <label htmlFor="floor">Kat</label>
+                        </span>
+                    </div>
+
+                    {/* Features */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                            <h4 className="font-semibold text-gray-700">Özellikler</h4>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        inputId="featured"
+                                        checked={addForm.featured || false}
+                                        onChange={(e) => setAddForm({ ...addForm, featured: e.checked })}
+                                    />
+                                    <label htmlFor="featured" className="text-sm">Öne Çıkan</label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        inputId="furnished"
+                                        checked={addForm.furnished || false}
+                                        onChange={(e) => setAddForm({ ...addForm, furnished: e.checked })}
+                                    />
+                                    <label htmlFor="furnished" className="text-sm">Eşyalı</label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        inputId="parking"
+                                        checked={addForm.parking || false}
+                                        onChange={(e) => setAddForm({ ...addForm, parking: e.checked })}
+                                    />
+                                    <label htmlFor="parking" className="text-sm">Otopark</label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        inputId="elevator"
+                                        checked={addForm.elevator || false}
+                                        onChange={(e) => setAddForm({ ...addForm, elevator: e.checked })}
+                                    />
+                                    <label htmlFor="elevator" className="text-sm">Asansör</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <h4 className="font-semibold text-gray-700">Isıtma</h4>
+                            <Dropdown
+                                value={addForm.heating || ""}
+                                onChange={(e) => setAddForm({ ...addForm, heating: e.value })}
+                                options={[
+                                    { label: "Merkezi", value: "Merkezi" },
+                                    { label: "Kombi", value: "Kombi" },
+                                    { label: "Doğalgaz", value: "Doğalgaz" },
+                                    { label: "Soba", value: "Soba" }
+                                ]}
+                                placeholder="Isıtma Türü Seçin"
+                                className="w-full"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex justify-end gap-2 mt-6">
+                    <Button
+                        label="Vazgeç"
+                        outlined
+                        onClick={() => {
+                            setShowAddDialog(false);
+                            setAddForm({
+                                title: '',
+                                description: '',
+                                price: 0,
+                                type: '',
+                                category: '',
+                                location: '',
+                                city: '',
+                                district: '',
+                                address: '',
+                                area: 0,
+                                rooms: '',
+                                age: 0,
+                                floor: 0,
+                                heating: '',
+                                furnished: false,
+                                parking: false,
+                                elevator: false,
+                                featured: false
+                            });
+                        }}
+                    />
+                    <Button
+                        label="İlan Ekle"
+                        icon="pi pi-plus"
+                        onClick={handleSaveAdd}
+                        severity="success"
+                    />
+                </div>
+            </Dialog>
 
             {/* Edit Property Dialog */}
             <Dialog

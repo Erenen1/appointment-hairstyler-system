@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dialog } from 'primereact/dialog';
-import { cn } from '../../lib/utils';
+import { cn } from '@/lib/utils';
 
 interface ResponsiveDialogProps {
     visible: boolean;

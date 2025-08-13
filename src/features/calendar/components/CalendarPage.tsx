@@ -2,7 +2,7 @@
 // DİKKAT: Bu sayfa sadece client component olarak kullanılmalıdır. SSR'da FullCalendar çalışmaz ve 'destroy' hatası alırsınız.
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarModal } from "@/components/admin";
 import { Calendar } from "@/components/admin";
@@ -12,13 +12,17 @@ import { toast } from "sonner";
 interface CalendarPageProps {
     appointments?: any[];
     customers?: any[];
+    services?: any[];
     staff?: any[];
+    statuses?: any[];
 }
 
 export default function CalendarPage({
     appointments: initialAppointments = [],
     customers: initialCustomers = [],
-    staff: initialStaff = []
+    services: initialServices = [],
+    staff: initialStaff = [],
+    statuses: initialStatuses = []
 }: CalendarPageProps) {
     const {
         appointments: hookAppointments,
@@ -67,7 +71,7 @@ export default function CalendarPage({
     const transformedAppointments = transformAppointments(hookAppointments.length > 0 ? hookAppointments : initialAppointments);
     const transformedCustomers = transformCustomers(initialCustomers);
     const transformedStaff = transformStaff(initialStaff);
-    const transformedStatuses = []; // No statuses passed in props, so empty array
+    const transformedStatuses = initialStatuses; // Use the statuses passed in props
 
     const handleDateClick = (date: Date) => {
         setSelectedDate(date);

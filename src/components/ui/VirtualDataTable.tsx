@@ -5,7 +5,8 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { MultiSelect } from 'primereact/multiselect';
-import { cn } from '../../lib/utils';
+import { cn } from '@/lib/utils';
+import { SearchBar } from './SearchBar';
 
 interface VirtualDataTableProps<T> {
     data: T[];
@@ -101,15 +102,12 @@ export function VirtualDataTable<T>({
                 {/* Search and Filters */}
                 <div className="flex flex-col sm:flex-row gap-3 flex-1">
                     {globalFilterFields && (
-                        <div className="relative">
-                            <i className="pi pi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                            <InputText
-                                value={localGlobalFilter}
-                                onChange={(e) => handleGlobalFilterChange(e.target.value)}
-                                placeholder="Ara..."
-                                className="pl-10 w-full sm:w-80"
-                            />
-                        </div>
+                        <SearchBar
+                            value={localGlobalFilter}
+                            onChange={handleGlobalFilterChange}
+                            placeholder="Ara..."
+                            className="w-full sm:w-80"
+                        />
                     )}
 
                     <div className="flex flex-wrap gap-2">
@@ -144,9 +142,8 @@ export function VirtualDataTable<T>({
                         <Button
                             icon="pi pi-download"
                             label={exportButton.label}
-                            outlined
                             onClick={exportButton.onClick}
-                            className="w-full sm:w-auto"
+                            className="w-full sm:w-auto !bg-green-600 hover:!bg-green-700 !border-green-600 text-white"
                         />
                     )}
                     {actions.map((action, index) => (

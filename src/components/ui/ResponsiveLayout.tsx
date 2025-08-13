@@ -1,6 +1,6 @@
 import React from 'react';
-import { cn } from '../../lib/utils';
-import { useResponsive } from '../../hooks';
+import { cn } from '@/lib/utils';
+import { useResponsive } from '@/hooks';
 
 interface ResponsiveLayoutProps {
     children: React.ReactNode;

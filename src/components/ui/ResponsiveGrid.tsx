@@ -1,5 +1,5 @@
 import React from 'react';
-import { cn } from '../../lib/utils';
+import { cn } from '@/lib/utils';
 
 interface ResponsiveGridProps {
     children: React.ReactNode;
@@ -25,7 +25,8 @@ export const ResponsiveGrid: React.FC<ResponsiveGridProps> = ({
         const desktopCols = cols.desktop || tabletCols;
         const xlCols = cols.xl || desktopCols;
 
-        return `grid-cols-${mobileCols} md:grid-cols-${tabletCols} lg:grid-cols-${desktopCols} xl:grid-cols-${xlCols}`;
+        // Tailwind CSS grid-cols sınıflarını doğru şekilde oluştur
+        return `grid-cols-${mobileCols} sm:grid-cols-${tabletCols} md:grid-cols-${tabletCols} lg:grid-cols-${desktopCols} xl:grid-cols-${xlCols}`;
     };
 
     return (

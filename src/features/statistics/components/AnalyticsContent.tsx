@@ -3,7 +3,7 @@ import { Chart } from "primereact/chart";
 import { Badge } from "primereact/badge";
 import { Button } from "primereact/button";
 import { ChartData, StatisticsStats } from "../types";
-import { ResponsiveGrid, ResponsiveStatsCard } from "../../../components/ui";
+import { ResponsiveGrid, ResponsiveStatsCard, ResponsiveHero } from "../../../components/ui";
 
 interface AnalyticsContentProps {
     propertyTypeChart: ChartData;
@@ -19,41 +19,31 @@ export const AnalyticsContent = ({
     return (
         <div className="p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
             {/* Enhanced Page Header */}
-            <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-xl border border-blue-200 p-4 sm:p-6 md:p-8">
-                <div className="text-center mb-6 sm:mb-8">
-                    {/* Icon */}
-                    <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-4 sm:mb-6 shadow-lg">
-                        <i className="pi pi-chart-line text-white text-2xl sm:text-3xl"></i>
-                    </div>
-
-                    {/* Title */}
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
-                        Emlak İstatistikleri
-                    </h1>
-
-                    {/* Subtitle */}
-                    <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-3xl mx-auto px-4 mb-4">
-                        Sahibinden.com&apos;dan çekilen ilanların detaylı performans analizi ve istatistiksel verileri
-                    </p>
-
-                    {/* Status Badges */}
-                    <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 mb-4">
-                        <Badge
-                            value="LIVE DATA"
-                            severity="success"
-                            className="text-xs sm:text-sm"
-                        />
-                        <Badge
-                            value="REAL-TIME"
-                            severity="info"
-                            className="text-xs sm:text-sm"
-                        />
-                        <Badge
-                            value="ÜCRETSİZ"
-                            severity="warning"
-                            className="text-xs sm:text-sm"
-                        />
-                    </div>
+            <ResponsiveHero
+                title="Emlak İstatistikleri"
+                subtitle="Sahibinden.com'dan çekilen ilanların detaylı performans analizi ve istatistiksel verileri"
+                icon="pi-chart-line"
+                iconBgColor="bg-gradient-to-br from-blue-500 to-indigo-600"
+                gradient={{ from: 'blue-50', to: 'purple-100' }}
+                borderColor="border-blue-200"
+            >
+                {/* Status Badges */}
+                <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 mb-4">
+                    <Badge
+                        value="LIVE DATA"
+                        severity="success"
+                        className="text-xs sm:text-sm"
+                    />
+                    <Badge
+                        value="REAL-TIME"
+                        severity="info"
+                        className="text-xs sm:text-sm"
+                    />
+                    <Badge
+                        value="ÜCRETSİZ"
+                        severity="warning"
+                        className="text-xs sm:text-sm"
+                    />
                 </div>
 
                 {/* Header Actions & Info */}
@@ -102,7 +92,7 @@ export const AnalyticsContent = ({
                         />
                     </div>
                 </div>
-            </div>
+            </ResponsiveHero>
 
             {/* Stats Cards */}
             <ResponsiveGrid cols={{ mobile: 1, tablet: 2, desktop: 4 }} gap="gap-4 sm:gap-6">
@@ -146,9 +136,9 @@ export const AnalyticsContent = ({
 
             {/* Charts */}
             <ResponsiveGrid cols={{ mobile: 1, desktop: 2 }} gap="gap-4 sm:gap-6">
-                <Card title="Scraped İlan Türü Dağılımı" className="h-auto min-h-[400px] sm:h-[440px]">
+                <Card title="Scraped İlan Türü Dağılımı" className="h-auto min-h-[380px] sm:h-[420px]">
                     <div className="text-sm text-gray-600 mb-4">Sahibinden.com&apos;dan çekilen ilanların kategori dağılımı</div>
-                    <div className="w-full h-[300px] sm:h-[350px]">
+                    <div className="w-full h-[280px] sm:h-[320px]">
                         <Chart
                             type="doughnut"
                             data={propertyTypeChart.data}
@@ -157,9 +147,9 @@ export const AnalyticsContent = ({
                         />
                     </div>
                 </Card>
-                <Card title="En Çok Tıklanan Scraped İlanlar" className="h-auto min-h-[400px] sm:h-[440px]">
+                <Card title="En Çok Tıklanan Scraped İlanlar" className="h-auto min-h-[380px] sm:h-[420px]">
                     <div className="text-sm text-gray-600 mb-4">Sistemimiz üzerinden en çok tıklanan ilanlar</div>
-                    <div className="w-full h-[300px] sm:h-[350px]">
+                    <div className="w-full h-[280px] sm:h-[320px]">
                         <Chart
                             type="bar"
                             data={clicksChart.data}

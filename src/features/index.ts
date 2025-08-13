@@ -31,7 +31,7 @@ export * from './expense';
 // 🏢 Business Operations
 export * from './customers';
 export * from './appointments';  // ⭐ NEW & COMPLETE
-export * from './current-accounts';
+
 
 // 👨‍💼 Administration
 export * from './admin';

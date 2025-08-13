@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "primereact/button";
+import { Sidebar } from "primereact/sidebar";
+import { useResponsive } from "../../../hooks";
 
 const menuModel = [
     { label: "Dashboard", icon: "pi pi-home", url: "/admin" },
@@ -47,6 +49,8 @@ interface SidebarProps {
 
 export default function AdminSidebar({ children }: SidebarProps) {
     const [collapsed, setCollapsed] = useState(false);
+    const [mobileSidebarVisible, setMobileSidebarVisible] = useState(false);
+    const { isMobile } = useResponsive();
 
     const gridCols = collapsed ? "md:grid-cols-[80px_1fr]" : "md:grid-cols-[280px_1fr]";
 
@@ -79,6 +83,15 @@ export default function AdminSidebar({ children }: SidebarProps) {
                 {/* Top bar */}
                 <div className="flex items-center justify-between border-b border-blue-200 px-4 py-4 md:px-6 bg-white sticky top-0 z-10 shadow-sm">
                     <div className="flex items-center gap-3">
+                        {isMobile && (
+                            <Button
+                                icon="pi pi-bars"
+                                text
+                                className="text-blue-600 hover:text-blue-700"
+                                onClick={() => setMobileSidebarVisible(true)}
+                                aria-label="Menüyü Aç"
+                            />
+                        )}
                         <span className="font-bold text-blue-800 text-lg">Admin Panel</span>
                     </div>
                     <div className="text-sm text-blue-600 font-medium">PrimeReact Admin</div>
@@ -86,6 +99,22 @@ export default function AdminSidebar({ children }: SidebarProps) {
 
                 <main className="p-4 md:p-6 bg-gray-50 min-h-screen">{children}</main>
             </div>
+
+            {/* Mobile Sidebar */}
+            <Sidebar
+                visible={mobileSidebarVisible}
+                position="left"
+                onHide={() => setMobileSidebarVisible(false)}
+                className="w-80 md:hidden"
+                header={
+                    <div className="flex items-center gap-3 p-4 border-b border-blue-200">
+                        <i className="pi pi-home text-blue-600 text-xl"></i>
+                        <span className="font-bold text-blue-800">Yönetim Paneli</span>
+                    </div>
+                }
+            >
+                <SideNav collapsed={false} />
+            </Sidebar>
         </div>
     );
 }

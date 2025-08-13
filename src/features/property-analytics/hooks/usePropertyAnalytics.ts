@@ -64,9 +64,7 @@ export const usePropertyAnalytics = (initialProperties: Property[]) => {
         });
     }, [initialProperties, globalFilter, typeFilter, categoryFilter, sortBy]);
 
-    const topProperties = useMemo(() => {
-        return filteredProperties.slice(0, 10);
-    }, [filteredProperties]);
+
 
     const stats = useMemo(() => {
         const totalViews = filteredProperties.reduce((sum, p) => sum + p.views, 0);
@@ -162,7 +160,6 @@ export const usePropertyAnalytics = (initialProperties: Property[]) => {
 
         // Data
         filteredProperties,
-        topProperties,
         stats,
         typeDistributionChart,
         performanceChart

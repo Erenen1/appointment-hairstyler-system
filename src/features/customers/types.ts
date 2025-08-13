@@ -17,9 +17,8 @@ export interface Customer {
     isActive: boolean;
     registrationDate: string;
     lastContact: string;
-    priority: "high" | "medium" | "low";
-    notes: string;
-    favoriteProperties: number[];
+    isSeriousBuyer: boolean;
+    customerNotes: string;
     viewedProperties: number[];
     assignedAgent: number;
 }
@@ -29,6 +28,7 @@ export interface CustomerForm {
     email: string;
     phone: string;
     address: string;
+    dateOfBirth: string;
     profession: string;
     budget: number;
     preferredType: "Satılık" | "Kiralık";
@@ -38,8 +38,8 @@ export interface CustomerForm {
     maxArea: number;
     minRooms: string;
     requirements: string[];
-    priority: "high" | "medium" | "low";
-    notes: string;
+    isSeriousBuyer: boolean;
+    customerNotes: string;
     assignedAgent: number;
 }
 

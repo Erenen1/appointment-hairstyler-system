@@ -15,14 +15,40 @@ export const useStatistics = (properties: Property[]) => {
                 datasets: [{
                     data: Object.values(types),
                     backgroundColor: [
-                        "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD", "#98D8C8"
-                    ]
+                        "#FF5252", "#00BCD4", "#2196F3", "#4CAF50", "#FFC107", "#9C27B0", "#FF5722"
+                    ],
+                    borderWidth: 2,
+                    borderColor: "#ffffff"
                 }]
             },
             options: {
-                cutout: "60%",
-                plugins: { legend: { position: "bottom" } },
-                maintainAspectRatio: false
+                cutout: "65%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            boxWidth: 12,
+                            padding: 8,
+                            usePointStyle: true
+                        }
+                    }
+                },
+                maintainAspectRatio: false,
+                responsive: true,
+                layout: {
+                    padding: {
+                        left: 20,
+                        right: 20,
+                        top: 20,
+                        bottom: 20
+                    }
+                },
+                elements: {
+                    arc: {
+                        borderWidth: 2,
+                        borderColor: "#ffffff"
+                    }
+                }
             }
         };
     }, [properties]);
@@ -37,13 +63,44 @@ export const useStatistics = (properties: Property[]) => {
                 labels: topProperties.map(p => p.title.substring(0, 20) + "..."),
                 datasets: [{
                     data: topProperties.map(p => p.clicks),
-                    backgroundColor: ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7"]
+                    backgroundColor: ["#FF5252", "#00BCD4", "#2196F3", "#4CAF50", "#FFC107"]
                 }]
             },
             options: {
-                cutout: "50%",
-                plugins: { legend: { position: "right" } },
-                maintainAspectRatio: false
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                maintainAspectRatio: false,
+                responsive: true,
+                layout: {
+                    padding: {
+                        left: 20,
+                        right: 20,
+                        top: 20,
+                        bottom: 20
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0
+                        },
+                        grid: {
+                            display: true,
+                            color: '#f0f0f0'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,
+                            color: '#f0f0f0'
+                        }
+                    }
+                }
             }
         };
     }, [properties]);

@@ -204,44 +204,44 @@
   "income": [
     {
       "id": 1,
-      "category": "Saç Hizmetleri",
-      "amount": 12500.0,
+      "category": "Daire Satışı",
+      "amount": 125000.0,
       "date": "2024-01-15",
-      "description": "Ocak ayı saç hizmetleri geliri",
+      "description": "Ocak ayı daire satış komisyon geliri",
       "paymentMethod": "cash",
       "source": "service_sales"
     },
     {
       "id": 2,
-      "category": "Cilt Bakımı",
-      "amount": 8900.0,
+      "category": "Villa Satışı",
+      "amount": 89000.0,
       "date": "2024-01-15",
-      "description": "Ocak ayı cilt bakımı geliri",
+      "description": "Ocak ayı villa satış komisyon geliri",
       "paymentMethod": "card",
       "source": "service_sales"
     },
     {
       "id": 3,
-      "category": "Manikür/Pedikür",
-      "amount": 5600.0,
+      "category": "Arsa Satışı",
+      "amount": 56000.0,
       "date": "2024-01-15",
-      "description": "Ocak ayı manikür/pedikür geliri",
+      "description": "Ocak ayı arsa satış komisyon geliri",
       "paymentMethod": "cash",
       "source": "service_sales"
     },
     {
       "id": 4,
-      "category": "Ürün Satışı",
-      "amount": 3200.0,
+      "category": "Kiralama Komisyonu",
+      "amount": 32000.0,
       "date": "2024-01-15",
-      "description": "Ocak ayı ürün satış geliri",
+      "description": "Ocak ayı kiralama komisyon geliri",
       "paymentMethod": "card",
       "source": "product_sales"
     },
     {
       "id": 5,
       "category": "Diğer",
-      "amount": 1800.0,
+      "amount": 18000.0,
       "date": "2024-01-15",
       "description": "Diğer gelirler",
       "paymentMethod": "cash",
@@ -254,16 +254,16 @@
       "category": "Personel Maaşları",
       "amount": 45000.0,
       "date": "2024-01-15",
-      "description": "Ocak ayı personel maaşları",
+      "description": "Ocak ayı emlak danışmanı maaşları",
       "paymentMethod": "bank",
       "type": "operational"
     },
     {
       "id": 2,
-      "category": "Kira",
+      "category": "Ofis Kirası",
       "amount": 12000.0,
       "date": "2024-01-15",
-      "description": "Ocak ayı kira ödemesi",
+      "description": "Ocak ayı ofis kira ödemesi",
       "paymentMethod": "bank",
       "type": "fixed"
     },
@@ -272,27 +272,27 @@
       "category": "Elektrik/Su/Doğalgaz",
       "amount": 2800.0,
       "date": "2024-01-15",
-      "description": "Ocak ayı faturalar",
+      "description": "Ocak ayı ofis faturaları",
       "paymentMethod": "bank",
       "type": "utility"
     },
     {
       "id": 4,
-      "category": "Ürün Alımı",
+      "category": "Pazarlama ve İlan",
       "amount": 8500.0,
       "date": "2024-01-15",
-      "description": "Ocak ayı ürün alımları",
+      "description": "Ocak ayı emlak ilanları ve pazarlama",
       "paymentMethod": "bank",
-      "type": "inventory"
+      "type": "marketing"
     },
     {
       "id": 5,
-      "category": "Pazarlama",
+      "category": "Sigorta ve Güvenlik",
       "amount": 3200.0,
       "date": "2024-01-15",
-      "description": "Ocak ayı pazarlama giderleri",
+      "description": "Ocak ayı sigorta ve güvenlik giderleri",
       "paymentMethod": "bank",
-      "type": "marketing"
+      "type": "operational"
     },
     {
       "id": 6,
@@ -302,6 +302,186 @@
       "description": "Diğer giderler",
       "paymentMethod": "cash",
       "type": "other"
+    },
+    {
+      "id": 7,
+      "category": "Personel Maaşları",
+      "amount": 45000.0,
+      "date": "2024-02-15",
+      "description": "Şubat ayı emlak danışmanı maaşları",
+      "paymentMethod": "bank",
+      "type": "operational"
+    },
+    {
+      "id": 8,
+      "category": "Ofis Kirası",
+      "amount": 12000.0,
+      "date": "2024-02-15",
+      "description": "Şubat ayı ofis kira ödemesi",
+      "paymentMethod": "bank",
+      "type": "fixed"
+    },
+    {
+      "id": 9,
+      "category": "Elektrik/Su/Doğalgaz",
+      "amount": 3200.0,
+      "date": "2024-02-15",
+      "description": "Şubat ayı ofis faturaları",
+      "paymentMethod": "bank",
+      "type": "utility"
+    },
+    {
+      "id": 10,
+      "category": "Pazarlama ve İlan",
+      "amount": 9200.0,
+      "date": "2024-02-15",
+      "description": "Şubat ayı emlak ilanları ve pazarlama",
+      "paymentMethod": "bank",
+      "type": "marketing"
+    },
+    {
+      "id": 11,
+      "category": "Personel Maaşları",
+      "amount": 45000.0,
+      "date": "2024-03-15",
+      "description": "Mart ayı emlak danışmanı maaşları",
+      "paymentMethod": "bank",
+      "type": "operational"
+    },
+    {
+      "id": 12,
+      "category": "Ofis Kirası",
+      "amount": 12000.0,
+      "date": "2024-03-15",
+      "description": "Mart ayı ofis kira ödemesi",
+      "paymentMethod": "bank",
+      "type": "fixed"
+    },
+    {
+      "id": 13,
+      "category": "Elektrik/Su/Doğalgaz",
+      "amount": 2800.0,
+      "date": "2024-03-15",
+      "description": "Mart ayı ofis faturaları",
+      "paymentMethod": "bank",
+      "type": "utility"
+    },
+    {
+      "id": 14,
+      "category": "Pazarlama ve İlan",
+      "amount": 7800.0,
+      "date": "2024-03-15",
+      "description": "Mart ayı emlak ilanları ve pazarlama",
+      "paymentMethod": "bank",
+      "type": "marketing"
+    },
+    {
+      "id": 15,
+      "category": "Personel Maaşları",
+      "amount": 45000.0,
+      "date": "2024-04-15",
+      "description": "Nisan ayı emlak danışmanı maaşları",
+      "paymentMethod": "bank",
+      "type": "operational"
+    },
+    {
+      "id": 16,
+      "category": "Ofis Kirası",
+      "amount": 12000.0,
+      "date": "2024-04-15",
+      "description": "Nisan ayı ofis kira ödemesi",
+      "paymentMethod": "bank",
+      "type": "fixed"
+    },
+    {
+      "id": 17,
+      "category": "Elektrik/Su/Doğalgaz",
+      "amount": 2600.0,
+      "date": "2024-04-15",
+      "description": "Nisan ayı ofis faturaları",
+      "paymentMethod": "bank",
+      "type": "utility"
+    },
+    {
+      "id": 18,
+      "category": "Pazarlama ve İlan",
+      "amount": 8100.0,
+      "date": "2024-04-15",
+      "description": "Nisan ayı emlak ilanları ve pazarlama",
+      "paymentMethod": "bank",
+      "type": "marketing"
+    },
+    {
+      "id": 19,
+      "category": "Personel Maaşları",
+      "amount": 45000.0,
+      "date": "2024-05-15",
+      "description": "Mayıs ayı emlak danışmanı maaşları",
+      "paymentMethod": "bank",
+      "type": "operational"
+    },
+    {
+      "id": 20,
+      "category": "Ofis Kirası",
+      "amount": 12000.0,
+      "date": "2024-05-15",
+      "description": "Mayıs ayı ofis kira ödemesi",
+      "paymentMethod": "bank",
+      "type": "fixed"
+    },
+    {
+      "id": 21,
+      "category": "Elektrik/Su/Doğalgaz",
+      "amount": 2400.0,
+      "date": "2024-05-15",
+      "description": "Mayıs ayı ofis faturaları",
+      "paymentMethod": "bank",
+      "type": "utility"
+    },
+    {
+      "id": 22,
+      "category": "Pazarlama ve İlan",
+      "amount": 8900.0,
+      "date": "2024-05-15",
+      "description": "Mayıs ayı emlak ilanları ve pazarlama",
+      "paymentMethod": "bank",
+      "type": "marketing"
+    },
+    {
+      "id": 23,
+      "category": "Personel Maaşları",
+      "amount": 45000.0,
+      "date": "2024-06-15",
+      "description": "Haziran ayı emlak danışmanı maaşları",
+      "paymentMethod": "bank",
+      "type": "operational"
+    },
+    {
+      "id": 24,
+      "category": "Ofis Kirası",
+      "amount": 12000.0,
+      "date": "2024-06-15",
+      "description": "Haziran ayı ofis kira ödemesi",
+      "paymentMethod": "bank",
+      "type": "fixed"
+    },
+    {
+      "id": 25,
+      "category": "Elektrik/Su/Doğalgaz",
+      "amount": 3000.0,
+      "date": "2024-06-15",
+      "description": "Haziran ayı ofis faturaları",
+      "paymentMethod": "bank",
+      "type": "utility"
+    },
+    {
+      "id": 26,
+      "category": "Pazarlama ve İlan",
+      "amount": 9500.0,
+      "date": "2024-06-15",
+      "description": "Haziran ayı emlak ilanları ve pazarlama",
+      "paymentMethod": "bank",
+      "type": "marketing"
     }
   ],
   "monthlyStats": [

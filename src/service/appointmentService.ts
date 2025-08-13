@@ -1,4 +1,4 @@
-import { Appointment } from '@/hooks/useAppointments';
+import { Appointment } from '@/features/appointments/types/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
@@ -36,17 +36,24 @@ export class AppointmentService {
         return this.request<Appointment>(`/appointments/${id}`);
     }
 
-    static async createAppointment(appointment: Omit<Appointment, 'id'>): Promise<Appointment> {
+    static async createAppointment(appointment: Omit<Appointment, 'id' | 'createdAt' | 'updatedAt'>): Promise<Appointment> {
         return this.request<Appointment>('/appointments', {
             method: 'POST',
-            body: JSON.stringify(appointment),
+            body: JSON.stringify({
+                ...appointment,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            }),
         });
     }
 
     static async updateAppointment(id: number, appointment: Partial<Appointment>): Promise<Appointment> {
         return this.request<Appointment>(`/appointments/${id}`, {
             method: 'PUT',
-            body: JSON.stringify(appointment),
+            body: JSON.stringify({
+                ...appointment,
+                updatedAt: new Date().toISOString()
+            }),
         });
     }
 
@@ -72,32 +79,64 @@ export class AppointmentService {
         return this.request<Appointment[]>(`/appointments/range?start=${startDate}&end=${endDate}`);
     }
 
+    static async getAppointmentsByType(typeId: number): Promise<Appointment[]> {
+        return this.request<Appointment[]>(`/appointments/type/${typeId}`);
+    }
+
     // Mock data fallback for development
     static async getMockAppointments(): Promise<Appointment[]> {
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 300));
 
-        // Return mock data
+        // Return mock data from appointments.json
+        try {
+            const response = await fetch('/mocks/appointments.json');
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.warn('Failed to load mock appointments, using fallback data');
+        }
+
+        // Fallback data
         return [
             {
                 id: 1,
-                date: "2024-01-15",
-                time: "10:00",
                 customerId: 1,
-                serviceId: 1,
                 staffId: 1,
-                statusId: 1,
-                notes: "İlk randevu"
+                serviceId: 1,
+                statusId: 2,
+                appointmentTypeId: 1,
+                appointmentDate: "2024-12-19",
+                startTime: "10:00:00",
+                endTime: "11:00:00",
+                customerPhone: "+90 532 123 45 67",
+                message: "Kadıköy'deki 2+1 daireyi görüntülemek istiyoruz",
+                notes: "Müşteri ilk kez geliyor, detaylı bilgi verilecek",
+                duration: 60,
+                price: 0.0,
+                createdByAdmin: 1,
+                createdAt: "2024-01-10T15:30:00.000Z",
+                updatedAt: "2024-01-15T11:00:00.000Z"
             },
             {
                 id: 2,
-                date: "2024-01-16",
-                time: "14:30",
                 customerId: 2,
+                staffId: 3,
                 serviceId: 2,
-                staffId: 2,
                 statusId: 2,
-                notes: "Kontrol randevusu"
+                appointmentTypeId: 2,
+                appointmentDate: "2024-12-19",
+                startTime: "14:00:00",
+                endTime: "14:45:00",
+                customerPhone: "+90 533 987 65 43",
+                message: "Beşiktaş'taki ofis için değerleme yapılacak",
+                notes: "Ticari gayrimenkul değerleme",
+                duration: 45,
+                price: 500.0,
+                createdByAdmin: null,
+                createdAt: "2024-01-12T09:45:00.000Z",
+                updatedAt: "2024-01-12T10:00:00.000Z"
             }
         ];
     }

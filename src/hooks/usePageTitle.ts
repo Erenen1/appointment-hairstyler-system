@@ -11,7 +11,7 @@ const pageMap: Record<string, string> = {
     "/admin/whatsapp-bot": "WhatsApp Bot",
     "/admin/gelir": "Gelir Yönetimi",
     "/admin/gider": "Gider Yönetimi",
-    "/admin/cari": "Cari Hesaplar",
+
 
     "/admin/ayarlar": "Ayarlar"
 };

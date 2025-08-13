@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Trash2, X, Plus, AlertCircle, Info } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -29,6 +30,8 @@ interface Appointment {
     time: string;
     customerId: number;
     staffId: number;
+    fullName?: string;
+    phoneNumber?: string;
     notes?: string;
 }
 
@@ -58,6 +61,8 @@ export default function CalendarModal({
         time: "",
         customerId: undefined,
         staffId: undefined,
+        fullName: "",
+        phoneNumber: "",
         notes: ""
     });
 
@@ -72,6 +77,8 @@ export default function CalendarModal({
                 time: selectedAppointment.time,
                 customerId: selectedAppointment.customerId,
                 staffId: selectedAppointment.staffId,
+                fullName: selectedAppointment.fullName || "",
+                phoneNumber: selectedAppointment.phoneNumber || "",
                 notes: selectedAppointment.notes || ""
             });
         } else if (selectedDate) {
@@ -82,6 +89,8 @@ export default function CalendarModal({
                 time: "",
                 customerId: undefined,
                 staffId: undefined,
+                fullName: "",
+                phoneNumber: "",
                 notes: ""
             });
         }
@@ -109,6 +118,8 @@ export default function CalendarModal({
             time: formData.time!,
             customerId: formData.customerId!,
             staffId: formData.staffId!,
+            fullName: formData.fullName || "",
+            phoneNumber: formData.phoneNumber || "",
             notes: formData.notes || ""
         };
 
@@ -219,6 +230,18 @@ export default function CalendarModal({
                                     {selectedAppointment.notes || 'Not yok'}
                                 </p>
                             </div>
+                            {selectedAppointment.fullName && (
+                                <div>
+                                    <span className="text-gray-500">Tam Ad Soyad:</span>
+                                    <p className="font-medium text-gray-900">{selectedAppointment.fullName}</p>
+                                </div>
+                            )}
+                            {selectedAppointment.phoneNumber && (
+                                <div>
+                                    <span className="text-gray-500">Telefon:</span>
+                                    <p className="font-medium text-gray-900">{selectedAppointment.phoneNumber}</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
@@ -278,6 +301,34 @@ export default function CalendarModal({
                                 ))}
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    <div>
+                        <Label htmlFor="fullName" className="text-sm font-medium text-gray-700 mb-2 block">
+                            Tam Ad Soyad
+                        </Label>
+                        <Input
+                            type="text"
+                            id="fullName"
+                            value={formData.fullName || ""}
+                            onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
+                            placeholder="Tam ad soyad giriniz"
+                            className="w-full"
+                        />
+                    </div>
+
+                    <div>
+                        <Label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700 mb-2 block">
+                            Telefon Numarası
+                        </Label>
+                        <Input
+                            type="tel"
+                            id="phoneNumber"
+                            value={formData.phoneNumber || ""}
+                            onChange={(e) => setFormData(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                            placeholder="Telefon numarası giriniz"
+                            className="w-full"
+                        />
                     </div>
 
                     <div>

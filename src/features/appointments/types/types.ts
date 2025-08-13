@@ -7,11 +7,23 @@ export interface Appointment {
     serviceId: number;
     staffId: number;
     statusId: number;
+    appointmentTypeId: number; // Randevu türü
+    customerPhone: string; // Müşteri telefon numarası
+    message?: string; // Mesaj/notlar
     notes?: string;
     duration: number;
     price: number;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface AppointmentType {
+    id: number;
+    name: string;
+    displayName: string;
+    description: string;
+    color: string;
+    icon: string;
 }
 
 export interface AppointmentStatus {
@@ -29,6 +41,7 @@ export interface AppointmentFilter {
     serviceId?: number;
     staffId?: number;
     statusId?: number;
+    appointmentTypeId?: number; // Randevu türü filtresi
     timeSlot?: string;
 }
 
@@ -49,6 +62,11 @@ export interface AppointmentStats {
     }>;
     staffBreakdown: Array<{
         staff: string;
+        count: number;
+        percentage: number;
+    }>;
+    typeBreakdown: Array<{
+        type: string;
         count: number;
         percentage: number;
     }>;

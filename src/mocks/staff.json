@@ -1,10 +1,50 @@
 [
   {
     "id": 1,
-    "fullName": "Genel Personel",
-    "specialties": "Genel",
-    "email": "personel@example.com",
-    "phone": "+90 555 000 0000",
+    "fullName": "Ayşe Yılmaz",
+    "specialties": "Saç Stilisti",
+    "email": "ayse.yilmaz@salon.com",
+    "phone": "+90 532 111 2222",
     "isActive": true
+  },
+  {
+    "id": 2,
+    "fullName": "Fatma Demir",
+    "specialties": "Makyaj Uzmanı",
+    "email": "fatma.demir@salon.com",
+    "phone": "+90 533 333 4444",
+    "isActive": true
+  },
+  {
+    "id": 3,
+    "fullName": "Mehmet Kaya",
+    "specialties": "Manikür Uzmanı",
+    "email": "mehmet.kaya@salon.com",
+    "phone": "+90 534 555 6666",
+    "isActive": true
+  },
+  {
+    "id": 4,
+    "fullName": "Elif Özkan",
+    "specialties": "Cilt Bakım Uzmanı",
+    "email": "elif.ozkan@salon.com",
+    "phone": "+90 535 777 8888",
+    "isActive": true
+  },
+  {
+    "id": 5,
+    "fullName": "Can Yıldırım",
+    "specialties": "Saç Boyama Uzmanı",
+    "email": "can.yildirim@salon.com",
+    "phone": "+90 536 999 0000",
+    "isActive": true
+  },
+  {
+    "id": 6,
+    "fullName": "Zeynep Çelik",
+    "specialties": "Masaj Uzmanı",
+    "email": "zeynep.celik@salon.com",
+    "phone": "+90 537 111 3333",
+    "isActive": false
   }
 ]

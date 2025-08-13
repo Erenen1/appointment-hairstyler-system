@@ -6,13 +6,14 @@ import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import { Toaster } from "sonner";
-
+import LoaderProvider from "@/contexts/LoaderContext";
+import GlobalLoader from "@/components/ui/GlobalLoader";
+import NavigationLoader from "@/components/NavigationLoader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -29,14 +30,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} antialiased`}
       >
-        {/* Geist Fontu yüklenecek */}
-        {children}
-        <Toaster
-          position="top-right"
-          richColors
-          closeButton
-          duration={4000}
-        />
+        <LoaderProvider>
+          {/* Geist Fontu yüklenecek */}
+          {children}
+          <GlobalLoader />
+          <NavigationLoader />
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            duration={4000}
+          />
+        </LoaderProvider>
       </body>
     </html>
   );

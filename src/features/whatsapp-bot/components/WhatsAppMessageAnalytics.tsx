@@ -10,6 +10,7 @@ import { useMemo, useState } from "react";
 import { ProcessedWhatsAppMessage } from "../types";
 import { format, parseISO, startOfDay, startOfWeek, startOfMonth, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, subDays, subWeeks, subMonths } from "date-fns";
 import { tr } from "date-fns/locale";
+import { Dropdown } from 'primereact/dropdown';
 
 interface WhatsAppMessageAnalyticsProps {
     messages: ProcessedWhatsAppMessage[];
@@ -362,29 +363,33 @@ export const WhatsAppMessageAnalytics = ({ messages }: WhatsAppMessageAnalyticsP
                 <div className="flex gap-4">
                     <div>
                         <h3 className="text-lg font-semibold text-gray-800 mb-2">Zaman Aralığı</h3>
-                        <select
+                        <Dropdown
                             value={timeRange}
-                            onChange={(e) => setTimeRange(e.target.value as any)}
-                            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                            <option value="7d">Son 7 Gün</option>
-                            <option value="30d">Son 30 Gün</option>
-                            <option value="90d">Son 90 Gün</option>
-                            <option value="1y">Son 1 Yıl</option>
-                        </select>
+                            onChange={(e) => setTimeRange(e.value)}
+                            options={[
+                                { label: 'Son 7 Gün', value: '7d' },
+                                { label: 'Son 30 Gün', value: '30d' },
+                                { label: 'Son 90 Gün', value: '90d' },
+                                { label: 'Son 1 Yıl', value: '1y' }
+                            ]}
+                            placeholder="Zaman aralığı seçin"
+                            className="w-48"
+                        />
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold text-gray-800 mb-2">Mesaj Türü</h3>
-                        <select
+                        <Dropdown
                             value={messageType}
-                            onChange={(e) => setMessageType(e.target.value)}
-                            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                            <option value="all">Tüm Türler</option>
-                            <option value="text">Metin</option>
-                            <option value="image">Resim</option>
-                            <option value="document">Dosya</option>
-                        </select>
+                            onChange={(e) => setMessageType(e.value)}
+                            options={[
+                                { label: 'Tüm Türler', value: 'all' },
+                                { label: 'Metin', value: 'text' },
+                                { label: 'Resim', value: 'image' },
+                                { label: 'Dosya', value: 'document' }
+                            ]}
+                            placeholder="Mesaj türü seçin"
+                            className="w-48"
+                        />
                     </div>
                 </div>
                 <div className="text-sm text-gray-600">

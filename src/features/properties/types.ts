@@ -3,86 +3,109 @@ export interface Property {
     title: string;
     description: string;
     price: number;
-    type: "Satılık" | "Kiralık";
-    category: "Daire" | "Müstakil" | "Villa" | "Ofis" | "Dükkan" | "Arsa";
-    location: string;
-    district: string;
-    city: string;
-    address: string;
-    area: number;
-    rooms: string;
+    type: 'Satılık' | 'Kiralık';
+    category: 'Daire' | 'Müstakil' | 'Villa' | 'Ofis' | 'Dükkan' | 'Arsa';
+    area: number; // m²
+    rooms: string; // 2+1, 3+1, etc.
+    bedrooms: number;
     bathrooms: number;
-    age: number;
     floor: number;
     totalFloors: number;
-    heating: string;
+    age: number;
+    heating: 'Doğalgaz' | 'Elektrik' | 'Kömür' | 'Yakıt' | 'Merkezi';
     furnished: boolean;
     parking: boolean;
-    elevator: boolean;
     balcony: boolean;
-    garden: boolean;
-    pool: boolean;
-    security: boolean;
+    elevator: boolean;
+    address: {
+        district: string;
+        city: string;
+        fullAddress: string;
+        coordinates?: {
+            lat: number;
+            lng: number;
+        };
+    };
+    features: string[]; // Özellikler
+    images: string[]; // Resim URL'leri
+    contact: {
+        name: string;
+        phone: string;
+        email: string;
+        isAgent: boolean;
+    };
+    status: 'active' | 'pending' | 'sold' | 'rented' | 'inactive';
     views: number;
     clicks: number;
-    favorites: number;
-    featured: boolean;
-    status: "active" | "inactive" | "sold" | "rented";
-    agentId: number;
-    ownerId: number;
     createdAt: string;
     updatedAt: string;
-    images: string[];
+    expiresAt: string;
+    tags: string[];
+    isFeatured: boolean;
+    isUrgent: boolean;
+    isNew: boolean;
 }
 
 export interface PropertyForm {
-    id?: number;
     title: string;
     description: string;
     price: number;
-    type: "Satılık" | "Kiralık";
-    category: "Daire" | "Müstakil" | "Villa" | "Ofis" | "Dükkan" | "Arsa";
-    location: string;
-    address: string;
+    type: 'Satılık' | 'Kiralık';
+    category: 'Daire' | 'Müstakil' | 'Villa' | 'Ofis' | 'Dükkan' | 'Arsa';
     area: number;
     rooms: string;
+    bedrooms: number;
     bathrooms: number;
-    age: number;
     floor: number;
     totalFloors: number;
-    heating: string;
+    age: number;
+    heating: 'Doğalgaz' | 'Elektrik' | 'Kömür' | 'Yakıt' | 'Merkezi';
     furnished: boolean;
     parking: boolean;
-    elevator: boolean;
     balcony: boolean;
-    garden: boolean;
-    pool: boolean;
-    security: boolean;
-    featured: boolean;
-    agentId: number;
-}
-
-export interface PropertyStats {
-    totalProperties: number;
-    activeProperties: number;
-    soldProperties: number;
-    rentedProperties: number;
-    totalValue: number;
-    averagePrice: number;
-    mostViewedProperty: Property;
-    mostClickedProperty: Property;
+    elevator: boolean;
+    address: {
+        district: string;
+        city: string;
+        fullAddress: string;
+    };
+    features: string[];
+    contact: {
+        name: string;
+        phone: string;
+        email: string;
+        isAgent: boolean;
+    };
+    tags: string[];
+    isFeatured: boolean;
+    isUrgent: boolean;
 }
 
 export interface PropertyFilter {
     type?: string[];
     category?: string[];
-    priceMin?: number;
-    priceMax?: number;
-    areaMin?: number;
-    areaMax?: number;
-    district?: string[];
+    priceRange?: {
+        min: number;
+        max: number;
+    };
+    areaRange?: {
+        min: number;
+        max: number;
+    };
     rooms?: string[];
-    featured?: boolean;
+    district?: string[];
+    features?: string[];
     status?: string[];
-    agentId?: number;
+}
+
+export interface PropertyStats {
+    totalProperties: number;
+    activeProperties: number;
+    totalViews: number;
+    totalClicks: number;
+    avgPrice: number;
+    avgArea: number;
+    typeDistribution: Record<string, number>;
+    categoryDistribution: Record<string, number>;
+    districtDistribution: Record<string, number>;
 }

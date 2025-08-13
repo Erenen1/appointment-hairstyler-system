@@ -277,6 +277,7 @@ export default function PropertiesPage({
                                 value={globalFilter}
                                 onChange={(e) => setGlobalFilter(e.target.value)}
                                 placeholder="İlan ara..."
+                                style={{ paddingLeft: '2.5rem', paddingRight: '1.5rem' }}
                             />
                         </span>
                         <MultiSelect

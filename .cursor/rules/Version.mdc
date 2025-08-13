@@ -1,0 +1,80 @@
+# Görev Tanımı
+
+Mevcut CRM projesini PrimeReact, TailwindCSS, Clean Code ve SOLID prensiplerine uygun şekilde baştan optimize et.
+Tüm tasarım, performans, responsive ve modülerlik gereksinimlerini karşıla.
+Proje sonunda versiyon 1.0 olarak hatasız teslim edilecek.
+
+---
+
+## 1. Global UI Tutarlılığı
+
+- Tüm input, select ve search bar bileşenlerini @PrimeReactDoc standartlarına göre yeniden tasarla.
+- Search bar placeholder ve icon arasındaki mesafeyi optimize et.
+- Bu stilleri tek bir yerde yönet (örn. `components/ui/SearchBar.tsx`).
+- TailwindCSS class’larında tutarsızlık varsa gider, temizlik yap.
+
+---
+
+## 2. Grafik ve Tablo Düzeni
+
+- Container’a sığmayan table, dairesel grafik ve sütun grafiklerini tespit et ve responsive hale getir.
+- Overflow sorunlarını çöz, mobil görünümde düzgün render almalarını sağla.
+- Gereksiz kod tekrarlarını kaldır.
+
+---
+
+## 3. Responsive Tasarım
+
+- **Sidebar hariç** tüm sayfaları (istatistikler, ilan analitikleri, müşteriler, randevular, WhatsApp bot, satış, gelirler, giderler) mobil uyumlu yap.
+- Her telefon boyutunda test et.
+- Randevu takvimi sayfasına dokunma (paket zaten responsive).
+- Sidebar mobilde açılmıyor → Mevcut yapıyı düzelt veya mobil için özel bir sidebar ekle.
+
+---
+
+## 4. Performans ve Kod Temizliği
+
+- Clean Code + SOLID kurallarına göre dosya yapısını yeniden düzenle (`features/` bazlı yapı).
+- Gereksiz kod tekrarlarını temizle.
+- Global loader (animate-spin) ekle, context ile yönet, layout’a entegre et.
+- Projeyi lint ile sürekli kontrol et, tüm hataları ve uyarıları çöz.
+
+---
+
+## 5. PrimeReact Virtual Scroll
+
+- @PrimeReactDoc’a göre VirtualScroll özelliğini projeye dahil et.
+- Tüm uzun listelerde performans için uygula.
+
+---
+
+## 6. İlan Ekleme & WhatsApp Bot Entegrasyonu
+
+- “İlan ekle” özelliği ekle.
+- İşletme sahibinin eklediği ilanlar, WhatsApp bot’taki AI için referans veri olacak.
+- AI bu ilanlar üzerinden bilgi verebilmeli.
+- Ek olarak benzersiz bir giriş fikri ekle (örn. ilan analizi yapan otomatik öneri sistemi).
+
+---
+
+## 7. Mobil Öncelikli Geliştirme
+
+- Sidebar istatistiklerden giderler sayfasına kadar tüm sayfaları mobil uyumlu yap.
+- Randevu takvimi hariç tüm sayfalarda mobil görünümü test et.
+- Her marka ve çözünürlük için responsive çalışmasını sağla.
+
+---
+
+## 8. Teslimat Kriterleri
+
+- Proje versiyon 1.0, responsive, modüler, yüksek performanslı olacak.
+- Kod tekrarı minimumda, lint hataları sıfır, SOLID ve Clean Code uyumlu.
+- Tüm tasarım elementleri tutarlı ve PrimeReact standartlarına uygun.
+
+---
+
+## Notlar
+
+- Her adım için ayrı commit mesajları kullan.
+- Gerektiğinde yeni reusable component’ler oluştur.
+- Önce analiz → sonra düzeltme → sonra test mantığı ile ilerle.

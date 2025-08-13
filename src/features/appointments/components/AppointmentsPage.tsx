@@ -142,7 +142,12 @@ export default function AppointmentsPage({
                 <div className="flex justify-end pb-3">
                     <span className="p-input-icon-left">
                         <i className="pi pi-search" />
-                        <InputText value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder="Ara..." />
+                        <InputText
+                            value={globalFilter}
+                            onChange={(e) => setGlobalFilter(e.target.value)}
+                            placeholder="Ara..."
+                            style={{ paddingLeft: '2.5rem', paddingRight: '1.5rem' }}
+                        />
                     </span>
                 </div>
                 <DataTable value={rows} paginator rows={10} stripedRows tableStyle={{ minWidth: "50rem" }}

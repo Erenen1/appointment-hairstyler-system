@@ -7,32 +7,28 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
+import { Badge } from "primereact/badge";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { useMemo, useState } from "react";
 import { SelectButton } from "primereact/selectbutton";
-import { parseISO, startOfISOWeek, startOfMonth, startOfYear, format, getISOWeek } from "date-fns";
+import { parseISO, startOfISOWeek, startOfMonth, format, getISOWeek, isToday, isThisWeek, isThisMonth } from "date-fns";
 import { Appointment, AppointmentStatus } from "./types";
-import { Service, Staff } from "./types";
 import AppointmentForm from "./components/AppointmentForm";
 import AppointmentStats from "./components/AppointmentStats";
-import { ExportButton } from "../../components/ui/ExportButton";
+import { ExportButton, ResponsiveHero } from "../../components/ui";
 import { exportAppointmentsToCsv } from "../../lib/exportUtils";
 
 interface AppointmentsPageProps {
     appointments?: Appointment[];
-    services?: Service[];
-    staff?: Staff[];
     statuses?: AppointmentStatus[];
 }
 
 export default function AppointmentsPage({
     appointments: initialAppointments = [],
-    services: initialServices = [],
-    staff: initialStaff = [],
     statuses: initialStatuses = []
 }: AppointmentsPageProps) {
     const [globalFilter, setGlobalFilter] = useState<string>("");
-    const [period, setPeriod] = useState<"daily" | "weekly" | "monthly" | "yearly">("daily");
+    const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
     const [showForm, setShowForm] = useState(false);
     const [editingAppointment, setEditingAppointment] = useState<Appointment | undefined>();
     const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
@@ -49,9 +45,6 @@ export default function AppointmentsPage({
                 case "monthly":
                     bucketStart = startOfMonth(d);
                     break;
-                case "yearly":
-                    bucketStart = startOfYear(d);
-                    break;
                 default:
                     bucketStart = d;
             }
@@ -63,7 +56,6 @@ export default function AppointmentsPage({
             const d = new Date(k);
             if (period === "weekly") return `W${getISOWeek(d)} ${format(d, "yyyy")}`;
             if (period === "monthly") return format(d, "MM.yyyy");
-            if (period === "yearly") return format(d, "yyyy");
             return format(d, "dd.MM.yyyy");
         });
         const outCounts = sortedKeys.map((k) => bucketMap.get(k) || 0);
@@ -79,9 +71,7 @@ export default function AppointmentsPage({
                         ? "Günlük Randevu"
                         : period === "weekly"
                             ? "Haftalık Randevu"
-                            : period === "monthly"
-                                ? "Aylık Randevu"
-                                : "Yıllık Randevu",
+                            : "Aylık Randevu",
                 data: counts,
                 borderColor: "#3B82F6",
                 backgroundColor: "rgba(59, 130, 246, 0.1)",
@@ -97,23 +87,46 @@ export default function AppointmentsPage({
     } as Record<string, unknown>;
 
     const doughnutData = useMemo(() => {
-        const byStatus = new Map<number, number>();
-        appointments.forEach((a) => {
-            byStatus.set(a.statusId, (byStatus.get(a.statusId) || 0) + 1);
-        });
-        const labels = initialStatuses.map((s) => s.displayName);
-        const colors = initialStatuses.map((s) => s.color || "#888");
-        const data = initialStatuses.map((s) => byStatus.get(s.id) || 0);
+        // Genel istatistikler
+        const today = appointments.filter(a => isToday(parseISO(a.appointmentDate))).length;
+        const thisWeek = appointments.filter(a => isThisWeek(parseISO(a.appointmentDate))).length;
+        const thisMonth = appointments.filter(a => isThisMonth(parseISO(a.appointmentDate))).length;
+
+        // Durum istatistikleri
+        const confirmed = appointments.filter(a => {
+            const status = initialStatuses.find(s => s.id === a.statusId);
+            return status?.displayName === 'Onaylandı';
+        }).length;
+        const pending = appointments.filter(a => {
+            const status = initialStatuses.find(s => s.id === a.statusId);
+            return status?.displayName === 'Beklemede';
+        }).length;
+        const cancelled = appointments.filter(a => {
+            const status = initialStatuses.find(s => s.id === a.statusId);
+            return status?.displayName === 'İptal Edildi';
+        }).length;
+        const postponed = appointments.filter(a => {
+            const status = initialStatuses.find(s => s.id === a.statusId);
+            return status?.displayName === 'Ertelendi';
+        }).length;
+
         return {
-            labels,
+            labels: [
+                'Bugün', 'Bu Hafta', 'Bu Ay',
+                'Onaylanan', 'Bekleyen', 'İptal Edilen', 'Ertelendi'
+            ],
             datasets: [
                 {
-                    data,
-                    backgroundColor: colors,
-                    borderWidth: 3,
+                    data: [today, thisWeek, thisMonth, confirmed, pending, cancelled, postponed],
+                    backgroundColor: [
+                        '#FF5252', '#00BCD4', '#2196F3',  // Genel istatistikler (canlı kırmızı, turkuaz, mavi)
+                        '#4CAF50', '#FFC107', '#9C27B0', '#FF5722'  // Durum istatistikleri (yeşil, altın, mor, turuncu)
+                    ],
+                    borderWidth: 4,
                     borderColor: "#ffffff",
-                    hoverBorderWidth: 4,
-                    hoverBorderColor: "#f3f4f6",
+                    hoverBorderWidth: 6,
+                    hoverBorderColor: "#f8f9fa",
+                    hoverOffset: 8,
                 },
             ],
         } as Record<string, unknown>;
@@ -143,24 +156,39 @@ export default function AppointmentsPage({
     } as Record<string, unknown>;
 
     const commonDoughnutOptions = {
-        cutout: "65%",
+        cutout: "60%",
         plugins: {
             legend: {
                 position: "bottom",
                 labels: {
-                    padding: 20,
+                    padding: 15,
                     usePointStyle: true,
-                    pointStyle: "circle"
+                    pointStyle: "circle",
+                    font: {
+                        size: 12,
+                        weight: '600'
+                    }
                 }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                borderColor: '#ffffff',
+                borderWidth: 1
             }
         },
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        elements: {
+            arc: {
+                borderWidth: 4,
+                borderColor: "#ffffff"
+            }
+        }
     } as Record<string, unknown>;
 
     const rows = appointments.map((a) => ({
         ...a,
-        service: initialServices.find((s) => s.id === a.serviceId)?.title,
-        staff: initialStaff.find((s) => s.id === a.staffId)?.fullName,
         status: initialStatuses.find((s) => s.id === a.statusId)?.displayName,
     }));
 
@@ -249,39 +277,30 @@ export default function AppointmentsPage({
         );
     };
 
-    const priceBodyTemplate = (rowData: Appointment & { service?: string; staff?: string; status?: string }) => {
-        return (
-            <span className="font-semibold text-green-600">
-                ₺{rowData.price.toLocaleString('tr-TR')}
-            </span>
-        );
-    };
+
 
     return (
         <div className="p-4 md:p-6 space-y-6">
             {/* Hero Section */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-8 border border-blue-200">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-6 shadow-lg">
-                        <i className="pi pi-calendar text-white text-3xl"></i>
-                    </div>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3">Randevu Yönetimi</h1>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                        Randevularınızı profesyonel şekilde planlayın, takip edin ve müşteri memnuniyetini artırın
-                    </p>
-                </div>
-            </div>
+            <ResponsiveHero
+                title="Randevular"
+                subtitle="Randevularınızı profesyonel şekilde planlayın, takip edin ve müşteri memnuniyetini artırın"
+                icon="pi-calendar"
+                iconBgColor="bg-gradient-to-br from-blue-500 to-indigo-600"
+                gradient={{ from: 'blue-50', to: 'indigo-100' }}
+                borderColor="border-blue-200"
+            />
 
             {/* İstatistik Kartları */}
             <AppointmentStats appointments={appointments} statuses={initialStatuses} />
 
             {/* Grafikler */}
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2 mb-6">
                 <Card className="shadow-lg border-0 bg-gradient-to-br from-blue-50 to-indigo-50">
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center justify-between mb-4">
                         <div>
                             <h3 className="text-lg font-bold text-gray-800 mb-1">Randevu Trendi</h3>
-                            <p className="text-sm text-gray-600">Zaman içindeki randevu dağılımı</p>
+                            <p className="text-sm text-gray-600">Randevu sayısının zaman içindeki dağılımı</p>
                         </div>
                         <SelectButton
                             value={period}
@@ -289,26 +308,28 @@ export default function AppointmentsPage({
                             options={[
                                 { label: "Günlük", value: "daily" },
                                 { label: "Haftalık", value: "weekly" },
-                                { label: "Aylık", value: "monthly" },
-                                { label: "Yıllık", value: "yearly" },
+                                { label: "Aylık", value: "monthly" }
                             ]}
                             optionLabel="label"
                             multiple={false}
                             className="shadow-sm"
                         />
                     </div>
-                    <div style={{ height: 320 }}>
-                        <Chart type="line" data={lineData} options={commonLineOptions} />
+                    <div style={{ height: 300 }}>
+                        <Chart type="line" data={lineData} options={commonLineOptions} className="h-70" />
                     </div>
                 </Card>
 
-                <Card className="shadow-lg border-0 bg-gradient-to-br from-purple-50 to-pink-50">
-                    <div className="mb-6">
-                        <h3 className="text-lg font-bold text-gray-800 mb-1">Durum Dağılımı</h3>
-                        <p className="text-sm text-gray-600">Randevu durumlarının yüzdelik dağılımı</p>
+                <Card className="shadow-xl border-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 hover:shadow-2xl transition-all duration-300">
+                    <div className="mb-4">
+                        <h3 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+                            <i className="pi pi-chart-pie text-indigo-600"></i>
+                            Randevu İstatistikleri
+                        </h3>
+                        <p className="text-sm text-gray-600">Genel istatistikler ve durum dağılımı</p>
                     </div>
-                    <div style={{ height: 320 }}>
-                        <Chart type="doughnut" data={doughnutData} options={commonDoughnutOptions} />
+                    <div style={{ height: 300 }}>
+                        <Chart type="doughnut" data={doughnutData} options={commonDoughnutOptions} className="h-70" />
                     </div>
                 </Card>
             </div>
@@ -322,8 +343,9 @@ export default function AppointmentsPage({
                             <InputText
                                 value={globalFilter}
                                 onChange={(e) => setGlobalFilter(e.target.value)}
-                                placeholder="Müşteri ara..."
+                                placeholder="Tarih, saat, telefon veya mesaj ara..."
                                 className="w-80"
+                                style={{ paddingLeft: '2.5rem', paddingRight: '1.5rem' }}
                             />
                         </span>
                     </div>
@@ -351,7 +373,7 @@ export default function AppointmentsPage({
                     sortMode="multiple"
                     removableSort
                     globalFilter={globalFilter}
-                    globalFilterFields={["appointmentDate", "startTime", "endTime", "service", "staff", "status"]}
+                    globalFilterFields={["appointmentDate", "startTime", "customerPhone", "message"]}
                     className="shadow-sm"
                 >
                     <Column
@@ -367,39 +389,77 @@ export default function AppointmentsPage({
                     />
                     <Column
                         field="startTime"
-                        header="Başlangıç"
+                        header="Randevu Saati"
                         sortable
                         className="text-center"
                         body={(rowData) => (
                             <span className="text-gray-700 font-medium">
-                                {rowData.startTime.slice(0, 5)}
+                                {rowData.startTime.slice(0, 5)} - {rowData.endTime.slice(0, 5)}
                             </span>
                         )}
                     />
                     <Column
-                        field="endTime"
-                        header="Bitiş"
-                        sortable
-                        className="text-center"
-                        body={(rowData) => (
-                            <span className="text-gray-700 font-medium">
-                                {rowData.endTime.slice(0, 5)}
-                            </span>
-                        )}
-                    />
-                    <Column
-                        field="service"
-                        header="Hizmet"
+                        field="appointmentTypeId"
+                        header="İlgi Alanı"
                         sortable
                         filter
-                        filterPlaceholder="Hizmet Ara"
+                        filterPlaceholder="İlgi Alanı Ara"
+                        className="font-medium"
+                        body={(rowData) => {
+                            const typeNames = {
+                                1: "Daire",
+                                2: "Villa",
+                                3: "Arsa",
+                                4: "Ofis",
+                                5: "Dükkan",
+                                6: "Emlak Değerleme",
+                                7: "Sözleşme İmzalama",
+                                8: "Danışmanlık"
+                            };
+                            const typeSeverities: Record<number, "info" | "success" | "warning" | "secondary" | "danger"> = {
+                                1: "info",
+                                2: "success",
+                                3: "warning",
+                                4: "secondary",
+                                5: "info",
+                                6: "danger",
+                                7: "secondary",
+                                8: "success"
+                            };
+                            const typeName = typeNames[rowData.appointmentTypeId as keyof typeof typeNames] || 'Bilinmiyor';
+                            const severity = typeSeverities[rowData.appointmentTypeId as keyof typeof typeSeverities] || 'info';
+
+                            return (
+                                <Badge
+                                    value={typeName}
+                                    severity={severity}
+                                    className="text-xs font-medium"
+                                />
+                            );
+                        }}
+                    />
+                    <Column
+                        field="customerPhone"
+                        header="Telefon"
+                        sortable
                         className="font-medium"
                     />
                     <Column
-                        field="staff"
-                        header="Uzman"
-                        sortable
+                        field="message"
+                        header="Mesaj"
+                        sortable={false}
                         className="font-medium"
+                        body={(rowData) => (
+                            <div className="max-w-[200px] truncate" title={rowData.message || ''}>
+                                {rowData.message ? (
+                                    <span className="text-gray-700 text-sm">
+                                        {rowData.message}
+                                    </span>
+                                ) : (
+                                    <span className="text-gray-400 text-xs">Mesaj yok</span>
+                                )}
+                            </div>
+                        )}
                     />
                     <Column
                         field="status"
@@ -407,13 +467,7 @@ export default function AppointmentsPage({
                         sortable
                         body={statusBodyTemplate}
                     />
-                    <Column
-                        field="price"
-                        header="Fiyat"
-                        sortable
-                        body={priceBodyTemplate}
-                        className="text-center"
-                    />
+
                     <Column
                         body={actionBodyTemplate}
                         header="İşlemler"
@@ -429,9 +483,8 @@ export default function AppointmentsPage({
                 onHide={() => setShowForm(false)}
                 onSubmit={handleSubmitAppointment}
                 appointment={editingAppointment}
-                services={initialServices}
-                staff={initialStaff}
                 statuses={initialStatuses}
+                appointmentTypes={[]}
             />
 
             {/* Silme Onay Dialog */}

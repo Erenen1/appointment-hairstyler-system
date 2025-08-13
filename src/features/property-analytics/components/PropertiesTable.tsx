@@ -3,6 +3,7 @@
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
+import { Badge } from "primereact/badge";
 import { Property } from "../types";
 
 interface PropertiesTableProps {
@@ -10,15 +11,13 @@ interface PropertiesTableProps {
     globalFilter: string;
     onEdit?: (property: Property) => void;
     onDelete?: (property: Property) => void;
-    onView?: (property: Property) => void;
 }
 
 export const PropertiesTable = ({
     properties,
     globalFilter,
     onEdit,
-    onDelete,
-    onView
+    onDelete
 }: PropertiesTableProps) => {
     const priceBodyTemplate = (rowData: Property) => {
         return (
@@ -28,17 +27,49 @@ export const PropertiesTable = ({
         );
     };
 
-    const clickRateBodyTemplate = (rowData: Property) => {
-        const rate = rowData.views > 0 ? (rowData.clicks / rowData.views) * 100 : 0;
+    const featuresBodyTemplate = (rowData: Property) => {
+        const features = [];
+
+        if (rowData.furnished) features.push({ label: 'Eşyalı', severity: 'success' });
+        if (rowData.parking) features.push({ label: 'Otopark', severity: 'info' });
+        if (rowData.elevator) features.push({ label: 'Asansör', severity: 'warning' });
+        if (rowData.balcony) features.push({ label: 'Balkon', severity: 'secondary' });
+        if (rowData.garden) features.push({ label: 'Bahçe', severity: 'help' });
+        if (rowData.pool) features.push({ label: 'Havuz', severity: 'danger' });
+        if (rowData.security) features.push({ label: 'Güvenlik', severity: 'contrast' });
+        if (rowData.featured) features.push({ label: 'Öne Çıkan', severity: 'danger' });
+
         return (
-            <div className="flex items-center gap-3">
-                <span className="font-medium text-gray-700">{rate.toFixed(1)}%</span>
-                <div className="flex-1 bg-gray-200 rounded-full h-2.5 w-20">
-                    <div
-                        className="bg-gradient-to-r from-blue-500 to-purple-600 h-2.5 rounded-full transition-all duration-300"
-                        style={{ width: `${Math.min(rate, 100)}%` }}
-                    ></div>
-                </div>
+            <div className="flex flex-wrap gap-1">
+                {features.map((feature, index) => (
+                    <Badge
+                        key={index}
+                        value={feature.label}
+                        severity={feature.severity as "success" | "info" | "warning" | "secondary" | "danger" | "contrast"}
+                        size="normal"
+                        className="text-xs"
+                    />
+                ))}
+                {features.length === 0 && (
+                    <span className="text-gray-400 text-xs">Özellik yok</span>
+                )}
+            </div>
+        );
+    };
+
+    const propertyTypeBodyTemplate = (rowData: Property) => {
+        return (
+            <div className="flex flex-col gap-1">
+                <Badge
+                    value={rowData.type}
+                    severity="info"
+                    size="normal"
+                />
+                <Badge
+                    value={rowData.category}
+                    severity="secondary"
+                    size="normal"
+                />
             </div>
         );
     };
@@ -46,16 +77,6 @@ export const PropertiesTable = ({
     const actionBodyTemplate = (rowData: Property) => {
         return (
             <div className="flex gap-2">
-                {onView && (
-                    <Button
-                        icon="pi pi-eye"
-                        size="small"
-                        severity="info"
-                        text
-                        tooltip="Detayları Görüntüle"
-                        onClick={() => onView(rowData)}
-                    />
-                )}
                 {onEdit && (
                     <Button
                         icon="pi pi-pencil"
@@ -87,20 +108,20 @@ export const PropertiesTable = ({
             rows={10}
             stripedRows
             globalFilter={globalFilter}
-            globalFilterFields={["title", "location", "type", "category"]}
+            globalFilterFields={["title", "type", "category", "city", "district"]}
             sortMode="multiple"
             removableSort
             tableStyle={{ minWidth: '60rem' }}
+            className="overflow-x-auto"
         >
             <Column field="title" header="İlan Başlığı" sortable filter style={{ minWidth: '200px' }} />
-            <Column field="category" header="Kategori" sortable style={{ minWidth: '120px' }} />
-            <Column field="location" header="Konum" sortable style={{ minWidth: '150px' }} />
+            <Column header="Tür & Kategori" body={propertyTypeBodyTemplate} sortable style={{ minWidth: '140px' }} />
             <Column field="price" header="Fiyat" body={priceBodyTemplate} sortable style={{ minWidth: '120px' }} />
             <Column field="area" header="Alan (m²)" sortable style={{ minWidth: '100px' }} />
-            <Column field="views" header="Görüntüleme" sortable style={{ minWidth: '120px' }} />
-            <Column field="clicks" header="Tıklama" sortable style={{ minWidth: '100px' }} />
-            <Column header="Tıklama Oranı" body={clickRateBodyTemplate} style={{ minWidth: '150px' }} />
-            <Column header="İşlemler" body={actionBodyTemplate} style={{ minWidth: '250px' }} />
+            <Column field="rooms" header="Oda Sayısı" sortable style={{ minWidth: '120px' }} />
+            <Column field="age" header="Bina Yaşı" sortable style={{ minWidth: '120px' }} />
+            <Column header="Özellikler" body={featuresBodyTemplate} style={{ minWidth: '200px' }} />
+            <Column header="İşlemler" body={actionBodyTemplate} style={{ minWidth: '150px' }} />
         </DataTable>
     );
 };

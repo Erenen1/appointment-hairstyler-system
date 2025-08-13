@@ -188,6 +188,7 @@ export const ContactList = ({
                                 onChange={(e) => onGlobalFilterChange(e.target.value)}
                                 placeholder="İletişim ara..."
                                 className="w-full rounded-lg border-gray-200 focus:border-green-500 focus:ring-green-500"
+                                style={{ paddingLeft: '2.5rem', paddingRight: '1.5rem' }}
                             />
                         </span>
                     </div>

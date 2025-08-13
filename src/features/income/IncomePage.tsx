@@ -64,8 +64,15 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
             const okCategory = categoryFilter.length === 0 || categoryFilter.includes(i.category);
             const okSource = sourceFilter.length === 0 || sourceFilter.includes(i.source);
             const okDate = !dateFilter || new Date(i.date).toDateString() === dateFilter.toDateString();
-            const text = (i.category + " " + i.description + " " + i.paymentMethod).toLowerCase();
-            const okSearch = !globalFilter || text.includes(globalFilter.toLowerCase());
+
+            // Improved search functionality
+            const searchText = globalFilter.toLowerCase().trim();
+            const okSearch = !searchText ||
+                i.category.toLowerCase().includes(searchText) ||
+                i.description.toLowerCase().includes(searchText) ||
+                getPaymentMethodLabel(i.paymentMethod).toLowerCase().includes(searchText) ||
+                getSourceLabel(i.source).toLowerCase().includes(searchText);
+
             return okCategory && okSource && okDate && okSearch;
         });
     }, [hookIncome, categoryFilter, sourceFilter, dateFilter, globalFilter]);
@@ -77,7 +84,7 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
         }, {} as Record<string, number>);
 
         const colors = [
-            "#5B8FF9", "#5AD8A6", "#5D7092", "#F6BD16", "#E8684A", "#6DC8EC", "#9270CA", "#FF9D4D", "#269A99", "#FF99C3"
+            "#FF5252", "#00BCD4", "#2196F3", "#4CAF50", "#FFC107", "#9C27B0"
         ];
 
         return {
@@ -86,14 +93,23 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
                 datasets: [{
                     data: Object.values(categoryTotals),
                     backgroundColor: colors.slice(0, Object.keys(categoryTotals).length),
-                    borderWidth: 0
+                    borderWidth: 4,
+                    borderColor: "#ffffff"
                 }]
             },
             options: {
                 cutout: "65%",
                 plugins: { legend: { position: "right" } },
                 maintainAspectRatio: false,
-                responsive: true
+                responsive: true,
+                elements: {
+                    arc: {
+                        borderWidth: 4,
+                        borderColor: "#ffffff",
+                        borderJoinStyle: "round"
+                    }
+                },
+                spacing: 2
             }
         };
     }, [hookIncome]);
@@ -174,8 +190,8 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
 
     const getSourceLabel = (source: string) => {
         switch (source) {
-            case "service_sales": return "Hizmet Satışı";
-            case "product_sales": return "Ürün Satışı";
+            case "service_sales": return "Emlak Satışı";
+            case "product_sales": return "Kiralama";
             case "other": return "Diğer";
             default: return source;
         }
@@ -207,7 +223,6 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
 
     // Table Columns
     const columns = [
-        { field: 'id', header: 'ID', sortable: true, style: { minWidth: '60px' }, mobileHidden: true },
         { field: 'category', header: 'Kategori', sortable: true, style: { minWidth: '120px' } },
         { field: 'amount', header: 'Tutar', sortable: true, style: { minWidth: '100px' }, body: (rowData: Income) => `${rowData.amount.toLocaleString()} ₺` },
         { field: 'date', header: 'Tarih', sortable: true, style: { minWidth: '100px' }, body: (rowData: Income) => new Date(rowData.date).toLocaleDateString('tr-TR') },
@@ -234,24 +249,24 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
             header: 'İşlemler',
             style: { minWidth: '120px' },
             body: (rowData: Income) => (
-                <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                     <Button
                         icon="pi pi-pencil"
                         size="small"
                         severity="warning"
-                        text
+                        outlined
                         tooltip="Düzenle"
                         onClick={() => openEdit(rowData)}
-                        className="w-full sm:w-auto"
+                        className="w-full sm:w-auto min-w-[40px] h-8"
                     />
                     <Button
                         icon="pi pi-trash"
                         size="small"
                         severity="danger"
-                        text
+                        outlined
                         tooltip="Sil"
                         onClick={() => handleDelete(rowData)}
-                        className="w-full sm:w-auto"
+                        className="w-full sm:w-auto min-w-[40px] h-8"
                     />
                 </div>
             ),
@@ -273,8 +288,8 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
             key: 'source',
             label: 'Kaynak Filtresi',
             options: [
-                { label: 'Hizmet Satışı', value: 'service_sales' },
-                { label: 'Ürün Satışı', value: 'product_sales' },
+                { label: 'Emlak Satışı', value: 'service_sales' },
+                { label: 'Kiralama', value: 'product_sales' },
                 { label: 'Diğer', value: 'other' }
             ],
             value: sourceFilter,
@@ -459,8 +474,8 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
                                 value={form.source}
                                 onChange={(e) => setForm({ ...form, source: e.value })}
                                 options={[
-                                    { label: 'Hizmet Satışı', value: 'service_sales' },
-                                    { label: 'Ürün Satışı', value: 'product_sales' },
+                                    { label: 'Emlak Satışı', value: 'service_sales' },
+                                    { label: 'Kiralama', value: 'product_sales' },
                                     { label: 'Diğer', value: 'other' }
                                 ]}
                                 className="w-full"
@@ -514,6 +529,7 @@ export default function IncomePage({ income: initialIncome = [] }: IncomePagePro
                             className="bg-green-600 hover:bg-green-700 border-green-600 w-full sm:w-auto"
                         />
                     </div>
+
                 </div>
             </ResponsiveDialog>
         </div>

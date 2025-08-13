@@ -19,7 +19,8 @@ import {
     ResponsiveStatsCard,
     ResponsiveGrid,
     ResponsiveDialog,
-    VirtualDataTable
+    VirtualDataTable,
+    SearchBar
 } from "../../components/ui";
 import { exportCustomersToCsv } from "../../lib/exportUtils";
 
@@ -28,10 +29,10 @@ interface CustomersPageProps {
 }
 
 export default function CustomersPage({ customers: initialCustomers = [] }: CustomersPageProps) {
-    const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
+    const [customers, setCustomers] = useState<Customer[]>(initialCustomers || []);
     const [selected, setSelected] = useState<Customer | null>(null);
     const [globalFilter, setGlobalFilter] = useState<string>("");
-    const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
+    const [seriousBuyerFilter, setSeriousBuyerFilter] = useState<string[]>([]);
     const [typeFilter, setTypeFilter] = useState<string[]>([]);
     const [showDetailDialog, setShowDetailDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -43,6 +44,7 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
         email: "",
         phone: "",
         address: "",
+        dateOfBirth: "",
         profession: "",
         budget: 0,
         preferredType: "Satılık",
@@ -52,16 +54,15 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
         maxArea: 0,
         minRooms: "",
         requirements: [],
-        priority: "medium",
-        notes: "",
+        isSeriousBuyer: false,
+        customerNotes: "",
         assignedAgent: 1
     });
     const toast = useRef<Toast>(null);
 
-    const priorityOptions = [
-        { label: "Yüksek", value: "high" },
-        { label: "Orta", value: "medium" },
-        { label: "Düşük", value: "low" }
+    const seriousBuyerOptions = [
+        { label: "Ciddi Alıcı", value: "true" },
+        { label: "Değil", value: "false" }
     ];
 
     const typeOptions = [
@@ -84,25 +85,24 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
 
     const filteredCustomers = useMemo(() => {
         return customers.filter((c) => {
-            const okPriority = priorityFilter.length === 0 || priorityFilter.includes(c.priority);
-            const okType = typeFilter.length === 0 || typeFilter.includes(c.preferredType);
-            const text = (c.fullName + " " + c.phone + " " + c.email + " " + c.profession).toLowerCase();
+            if (!c) return false;
+            const okSeriousBuyer = seriousBuyerFilter.length === 0 || seriousBuyerFilter.includes(c.isSeriousBuyer?.toString() || 'false');
+            const okType = typeFilter.length === 0 || typeFilter.includes(c.preferredType || '');
+            const text = ((c.fullName || '') + " " + (c.phone || '') + " " + (c.email || '') + " " + (c.profession || '')).toLowerCase();
             const okSearch = !globalFilter || text.includes(globalFilter.toLowerCase());
-            return okPriority && okType && okSearch;
+            return okSeriousBuyer && okType && okSearch;
         });
-    }, [customers, priorityFilter, typeFilter, globalFilter]);
+    }, [customers, seriousBuyerFilter, typeFilter, globalFilter]);
 
-    const getPriorityBadge = (priority: string) => {
-        const configs: Record<string, { label: string; severity: "danger" | "warning" | "success" | "secondary" }> = {
-            "high": { label: "Yüksek", severity: "danger" },
-            "medium": { label: "Orta", severity: "warning" },
-            "low": { label: "Düşük", severity: "success" }
-        };
-        const config = configs[priority] || { label: priority, severity: "secondary" };
-        return <Badge value={config.label} severity={config.severity} />;
+    const getSeriousBuyerBadge = (isSeriousBuyer: boolean | undefined) => {
+        if (isSeriousBuyer === undefined) return <span className="text-gray-500">-</span>;
+        return isSeriousBuyer ?
+            <Badge value="Ciddi Alıcı" severity="danger" /> :
+            <Badge value="Değil" severity="secondary" />;
     };
 
-    const getTypeTag = (type: string) => {
+    const getTypeTag = (type: string | undefined) => {
+        if (!type) return <span className="text-gray-500">-</span>;
         return (
             <Tag
                 value={type}
@@ -111,16 +111,15 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
         );
     };
 
-    const formatBudget = (budget: number, type: string) => {
+    const formatBudget = (budget: number | undefined, type: string | undefined) => {
+        if (!budget || !type) return '-';
         if (type === "Kiralık") {
             return `${budget.toLocaleString()} ₺/ay`;
         }
         return `${budget.toLocaleString()} ₺`;
     };
 
-    const getStatusSeverity = (isActive: boolean) => {
-        return isActive ? "success" : "secondary";
-    };
+
 
     // Customer Operations
     const handleViewDetails = (customer: Customer) => {
@@ -131,22 +130,23 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
     const handleEditCustomer = (customer: Customer) => {
         setEditingCustomer(customer);
         setEditingForm({
-            fullName: customer.fullName,
-            email: customer.email,
-            phone: customer.phone,
-            address: customer.address,
-            profession: customer.profession,
-            budget: customer.budget,
-            preferredType: customer.preferredType,
-            preferredCategory: customer.preferredCategory,
-            preferredDistricts: customer.preferredDistricts,
-            minArea: customer.minArea,
-            maxArea: customer.maxArea,
-            minRooms: customer.minRooms,
-            requirements: customer.requirements,
-            priority: customer.priority,
-            notes: customer.notes,
-            assignedAgent: customer.assignedAgent
+            fullName: customer.fullName || '',
+            email: customer.email || '',
+            phone: customer.phone || '',
+            address: customer.address || '',
+            dateOfBirth: customer.dateOfBirth || '',
+            profession: customer.profession || '',
+            budget: customer.budget || 0,
+            preferredType: customer.preferredType || 'Satılık',
+            preferredCategory: customer.preferredCategory || 'Daire',
+            preferredDistricts: customer.preferredDistricts || [],
+            minArea: customer.minArea || 0,
+            maxArea: customer.maxArea || 0,
+            minRooms: customer.minRooms || '',
+            requirements: customer.requirements || [],
+            isSeriousBuyer: customer.isSeriousBuyer || false,
+            customerNotes: customer.customerNotes || '',
+            assignedAgent: customer.assignedAgent || 1
         });
         setShowEditDialog(true);
     };
@@ -177,15 +177,18 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
     };
 
     const handleDeleteCustomer = (customerId: number) => {
+        const customerToDelete = customers.find(c => c?.id === customerId);
+        if (!customerToDelete) return;
+
         confirmDialog({
-            message: `"${customers.find(c => c.id === customerId)?.fullName}" müşterisini silmek istediğinizden emin misiniz?`,
+            message: `"${customerToDelete.fullName || 'Bilinmeyen Müşteri'}" müşterisini silmek istediğinizden emin misiniz?`,
             header: 'Müşteri Silme Onayı',
             icon: 'pi pi-exclamation-triangle',
             acceptClassName: 'p-button-danger',
             acceptLabel: 'Evet',
             rejectLabel: 'Hayır',
             accept: () => {
-                setCustomers(prev => prev.filter(c => c.id !== customerId));
+                setCustomers(prev => prev.filter(c => c?.id !== customerId));
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Başarılı',
@@ -196,15 +199,10 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
         });
     };
 
-    // Stats
-    const totalCustomers = customers.length;
-    const activeCustomers = customers.filter(c => c.isActive).length;
-    const highPriorityCustomers = customers.filter(c => c.priority === "high").length;
-    const totalBudget = customers.reduce((sum, c) => sum + c.budget, 0);
+
 
     // Table Columns
     const columns = [
-        { field: 'id', header: 'ID', sortable: true, style: { minWidth: '60px' }, mobileHidden: true },
         { field: 'fullName', header: 'Ad Soyad', sortable: true, style: { minWidth: '150px' } },
         { field: 'phone', header: 'Telefon', sortable: true, style: { minWidth: '120px' } },
         { field: 'email', header: 'E-posta', sortable: true, style: { minWidth: '180px' }, mobileHidden: true },
@@ -231,22 +229,11 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
             mobileHidden: true
         },
         {
-            field: 'priority',
-            header: 'Öncelik',
+            field: 'isSeriousBuyer',
+            header: 'Ciddi Alıcı',
             sortable: true,
-            style: { minWidth: '100px' },
-            body: (rowData: Customer) => getPriorityBadge(rowData.priority)
-        },
-        {
-            field: 'isActive',
-            header: 'Durum',
-            style: { minWidth: '80px' },
-            body: (rowData: Customer) => (
-                <Tag
-                    value={rowData.isActive ? "Aktif" : "Pasif"}
-                    severity={getStatusSeverity(rowData.isActive)}
-                />
-            )
+            style: { minWidth: '120px' },
+            body: (rowData: Customer) => getSeriousBuyerBadge(rowData.isSeriousBuyer)
         },
         {
             field: 'lastContact',
@@ -254,48 +241,60 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
             sortable: true,
             style: { minWidth: '120px' },
             mobileHidden: true,
-            body: (rowData: Customer) => new Date(rowData.lastContact).toLocaleDateString('tr-TR')
+            body: (rowData: Customer) => {
+                if (!rowData.lastContact) return '-';
+                try {
+                    return new Date(rowData.lastContact).toLocaleDateString('tr-TR');
+                } catch {
+                    return '-';
+                }
+            }
         },
         {
-            field: 'favoriteProperties',
-            header: 'Favori',
-            style: { minWidth: '80px' },
+            field: 'customerNotes',
+            header: 'Müşteri Notu',
+            style: { minWidth: '150px' },
             mobileHidden: true,
-            body: (rowData: Customer) => `${rowData.favoriteProperties.length} İlan`
+            body: (rowData: Customer) => (
+                <span className="text-sm text-gray-600 truncate block max-w-[150px]" title={rowData.customerNotes || ''}>
+                    {rowData.customerNotes || '-'}
+                </span>
+            )
         },
         {
+            field: 'actions',
             header: 'İşlemler',
             style: { minWidth: '150px' },
             body: (rowData: Customer) => (
                 <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
-            <Button
-                icon="pi pi-eye"
-                size="small"
-                severity="info"
-                text
-                tooltip="Detayları Görüntüle"
-                onClick={() => handleViewDetails(rowData)}
+                    <Button
+                        icon="pi pi-eye"
+                        size="small"
+                        severity="info"
+                        text
+                        tooltip="Detayları Görüntüle"
+                        onClick={() => handleViewDetails(rowData)}
                         className="w-full sm:w-auto"
-            />
-            <Button
-                icon="pi pi-pencil"
-                size="small"
-                severity="warning"
-                text
-                tooltip="Düzenle"
-                onClick={() => handleEditCustomer(rowData)}
+                    />
+                    <Button
+                        icon="pi pi-pencil"
+                        size="small"
+                        severity="warning"
+                        text
+                        tooltip="Düzenle"
+                        onClick={() => handleEditCustomer(rowData)}
                         className="w-full sm:w-auto"
-            />
-            <Button
-                icon="pi pi-trash"
-                size="small"
-                severity="danger"
-                text
-                tooltip="Sil"
-                onClick={() => handleDeleteCustomer(rowData.id)}
+                    />
+                    <Button
+                        icon="pi pi-trash"
+                        size="small"
+                        severity="danger"
+                        text
+                        tooltip="Sil"
+                        onClick={() => handleDeleteCustomer(rowData.id || 0)}
                         className="w-full sm:w-auto"
-            />
-        </div>
+                    />
+                </div>
             ),
             frozen: true
         }
@@ -304,11 +303,11 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
     // Filters
     const filters = [
         {
-            key: 'priority',
-            label: 'Öncelik Filtresi',
-            options: priorityOptions,
-            value: priorityFilter,
-            onChange: setPriorityFilter,
+            key: 'seriousBuyer',
+            label: 'Ciddi Alıcı Filtresi',
+            options: seriousBuyerOptions,
+            value: seriousBuyerFilter,
+            onChange: setSeriousBuyerFilter,
             type: 'multiselect' as const
         },
         {
@@ -344,50 +343,12 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                 iconBgColor="bg-gradient-to-br from-blue-500 to-indigo-600"
             />
 
-            {/* Stats Cards */}
-            <ResponsiveGrid cols={{ mobile: 1, tablet: 2, desktop: 4 }} gap="gap-4 sm:gap-6">
-                <ResponsiveStatsCard
-                    title="Toplam Müşteri"
-                    value={totalCustomers}
-                    subtitle="Kayıtlı müşteri sayısı"
-                    icon="pi-users"
-                    iconBgColor="bg-blue-500"
-                    gradient={{ from: 'blue-50', to: 'blue-100' }}
-                    borderColor="border-blue-200"
-                />
-                <ResponsiveStatsCard
-                    title="Aktif Müşteri"
-                    value={activeCustomers}
-                    subtitle="Aktif müşteri sayısı"
-                    icon="pi-check-circle"
-                    iconBgColor="bg-green-500"
-                    gradient={{ from: 'green-50', to: 'green-100' }}
-                    borderColor="border-green-200"
-                />
-                <ResponsiveStatsCard
-                    title="Öncelikli"
-                    value={highPriorityCustomers}
-                    subtitle="Yüksek öncelikli"
-                    icon="pi-exclamation-triangle"
-                    iconBgColor="bg-red-500"
-                    gradient={{ from: 'red-50', to: 'red-100' }}
-                    borderColor="border-red-200"
-                />
-                <ResponsiveStatsCard
-                    title="Toplam Bütçe"
-                    value={`${(totalBudget / 1000000).toFixed(1)}M ₺`}
-                    subtitle="Müşteri bütçeleri"
-                    icon="pi-wallet"
-                    iconBgColor="bg-purple-500"
-                    gradient={{ from: 'purple-50', to: 'purple-100' }}
-                    borderColor="border-purple-200"
-                />
-            </ResponsiveGrid>
+
 
             {/* Customer Management */}
             <Card className="bg-white rounded-xl border-0 shadow-sm">
                 <VirtualDataTable
-                    data={filteredCustomers}
+                    data={filteredCustomers || []}
                     columns={columns}
                     globalFilterFields={["fullName", "phone", "email", "profession"]}
                     globalFilter={globalFilter}
@@ -397,6 +358,7 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                     exportButton={{
                         label: "Excel İndir",
                         onClick: () => {
+                            if (filteredCustomers && filteredCustomers.length > 0) {
                                 exportCustomersToCsv(filteredCustomers);
                                 toast.current?.show({
                                     severity: 'success',
@@ -404,6 +366,14 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                                     detail: 'Müşteri listesi CSV formatında indirildi',
                                     life: 3000
                                 });
+                            } else {
+                                toast.current?.show({
+                                    severity: 'warn',
+                                    summary: 'Uyarı',
+                                    detail: 'Dışa aktarılacak müşteri bulunamadı',
+                                    life: 3000
+                                });
+                            }
                         }
                     }}
                     selectionMode="single"
@@ -424,13 +394,13 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                     </div>
                 }
             >
-                {selected && (
+                {selected ? (
                     <div className="space-y-4 sm:space-y-6">
                         {/* Basic Info */}
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 sm:p-6 border border-blue-200">
                             <h3 className="text-lg sm:text-xl font-bold text-blue-800 mb-4 flex items-center gap-2">
                                 <i className="pi pi-info-circle"></i>
-                                Temel Bilgiler
+                                Kişisel Bilgiler
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div className="flex items-center gap-2">
@@ -450,20 +420,46 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                                     <span><strong>Meslek:</strong> {selected.profession}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <i className="pi pi-wallet text-blue-600"></i>
+                                    <i className="pi pi-map-marker text-blue-600"></i>
+                                    <span><strong>Adres:</strong> {selected.address || 'Belirtilmemiş'}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <i className="pi pi-calendar text-blue-600"></i>
+                                    <span><strong>Doğum Tarihi:</strong> {selected.dateOfBirth ? new Date(selected.dateOfBirth).toLocaleDateString('tr-TR') : 'Belirtilmemiş'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Financial & Preferences */}
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 sm:p-6 border border-green-200">
+                            <h3 className="text-lg sm:text-xl font-bold text-green-800 mb-4 flex items-center gap-2">
+                                <i className="pi pi-wallet"></i>
+                                Finansal Bilgiler ve Tercihler
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                <div className="flex items-center gap-2">
+                                    <i className="pi pi-money-bill text-green-600"></i>
                                     <span><strong>Bütçe:</strong> {formatBudget(selected.budget, selected.preferredType)}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <i className="pi pi-home text-blue-600"></i>
+                                    <i className="pi pi-home text-green-600"></i>
                                     <span><strong>İlgi Alanı:</strong> {selected.preferredType}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <i className="pi pi-tag text-green-600"></i>
+                                    <span><strong>Kategori:</strong> {selected.preferredCategory}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <i className="pi pi-exclamation-triangle text-green-600"></i>
+                                    <span><strong>Ciddi Alıcı:</strong> {selected.isSeriousBuyer ? 'Evet' : 'Hayır'}</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Property Preferences */}
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 sm:p-6 border border-green-200">
-                            <h3 className="text-lg sm:text-xl font-bold text-green-800 mb-4 flex items-center gap-2">
-                                <i className="pi pi-home"></i>
+                        <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 sm:p-6 border border-orange-200">
+                            <h3 className="text-lg sm:text-xl font-bold text-orange-800 mb-4 flex items-center gap-2">
+                                <i className="pi pi-home text-orange-600"></i>
                                 Gayrimenkul Tercihleri
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -481,18 +477,18 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                             <div className="mt-4">
                                 <strong>Tercih Edilen Bölgeler:</strong>
                                 <div className="flex gap-2 mt-2 flex-wrap">
-                                    {selected.preferredDistricts.map((district, index) => (
+                                    {selected.preferredDistricts?.map((district, index) => (
                                         <Tag key={index} value={district} severity="info" />
-                                    ))}
+                                    )) || <span className="text-gray-500">Belirtilmemiş</span>}
                                 </div>
                             </div>
 
                             <div className="mt-4">
                                 <strong>Gereksinimler:</strong>
                                 <div className="flex gap-2 mt-2 flex-wrap">
-                                    {selected.requirements.map((req, index) => (
+                                    {selected.requirements?.map((req, index) => (
                                         <Tag key={index} value={req} severity="secondary" />
-                                    ))}
+                                    )) || <span className="text-gray-500">Belirtilmemiş</span>}
                                 </div>
                             </div>
                         </div>
@@ -505,27 +501,27 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div>
-                                    <strong>Kayıt Tarihi:</strong> {new Date(selected.registrationDate).toLocaleDateString('tr-TR')}
+                                    <strong>Kayıt Tarihi:</strong> {selected.registrationDate ? new Date(selected.registrationDate).toLocaleDateString('tr-TR') : '-'}
                                 </div>
                                 <div>
-                                    <strong>Son İletişim:</strong> {new Date(selected.lastContact).toLocaleDateString('tr-TR')}
+                                    <strong>Son İletişim:</strong> {selected.lastContact ? new Date(selected.lastContact).toLocaleDateString('tr-TR') : '-'}
                                 </div>
                                 <div>
-                                    <strong>Favori İlanlar:</strong> {selected.favoriteProperties.length} adet
+                                    <strong>Görüntülenen İlanlar:</strong> {selected.viewedProperties?.length || 0} adet
                                 </div>
                                 <div>
-                                    <strong>Görüntülenen İlanlar:</strong> {selected.viewedProperties.length} adet
+                                    <strong>Atanan Acenta:</strong> {selected.assignedAgent || 'Belirtilmemiş'}
                                 </div>
                             </div>
                         </div>
 
-                        {selected.notes && (
+                        {selected.customerNotes && (
                             <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-4 sm:p-6 border border-orange-200">
                                 <h3 className="text-lg sm:text-xl font-bold text-orange-800 mb-4 flex items-center gap-2">
                                     <i className="pi pi-sticky-note"></i>
-                                    Notlar
+                                    Müşteri Notu
                                 </h3>
-                                <p className="text-gray-700 leading-relaxed">{selected.notes}</p>
+                                <p className="text-gray-700 leading-relaxed">{selected.customerNotes}</p>
                             </div>
                         )}
 
@@ -548,6 +544,11 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                             />
                         </div>
                     </div>
+                ) : (
+                    <div className="text-center text-gray-500 py-8">
+                        <i className="pi pi-exclamation-triangle text-4xl mb-4"></i>
+                        <p>Müşteri bilgileri yüklenemedi</p>
+                    </div>
                 )}
             </ResponsiveDialog>
 
@@ -564,116 +565,175 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
             >
                 {editingForm && (
                     <div className="space-y-4 sm:space-y-6">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Personal Information */}
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                            <h4 className="text-md font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                                <i className="pi pi-user text-blue-600"></i>
+                                Kişisel Bilgiler
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Ad Soyad</label>
+                                    <InputText
+                                        value={editingForm.fullName}
+                                        onChange={(e) => setEditingForm({ ...editingForm, fullName: e.target.value })}
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">E-posta</label>
+                                    <InputText
+                                        value={editingForm.email}
+                                        onChange={(e) => setEditingForm({ ...editingForm, email: e.target.value })}
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
+                                    <InputText
+                                        value={editingForm.phone}
+                                        onChange={(e) => setEditingForm({ ...editingForm, phone: e.target.value })}
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Meslek</label>
+                                    <InputText
+                                        value={editingForm.profession}
+                                        onChange={(e) => setEditingForm({ ...editingForm, profession: e.target.value })}
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Adres</label>
+                                    <InputText
+                                        value={editingForm.address}
+                                        onChange={(e) => setEditingForm({ ...editingForm, address: e.target.value })}
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Doğum Tarihi</label>
+                                    <InputText
+                                        type="date"
+                                        value={editingForm.dateOfBirth ? new Date(editingForm.dateOfBirth).toISOString().split('T')[0] : ''}
+                                        onChange={(e) => setEditingForm({ ...editingForm, dateOfBirth: e.target.value })}
+                                        className="w-full"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Financial & Preferences */}
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                            <h4 className="text-md font-semibold text-green-800 mb-3 flex items-center gap-2">
+                                <i className="pi pi-wallet text-green-600"></i>
+                                Finansal Bilgiler ve Tercihler
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Bütçe</label>
+                                    <InputNumber
+                                        value={editingForm.budget}
+                                        onValueChange={(e) => setEditingForm({ ...editingForm, budget: e.value || 0 })}
+                                        className="w-full"
+                                        mode="currency"
+                                        currency="TRY"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">İlgi Alanı</label>
+                                    <Dropdown
+                                        value={editingForm.preferredType}
+                                        onChange={(e) => setEditingForm({ ...editingForm, preferredType: e.value })}
+                                        options={typeOptions}
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                                    <Dropdown
+                                        value={editingForm.preferredCategory}
+                                        onChange={(e) => setEditingForm({ ...editingForm, preferredCategory: e.value })}
+                                        options={categoryOptions}
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Ciddi Alıcı</label>
+                                    <Dropdown
+                                        value={editingForm.isSeriousBuyer.toString()}
+                                        onChange={(e) => setEditingForm({ ...editingForm, isSeriousBuyer: e.value === 'true' })}
+                                        options={seriousBuyerOptions}
+                                        className="w-full"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Property Preferences */}
+                        <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-200">
+                            <h4 className="text-md font-semibold text-orange-800 mb-3 flex items-center gap-2">
+                                <i className="pi pi-home text-orange-600"></i>
+                                Gayrimenkul Tercihleri
+                            </h4>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Ad Soyad</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Tercih Edilen Bölgeler</label>
+                                <MultiSelect
+                                    value={editingForm.preferredDistricts}
+                                    onChange={(e) => setEditingForm({ ...editingForm, preferredDistricts: e.value })}
+                                    options={districtOptions}
+                                    className="w-full"
+                                    display="chip"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Alan (m²)</label>
+                                    <InputNumber
+                                        value={editingForm.minArea}
+                                        onValueChange={(e) => setEditingForm({ ...editingForm, minArea: e.value || 0 })}
+                                        className="w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Maksimum Alan (m²)</label>
+                                    <InputNumber
+                                        value={editingForm.maxArea}
+                                        onValueChange={(e) => setEditingForm({ ...editingForm, maxArea: e.value || 0 })}
+                                        className="w-full"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Oda Sayısı</label>
                                 <InputText
-                                    value={editingForm.fullName}
-                                    onChange={(e) => setEditingForm({ ...editingForm, fullName: e.target.value })}
+                                    value={editingForm.minRooms}
+                                    onChange={(e) => setEditingForm({ ...editingForm, minRooms: e.target.value })}
                                     className="w-full"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">E-posta</label>
-                                <InputText
-                                    value={editingForm.email}
-                                    onChange={(e) => setEditingForm({ ...editingForm, email: e.target.value })}
-                                    className="w-full"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
-                                <InputText
-                                    value={editingForm.phone}
-                                    onChange={(e) => setEditingForm({ ...editingForm, phone: e.target.value })}
-                                    className="w-full"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Meslek</label>
-                                <InputText
-                                    value={editingForm.profession}
-                                    onChange={(e) => setEditingForm({ ...editingForm, profession: e.target.value })}
-                                    className="w-full"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Bütçe</label>
-                                <InputNumber
-                                    value={editingForm.budget}
-                                    onValueChange={(e) => setEditingForm({ ...editingForm, budget: e.value || 0 })}
-                                    className="w-full"
-                                    mode="currency"
-                                    currency="TRY"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">İlgi Alanı</label>
-                                <Dropdown
-                                    value={editingForm.preferredType}
-                                    onChange={(e) => setEditingForm({ ...editingForm, preferredType: e.value })}
-                                    options={typeOptions}
-                                    className="w-full"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-                                <Dropdown
-                                    value={editingForm.preferredCategory}
-                                    onChange={(e) => setEditingForm({ ...editingForm, preferredCategory: e.value })}
-                                    options={categoryOptions}
-                                    className="w-full"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Öncelik</label>
-                                <Dropdown
-                                    value={editingForm.priority}
-                                    onChange={(e) => setEditingForm({ ...editingForm, priority: e.value })}
-                                    options={priorityOptions}
-                                    className="w-full"
+                                    placeholder="Örn: 2+1"
                                 />
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Tercih Edilen Bölgeler</label>
-                            <MultiSelect
-                                value={editingForm.preferredDistricts}
-                                onChange={(e) => setEditingForm({ ...editingForm, preferredDistricts: e.value })}
-                                options={districtOptions}
-                                className="w-full"
-                                display="chip"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Additional Information */}
+                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">
+                            <h4 className="text-md font-semibold text-indigo-800 mb-3 flex items-center gap-2">
+                                <i className="pi pi-sticky-note text-indigo-600"></i>
+                                Ek Bilgiler
+                            </h4>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Alan (m²)</label>
-                                <InputNumber
-                                    value={editingForm.minArea}
-                                    onValueChange={(e) => setEditingForm({ ...editingForm, minArea: e.value || 0 })}
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Müşteri Notu</label>
+                                <InputTextarea
+                                    value={editingForm.customerNotes}
+                                    onChange={(e) => setEditingForm({ ...editingForm, customerNotes: e.target.value })}
                                     className="w-full"
+                                    rows={4}
+                                    placeholder="Müşteri hakkında özel notlar..."
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Maksimum Alan (m²)</label>
-                                <InputNumber
-                                    value={editingForm.maxArea}
-                                    onValueChange={(e) => setEditingForm({ ...editingForm, maxArea: e.value || 0 })}
-                                    className="w-full"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Notlar</label>
-                            <InputTextarea
-                                value={editingForm.notes}
-                                onChange={(e) => setEditingForm({ ...editingForm, notes: e.target.value })}
-                                className="w-full"
-                                rows={4}
-                            />
                         </div>
 
                         <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
@@ -707,116 +767,175 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                 }
             >
                 <div className="space-y-4 sm:space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Personal Information */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                        <h4 className="text-md font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                            <i className="pi pi-user text-blue-600"></i>
+                            Kişisel Bilgiler
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Ad Soyad</label>
+                                <InputText
+                                    value={newCustomerForm.fullName}
+                                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, fullName: e.target.value })}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">E-posta</label>
+                                <InputText
+                                    value={newCustomerForm.email}
+                                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, email: e.target.value })}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
+                                <InputText
+                                    value={newCustomerForm.phone}
+                                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, phone: e.target.value })}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Meslek</label>
+                                <InputText
+                                    value={newCustomerForm.profession}
+                                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, profession: e.target.value })}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Adres</label>
+                                <InputText
+                                    value={newCustomerForm.address}
+                                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, address: e.target.value })}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Doğum Tarihi</label>
+                                <InputText
+                                    type="date"
+                                    value={newCustomerForm.dateOfBirth}
+                                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, dateOfBirth: e.target.value })}
+                                    className="w-full"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Financial & Preferences */}
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                        <h4 className="text-md font-semibold text-green-800 mb-3 flex items-center gap-2">
+                            <i className="pi pi-wallet text-green-600"></i>
+                            Finansal Bilgiler ve Tercihler
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Bütçe</label>
+                                <InputNumber
+                                    value={newCustomerForm.budget}
+                                    onValueChange={(e) => setNewCustomerForm({ ...newCustomerForm, budget: e.value || 0 })}
+                                    className="w-full"
+                                    mode="currency"
+                                    currency="TRY"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">İlgi Alanı</label>
+                                <Dropdown
+                                    value={newCustomerForm.preferredType}
+                                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, preferredType: e.value })}
+                                    options={typeOptions}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                                <Dropdown
+                                    value={newCustomerForm.preferredCategory}
+                                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, preferredCategory: e.value })}
+                                    options={categoryOptions}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Ciddi Alıcı</label>
+                                <Dropdown
+                                    value={newCustomerForm.isSeriousBuyer.toString()}
+                                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, isSeriousBuyer: e.value === 'true' })}
+                                    options={seriousBuyerOptions}
+                                    className="w-full"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Property Preferences */}
+                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-200">
+                        <h4 className="text-md font-semibold text-orange-800 mb-3 flex items-center gap-2">
+                            <i className="pi pi-home text-orange-600"></i>
+                            Gayrimenkul Tercihleri
+                        </h4>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Ad Soyad</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Tercih Edilen Bölgeler</label>
+                            <MultiSelect
+                                value={newCustomerForm.preferredDistricts}
+                                onChange={(e) => setNewCustomerForm({ ...newCustomerForm, preferredDistricts: e.value })}
+                                options={districtOptions}
+                                className="w-full"
+                                display="chip"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Alan (m²)</label>
+                                <InputNumber
+                                    value={newCustomerForm.minArea}
+                                    onValueChange={(e) => setNewCustomerForm({ ...newCustomerForm, minArea: e.value || 0 })}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Maksimum Alan (m²)</label>
+                                <InputNumber
+                                    value={newCustomerForm.maxArea}
+                                    onValueChange={(e) => setNewCustomerForm({ ...newCustomerForm, maxArea: e.value || 0 })}
+                                    className="w-full"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="mt-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Oda Sayısı</label>
                             <InputText
-                                value={newCustomerForm.fullName}
-                                onChange={(e) => setNewCustomerForm({ ...newCustomerForm, fullName: e.target.value })}
+                                value={newCustomerForm.minRooms}
+                                onChange={(e) => setNewCustomerForm({ ...newCustomerForm, minRooms: e.target.value })}
                                 className="w-full"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">E-posta</label>
-                            <InputText
-                                value={newCustomerForm.email}
-                                onChange={(e) => setNewCustomerForm({ ...newCustomerForm, email: e.target.value })}
-                                className="w-full"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
-                            <InputText
-                                value={newCustomerForm.phone}
-                                onChange={(e) => setNewCustomerForm({ ...newCustomerForm, phone: e.target.value })}
-                                className="w-full"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Meslek</label>
-                            <InputText
-                                value={newCustomerForm.profession}
-                                onChange={(e) => setNewCustomerForm({ ...newCustomerForm, profession: e.target.value })}
-                                className="w-full"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Bütçe</label>
-                            <InputNumber
-                                value={newCustomerForm.budget}
-                                onValueChange={(e) => setNewCustomerForm({ ...newCustomerForm, budget: e.value || 0 })}
-                                className="w-full"
-                                mode="currency"
-                                currency="TRY"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">İlgi Alanı</label>
-                            <Dropdown
-                                value={newCustomerForm.preferredType}
-                                onChange={(e) => setNewCustomerForm({ ...newCustomerForm, preferredType: e.value })}
-                                options={typeOptions}
-                                className="w-full"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-                            <Dropdown
-                                value={newCustomerForm.preferredCategory}
-                                onChange={(e) => setNewCustomerForm({ ...newCustomerForm, preferredCategory: e.value })}
-                                options={categoryOptions}
-                                className="w-full"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Öncelik</label>
-                            <Dropdown
-                                value={newCustomerForm.priority}
-                                onChange={(e) => setNewCustomerForm({ ...newCustomerForm, priority: e.value })}
-                                options={priorityOptions}
-                                className="w-full"
+                                placeholder="Örn: 2+1"
                             />
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Tercih Edilen Bölgeler</label>
-                        <MultiSelect
-                            value={newCustomerForm.preferredDistricts}
-                            onChange={(e) => setNewCustomerForm({ ...newCustomerForm, preferredDistricts: e.value })}
-                            options={districtOptions}
-                            className="w-full"
-                            display="chip"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Additional Information */}
+                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">
+                        <h4 className="text-md font-semibold text-indigo-800 mb-3 flex items-center gap-2">
+                            <i className="pi pi-sticky-note text-indigo-600"></i>
+                            Ek Bilgiler
+                        </h4>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Alan (m²)</label>
-                            <InputNumber
-                                value={newCustomerForm.minArea}
-                                onValueChange={(e) => setNewCustomerForm({ ...newCustomerForm, minArea: e.value || 0 })}
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Müşteri Notu</label>
+                            <InputTextarea
+                                value={newCustomerForm.customerNotes}
+                                onChange={(e) => setNewCustomerForm({ ...newCustomerForm, customerNotes: e.target.value })}
                                 className="w-full"
+                                rows={4}
+                                placeholder="Müşteri hakkında özel notlar..."
                             />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Maksimum Alan (m²)</label>
-                            <InputNumber
-                                value={newCustomerForm.maxArea}
-                                onValueChange={(e) => setNewCustomerForm({ ...newCustomerForm, maxArea: e.value || 0 })}
-                                className="w-full"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Notlar</label>
-                        <InputTextarea
-                            value={newCustomerForm.notes}
-                            onChange={(e) => setNewCustomerForm({ ...newCustomerForm, notes: e.target.value })}
-                            className="w-full"
-                            rows={4}
-                        />
                     </div>
 
                     <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
@@ -833,13 +952,12 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                             onClick={() => {
                                 const newCustomer: Customer = {
                                     ...newCustomerForm,
-                                    id: Math.max(...customers.map(c => c.id)) + 1,
+                                    id: customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1,
                                     address: newCustomerForm.address || "İstanbul",
-                                    dateOfBirth: new Date().toISOString(),
+                                    dateOfBirth: newCustomerForm.dateOfBirth || new Date().toISOString(),
                                     isActive: true,
                                     registrationDate: new Date().toISOString(),
                                     lastContact: new Date().toISOString(),
-                                    favoriteProperties: [],
                                     viewedProperties: [],
                                     requirements: []
                                 };
@@ -850,6 +968,7 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                                     email: "",
                                     phone: "",
                                     address: "",
+                                    dateOfBirth: "",
                                     profession: "",
                                     budget: 0,
                                     preferredType: "Satılık",
@@ -859,8 +978,8 @@ export default function CustomersPage({ customers: initialCustomers = [] }: Cust
                                     maxArea: 0,
                                     minRooms: "",
                                     requirements: [],
-                                    priority: "medium",
-                                    notes: "",
+                                    isSeriousBuyer: false,
+                                    customerNotes: "",
                                     assignedAgent: 1
                                 });
                                 toast.current?.show({

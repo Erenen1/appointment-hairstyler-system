@@ -19,7 +19,8 @@ import {
     ResponsiveGrid,
     ResponsiveStatsCard,
     ResponsiveDialog,
-    VirtualDataTable
+    VirtualDataTable,
+    ExpenseActionButtons
 } from "../../components/ui";
 
 interface ExpensePageProps {
@@ -76,8 +77,14 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
         return hookExpenses.filter((e) => {
             const okCategory = categoryFilter.length === 0 || categoryFilter.includes(e.category);
             const okDate = !dateFilter || new Date(e.date).toDateString() === dateFilter.toDateString();
-            const text = (e.category + " " + e.description).toLowerCase();
-            const okSearch = !globalFilter || text.includes(globalFilter.toLowerCase());
+
+            // Improved search functionality
+            const searchText = globalFilter.toLowerCase().trim();
+            const okSearch = !searchText ||
+                e.category.toLowerCase().includes(searchText) ||
+                e.description.toLowerCase().includes(searchText) ||
+                getPaymentMethodLabel(e.paymentMethod).toLowerCase().includes(searchText);
+
             return okCategory && okDate && okSearch;
         });
     }, [hookExpenses, categoryFilter, dateFilter, globalFilter]);
@@ -95,17 +102,26 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
                 datasets: [{
                     data: Object.values(categoryData),
                     backgroundColor: [
-                        "#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#8B5CF6",
-                        "#06B6D4", "#84CC16", "#F97316", "#EC4899", "#6B7280"
+                        "#FF5722", "#FF9800", "#4CAF50", "#2196F3", "#9C27B0",
+                        "#00BCD4", "#8BC34A", "#FF5722", "#E91E63", "#607D8B"
                     ],
-                    borderWidth: 0
+                    borderWidth: 4,
+                    borderColor: "#ffffff"
                 }]
             },
             options: {
                 cutout: "65%",
                 plugins: { legend: { position: "right" } },
                 maintainAspectRatio: false,
-                responsive: true
+                responsive: true,
+                elements: {
+                    arc: {
+                        borderWidth: 4,
+                        borderColor: "#ffffff",
+                        borderJoinStyle: "round"
+                    }
+                },
+                spacing: 2
             }
         };
     }, [hookExpenses]);
@@ -203,7 +219,6 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
 
     // Table Columns
     const columns = [
-        { field: 'id', header: 'ID', sortable: true, style: { minWidth: '60px' }, mobileHidden: true },
         { field: 'category', header: 'Kategori', sortable: true, style: { minWidth: '120px' } },
         { field: 'amount', header: 'Tutar', sortable: true, style: { minWidth: '100px' }, body: (rowData: Expense) => `${rowData.amount.toLocaleString()} ₺` },
         { field: 'date', header: 'Tarih', sortable: true, style: { minWidth: '100px' }, body: (rowData: Expense) => new Date(rowData.date).toLocaleDateString('tr-TR') },
@@ -223,26 +238,14 @@ export default function ExpensePage({ expenses: initialExpenses = [] }: ExpenseP
             header: 'İşlemler',
             style: { minWidth: '120px' },
             body: (rowData: Expense) => (
-                <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
-                    <Button
-                        icon="pi pi-pencil"
-                        size="small"
-                        severity="warning"
-                        text
-                        tooltip="Düzenle"
-                        onClick={() => openEdit(rowData)}
-                        className="w-full sm:w-auto"
-                    />
-                    <Button
-                        icon="pi pi-trash"
-                        size="small"
-                        severity="danger"
-                        text
-                        tooltip="Sil"
-                        onClick={() => handleDelete(rowData)}
-                        className="w-full sm:w-auto"
-                    />
-                </div>
+                <ExpenseActionButtons
+                    item={rowData}
+                    onView={() => {}} // Boş fonksiyon ekleyeceğim
+                    onEdit={openEdit}
+                    onDelete={handleDelete}
+                    showView={false}
+                    size="small"
+                />
             ),
             frozen: true
         }

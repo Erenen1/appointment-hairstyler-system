@@ -28,9 +28,9 @@ export default function AppointmentStats({ appointments, statuses }: Appointment
             const status = statuses.find(s => s.id === a.statusId);
             return status?.name === 'cancelled' || status?.displayName === 'İptal Edildi';
         }).length,
-        noShow: appointments.filter(a => {
+        postponed: appointments.filter(a => {
             const status = statuses.find(s => s.id === a.statusId);
-            return status?.name === 'no_show' || status?.displayName === 'Gelmedi';
+            return status?.name === 'postponed' || status?.displayName === 'Ertelendi';
         }).length
     };
 
@@ -116,15 +116,15 @@ export default function AppointmentStats({ appointments, statuses }: Appointment
             description: 'İptal edilmiş randevular'
         },
         {
-            title: 'Gelmedi',
-            value: stats.noShow,
-            icon: 'pi-user-minus',
-            bgColor: 'from-slate-50 to-slate-100',
-            borderColor: 'border-slate-200',
-            textColor: 'text-slate-600',
-            valueColor: 'text-slate-800',
-            iconBg: 'bg-slate-500',
-            description: 'Müşteri gelmedi'
+            title: 'Ertelendi',
+            value: stats.postponed,
+            icon: 'pi-calendar-plus',
+            bgColor: 'from-indigo-50 to-indigo-100',
+            borderColor: 'border-indigo-200',
+            textColor: 'text-indigo-600',
+            valueColor: 'text-indigo-800',
+            iconBg: 'bg-indigo-500',
+            description: 'Ertelenmiş randevular'
         }
     ];
 

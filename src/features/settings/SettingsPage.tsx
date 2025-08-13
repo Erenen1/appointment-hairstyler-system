@@ -6,8 +6,7 @@ import { useSettings } from "./hooks/useSettings";
 import {
     BusinessSettingsTab,
     ProfileSettingsTab,
-    SecuritySettingsTab,
-    NotificationSettingsTab
+    SecuritySettingsTab
 } from "./components";
 
 export default function SettingsPage() {
@@ -30,7 +29,7 @@ export default function SettingsPage() {
     return (
         <div className="p-4 md:p-6 space-y-6">
             {/* Header */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-100">
+            <div className="bg-white rounded-xl p-6 border border-blue-100">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-blue-800 mb-2">Ayarlar</h1>
@@ -49,9 +48,9 @@ export default function SettingsPage() {
 
             {/* Settings Tabs */}
             <TabView
-                activeIndex={["business", "profile", "security", "notifications"].indexOf(activeTab)}
-                onTabChange={(e) => setActiveTab(["business", "profile", "security", "notifications"][e.index])}
-                className="bg-white rounded-xl shadow-sm border border-gray-100"
+                activeIndex={["business", "profile", "security"].indexOf(activeTab)}
+                onTabChange={(e) => setActiveTab(["business", "profile", "security"][e.index])}
+                className="bg-white rounded-xl border border-gray-100"
             >
                 <TabPanel
                     header="İşletme"
@@ -71,7 +70,6 @@ export default function SettingsPage() {
                     <ProfileSettingsTab
                         profile={userProfile}
                         onUpdate={handleProfileUpdate}
-                        onAvatarUpload={handleAvatarUpload}
                     />
                 </TabPanel>
 
@@ -86,15 +84,7 @@ export default function SettingsPage() {
                     />
                 </TabPanel>
 
-                <TabPanel
-                    header="Bildirimler"
-                    leftIcon="pi pi-bell mr-2"
-                >
-                    <NotificationSettingsTab
-                        settings={notificationSettings}
-                        onUpdate={handleNotificationUpdate}
-                    />
-                </TabPanel>
+
             </TabView>
         </div>
     );

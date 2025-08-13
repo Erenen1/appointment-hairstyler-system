@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "name": "apartment_viewing",
+    "displayName": "Daire Görüntüleme",
+    "description": "Daire görüntüleme randevusu",
+    "color": "blue",
+    "icon": "pi pi-home"
+  },
+  {
+    "id": 2,
+    "name": "villa_viewing",
+    "displayName": "Villa Görüntüleme",
+    "description": "Villa görüntüleme randevusu",
+    "color": "green",
+    "icon": "pi pi-building"
+  },
+  {
+    "id": 3,
+    "name": "land_viewing",
+    "displayName": "Arsa Görüntüleme",
+    "description": "Arsa görüntüleme randevusu",
+    "color": "orange",
+    "icon": "pi pi-map"
+  },
+  {
+    "id": 4,
+    "name": "office_viewing",
+    "displayName": "Ofis Görüntüleme",
+    "description": "Ofis görüntüleme randevusu",
+    "color": "purple",
+    "icon": "pi pi-briefcase"
+  },
+  {
+    "id": 5,
+    "name": "shop_viewing",
+    "displayName": "Dükkan Görüntüleme",
+    "description": "Dükkan görüntüleme randevusu",
+    "color": "teal",
+    "icon": "pi pi-shopping-bag"
+  },
+  {
+    "id": 6,
+    "name": "property_evaluation",
+    "displayName": "Emlak Değerleme",
+    "description": "Emlak değerleme randevusu",
+    "color": "red",
+    "icon": "pi pi-calculator"
+  },
+  {
+    "id": 7,
+    "name": "contract_signing",
+    "displayName": "Sözleşme İmzalama",
+    "description": "Kira/satış sözleşmesi imzalama",
+    "color": "indigo",
+    "icon": "pi pi-file-edit"
+  },
+  {
+    "id": 8,
+    "name": "consultation",
+    "displayName": "Danışmanlık",
+    "description": "Emlak danışmanlığı",
+    "color": "pink",
+    "icon": "pi pi-comments"
+  }
+]

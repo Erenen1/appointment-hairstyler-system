@@ -1,8 +1,62 @@
 [
   {
     "id": 1,
-    "title": "Genel Hizmet",
-    "price": "0.00",
+    "title": "Saç Kesimi",
+    "price": "150",
+    "duration": "45"
+  },
+  {
+    "id": 2,
+    "title": "Saç Boyama",
+    "price": "300",
+    "duration": "120"
+  },
+  {
+    "id": 3,
+    "title": "Saç Bakımı",
+    "price": "200",
+    "duration": "60"
+  },
+  {
+    "id": 4,
+    "title": "Manikür",
+    "price": "100",
+    "duration": "30"
+  },
+  {
+    "id": 5,
+    "title": "Pedikür",
+    "price": "120",
+    "duration": "45"
+  },
+  {
+    "id": 6,
+    "title": "Cilt Bakımı",
+    "price": "250",
+    "duration": "90"
+  },
+  {
+    "id": 7,
+    "title": "Makyaj",
+    "price": "180",
+    "duration": "60"
+  },
+  {
+    "id": 8,
+    "title": "Kaş Şekillendirme",
+    "price": "80",
+    "duration": "30"
+  },
+  {
+    "id": 9,
+    "title": "Kirpik Uzatma",
+    "price": "400",
+    "duration": "150"
+  },
+  {
+    "id": 10,
+    "title": "Masaj",
+    "price": "200",
     "duration": "60"
   }
 ]

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BusinessSettings, UserProfile, SecuritySettings, NotificationSettings } from "../types";
+import { BusinessSettings, UserProfile, SecuritySettings } from "../types";
 
 export const useSettings = () => {
     const [activeTab, setActiveTab] = useState<string>("business");
@@ -42,13 +42,7 @@ export const useSettings = () => {
         confirmPassword: ""
     });
 
-    const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
-        emailNotifications: true,
-        smsNotifications: true,
-        appointmentReminders: true,
-        newCustomerAlerts: true,
-        paymentAlerts: true
-    });
+
 
     const handleBusinessUpdate = (updatedSettings: Partial<BusinessSettings>) => {
         setBusinessSettings(prev => ({ ...prev, ...updatedSettings }));
@@ -80,11 +74,7 @@ export const useSettings = () => {
         });
     };
 
-    const handleNotificationUpdate = (updatedNotifications: Partial<NotificationSettings>) => {
-        setNotificationSettings(prev => ({ ...prev, ...updatedNotifications }));
-        // API call simulation
-        console.log("Bildirim ayarları güncellendi:", updatedNotifications);
-    };
+
 
     const handleLogoUpload = (file: File) => {
         // File upload simulation
@@ -97,16 +87,7 @@ export const useSettings = () => {
         reader.readAsDataURL(file);
     };
 
-    const handleAvatarUpload = (file: File) => {
-        // File upload simulation
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const result = e.target?.result as string;
-            setUserProfile(prev => ({ ...prev, avatar: result }));
-            console.log("Avatar yüklendi");
-        };
-        reader.readAsDataURL(file);
-    };
+
 
     const handleLogout = () => {
         // Logout simulation
@@ -123,15 +104,12 @@ export const useSettings = () => {
         userProfile,
         securitySettings,
         setSecuritySettings,
-        notificationSettings,
 
         // Actions
         handleBusinessUpdate,
         handleProfileUpdate,
         handlePasswordChange,
-        handleNotificationUpdate,
         handleLogoUpload,
-        handleAvatarUpload,
         handleLogout
     };
 };
