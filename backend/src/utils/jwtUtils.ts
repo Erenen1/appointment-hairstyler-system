@@ -3,9 +3,15 @@ import { ApiError } from './ApiError';
 import jwt, { SignOptions } from "jsonwebtoken"
 
 export interface JwtPayload {
-  businessId: string; // Business ID (super_admin için 'super_admin')
-  businessName: string; // Business adı (super_admin için 'Super Admin')
-  role: 'business' | 'super_admin'; // Sadece iki rol
+  // Business için
+  businessId?: string;
+  businessName?: string;
+  // Kullanıcı (auth.users) için
+  userId?: string;
+  tenantId?: string;
+  username?: string;
+  // Rol genişletildi
+  role: 'business' | 'super_admin' | 'admin' | 'staff' | 'user';
   exp?: number;
   iat?: number;
 }
@@ -22,6 +28,19 @@ export class JwtUtils {
       return jwt.sign(payload, config.JWT_SECRET, options);
     } catch (error) {
       throw ApiError.internal('Token oluşturulurken hata oluştu');
+    }
+  }
+
+  static generateRefreshToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
+    try {
+      const options: SignOptions = {
+        expiresIn: (config.JWT_REFRESH_EXPIRES_IN || '7d') as any,
+        issuer: 'kuafor-system',
+        audience: 'kuafor-admin-refresh'
+      };
+      return jwt.sign(payload, config.JWT_SECRET, options);
+    } catch (error) {
+      throw ApiError.internal('Refresh token oluşturulurken hata oluştu');
     }
   }
 
@@ -44,6 +63,52 @@ export class JwtUtils {
         throw ApiError.authentication('Geçersiz token');
       }
       throw ApiError.authentication('Token doğrulanamadı');
+    }
+  }
+
+  static verifyRefreshToken(token: string): JwtPayload {
+    try {
+      const decoded = jwt.verify(token, config.JWT_SECRET, {
+        issuer: 'kuafor-system',
+        audience: 'kuafor-admin-refresh'
+      }) as JwtPayload;
+      return decoded;
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        throw ApiError.authentication('Refresh token süresi dolmuş');
+      }
+      if (error instanceof jwt.JsonWebTokenError) {
+        throw ApiError.authentication('Geçersiz refresh token');
+      }
+      throw ApiError.authentication('Refresh token doğrulanamadı');
+    }
+  }
+
+  static generatePasswordResetToken(payload: { userId: string; tenantId: string; email: string }): string {
+    try {
+      const options: SignOptions = {
+        expiresIn: (config.PASSWORD_RESET_EXPIRES_IN || '15m') as any,
+        issuer: 'kuafor-system',
+        audience: 'kuafor-password-reset'
+      };
+      return jwt.sign(payload, config.JWT_SECRET, options);
+    } catch (error) {
+      throw ApiError.internal('Parola sıfırlama tokeni oluşturulurken hata oluştu');
+    }
+  }
+
+  static verifyPasswordResetToken(token: string): { userId: string; tenantId: string; email: string } {
+    try {
+      const decoded = jwt.verify(token, config.JWT_SECRET, {
+        issuer: 'kuafor-system',
+        audience: 'kuafor-password-reset'
+      }) as any;
+      return { userId: decoded.userId, tenantId: decoded.tenantId, email: decoded.email };
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        throw ApiError.authentication('Parola sıfırlama tokeninin süresi dolmuş');
+      }
+      throw ApiError.authentication('Parola sıfırlama tokeni geçersiz');
     }
   }
 
