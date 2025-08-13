@@ -1,36 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import CalendarPage from "@/features/calendar/components/CalendarPage";
-import { AdminDashboardSkeleton } from "@/components/ui/skeleton";
-import appointments from "@/mocks/appointments.json";
-import customers from "@/mocks/customers.json";
-import services from "@/mocks/services.json";
-import staff from "@/mocks/staff.json";
-import statuses from "@/mocks/appointment-statuses.json";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function AdminDashboard() {
-    const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    if (isLoading) {
-        return <AdminDashboardSkeleton />;
-    }
+        // Otomatik olarak randevu takvimi sayfasına yönlendir
+        router.replace("/admin/randevu-takvimi");
+    }, [router]);
 
     return (
-        <CalendarPage
-            appointments={appointments}
-            customers={customers}
-            services={services}
-            staff={staff}
-            statuses={statuses}
-        />
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+            <div className="text-center text-white">
+                <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <h2 className="text-xl font-semibold mb-2">Yönlendiriliyor...</h2>
+                <p className="text-slate-300">Randevu takvimi sayfasına yönlendiriliyorsunuz</p>
+            </div>
+        </div>
     );
 }

@@ -15,6 +15,13 @@ Proje sonunda versiyon 1.0 olarak hatasız teslim edilecek.
 
 ---
 
+## File Stuctrue 
+
+- src/features/exmaple içinde 
+- components types services hooks utils kullanmalısın 
+
+---
+
 ## 2. Grafik ve Tablo Düzeni
 
 - Container’a sığmayan table, dairesel grafik ve sütun grafiklerini tespit et ve responsive hale getir.

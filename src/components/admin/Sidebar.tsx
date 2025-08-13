@@ -62,6 +62,9 @@ export default function AdminSidebar({ children }: SidebarProps) {
     const pathname = usePathname();
     const pageTitle = usePageTitle();
 
+    // Kayıt ol sayfasında sidebar'ı gösterme
+    const isAuthPage = pathname === "/admin/kayit-ol" || pathname === "/admin/giris-yap";
+
     const gridCols = collapsed ? "lg:grid-cols-[80px_1fr]" : "lg:grid-cols-[280px_1fr]";
 
     // Sayfa değişiminde mobil menüyü kapat
@@ -103,6 +106,11 @@ export default function AdminSidebar({ children }: SidebarProps) {
     const handleSidebarHide = () => {
         setMobileMenuOpen(false);
     };
+
+    // Auth sayfalarında sadece children'ı göster
+    if (isAuthPage) {
+        return <>{children}</>;
+    }
 
     return (
         <div className={`min-h-screen grid grid-cols-1 ${gridCols} transition-all duration-300`}>
