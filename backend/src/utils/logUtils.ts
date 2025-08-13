@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import logger from '../config/logger';
 export class LogManager {
   static async cleanOldLogs(daysToKeep: number = 30): Promise<void> {
     try {
@@ -13,11 +12,9 @@ export class LogManager {
         const stats = await fs.promises.stat(filePath);
         if (stats.mtime < cutoffDate) {
           await fs.promises.unlink(filePath);
-          logger.info('Old log file deleted', { file, deletedAt: new Date() });
         }
       }
     } catch (error) {
-      logger.error('Error cleaning old logs', { error });
     }
   }
   static async getLogDirectorySize(): Promise<number> {
@@ -32,7 +29,6 @@ export class LogManager {
       }
       return totalSize;
     } catch (error) {
-      logger.error('Error calculating log directory size', { error });
       return 0;
     }
   }
@@ -54,12 +50,6 @@ export class PerformanceTracker {
   }
   end(meta?: any): number {
     const duration = Date.now() - this.startTime;
-    logger.info('Performance Measurement', {
-      type: 'performance',
-      label: this.label,
-      duration: `${duration}ms`,
-      ...meta
-    });
     return duration;
   }
   static track<T>(label: string, operation: () => Promise<T>): Promise<T> {
