@@ -42,7 +42,7 @@ export default function AdminRegisterPage() {
     const onSubmit = async (data: RegisterFormData) => {
         setError(null);
         setIsLoading(true);
-
+        //test
         try {
             // Simüle edilmiş API çağrısı
             console.log('Kayıt verileri:', data);
