@@ -1,13 +1,15 @@
-import db from '../../models';
-import { BaseRepository } from '../common/base.repository';
+import { sequelize } from '../../config/database';
 import { IBusiness } from './business-auth.interface';
 
 /**
  * Business veritabanı işlemlerini yöneten repository sınıfı
  */
-class BusinessAuthRepository extends BaseRepository<IBusiness> {
-  constructor() {
-    super(db.Business);
+class BusinessAuthRepository {
+  private get model() { return (sequelize.models as any).SettingsBusinessSettings; }
+
+  async findById(id: string): Promise<IBusiness | null> {
+    const row = await this.model.findByPk(id);
+    return row ? (row.toJSON() as IBusiness) : null;
   }
 
   /**
@@ -122,11 +124,15 @@ class BusinessAuthRepository extends BaseRepository<IBusiness> {
       }
 
       // Business'a ait temel istatistikler
+      const Staff = (sequelize.models as any).ScheduleStaff;
+      const Service = (sequelize.models as any).ScheduleService;
+      const Appointment = (sequelize.models as any).ScheduleAppointment;
+      const Customer = (sequelize.models as any).CrmCustomer;
       const [staffCount, serviceCount, appointmentCount, customerCount] = await Promise.all([
-        db.Staff.count({ where: { businessId: id, isActive: true } }),
-        db.Service.count({ where: { businessId: id, isActive: true } }),
-        db.Appointment.count({ where: { businessId: id } }),
-        db.Customer.count({ where: { businessId: id, isActive: true } })
+        Staff.count({ where: { tenant_id: business.tenant_id, is_active: true } }),
+        Service.count({ where: { tenant_id: business.tenant_id } }),
+        Appointment.count({ where: { tenant_id: business.tenant_id } }),
+        Customer.count({ where: { tenant_id: business.tenant_id, is_active: true } })
       ]);
 
       return {
