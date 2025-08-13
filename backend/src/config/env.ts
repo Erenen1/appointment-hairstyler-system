@@ -1,4 +1,28 @@
-import { Config } from '../types/config';
+type Config = {
+  NODE_ENV: string;
+  DB_HOST: string;
+  DB_PORT: number;
+  DB_NAME: string;
+  DB_USER: string;
+  DB_PASSWORD: string;
+  PORT: number;
+  JWT_SECRET: string;
+  JWT_EXPIRES_IN: string;
+  JWT_REFRESH_EXPIRES_IN: string;
+  PASSWORD_RESET_EXPIRES_IN: string;
+  SUPER_ADMIN_API_KEY: string;
+  SMTP_HOST: string;
+  SMTP_PORT: number;
+  SMTP_USER: string;
+  SMTP_PASS: string;
+  RATE_LIMIT_WINDOW_MS: number;
+  RATE_LIMIT_MAX_REQUESTS: number;
+  DOMAIN: string;
+  FRONTEND_DOMAIN: string;
+  UPLOAD_DIR: string;
+  API_PREFIX: string;
+  LOG_LEVEL: string;
+};
 import dotenv from "dotenv";
 
 dotenv.config({
@@ -12,10 +36,12 @@ export const config: Config = {
     DB_NAME: process.env.DB_NAME || 'kuafor_db',
     DB_USER: process.env.DB_USER || 'postgres',
     DB_PASSWORD: process.env.DB_PASSWORD || 'password123',
-    PORT: parseInt(process.env.PORT || '3000', 10),
+    PORT: parseInt(process.env.PORT || '8000', 10),
     
     JWT_SECRET: process.env.JWT_SECRET || 'your-jwt-secret-key-change-in-production',
     JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '24h',
+  JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+  PASSWORD_RESET_EXPIRES_IN: process.env.PASSWORD_RESET_EXPIRES_IN || '15m',
     SUPER_ADMIN_API_KEY: process.env.SUPER_ADMIN_API_KEY || 'your-api-key',
 
     SMTP_HOST: process.env.SMTP_HOST || '',
