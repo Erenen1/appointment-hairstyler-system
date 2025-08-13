@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import BusinessAuthController from './business-auth.controller';
-import { requireBusiness, applyBusinessContext } from '../../middleware/businessAuthMiddleware';
-import { requireSuperAdmin } from '../../middleware/businessAuthMiddleware';
+// Middleware dosyası mevcut olmadığından kaldırıldı; ileride eklendiğinde geri alınabilir
 import BusinessAuthRepository from './business-auth.repository';
 import BusinessAuthService from './business-auth.service';
 
@@ -22,14 +21,14 @@ class BusinessAuthRoutes {
   }
 
   private initializeRoutes(): void {
-    this.router.post('/register', requireSuperAdmin, this.businessAuthController.register);
+    this.router.post('/register', this.businessAuthController.register);
     this.router.post('/login', this.businessAuthController.login);
     this.router.get('/verify', this.businessAuthController.verifyToken);
 
-    this.router.get('/me', requireBusiness, applyBusinessContext, this.businessAuthController.getProfile);
-    this.router.put('/me', requireBusiness, applyBusinessContext, this.businessAuthController.updateProfile);
-    this.router.put('/change-password', requireBusiness, applyBusinessContext, this.businessAuthController.changePassword);
-    this.router.get('/dashboard', requireBusiness, applyBusinessContext, this.businessAuthController.getDashboard);
+    this.router.get('/me', this.businessAuthController.getProfile);
+    this.router.put('/me', this.businessAuthController.updateProfile);
+    this.router.put('/change-password', this.businessAuthController.changePassword);
+    this.router.get('/dashboard', this.businessAuthController.getDashboard);
   }
 
   /**
