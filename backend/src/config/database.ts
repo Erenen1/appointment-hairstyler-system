@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import Enum  from './env';
-import logger from './logger';
+import { initModels } from '../models';
 
 const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
@@ -15,7 +15,7 @@ const config = {
   host: Enum.DB_HOST,
   port: Enum.DB_PORT,
   dialect: 'postgres' as const,
-  logging: true,
+  logging: false,
   pool: {
     max: 5,
     min: 0,
@@ -35,35 +35,35 @@ export const sequelize = new Sequelize(config);
 export const testConnection = async (): Promise<boolean> => {
   try {
     await sequelize.authenticate();
-    logger.info('Database connection established successfully', {
-      database: config.database,
-      host: config.host,
-      environment: Enum.NODE_ENV
-    });
+
     return true;
   } catch (error) {
-    logger.error('Unable to connect to database', {
-      error: getErrorMessage(error),
-      database: config.database,
-      host: config.host
-    });
     return false;
   }
 };
 export const initializeAndSyncDatabase = async (): Promise<void> => {
   try {
     await testConnection();
-    const forceSync = true;
-    logger.info('Initializing database tables', { 
-      forceSync, 
-      environment: Enum.NODE_ENV 
-    });
-    await sequelize.sync({force: forceSync});
-    logger.info('Database tables initialized successfully');
+    const forceSync = false;
+    initModels(sequelize);
+    // Gerekli şemaları oluştur
+    const schemas = [
+      'core',
+      'auth',
+      'crm',
+      'listings',
+      'schedule',
+      'finance',
+      'messaging',
+      'settings',
+      'geo',
+      'analytics',
+    ];
+    for (const schema of schemas) {
+      try { await (sequelize as any).createSchema(schema); } catch { /* mevcut olabilir */ }
+    }
+    await sequelize.sync({ force: forceSync, alter: true });
   } catch (error) {
-    logger.error('Database initialization failed', {
-      error: getErrorMessage(error)
-    });
     throw error;
   }
 };
@@ -90,11 +90,7 @@ export const healthCheck = async () => {
 export const closeConnection = async (): Promise<void> => {
   try {
     await sequelize.close();
-    logger.info('Database connection closed');
   } catch (error) {
-    logger.error('Error closing database connection', { 
-      error: getErrorMessage(error) 
-    });
     throw error;
   }
 };
