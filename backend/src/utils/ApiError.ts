@@ -1,4 +1,4 @@
-import { ErrorDetail } from '../types/api';
+type ErrorDetail = { field?: string; message: string; code?: string };
 
 export enum ErrorType {
   VALIDATION = 'VALIDATION_ERROR',
