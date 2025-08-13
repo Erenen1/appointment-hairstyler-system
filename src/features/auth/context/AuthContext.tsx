@@ -7,8 +7,10 @@ import { AuthState, LoginCredentials, RegisterData } from '../../../types/auth';
 interface AuthContextType extends AuthState {
     login: (credentials: LoginCredentials) => Promise<void>;
     register: (data: RegisterData) => Promise<void>;
-    logout: () => void;
+    logout: () => Promise<void>;
+    refreshToken: () => Promise<boolean>;
     clearError: () => void;
+    checkAuthStatus: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

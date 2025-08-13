@@ -9,13 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginSchema, type LoginFormData } from "@/lib/schemas/auth";
-import { toast } from "@/lib/utils/toast";
-
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export default function AdminLoginPage() {
     const [showPassword, setShowPassword] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const { login, isLoading, error, clearError } = useAuth();
 
     const {
         register,
@@ -36,41 +34,21 @@ export default function AdminLoginPage() {
     const isFormValid = email && password && email.length > 0 && password.length > 0;
 
     const onSubmit = async (data: LoginFormData) => {
-        setError(null);
-        setIsLoading(true);
+        clearError();
 
         try {
-            // Simüle edilmiş API çağrısı
-            console.log('Giriş verileri:', data);
+            // useAuth hook'undaki login fonksiyonunu çağır
+            await login({
+                username: data.email, // API username bekliyor ama form email kullanıyor
+                password: data.password,
+                rememberMe: true
+            });
 
-            // 2 saniye bekle (API çağrısını simüle et)
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // %90 başarılı, %10 hata (simülasyon için)
-            const isSuccess = Math.random() > 0.1;
-
-            if (isSuccess) {
-                // Başarılı giriş
-                toast.success('Giriş başarılı! 🎉');
-
-                // Form'u temizle
-                reset();
-
-                // Randevu takvimi sayfasına yönlendir
-                setTimeout(() => {
-                    window.location.href = '/admin/randevu-takvimi';
-                }, 1500);
-            } else {
-                // Hata durumu (simülasyon)
-                throw new Error('Simüle edilmiş hata');
-            }
-
-        } catch {
-            // Hata durumu
-            setError('E-posta veya şifre hatalı. Lütfen tekrar deneyiniz.');
-            toast.error('Giriş başarısız! 😔');
-        } finally {
-            setIsLoading(false);
+            // Form'u temizle
+            reset();
+        } catch (error) {
+            // Hata useAuth hook'unda zaten handle ediliyor
+            console.error('Login error:', error);
         }
     };
 

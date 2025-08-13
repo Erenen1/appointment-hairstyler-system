@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from '../../../lib/utils/toast';
 import { AuthState, LoginCredentials, RegisterData, AuthResponse } from '../../../types/auth';
+import { AuthService } from '../services/authService';
 
 export const useAuth = () => {
     const [authState, setAuthState] = useState<AuthState>({
@@ -13,45 +14,85 @@ export const useAuth = () => {
 
     const router = useRouter();
 
+    // Sayfa yüklendiğinde kullanıcı durumunu kontrol et
+    useEffect(() => {
+        const initializeAuth = async () => {
+            try {
+                // API sağlık kontrolü
+                const healthCheck = await AuthService.checkApiHealth();
+                console.log('🔍 Auth API Durumu:', healthCheck);
+
+                // Local storage'dan kullanıcı bilgilerini al
+                const storedUser = AuthService.getUserFromStorage();
+                const isTokenValid = AuthService.isTokenValid();
+
+                if (storedUser && isTokenValid) {
+                    setAuthState({
+                        user: storedUser,
+                        isAuthenticated: true,
+                        isLoading: false,
+                        error: null,
+                    });
+                } else if (isTokenValid) {
+                    // Token geçerli ama kullanıcı bilgisi yok, API'den al
+                    try {
+                        const user = await AuthService.getCurrentUser();
+                        AuthService.saveUserToStorage(user);
+                        setAuthState({
+                            user,
+                            isAuthenticated: true,
+                            isLoading: false,
+                            error: null,
+                        });
+                    } catch (error) {
+                        // Token geçersiz, temizle
+                        AuthService.logout();
+                    }
+                }
+            } catch (error) {
+                console.error('Auth initialization error:', error);
+                AuthService.logout();
+            }
+        };
+
+        initializeAuth();
+    }, []);
+
     const login = useCallback(async (credentials: LoginCredentials) => {
         setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
         try {
-            // Burada API çağrısı yapılacak
-            console.log('Giriş verileri:', credentials);
+            // API sağlık kontrolü
+            const healthCheck = await AuthService.checkApiHealth();
+            if (!healthCheck.isHealthy) {
+                throw new Error(`API erişim hatası: ${healthCheck.message}`);
+            }
 
-            // Simüle edilmiş başarılı giriş
-            const mockResponse: AuthResponse = {
-                user: {
-                    id: '1',
-                    firstName: 'Admin',
-                    lastName: 'User',
-                    email: credentials.email,
-                    phone: '+905551234567',
-                    role: 'admin',
-                    createdAt: new Date('2024-01-01'),
-                    updatedAt: new Date('2024-01-01'),
-                },
-                token: 'mock-jwt-token',
-                message: 'Giriş başarılı',
-            };
+            const response = await AuthService.login(credentials);
 
-            setAuthState({
-                user: mockResponse.user,
-                isAuthenticated: true,
-                isLoading: false,
-                error: null,
-            });
+            if (response.success) {
+                const user = response.data.user;
 
-            toast.success('Giriş başarılı! 🎉');
+                // Kullanıcı bilgilerini localStorage'a kaydet
+                AuthService.saveUserToStorage(user);
 
-            // Yönlendirme
-            router.push('/admin/randevu-takvimi');
+                setAuthState({
+                    user,
+                    isAuthenticated: true,
+                    isLoading: false,
+                    error: null,
+                });
 
-        } catch (error) {
-            const errorMessage = 'E-posta veya şifre hatalı. Lütfen tekrar deneyiniz.';
+                toast.success(response.message || 'Giriş başarılı! 🎉');
+
+                // Yönlendirme
+                router.push('/admin/randevu-takvimi');
+            } else {
+                throw new Error(response.message || 'Giriş başarısız');
+            }
+        } catch (error: any) {
+            const errorMessage = error.message || 'E-posta veya şifre hatalı. Lütfen tekrar deneyiniz.';
             setAuthState(prev => ({ ...prev, error: errorMessage, isLoading: false }));
-
             toast.error('Giriş başarısız! 😔');
         }
     }, [router]);
@@ -60,25 +101,50 @@ export const useAuth = () => {
         setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
         try {
-            // Burada API çağrısı yapılacak
-            console.log('Kayıt verileri:', data);
+            // API sağlık kontrolü
+            const healthCheck = await AuthService.checkApiHealth();
+            if (!healthCheck.isHealthy) {
+                throw new Error(`API erişim hatası: ${healthCheck.message}`);
+            }
 
-            toast.success('Kayıt başarılı! 🎊');
+            const response = await AuthService.register(data);
 
-            // Giriş sayfasına yönlendir
-            router.push('/admin/giris-yap');
+            if (response.success) {
+                const user = response.data.user;
 
-        } catch (error) {
-            const errorMessage = 'Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyiniz.';
+                // Kullanıcı bilgilerini localStorage'a kaydet
+                AuthService.saveUserToStorage(user);
+
+                setAuthState({
+                    user,
+                    isAuthenticated: true,
+                    isLoading: false,
+                    error: null,
+                });
+
+                toast.success(response.message || 'Kayıt başarılı! 🎊');
+
+                // Giriş sayfasına yönlendir
+                router.push('/admin/giris-yap');
+            } else {
+                throw new Error(response.message || 'Kayıt başarısız');
+            }
+        } catch (error: any) {
+            const errorMessage = error.message || 'Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyiniz.';
             setAuthState(prev => ({ ...prev, error: errorMessage, isLoading: false }));
-
             toast.error('Kayıt başarısız! 😕');
         } finally {
             setAuthState(prev => ({ ...prev, isLoading: false }));
         }
     }, [router]);
 
-    const logout = useCallback(() => {
+    const logout = useCallback(async () => {
+        try {
+            await AuthService.logout();
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+
         setAuthState({
             user: null,
             isAuthenticated: false,
@@ -87,12 +153,45 @@ export const useAuth = () => {
         });
 
         toast.info('Çıkış yapıldı 👋');
-
         router.push('/admin/giris-yap');
     }, [router]);
 
+    const refreshToken = useCallback(async () => {
+        try {
+            const response = await AuthService.refreshToken();
+            if (response.success) {
+                toast.success('Token yenilendi');
+                return true;
+            }
+        } catch (error) {
+            console.error('Token refresh error:', error);
+            // Token yenilenemezse logout yap
+            await logout();
+        }
+        return false;
+    }, [logout]);
+
     const clearError = useCallback(() => {
         setAuthState(prev => ({ ...prev, error: null }));
+    }, []);
+
+    const checkAuthStatus = useCallback(() => {
+        const isTokenValid = AuthService.isTokenValid();
+        const storedUser = AuthService.getUserFromStorage();
+
+        if (isTokenValid && storedUser) {
+            setAuthState(prev => ({
+                ...prev,
+                user: storedUser,
+                isAuthenticated: true,
+            }));
+        } else {
+            setAuthState(prev => ({
+                ...prev,
+                user: null,
+                isAuthenticated: false,
+            }));
+        }
     }, []);
 
     return {
@@ -100,6 +199,8 @@ export const useAuth = () => {
         login,
         register,
         logout,
+        refreshToken,
         clearError,
+        checkAuthStatus,
     };
 };

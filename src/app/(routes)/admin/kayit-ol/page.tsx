@@ -9,12 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { registerSchema, type RegisterFormData } from "@/lib/schemas/auth";
-import { toast } from "@/lib/utils/toast";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export default function AdminRegisterPage() {
     const [showPassword, setShowPassword] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const { register: registerUser, isLoading, error, clearError } = useAuth();
 
     const {
         register,
@@ -40,41 +39,22 @@ export default function AdminRegisterPage() {
         phone.length > 0 && password.length > 0;
 
     const onSubmit = async (data: RegisterFormData) => {
-        setError(null);
-        setIsLoading(true);
-        //test
+        clearError();
+
         try {
-            // Simüle edilmiş API çağrısı
-            console.log('Kayıt verileri:', data);
+            // useAuth hook'undaki register fonksiyonunu çağır
+            await registerUser({
+                username: data.email, // API username bekliyor ama form email kullanıyor
+                email: data.email,
+                password: data.password,
+                role: 'admin' // Admin kaydı için
+            });
 
-            // 2 saniye bekle (API çağrısını simüle et)
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // %80 başarılı, %20 hata (simülasyon için)
-            const isSuccess = Math.random() > 0.2;
-
-            if (isSuccess) {
-                // Başarılı kayıt
-                toast.success('Kayıt başarılı! 🎊');
-
-                // Form'u temizle
-                reset();
-
-                // Giriş sayfasına yönlendir
-                setTimeout(() => {
-                    window.location.href = '/admin/giris-yap';
-                }, 1500);
-            } else {
-                // Hata durumu (simülasyon)
-                throw new Error('Simüle edilmiş hata');
-            }
-
-        } catch {
-            // Hata durumu
-            setError('Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyiniz.');
-            toast.error('Kayıt başarısız! 😕');
-        } finally {
-            setIsLoading(false);
+            // Form'u temizle
+            reset();
+        } catch (error) {
+            // Hata useAuth hook'unda zaten handle ediliyor
+            console.error('Register error:', error);
         }
     };
 
