@@ -1,6 +1,6 @@
 import { LoginCredentials, RegisterData, AuthResponse, RefreshTokenResponse, ApiError } from '../../../types/auth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api.erencelik.info';
 
 // Tenant ID'yi localStorage'dan al veya environment variable'dan
 const getTenantId = (): string => {
