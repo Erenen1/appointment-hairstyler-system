@@ -1,23 +1,31 @@
 ## CRM Customers API
 
-- Base URL: `/api/crm/customers`
+- Base URL: `http://148.230.104.189:8000/crm/customers`
 - Header'lar: `Authorization: Bearer <token>`, `x-tenant-id: <uuid>`, `Content-Type: application/json`
 
 ### Standart Yanıt Yapısı
+
 ```json
 {
   "success": true,
   "message": "",
-  "data": [ { "id": "uuid" } ],
-  "pagination": { "currentPage": 1, "totalPages": 1, "totalItems": 1, "itemsPerPage": 20 },
+  "data": [{ "id": "uuid" }],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 1,
+    "totalItems": 1,
+    "itemsPerPage": 20
+  },
   "timestamp": "2024-01-01T10:00:00Z"
 }
 ```
 
 ### Listeleme
+
 - GET `/`
 - Query (hepsi opsiyonel): `search, isActive, assignedAgentId, preferredType, preferredCategory, page=1, pageSize=20, sort=created_at:DESC`
 - Response
+
 ```json
 {
   "success": true,
@@ -37,12 +45,19 @@
       "registration_date": "2024-01-01T10:00:00Z"
     }
   ],
-  "pagination": { "currentPage": 1, "totalPages": 1, "totalItems": 1, "itemsPerPage": 20 }
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 1,
+    "totalItems": 1,
+    "itemsPerPage": 20
+  }
 }
 ```
 
 ### Detay
+
 - GET `/:id`
+
 ```json
 {
   "success": true,
@@ -65,7 +80,7 @@
     "customer_notes": "",
     "assigned_agent_id": "uuid",
     "preferredDistricts": ["Kadıköy"],
-    "requirements": [ {"id":"uuid","name":"otopark"} ],
+    "requirements": [{ "id": "uuid", "name": "otopark" }],
     "viewedProperties": ["uuid"],
     "registration_date": "2024-01-01T10:00:00Z",
     "last_contact": null,
@@ -75,62 +90,120 @@
 ```
 
 ### Oluşturma
+
 - POST `/`
+
 ```json
 {
-  "fullName":"string", "email":"", "phone":"", "address":"",
-  "dateOfBirth":"1990-01-01", "profession":"", "budget":0,
-  "preferredType":"Satılık", "preferredCategory":"Daire",
-  "minArea":0, "maxArea":120, "minRoomsLabel":"3+1",
-  "isSeriousBuyer":false, "customerNotes":"",
-  "assignedAgentId":"uuid",
-  "preferredDistricts":["Kadıköy","Beşiktaş"],
-  "requirements":["otopark","asansör"]
+  "fullName": "string",
+  "email": "",
+  "phone": "",
+  "address": "",
+  "dateOfBirth": "1990-01-01",
+  "profession": "",
+  "budget": 0,
+  "preferredType": "Satılık",
+  "preferredCategory": "Daire",
+  "minArea": 0,
+  "maxArea": 120,
+  "minRoomsLabel": "3+1",
+  "isSeriousBuyer": false,
+  "customerNotes": "",
+  "assignedAgentId": "uuid",
+  "preferredDistricts": ["Kadıköy", "Beşiktaş"],
+  "requirements": ["otopark", "asansör"]
 }
 ```
 
 ### Güncelleme
+
 - PUT `/:id` (POST ile aynı alanlardan kısmi)
 
 ### Silme
+
 - DELETE `/:id`
 
 ### Tercihler
+
 - GET `/:id/preferences`
 - PUT `/:id/preferences`
+
 ```json
-{ "preferredDistricts":["Kadıköy"], "requirementIds":["uuid"] }
+{ "preferredDistricts": ["Kadıköy"], "requirementIds": ["uuid"] }
 ```
+
 Yanıt:
+
 ```json
-{ "success": true, "message": "Kayıt başarıyla güncellendi", "data": { "preferredDistricts": ["Kadıköy"], "requirements": [ {"id":"uuid","name":"asansör"} ] } }
+{
+  "success": true,
+  "message": "Kayıt başarıyla güncellendi",
+  "data": {
+    "preferredDistricts": ["Kadıköy"],
+    "requirements": [{ "id": "uuid", "name": "asansör" }]
+  }
+}
 ```
 
 ### Görüntülenen İlanlar
+
 - GET `/:id/viewed-properties`
+
 ```json
-{ "success": true, "message": "Kayıt başarıyla getirildi", "data": { "items": [ { "propertyId":"uuid","firstViewedAt":"2024-01-01T10:00:00Z","lastViewedAt":"2024-01-02T10:00:00Z","viewsCount":3 } ] } }
+{
+  "success": true,
+  "message": "Kayıt başarıyla getirildi",
+  "data": {
+    "items": [
+      {
+        "propertyId": "uuid",
+        "firstViewedAt": "2024-01-01T10:00:00Z",
+        "lastViewedAt": "2024-01-02T10:00:00Z",
+        "viewsCount": 3
+      }
+    ]
+  }
+}
 ```
+
 - POST `/:id/viewed-properties`
+
 ```json
-{ "propertyId":"uuid" }
+{ "propertyId": "uuid" }
 ```
-Yanıt: `{ "success": true, "data": { "ok": true } }`
-- DELETE `/:id/viewed-properties/:propertyId`
+
 Yanıt: `{ "success": true, "data": { "ok": true } }`
 
+- DELETE `/:id/viewed-properties/:propertyId`
+  Yanıt: `{ "success": true, "data": { "ok": true } }`
+
 ### İstatistikler
+
 - GET `/stats/summary`
+
 ```json
-{ "success": true, "data": { "totalCustomers": 0, "activeCustomers": 0, "newCustomersThisMonth": 0, "totalBudget": 0, "averageBudget": 0, "topBudgetCustomer": {"id":"uuid","fullName":""} } }
+{
+  "success": true,
+  "data": {
+    "totalCustomers": 0,
+    "activeCustomers": 0,
+    "newCustomersThisMonth": 0,
+    "totalBudget": 0,
+    "averageBudget": 0,
+    "topBudgetCustomer": { "id": "uuid", "fullName": "" }
+  }
+}
 ```
 
 ### Fetch örneği
+
 ```ts
-async function listCustomers(token: string, tenantId: string, p=1) {
-  const res = await fetch(`/api/crm/customers?page=${p}`, { headers: { Authorization: `Bearer ${token}`, 'x-tenant-id': tenantId } });
+async function listCustomers(token: string, tenantId: string, p = 1) {
+  const res = await fetch(
+    `http://148.230.104.189:8000/crm/customers?page=${p}`,
+    { headers: { Authorization: `Bearer ${token}`, "x-tenant-id": tenantId } }
+  );
   if (!res.ok) throw await res.json();
   return res.json();
 }
 ```
-

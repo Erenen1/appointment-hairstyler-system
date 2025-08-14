@@ -1,6 +1,6 @@
 import { AppointmentType } from '@/features/appointments/types/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = 'http://148.230.104.189:8000/api';
 
 export class AppointmentTypeService {
     private static async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {

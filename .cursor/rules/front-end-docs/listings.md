@@ -1,6 +1,6 @@
 ## Listings (İlanlar) API
 
-- Base URL: `/api/listings/properties`
+- Base URL: `http://148.230.104.189:8000/listings/properties`
 - Header'lar: `Authorization`, `x-tenant-id`, `Content-Type: application/json`
 
 ### Standart Yanıt Yapısı

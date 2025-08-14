@@ -1,6 +1,6 @@
 ## WhatsApp Bot API
 
-- Base: `/api/messaging/whatsapp`
+- Base: `http://148.230.104.189:8000/messaging/whatsapp`
 - Header'lar: `Authorization`, `x-tenant-id`, `Content-Type: application/json`
 
 ### Bot Config

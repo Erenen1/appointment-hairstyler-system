@@ -1,17 +1,36 @@
 ## Auth API (Kullanıcı Girişi ve Hesap Yönetimi)
+
 ### Standart Yanıt Yapısı
+
 - Başarılı
+
 ```json
-{ "success": true, "message": "", "data": {}, "pagination": null, "timestamp": "2024-01-01T10:00:00.000Z" }
+{
+  "success": true,
+  "message": "",
+  "data": {},
+  "pagination": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
 ```
+
 - Hata
+
 ```json
-{ "success": false, "type": "AUTHENTICATION_ERROR", "message": "", "errors": [ { "field": "", "message": "", "code": "" } ], "timestamp": "2024-01-01T10:00:00.000Z", "path": "/api/auth/login" }
+{
+  "success": false,
+  "type": "AUTHENTICATION_ERROR",
+  "message": "",
+  "errors": [{ "field": "", "message": "", "code": "" }],
+  "timestamp": "2024-01-01T10:00:00.000Z",
+  "path": "/api/auth/login"
+}
 ```
 
 ### Tipler (öneri)
+
 ```ts
-export type UserRole = 'admin' | 'staff' | 'user';
+export type UserRole = "admin" | "staff" | "user";
 export interface AuthUserResponse {
   id: string;
   username: string;
@@ -24,22 +43,30 @@ export interface AuthUserResponse {
   createdAt?: string;
   updatedAt?: string;
 }
-export interface LoginResponse { user: AuthUserResponse; token: string; refreshToken: string }
+export interface LoginResponse {
+  user: AuthUserResponse;
+  token: string;
+  refreshToken: string;
+}
 ```
 
-- Base URL: `/api/auth`
+- Base URL: `http://148.230.104.189:8000/auth`
 - Gerekli Header'lar:
   - `Content-Type: application/json`
   - `x-tenant-id: <uuid>` (tüm uçlar için zorunlu)
   - `Authorization: Bearer <token>` (login/register hariç diğerlerinde gerekebilir)
 
 ### Giriş (Login)
+
 - POST `/login`
 - Body
+
 ```json
 { "username": "string", "password": "string", "rememberMe": true }
 ```
+
 - Response
+
 ```json
 {
   "success": true,
@@ -63,13 +90,15 @@ export interface LoginResponse { user: AuthUserResponse; token: string; refreshT
   "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
+
 - Örnek fetch
+
 ```ts
 async function login(tenantId: string, username: string, password: string) {
-  const res = await fetch('/api/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-tenant-id': tenantId },
-    body: JSON.stringify({ username, password, rememberMe: true })
+  const res = await fetch("http://148.230.104.189:8000/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-tenant-id": tenantId },
+    body: JSON.stringify({ username, password, rememberMe: true }),
   });
   if (!res.ok) throw await res.json();
   return res.json();
@@ -77,18 +106,33 @@ async function login(tenantId: string, username: string, password: string) {
 ```
 
 ### Kayıt (Register)
+
 - POST `/register`
 - Body
+
 ```json
-{ "username":"string", "email":"string", "password":"string", "role":"user" }
+{
+  "username": "string",
+  "email": "string",
+  "password": "string",
+  "role": "user"
+}
 ```
+
 - Response (login ile benzer)
+
 ```json
 {
   "success": true,
   "message": "Kayıt başarıyla oluşturuldu",
   "data": {
-    "user": { "id": "uuid", "username": "string", "email": "string", "role": "user", "isActive": true },
+    "user": {
+      "id": "uuid",
+      "username": "string",
+      "email": "string",
+      "role": "user",
+      "isActive": true
+    },
     "token": "jwt",
     "refreshToken": "jwt"
   }
@@ -96,40 +140,65 @@ async function login(tenantId: string, username: string, password: string) {
 ```
 
 ### Token Yenileme
+
 - POST `/refresh`
 - Body
+
 ```json
-{ "refreshToken":"string" }
+{ "refreshToken": "string" }
 ```
+
 - Response
+
 ```json
-{ "success": true, "message": "Token yenilendi", "data": { "token":"jwt" }, "timestamp": "2024-01-01T10:00:00.000Z" }
+{
+  "success": true,
+  "message": "Token yenilendi",
+  "data": { "token": "jwt" },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
 ```
 
 ### Çıkış
+
 - POST `/logout`
 - Response: HTTP 204
 
 ### Parola Sıfırlama
+
 - POST `/password-reset/request`
+
 ```json
 { "email": "string" }
 ```
+
 - POST `/password-reset/confirm`
+
 ```json
-{ "token":"string", "newPassword":"string" }
+{ "token": "string", "newPassword": "string" }
 ```
 
 ### Örnek axios instance
+
 ```ts
-import axios from 'axios';
-export const api = axios.create({ baseURL: '/api', headers: { 'Content-Type': 'application/json' } });
+import axios from "axios";
+export const api = axios.create({
+  baseURL: "http://148.230.104.189:8000",
+  headers: { "Content-Type": "application/json" },
+});
 export function withTenant(tenantId: string, token?: string) {
-  return api.create({ baseURL: '/api', headers: { 'Content-Type': 'application/json', 'x-tenant-id': tenantId, ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
+  return api.create({
+    baseURL: "http://148.230.104.189:8000",
+    headers: {
+      "Content-Type": "application/json",
+      "x-tenant-id": tenantId,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
 }
 ```
 
 ### Notlar
+
 - Başarılı yanıtlarda sarmal yapı: `{ success, message, data }`
 - Hatalı yanıtlarda: `{ success:false, type, message, errors? }`
-

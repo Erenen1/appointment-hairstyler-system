@@ -1,6 +1,6 @@
 ## Settings API
 
-- Base: `/api/settings`
+- Base: `http://148.230.104.189:8000/settings`
 - Header'lar: `Authorization`, `x-tenant-id`, `Content-Type: application/json`
 
 ### Business Settings

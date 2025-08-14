@@ -1,7 +1,7 @@
 ## Analytics API
 
 ### Property Analytics
-- Base: `/api/analytics/properties`
+- Base: `http://148.230.104.189:8000/analytics/properties`
 - GET `/list` query: `type[],category[],priceMin,priceMax,areaMin,areaMax,district[],rooms[],features[],status[],page,pageSize,sort=views|-views|clicks|-clicks|price|-price`
 - GET `/stats` query: `range=7d|30d|90d, groupBy=day|week|month`
 Örnek yanıt:
@@ -16,7 +16,7 @@
 - Events: GET/POST `/properties/:id/events`
 
 ### General Statistics
-- Base: `/api/analytics`
+- Base: `http://148.230.104.189:8000/analytics`
 - GET `/summary`
 ```json
 { "success": true, "data": { "totalProperties": 0, "totalViews": 0, "totalClicks": 0, "avgPrice": 0, "byCategory": [{ "category": "Daire", "count": 0 }] } }
@@ -25,7 +25,7 @@
 - GET `/breakdowns` query: `dimension=category|type|city|district`
 
 ### Dashboard
-- Base: `/api/dashboard`
+- Base: `http://148.230.104.189:8000/dashboard`
 - GET `/summary?range=7d|30d|90d|ytd`
 ```json
 { "success": true, "data": { "totals": {"totalProperties":0,"activeProperties":0,"totalCustomers":0}, "appointments": {"today":0,"thisWeek":0,"thisMonth":0}, "finance": {"income":0,"expense":0,"net":0}, "engagement": {"whatsappActiveChats":0, "topProperty": {"id":"uuid","title":"","views":0,"clicks":0} }, "range":"30d","generatedAt":"2024-01-01T10:00:00Z" } }

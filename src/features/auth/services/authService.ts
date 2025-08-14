@@ -1,9 +1,13 @@
 import { LoginCredentials, RegisterData, AuthResponse, RefreshTokenResponse, ApiError } from '../../../types/auth';
 import { authCookieUtils } from '@/lib/cookieUtils';
 
-// Client-side'da private environment variable'lara erişemeyiz
-// Bu yüzden Next.js API route'lar üzerinden istek yapacağız
-const API_BASE_URL = '/api/auth'; // Next.js API route'ları
+// External API URL - always use the remote server
+const API_BASE_URL = 'http://148.230.104.189:8000/auth';
+
+// Get tenant ID - use a default value for now
+const getTenantId = (): string => {
+    return 'default-tenant-id'; // Bu değeri gerçek tenant ID ile değiştirin
+};
 
 // Auth token'ı cookie'den al
 const getAuthToken = (): string | null => {
@@ -47,10 +51,14 @@ const handleApiResponse = async <T>(response: Response): Promise<T> => {
 
 export class AuthService {
     static async login(credentials: LoginCredentials): Promise<AuthResponse> {
+        console.log('🔍 Login isteği gönderiliyor:', `${API_BASE_URL}/login`);
+        console.log('🔍 API_BASE_URL:', API_BASE_URL);
+
         const response = await fetch(`${API_BASE_URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'x-tenant-id': getTenantId(),
             },
             body: JSON.stringify(credentials),
         });
@@ -71,6 +79,7 @@ export class AuthService {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'x-tenant-id': getTenantId(),
             },
             body: JSON.stringify(data),
         });
@@ -95,6 +104,7 @@ export class AuthService {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'x-tenant-id': getTenantId(),
                         'Authorization': `Bearer ${token}`,
                     },
                 });
@@ -118,6 +128,7 @@ export class AuthService {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'x-tenant-id': getTenantId(),
             },
             body: JSON.stringify({ refreshToken }),
         });
@@ -142,6 +153,7 @@ export class AuthService {
         const response = await fetch(`${API_BASE_URL}/me`, {
             headers: {
                 'Content-Type': 'application/json',
+                'x-tenant-id': getTenantId(),
                 'Authorization': `Bearer ${token}`,
             },
         });
@@ -155,6 +167,7 @@ export class AuthService {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'x-tenant-id': getTenantId(),
             },
             body: JSON.stringify({ email }),
         });
@@ -167,6 +180,7 @@ export class AuthService {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'x-tenant-id': getTenantId(),
             },
             body: JSON.stringify({ token, newPassword }),
         });
@@ -197,17 +211,19 @@ export class AuthService {
 
     // Kullanıcı bilgilerini cookie'ye kaydet
     static saveUserToStorage(user: AuthResponse['data']['user']): void {
-        authCookieUtils.setUserData(user);
+        authCookieUtils.setUserData(user as unknown as Record<string, unknown>);
     }
 
     // API endpoint'lerinin mevcut olup olmadığını kontrol et
     static async checkApiHealth(): Promise<{ isHealthy: boolean; message: string }> {
         try {
-            const response = await fetch(`${API_BASE_URL}/health`, {
-                method: 'GET',
+            const response = await fetch(`${API_BASE_URL}/login`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-tenant-id': getTenantId(),
                 },
+                body: JSON.stringify({ test: true }),
             });
 
             if (response.ok) {
@@ -221,41 +237,6 @@ export class AuthService {
                 message: `API bağlantı hatası: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`
             };
         }
-    }
-
-    // Debug: API endpoint'lerini test et
-    static async debugApiEndpoints(): Promise<{ [key: string]: { status: number; message: string } }> {
-        const endpoints = [
-            { name: 'health', path: '/health', method: 'GET' },
-            { name: 'login', path: '/login', method: 'POST' },
-            { name: 'register', path: '/register', method: 'POST' },
-        ];
-
-        const results: { [key: string]: { status: number; message: string } } = {};
-
-        for (const endpoint of endpoints) {
-            try {
-                const response = await fetch(`${API_BASE_URL}${endpoint.path}`, {
-                    method: endpoint.method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    ...(endpoint.method === 'POST' && { body: JSON.stringify({ test: true }) }),
-                });
-
-                results[endpoint.name] = {
-                    status: response.status,
-                    message: response.statusText
-                };
-            } catch (error) {
-                results[endpoint.name] = {
-                    status: 0,
-                    message: error instanceof Error ? error.message : 'Bilinmeyen hata'
-                };
-            }
-        }
-
-        return results;
     }
 }
 
