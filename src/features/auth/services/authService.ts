@@ -1,21 +1,13 @@
 import { LoginCredentials, RegisterData, AuthResponse, RefreshTokenResponse, ApiError } from '../../../types/auth';
+import { authCookieUtils } from '@/lib/cookieUtils';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api.erencelik.info';
+// Client-side'da private environment variable'lara erişemeyiz
+// Bu yüzden Next.js API route'lar üzerinden istek yapacağız
+const API_BASE_URL = '/api/auth'; // Next.js API route'ları
 
-// Tenant ID'yi localStorage'dan al veya environment variable'dan
-const getTenantId = (): string => {
-    if (typeof window !== 'undefined') {
-        return localStorage.getItem('tenantId') || process.env.NEXT_PUBLIC_TENANT_ID || '';
-    }
-    return process.env.NEXT_PUBLIC_TENANT_ID || '';
-};
-
-// Token'ı localStorage'dan al
+// Auth token'ı cookie'den al
 const getAuthToken = (): string | null => {
-    if (typeof window !== 'undefined') {
-        return localStorage.getItem('authToken');
-    }
-    return null;
+    return authCookieUtils.getAuthToken() || null;
 };
 
 // API yanıtını kontrol et
@@ -55,46 +47,40 @@ const handleApiResponse = async <T>(response: Response): Promise<T> => {
 
 export class AuthService {
     static async login(credentials: LoginCredentials): Promise<AuthResponse> {
-        const tenantId = getTenantId();
-
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        const response = await fetch(`${API_BASE_URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-tenant-id': tenantId,
             },
             body: JSON.stringify(credentials),
         });
 
         const data = await handleApiResponse<AuthResponse>(response);
 
-        // Token'ları localStorage'a kaydet
-        if (typeof window !== 'undefined' && data.success) {
-            localStorage.setItem('authToken', data.data.token);
-            localStorage.setItem('refreshToken', data.data.refreshToken);
+        // Token'ları cookie'ye kaydet
+        if (data.success) {
+            authCookieUtils.setAuthToken(data.data.token);
+            authCookieUtils.setRefreshToken(data.data.refreshToken);
         }
 
         return data;
     }
 
     static async register(data: RegisterData): Promise<AuthResponse> {
-        const tenantId = getTenantId();
-
-        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        const response = await fetch(`${API_BASE_URL}/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-tenant-id': tenantId,
             },
             body: JSON.stringify(data),
         });
 
         const responseData = await handleApiResponse<AuthResponse>(response);
 
-        // Token'ları localStorage'a kaydet
-        if (typeof window !== 'undefined' && responseData.success) {
-            localStorage.setItem('authToken', responseData.data.token);
-            localStorage.setItem('refreshToken', responseData.data.refreshToken);
+        // Token'ları cookie'ye kaydet
+        if (responseData.success) {
+            authCookieUtils.setAuthToken(responseData.data.token);
+            authCookieUtils.setRefreshToken(responseData.data.refreshToken);
         }
 
         return responseData;
@@ -102,15 +88,13 @@ export class AuthService {
 
     static async logout(): Promise<void> {
         const token = getAuthToken();
-        const tenantId = getTenantId();
 
         if (token) {
             try {
-                await fetch(`${API_BASE_URL}/auth/logout`, {
+                await fetch(`${API_BASE_URL}/logout`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-tenant-id': tenantId,
                         'Authorization': `Bearer ${token}`,
                     },
                 });
@@ -119,36 +103,30 @@ export class AuthService {
             }
         }
 
-        // Local storage'ı temizle
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('user');
-        }
+        // Cookie'leri temizle
+        authCookieUtils.clear();
     }
 
     static async refreshToken(): Promise<RefreshTokenResponse> {
-        const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
-        const tenantId = getTenantId();
+        const refreshToken = authCookieUtils.getRefreshToken();
 
         if (!refreshToken) {
             throw new Error('Refresh token bulunamadı');
         }
 
-        const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        const response = await fetch(`${API_BASE_URL}/refresh`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-tenant-id': tenantId,
             },
             body: JSON.stringify({ refreshToken }),
         });
 
         const data = await handleApiResponse<RefreshTokenResponse>(response);
 
-        // Yeni token'ı localStorage'a kaydet
-        if (typeof window !== 'undefined' && data.success) {
-            localStorage.setItem('authToken', data.data.token);
+        // Yeni token'ı cookie'ye kaydet
+        if (data.success) {
+            authCookieUtils.setAuthToken(data.data.token);
         }
 
         return data;
@@ -156,16 +134,14 @@ export class AuthService {
 
     static async getCurrentUser(): Promise<AuthResponse['data']['user']> {
         const token = getAuthToken();
-        const tenantId = getTenantId();
 
         if (!token) {
             throw new Error('Token bulunamadı');
         }
 
-        const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        const response = await fetch(`${API_BASE_URL}/me`, {
             headers: {
                 'Content-Type': 'application/json',
-                'x-tenant-id': tenantId,
                 'Authorization': `Bearer ${token}`,
             },
         });
@@ -175,13 +151,10 @@ export class AuthService {
     }
 
     static async requestPasswordReset(email: string): Promise<{ success: boolean; message: string }> {
-        const tenantId = getTenantId();
-
-        const response = await fetch(`${API_BASE_URL}/auth/password-reset/request`, {
+        const response = await fetch(`${API_BASE_URL}/password-reset/request`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-tenant-id': tenantId,
             },
             body: JSON.stringify({ email }),
         });
@@ -190,13 +163,10 @@ export class AuthService {
     }
 
     static async confirmPasswordReset(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
-        const tenantId = getTenantId();
-
-        const response = await fetch(`${API_BASE_URL}/auth/password-reset/confirm`, {
+        const response = await fetch(`${API_BASE_URL}/password-reset/confirm`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-tenant-id': tenantId,
             },
             body: JSON.stringify({ token, newPassword }),
         });
@@ -219,31 +189,24 @@ export class AuthService {
         }
     }
 
-    // Kullanıcı bilgilerini localStorage'dan al
+    // Kullanıcı bilgilerini cookie'den al
     static getUserFromStorage(): AuthResponse['data']['user'] | null {
-        if (typeof window !== 'undefined') {
-            const userStr = localStorage.getItem('user');
-            return userStr ? JSON.parse(userStr) : null;
-        }
-        return null;
+        const userData = authCookieUtils.getUserData();
+        return userData as AuthResponse['data']['user'] | null;
     }
 
-    // Kullanıcı bilgilerini localStorage'a kaydet
+    // Kullanıcı bilgilerini cookie'ye kaydet
     static saveUserToStorage(user: AuthResponse['data']['user']): void {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('user', JSON.stringify(user));
-        }
+        authCookieUtils.setUserData(user);
     }
 
     // API endpoint'lerinin mevcut olup olmadığını kontrol et
     static async checkApiHealth(): Promise<{ isHealthy: boolean; message: string }> {
         try {
-            const tenantId = getTenantId();
-            const response = await fetch(`${API_BASE_URL}/auth/health`, {
+            const response = await fetch(`${API_BASE_URL}/health`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-tenant-id': tenantId,
                 },
             });
 
@@ -262,11 +225,10 @@ export class AuthService {
 
     // Debug: API endpoint'lerini test et
     static async debugApiEndpoints(): Promise<{ [key: string]: { status: number; message: string } }> {
-        const tenantId = getTenantId();
         const endpoints = [
-            { name: 'health', path: '/auth/health', method: 'GET' },
-            { name: 'login', path: '/auth/login', method: 'POST' },
-            { name: 'register', path: '/auth/register', method: 'POST' },
+            { name: 'health', path: '/health', method: 'GET' },
+            { name: 'login', path: '/login', method: 'POST' },
+            { name: 'register', path: '/register', method: 'POST' },
         ];
 
         const results: { [key: string]: { status: number; message: string } } = {};
@@ -277,7 +239,6 @@ export class AuthService {
                     method: endpoint.method,
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-tenant-id': tenantId,
                     },
                     ...(endpoint.method === 'POST' && { body: JSON.stringify({ test: true }) }),
                 });
