@@ -6,15 +6,15 @@ export class SettingsRepository {
   private get NotificationSettings() { return sequelize.models.SettingsNotificationSettings as any; }
   private get User() { return sequelize.models.AuthUser as any; }
 
-  async getBusiness(tenantId: string) {
-    const row = await this.BusinessSettings.findOne({ where: { tenant_id: tenantId } });
+  async getBusiness(ownerUserId: string) {
+    const row = await this.BusinessSettings.findOne({ where: { owner_user_id: ownerUserId } });
     return row ? row.toJSON() : null;
   }
-  async upsertBusiness(tenantId: string, dto: BusinessSettingsDTO) {
-    const existing = await this.BusinessSettings.findOne({ where: { tenant_id: tenantId } });
+  async upsertBusiness(ownerUserId: string, dto: BusinessSettingsDTO) {
+    const existing = await this.BusinessSettings.findOne({ where: { owner_user_id: ownerUserId } });
     if (!existing) {
       const created = await this.BusinessSettings.create({
-        tenant_id: tenantId,
+        owner_user_id: ownerUserId,
         business_name: dto.businessName,
         business_logo: dto.businessLogo,
         owner_name: dto.ownerName,
@@ -41,14 +41,14 @@ export class SettingsRepository {
     return existing.toJSON();
   }
 
-  async getNotification(tenantId: string) {
-    const row = await this.NotificationSettings.findOne({ where: { tenant_id: tenantId } });
+  async getNotification(ownerUserId: string) {
+    const row = await this.NotificationSettings.findOne({ where: { owner_user_id: ownerUserId } });
     return row ? row.toJSON() : null;
   }
-  async upsertNotification(tenantId: string, dto: NotificationSettingsDTO) {
-    const existing = await this.NotificationSettings.findOne({ where: { tenant_id: tenantId } });
+  async upsertNotification(ownerUserId: string, dto: NotificationSettingsDTO) {
+    const existing = await this.NotificationSettings.findOne({ where: { owner_user_id: ownerUserId } });
     if (!existing) {
-      const created = await this.NotificationSettings.create({ tenant_id: tenantId, ...{
+      const created = await this.NotificationSettings.create({ owner_user_id: ownerUserId, ...{
         email_notifications: dto.emailNotifications,
         sms_notifications: dto.smsNotifications,
         appointment_reminders: dto.appointmentReminders,

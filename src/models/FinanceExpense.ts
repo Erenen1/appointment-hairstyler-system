@@ -8,6 +8,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     description: { type: DataTypes.TEXT },
     payment_method: { type: DataTypes.TEXT },
     type: { type: DataTypes.TEXT },
+    owner_user_id: { type: DataTypes.UUID },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   }, {
     tableName: 'expenses',
@@ -15,6 +16,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: false,
+    indexes: [ { fields: ['owner_user_id'] } ],
   });
   return FinanceExpense;
 };

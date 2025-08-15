@@ -8,8 +8,8 @@ export class StatisticsRepository {
   private get Expense() { return sequelize.models.FinanceExpense as any; }
   private get Appointment() { return sequelize.models.ScheduleAppointment as any; }
 
-  async summary(tenantId: string) {
-    const where = { tenant_id: tenantId } as any;
+  async summary(ownerUserId: string) {
+    const where = { owner_user_id: ownerUserId } as any;
     const [totalProperties, totalsRow, avgPriceRow, byCategory] = await Promise.all([
       this.Property.count({ where }),
       this.Property.findOne({ where, attributes: [[sequelize.fn('SUM', sequelize.col('views')), 'views'], [sequelize.fn('SUM', sequelize.col('clicks')), 'clicks']] }),
@@ -23,7 +23,7 @@ export class StatisticsRepository {
     return { totalProperties, totalViews, totalClicks, avgPrice, byCategory: byCategoryArr };
   }
 
-  async timeseries(tenantId: string, metric: string, range = '30d', groupBy: 'day' | 'week' | 'month' = 'day') {
+  async timeseries(ownerUserId: string, metric: string, range = '30d', groupBy: 'day' | 'week' | 'month' = 'day') {
     const now = new Date();
     const days = range === '90d' ? 90 : range === '7d' ? 7 : 30;
     const start = new Date(now.getTime() - days*24*60*60*1000);
@@ -33,7 +33,7 @@ export class StatisticsRepository {
     // newCustomers için CRM tablosu
     if (metric === 'newCustomers') { table = this.Customer; column = 'id'; }
     const rows = await table.findAll({
-      where: metric === 'newCustomers' ? { tenant_id: tenantId, created_at: { [Op.gte]: start } } : { tenant_id: tenantId, updated_at: { [Op.gte]: start } },
+      where: metric === 'newCustomers' ? { owner_user_id: ownerUserId, created_at: { [Op.gte]: start } } : { owner_user_id: ownerUserId, updated_at: { [Op.gte]: start } },
       attributes: [[sequelize.fn('to_char', sequelize.fn('date_trunc', groupBy, sequelize.col(metric === 'newCustomers' ? 'created_at' : 'updated_at')), fmt), 'label'],
         [metric === 'avgPrice' ? sequelize.fn('AVG', sequelize.col(column)) : sequelize.fn('SUM', sequelize.col(column)), 'value']
       ],
@@ -47,10 +47,10 @@ export class StatisticsRepository {
     };
   }
 
-  async dashboardSummary(tenantId: string, range = '30d') {
+  async dashboardSummary(ownerUserId: string, range = '30d') {
     const now = new Date();
     const start = range === 'ytd' ? new Date(new Date().getFullYear(), 0, 1) : new Date(now.getTime() - (range === '90d' ? 90 : range === '7d' ? 7 : 30)*24*60*60*1000);
-    const whereTenant = { tenant_id: tenantId } as any;
+    const whereTenant = { owner_user_id: ownerUserId } as any;
     const [totalProperties, activeProperties, totalCustomers, apptToday, apptWeek, apptMonth, incomeTotalRow, expenseTotalRow, topProperty] = await Promise.all([
       this.Property.count({ where: whereTenant }),
       this.Property.count({ where: { ...whereTenant, status: 'active' } }),
@@ -74,25 +74,25 @@ export class StatisticsRepository {
     };
   }
 
-  async dashboardTopProperties(tenantId: string, limit = 5, range = '30d', sort: 'views' | 'clicks' | 'favorites' = 'views') {
+  async dashboardTopProperties(ownerUserId: string, limit = 5, range = '30d', sort: 'views' | 'clicks' | 'favorites' = 'views') {
     const order = [[sequelize.col(sort), 'DESC']];
-    const where = { tenant_id: tenantId } as any;
+    const where = { owner_user_id: ownerUserId } as any;
     const items = await this.Property.findAll({ where, order, limit });
     return { items: items.map((i:any)=>({ id: i.id, title: i.title, price: i.price, type: i.type, category: i.category, area: i.area, views: i.views, clicks: i.clicks, isFeatured: i.is_featured, status: i.status, createdAt: i.created_at })), total: items.length };
   }
 
-  async dashboardUpcomingAppointments(tenantId: string, limit = 5, from = 'today', staffId?: string) {
+  async dashboardUpcomingAppointments(ownerUserId: string, limit = 5, from = 'today', staffId?: string) {
     const startDate = from === 'today' ? new Date().toISOString().slice(0,10) : from;
-    const where: any = { tenant_id: tenantId, appointment_date: { [Op.gte]: startDate } };
+    const where: any = { owner_user_id: ownerUserId, appointment_date: { [Op.gte]: startDate } };
     if (staffId) where.staff_id = staffId;
     const items = await this.Appointment.findAll({ where, order: [['appointment_date','ASC'], ['start_time','ASC']], limit });
     return { items: items.map((i:any)=>({ id: i.id, appointmentDate: i.appointment_date, startTime: i.start_time, endTime: i.end_time })), total: items.length };
   }
 
-  async dashboardFinancialOverview(tenantId: string, range = '30d') {
+  async dashboardFinancialOverview(ownerUserId: string, range = '30d') {
     const now = new Date();
     const start = new Date(now.getTime() - (range === '90d' ? 90 : range === '7d' ? 7 : 30)*24*60*60*1000);
-    const where = { tenant_id: tenantId, date: { [Op.gte]: start } } as any;
+    const where = { owner_user_id: ownerUserId, date: { [Op.gte]: start } } as any;
     const [incomeTotalRow, expenseTotalRow, byCategoryInc, byCategoryExp] = await Promise.all([
       this.Income.findOne({ where, attributes: [[sequelize.fn('COALESCE', sequelize.fn('SUM', sequelize.col('amount')), 0), 'total']] }),
       this.Expense.findOne({ where, attributes: [[sequelize.fn('COALESCE', sequelize.fn('SUM', sequelize.col('amount')), 0), 'total']] }),

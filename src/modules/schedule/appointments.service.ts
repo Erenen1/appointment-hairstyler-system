@@ -5,24 +5,24 @@ import { AppointmentListQuery, CreateAppointmentDTO, UpdateAppointmentDTO } from
 export class AppointmentsService {
   constructor(private readonly repo: AppointmentsRepository) {}
 
-  async list(tenantId: string, q: AppointmentListQuery) {
-    return this.repo.list(tenantId, q);
+  async list(ownerUserId: string, q: AppointmentListQuery) {
+    return this.repo.list(ownerUserId, q);
   }
-  async get(tenantId: string, id: string) {
-    const data = await this.repo.getById(tenantId, id);
+  async get(ownerUserId: string, id: string) {
+    const data = await this.repo.getById(ownerUserId, id);
     if (!data) throw ApiError.notFound('Randevu bulunamadı');
     return data;
   }
-  async create(tenantId: string, dto: CreateAppointmentDTO) {
-    return this.repo.create(tenantId, dto);
+  async create(ownerUserId: string, dto: CreateAppointmentDTO) {
+    return this.repo.create(ownerUserId, dto);
   }
-  async update(tenantId: string, id: string, dto: UpdateAppointmentDTO) {
-    const data = await this.repo.update(tenantId, id, dto);
+  async update(ownerUserId: string, id: string, dto: UpdateAppointmentDTO) {
+    const data = await this.repo.update(ownerUserId, id, dto);
     if (!data) throw ApiError.notFound('Randevu bulunamadı');
     return data;
   }
-  async remove(tenantId: string, id: string) {
-    const ok = await this.repo.remove(tenantId, id);
+  async remove(ownerUserId: string, id: string) {
+    const ok = await this.repo.remove(ownerUserId, id);
     if (!ok) throw ApiError.notFound('Randevu bulunamadı');
     return true;
   }
@@ -32,9 +32,9 @@ export class AppointmentsService {
   async addHistory(id: string, toStatusId: string, userId?: string, note?: string) {
     return this.repo.addHistory(id, toStatusId, userId, note);
   }
-  async listServices(tenantId: string) { return this.repo.listServices(tenantId); }
-  async listStaff(tenantId: string) { return this.repo.listStaff(tenantId); }
-  async listStatuses(tenantId: string) { return this.repo.listStatuses(tenantId); }
+  async listServices(ownerUserId: string) { return this.repo.listServices(ownerUserId); }
+  async listStaff(ownerUserId: string) { return this.repo.listStaff(ownerUserId); }
+  async listStatuses(ownerUserId: string) { return this.repo.listStatuses(ownerUserId); }
 }
 
 export default AppointmentsService;

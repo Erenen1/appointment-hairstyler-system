@@ -30,14 +30,13 @@ export interface LoginResponse { user: AuthUserResponse; token: string; refreshT
 - Base URL: `/api/auth`
 - Gerekli Header'lar:
   - `Content-Type: application/json`
-  - `x-tenant-id: <uuid>` (tüm uçlar için zorunlu)
   - `Authorization: Bearer <token>` (login/register hariç diğerlerinde gerekebilir)
 
 ### Giriş (Login)
 - POST `/login`
 - Body
 ```json
-{ "username": "string", "password": "string", "rememberMe": true }
+{ "tenantId": "uuid", "username": "string", "password": "string", "rememberMe": true }
 ```
 - Response
 ```json
@@ -68,8 +67,8 @@ export interface LoginResponse { user: AuthUserResponse; token: string; refreshT
 async function login(tenantId: string, username: string, password: string) {
   const res = await fetch('/api/auth/login', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-tenant-id': tenantId },
-    body: JSON.stringify({ username, password, rememberMe: true })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tenantId, username, password, rememberMe: true })
   });
   if (!res.ok) throw await res.json();
   return res.json();
@@ -80,7 +79,7 @@ async function login(tenantId: string, username: string, password: string) {
 - POST `/register`
 - Body
 ```json
-{ "username":"string", "email":"string", "password":"string", "role":"user" }
+{ "tenantId": "uuid", "username":"string", "email":"string", "password":"string", "role":"user" }
 ```
 - Response (login ile benzer)
 ```json
@@ -124,8 +123,8 @@ async function login(tenantId: string, username: string, password: string) {
 ```ts
 import axios from 'axios';
 export const api = axios.create({ baseURL: '/api', headers: { 'Content-Type': 'application/json' } });
-export function withTenant(tenantId: string, token?: string) {
-  return api.create({ baseURL: '/api', headers: { 'Content-Type': 'application/json', 'x-tenant-id': tenantId, ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
+export function withAuth(token?: string) {
+  return api.create({ baseURL: '/api', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
 }
 ```
 

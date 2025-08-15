@@ -5,7 +5,7 @@
 ```
 
 - Base URL: `/api/schedule/appointments`
-- Header'lar: `Authorization`, `x-tenant-id`, `Content-Type: application/json`
+- Header'lar: `Authorization`, `Content-Type: application/json`
 
 ### Listeleme
 - GET `/`

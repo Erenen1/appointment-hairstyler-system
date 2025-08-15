@@ -6,10 +6,17 @@ export class AuthRepository {
     return sequelize.models.AuthUser as any;
   }
 
-  async findUserByUsernameOrEmail(tenantId: string, usernameOrEmail: string) {
+  async findUserByUsernameOrEmail(_tenantId: string, usernameOrEmail: string) {
+    const user = await this.model.findOne({
+      where: { [Op.or]: [{ username: usernameOrEmail }, { email: usernameOrEmail }] },
+      attributes: ['id','tenant_id','username','email','first_name','last_name','phone','role','is_active','last_login','password_hash','created_at','updated_at'],
+    });
+    return user ? user.toJSON() : null;
+  }
+
+  async findUserByUsernameOrEmailGlobal(usernameOrEmail: string) {
     const user = await this.model.findOne({
       where: {
-        tenant_id: tenantId,
         [Op.or]: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
       },
       attributes: [
@@ -44,9 +51,8 @@ export class AuthRepository {
     );
   }
 
-  async createUser(data: { tenantId: string; username: string; email: string; passwordHash: string; role?: string }) {
+  async createUser(data: { username: string; email: string; passwordHash: string; role?: string }) {
     const created = await (this.model as any).create({
-      tenant_id: data.tenantId,
       username: data.username,
       email: data.email,
       password_hash: data.passwordHash,

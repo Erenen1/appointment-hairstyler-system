@@ -8,7 +8,6 @@ export interface JwtPayload {
   businessName?: string;
   // Kullanıcı (auth.users) için
   userId?: string;
-  tenantId?: string;
   username?: string;
   // Rol genişletildi
   role: 'business' | 'super_admin' | 'admin' | 'staff' | 'user';
@@ -84,7 +83,7 @@ export class JwtUtils {
     }
   }
 
-  static generatePasswordResetToken(payload: { userId: string; tenantId: string; email: string }): string {
+  static generatePasswordResetToken(payload: { userId: string; email: string }): string {
     try {
       const options: SignOptions = {
         expiresIn: (config.PASSWORD_RESET_EXPIRES_IN || '15m') as any,
@@ -97,13 +96,13 @@ export class JwtUtils {
     }
   }
 
-  static verifyPasswordResetToken(token: string): { userId: string; tenantId: string; email: string } {
+  static verifyPasswordResetToken(token: string): { userId: string; email: string } {
     try {
       const decoded = jwt.verify(token, config.JWT_SECRET, {
         issuer: 'kuafor-system',
         audience: 'kuafor-password-reset'
       }) as any;
-      return { userId: decoded.userId, tenantId: decoded.tenantId, email: decoded.email };
+      return { userId: decoded.userId, email: decoded.email };
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
         throw ApiError.authentication('Parola sıfırlama tokeninin süresi dolmuş');

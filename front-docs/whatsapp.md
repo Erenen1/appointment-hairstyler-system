@@ -1,7 +1,7 @@
 ## WhatsApp Bot API
 
 - Base: `/api/messaging/whatsapp`
-- Header'lar: `Authorization`, `x-tenant-id`, `Content-Type: application/json`
+- Header'lar: `Authorization`, `Content-Type: application/json`
 
 ### Bot Config
 - GET `/config`

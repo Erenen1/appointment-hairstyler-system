@@ -1,7 +1,7 @@
 ## Listings (İlanlar) API
 
 - Base URL: `/api/listings/properties`
-- Header'lar: `Authorization`, `x-tenant-id`, `Content-Type: application/json`
+- Header'lar: `Authorization`, `Content-Type: application/json`
 
 ### Standart Yanıt Yapısı
 ```json

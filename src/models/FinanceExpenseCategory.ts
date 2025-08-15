@@ -1,7 +1,7 @@
 module.exports = (sequelize: any, DataTypes: any) => {
   const FinanceExpenseCategory = sequelize.define('FinanceExpenseCategory', {
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-    tenant_id: { type: DataTypes.UUID, allowNull: false },
+    owner_user_id: { type: DataTypes.UUID, allowNull: false },
     name: { type: DataTypes.TEXT, allowNull: false },
     description: { type: DataTypes.TEXT },
     color: { type: DataTypes.TEXT },
@@ -9,7 +9,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
   }, {
     tableName: 'expense_categories',
     schema: 'finance',
-    indexes: [ { unique: true, fields: ['tenant_id', 'name'] } ],
+    indexes: [ { unique: true, fields: ['owner_user_id', 'name'] } ],
   });
   return FinanceExpenseCategory;
 };

@@ -1,4 +1,5 @@
 export interface LoginDto {
+  tenantId?: string;
   username: string; // email ya da username kabul edilir
   password: string;
   rememberMe?: boolean;

@@ -4,7 +4,7 @@
 { "success": true, "message": "", "data": [], "pagination": { "currentPage":1, "totalPages":1, "totalItems":1, "itemsPerPage":20 }, "timestamp": "2024-01-01T10:00:00Z" }
 ```
 
-Genel header'lar: `Authorization`, `x-tenant-id`, `Content-Type: application/json`
+Genel header'lar: `Authorization`, `Content-Type: application/json`
 
 ### Incomes
 - Örnek liste yanıtı

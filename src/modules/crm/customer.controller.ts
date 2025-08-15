@@ -9,7 +9,7 @@ export class CustomerController {
   list = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const tenantId = req.user?.tenantId as string;
-      const result = await this.service.list(tenantId, req.query as any);
+      const result = await this.service.list(tenantId, req.query as any, req.user?.userId);
       const pagination = {
         currentPage: result.pagination.page,
         itemsPerPage: result.pagination.pageSize,
@@ -23,7 +23,7 @@ export class CustomerController {
   get = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const tenantId = req.user?.tenantId as string;
-      const data = await this.service.get(tenantId, req.params.id);
+      const data = await this.service.get(tenantId, req.params.id, req.user?.userId);
       res.json(ApiSuccess.item(data));
     } catch (err) { next(err); }
   };
@@ -31,7 +31,7 @@ export class CustomerController {
   create = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const tenantId = req.user?.tenantId as string;
-      const data = await this.service.create(tenantId, req.body);
+      const data = await this.service.create(tenantId, req.body, req.user?.userId);
       res.status(201).json(ApiSuccess.created(data));
     } catch (err) { next(err); }
   };
@@ -39,7 +39,7 @@ export class CustomerController {
   update = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const tenantId = req.user?.tenantId as string;
-      const data = await this.service.update(tenantId, req.params.id, req.body);
+      const data = await this.service.update(tenantId, req.params.id, req.body, req.user?.userId);
       res.json(ApiSuccess.updated(data));
     } catch (err) { next(err); }
   };
@@ -47,7 +47,7 @@ export class CustomerController {
   remove = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const tenantId = req.user?.tenantId as string;
-      await this.service.remove(tenantId, req.params.id);
+      await this.service.remove(tenantId, req.params.id, req.user?.userId);
       res.json(ApiSuccess.deleted());
     } catch (err) { next(err); }
   };

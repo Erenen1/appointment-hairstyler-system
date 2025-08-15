@@ -8,10 +8,10 @@ export class HomeController {
 
   hero = async (_req: AuthRequest, res: Response) => { res.json(ApiSuccess.item(this.service.hero())); };
   featured = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try { const tenantId = req.user?.tenantId as string; const { limit } = req.query as any; const items = await this.service.featuredProperties(tenantId, Number(limit)||6); res.json(ApiSuccess.item({ items })); } catch (err) { next(err); }
+    try { const userId = req.user?.userId as string; const { limit } = req.query as any; const items = await this.service.featuredProperties(userId, Number(limit)||6); res.json(ApiSuccess.item({ items })); } catch (err) { next(err); }
   };
   quickStats = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try { const tenantId = req.user?.tenantId as string; const data = await this.service.quickStats(tenantId); res.json(ApiSuccess.item(data)); } catch (err) { next(err); }
+    try { const userId = req.user?.userId as string; const data = await this.service.quickStats(userId); res.json(ApiSuccess.item(data)); } catch (err) { next(err); }
   };
 }
 

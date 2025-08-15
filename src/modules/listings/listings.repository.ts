@@ -11,10 +11,11 @@ export class ListingsRepository {
   private get PropertyTag() { return sequelize.models.ListingsPropertyTag as any; }
   private get Event() { return sequelize.models.ListingsPropertyEvent as any; }
 
-  async list(tenantId: string, q: PropertyListQuery) {
+  async list(q: PropertyListQuery, ownerUserId?: string) {
     const page = q.page && q.page > 0 ? q.page : 1;
     const pageSize = q.pageSize && q.pageSize > 0 ? q.pageSize : 20;
-    const where: any = { tenant_id: tenantId };
+    const where: any = {};
+    if (ownerUserId) where.owner_user_id = ownerUserId;
     const toArray = (v?: string | string[]) => v ? (Array.isArray(v) ? v : [v]) : undefined;
     const types = toArray(q.type); if (types) where.type = { [Op.in]: types };
     const cats = toArray(q.category); if (cats) where.category = { [Op.in]: cats };
@@ -36,16 +37,18 @@ export class ListingsRepository {
     return { items: rows.map((r:any)=>r.toJSON()), pagination: { page, pageSize, total: count } };
   }
 
-  async getById(tenantId: string, id: string) {
-    const p = await this.Property.findOne({ where: { id, tenant_id: tenantId } });
+  async getById(id: string, ownerUserId?: string) {
+    const where: any = { id };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
+    const p = await this.Property.findOne({ where });
     if (!p) return null;
     const images = await this.Image.findAll({ where: { property_id: id }, order: [['sort_order','ASC']] });
     return { ...p.toJSON(), images: images.map((i:any)=>({ id: i.id, url: i.url, alt: i.alt, sortOrder: i.sort_order })) };
   }
 
-  async create(tenantId: string, dto: CreatePropertyDTO) {
+  async create(dto: CreatePropertyDTO, ownerUserId?: string) {
     const created = await this.Property.create({
-      tenant_id: tenantId,
+      owner_user_id: ownerUserId,
       title: dto.title,
       description: dto.description,
       price: dto.price,
@@ -80,11 +83,13 @@ export class ListingsRepository {
       agent_id: dto.agentId,
       owner_customer_id: dto.ownerCustomerId,
     });
-    return this.getById(tenantId, created.id);
+    return this.getById(created.id, ownerUserId);
   }
 
-  async update(tenantId: string, id: string, dto: UpdatePropertyDTO) {
-    const existing = await this.Property.findOne({ where: { id, tenant_id: tenantId } });
+  async update(id: string, dto: UpdatePropertyDTO, ownerUserId?: string) {
+    const where: any = { id };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
+    const existing = await this.Property.findOne({ where });
     if (!existing) return null;
     await existing.update({
       title: dto.title ?? existing.title,
@@ -121,11 +126,13 @@ export class ListingsRepository {
       agent_id: dto.agentId ?? existing.agent_id,
       owner_customer_id: dto.ownerCustomerId ?? existing.owner_customer_id,
     });
-    return this.getById(tenantId, id);
+    return this.getById(id, ownerUserId);
   }
 
-  async remove(tenantId: string, id: string) {
-    const existing = await this.Property.findOne({ where: { id, tenant_id: tenantId } });
+  async remove(id: string, ownerUserId?: string) {
+    const where: any = { id };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
+    const existing = await this.Property.findOne({ where });
     if (!existing) return false;
     await existing.destroy();
     return true;
@@ -137,33 +144,33 @@ export class ListingsRepository {
     return created.map((i:any)=>i.toJSON());
   }
 
-  async setTags(tenantId: string, propertyId: string, tags: string[]) {
+  async setTags(ownerUserId: string, propertyId: string, tags: string[]) {
     await this.PropertyTag.destroy({ where: { property_id: propertyId } });
     for (const name of tags) {
-      const [tag] = await this.Tag.findOrCreate({ where: { tenant_id: tenantId, name }, defaults: { tenant_id: tenantId, name } });
+      const [tag] = await this.Tag.findOrCreate({ where: { tenant_id: ownerUserId, name }, defaults: { tenant_id: ownerUserId, name } });
       await this.PropertyTag.findOrCreate({ where: { property_id: propertyId, tag_id: tag.id }, defaults: { property_id: propertyId, tag_id: tag.id } });
     }
     return true;
   }
 
-  async setAmenities(tenantId: string, propertyId: string, amenityNames: string[]) {
+  async setAmenities(ownerUserId: string, propertyId: string, amenityNames: string[]) {
     await this.PropertyAmenity.destroy({ where: { property_id: propertyId } });
     for (const name of amenityNames) {
-      const [amenity] = await this.Amenity.findOrCreate({ where: { tenant_id: tenantId, name }, defaults: { tenant_id: tenantId, name } });
+      const [amenity] = await this.Amenity.findOrCreate({ where: { tenant_id: ownerUserId, name }, defaults: { tenant_id: ownerUserId, name } });
       await this.PropertyAmenity.findOrCreate({ where: { property_id: propertyId, amenity_id: amenity.id }, defaults: { property_id: propertyId, amenity_id: amenity.id } });
     }
     return true;
   }
 
-  async listEvents(tenantId: string, propertyId: string, type?: string) {
-    const where: any = { tenant_id: tenantId, property_id: propertyId };
+  async listEvents(ownerUserId: string, propertyId: string, type?: string) {
+    const where: any = { tenant_id: ownerUserId, property_id: propertyId };
     if (type) where.event_type = type;
     const items = await this.Event.findAll({ where, order: [['occurred_at','DESC']], limit: 200 });
     return items.map((i:any)=>({ id: i.id, eventType: i.event_type, occurredAt: i.occurred_at, metadata: i.metadata }));
   }
 
-  async addEvent(tenantId: string, propertyId: string, dto: CreatePropertyEventDTO, customerId?: string) {
-    const e = await this.Event.create({ tenant_id: tenantId, property_id: propertyId, customer_id: customerId, event_type: dto.eventType, metadata: dto.metadata });
+  async addEvent(ownerUserId: string, propertyId: string, dto: CreatePropertyEventDTO, customerId?: string) {
+    const e = await this.Event.create({ tenant_id: ownerUserId, property_id: propertyId, customer_id: customerId, event_type: dto.eventType, metadata: dto.metadata });
     return { id: e.id, eventType: e.event_type, occurredAt: e.occurred_at };
   }
 }

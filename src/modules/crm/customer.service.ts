@@ -5,28 +5,28 @@ import { CreateCustomerDTO, CustomerListQuery, CustomerResponse, UpdateCustomerD
 export class CustomerService {
   constructor(private readonly repo: CustomerRepository) {}
 
-  async list(tenantId: string, q: CustomerListQuery) {
-    return this.repo.list(tenantId, q);
+  async list(tenantId: string, q: CustomerListQuery, ownerUserId?: string) {
+    return this.repo.list(tenantId, q, ownerUserId);
   }
 
-  async get(tenantId: string, id: string) {
-    const data = await this.repo.getById(tenantId, id);
+  async get(tenantId: string, id: string, ownerUserId?: string) {
+    const data = await this.repo.getById(tenantId, id, ownerUserId);
     if (!data) throw ApiError.notFound('Müşteri bulunamadı');
     return data as CustomerResponse;
   }
 
-  async create(tenantId: string, dto: CreateCustomerDTO) {
-    return this.repo.create(tenantId, dto) as Promise<CustomerResponse>;
+  async create(tenantId: string, dto: CreateCustomerDTO, ownerUserId?: string) {
+    return this.repo.create(tenantId, dto, ownerUserId) as Promise<CustomerResponse>;
   }
 
-  async update(tenantId: string, id: string, dto: UpdateCustomerDTO) {
-    const data = await this.repo.update(tenantId, id, dto);
+  async update(tenantId: string, id: string, dto: UpdateCustomerDTO, ownerUserId?: string) {
+    const data = await this.repo.update(tenantId, id, dto, ownerUserId);
     if (!data) throw ApiError.notFound('Müşteri bulunamadı');
     return data as CustomerResponse;
   }
 
-  async remove(tenantId: string, id: string) {
-    const ok = await this.repo.remove(tenantId, id);
+  async remove(tenantId: string, id: string, ownerUserId?: string) {
+    const ok = await this.repo.remove(tenantId, id, ownerUserId);
     if (!ok) throw ApiError.notFound('Müşteri bulunamadı');
     return true;
   }

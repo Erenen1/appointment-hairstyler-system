@@ -9,10 +9,8 @@ export class AuthController {
 
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.headers['x-tenant-id'] as string;
-      if (!tenantId) throw ApiError.badRequest('x-tenant-id header zorunlu');
       const dto = req.body as LoginDto;
-      const result = await this.service.login(tenantId, dto);
+      const result = await this.service.login(dto);
       res.json(ApiSuccess.item({
         user: result.user,
         token: result.token,
@@ -25,10 +23,8 @@ export class AuthController {
 
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.headers['x-tenant-id'] as string;
-      if (!tenantId) throw ApiError.badRequest('x-tenant-id header zorunlu');
       const dto = req.body as RegisterDto;
-      const result = await this.service.register(tenantId, dto);
+      const result = await this.service.register(dto);
       res.status(201).json(ApiSuccess.created({ user: result.user, token: result.token, refreshToken: result.refreshToken }));
     } catch (err) { next(err); }
   };
@@ -49,11 +45,9 @@ export class AuthController {
 
   requestPasswordReset = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.headers['x-tenant-id'] as string;
-      if (!tenantId) throw ApiError.badRequest('x-tenant-id header zorunlu');
       const { email } = req.body as { email: string };
       if (!email) throw ApiError.badRequest('email gerekli');
-      const result = await this.service.requestPasswordReset(tenantId, email);
+      const result = await this.service.requestPasswordReset(email);
       res.json(ApiSuccess.item(result, 'Parola sıfırlama isteği alındı'));
     } catch (err) { next(err); }
   };

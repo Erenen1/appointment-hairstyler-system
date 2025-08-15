@@ -70,6 +70,9 @@ module.exports = (sequelize: any, DataTypes: any) => {
     assigned_agent_id: {
       type: DataTypes.UUID,
     },
+    owner_user_id: {
+      type: DataTypes.UUID,
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -93,6 +96,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     deletedAt: 'deleted_at',
     indexes: [
       { fields: ['tenant_id', 'is_active'] },
+      { fields: ['owner_user_id'] },
     ],
   });
 

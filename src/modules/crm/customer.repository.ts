@@ -9,10 +9,11 @@ export class CustomerRepository {
   private get CustomerRequirement() { return sequelize.models.CrmCustomerRequirement as any; }
   private get Viewed() { return sequelize.models.CrmCustomerViewedProperty as any; }
 
-  async list(tenantId: string, q: CustomerListQuery) {
+  async list(tenantId: string, q: CustomerListQuery, ownerUserId?: string) {
     const page = q.page && q.page > 0 ? q.page : 1;
     const pageSize = q.pageSize && q.pageSize > 0 ? q.pageSize : 20;
     const where: any = { tenant_id: tenantId };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
     if (q.isActive !== undefined) where.is_active = q.isActive;
     if (q.assignedAgentId) where.assigned_agent_id = q.assignedAgentId;
     if (q.preferredType) where.preferred_type = q.preferredType;
@@ -29,14 +30,17 @@ export class CustomerRepository {
     return { items: rows.map((r: any) => r.toJSON()), pagination: { page, pageSize, total: count } };
   }
 
-  async getById(tenantId: string, id: string) {
-    const c = await this.Customer.findOne({ where: { id, tenant_id: tenantId } });
+  async getById(tenantId: string, id: string, ownerUserId?: string) {
+    const where: any = { id, tenant_id: tenantId };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
+    const c = await this.Customer.findOne({ where });
     return c ? c.toJSON() : null;
   }
 
-  async create(tenantId: string, dto: CreateCustomerDTO) {
+  async create(tenantId: string, dto: CreateCustomerDTO, ownerUserId?: string) {
     const created = await this.Customer.create({
       tenant_id: tenantId,
+      owner_user_id: ownerUserId,
       full_name: dto.fullName,
       email: dto.email,
       phone: dto.phone,
@@ -64,11 +68,13 @@ export class CustomerRepository {
         await this.CustomerRequirement.findOrCreate({ where: { customer_id: customer.id, requirement_id: req.id }, defaults: { customer_id: customer.id, requirement_id: req.id } });
       }
     }
-    return this.getById(tenantId, customer.id);
+    return this.getById(tenantId, customer.id, ownerUserId);
   }
 
-  async update(tenantId: string, id: string, dto: UpdateCustomerDTO) {
-    const existing = await this.Customer.findOne({ where: { id, tenant_id: tenantId } });
+  async update(tenantId: string, id: string, dto: UpdateCustomerDTO, ownerUserId?: string) {
+    const where: any = { id, tenant_id: tenantId };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
+    const existing = await this.Customer.findOne({ where });
     if (!existing) return null;
     await existing.update({
       full_name: dto.fullName ?? existing.full_name,
@@ -98,11 +104,13 @@ export class CustomerRepository {
         await this.CustomerRequirement.findOrCreate({ where: { customer_id: id, requirement_id: req.id }, defaults: { customer_id: id, requirement_id: req.id } });
       }
     }
-    return this.getById(tenantId, id);
+    return this.getById(tenantId, id, ownerUserId);
   }
 
-  async remove(tenantId: string, id: string) {
-    const existing = await this.Customer.findOne({ where: { id, tenant_id: tenantId } });
+  async remove(tenantId: string, id: string, ownerUserId?: string) {
+    const where: any = { id, tenant_id: tenantId };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
+    const existing = await this.Customer.findOne({ where });
     if (!existing) return false;
     await existing.destroy();
     return true;

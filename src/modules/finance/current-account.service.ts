@@ -5,19 +5,19 @@ import { CreateCurrentAccountDTO, CreateTransactionDTO, CurrentAccountListQuery,
 export class CurrentAccountService {
   constructor(private readonly repo: CurrentAccountRepository) {}
 
-  async list(tenantId: string, q: CurrentAccountListQuery) { return this.repo.list(tenantId, q); }
-  async get(tenantId: string, id: string) {
-    const data = await this.repo.getById(tenantId, id);
+  async list(tenantId: string, q: CurrentAccountListQuery, ownerUserId?: string) { return this.repo.list(tenantId, q, ownerUserId); }
+  async get(tenantId: string, id: string, ownerUserId?: string) {
+    const data = await this.repo.getById(tenantId, id, ownerUserId);
     if (!data) throw ApiError.notFound('Cari hesap bulunamadı');
     return data;
   }
-  async create(tenantId: string, dto: CreateCurrentAccountDTO) { return this.repo.create(tenantId, dto); }
-  async update(tenantId: string, id: string, dto: UpdateCurrentAccountDTO) {
-    const data = await this.repo.update(tenantId, id, dto);
+  async create(tenantId: string, dto: CreateCurrentAccountDTO, ownerUserId?: string) { return this.repo.create(tenantId, dto, ownerUserId); }
+  async update(tenantId: string, id: string, dto: UpdateCurrentAccountDTO, ownerUserId?: string) {
+    const data = await this.repo.update(tenantId, id, dto, ownerUserId);
     if (!data) throw ApiError.notFound('Cari hesap bulunamadı');
     return data;
   }
-  async remove(tenantId: string, id: string) { const ok = await this.repo.remove(tenantId, id); if (!ok) throw ApiError.notFound('Cari hesap bulunamadı'); return true; }
+  async remove(tenantId: string, id: string, ownerUserId?: string) { const ok = await this.repo.remove(tenantId, id, ownerUserId); if (!ok) throw ApiError.notFound('Cari hesap bulunamadı'); return true; }
 
   async listTransactions(id: string, page?: number, pageSize?: number, sort?: string) {
     return this.repo.listTransactions(id, page, pageSize, sort);

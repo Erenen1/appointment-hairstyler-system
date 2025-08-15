@@ -6,10 +6,10 @@ export class AnalyticsRepository {
   private get Property() { return sequelize.models.ListingsProperty as any; }
   private get Event() { return sequelize.models.ListingsPropertyEvent as any; }
 
-  async list(tenantId: string, q: AnalyticsListQuery) {
+  async list(ownerUserId: string, q: AnalyticsListQuery) {
     const page = q.page && q.page > 0 ? q.page : 1;
     const pageSize = q.pageSize && q.pageSize > 0 ? q.pageSize : 20;
-    const where: any = { tenant_id: tenantId };
+    const where: any = { owner_user_id: ownerUserId };
     const toArr = (v?: string | string[]) => v ? (Array.isArray(v) ? v : [v]) : undefined;
     if (q.type) where.type = { [Op.in]: toArr(q.type) };
     if (q.category) where.category = { [Op.in]: toArr(q.category) };
@@ -43,8 +43,8 @@ export class AnalyticsRepository {
     return { items, pagination: { page, pageSize, total: count } };
   }
 
-  async stats(tenantId: string, q: AnalyticsStatsQuery) {
-    const where: any = { tenant_id: tenantId };
+  async stats(ownerUserId: string, q: AnalyticsStatsQuery) {
+    const where: any = { owner_user_id: ownerUserId };
     const [totalProperties, activeProperties, soldProperties, rentedProperties, avgPriceRow] = await Promise.all([
       this.Property.count({ where }),
       this.Property.count({ where: { ...where, status: 'active' } }),
@@ -66,7 +66,7 @@ export class AnalyticsRepository {
     return { totalProperties, activeProperties, soldProperties, rentedProperties, totals, avgPrice, distributions: { type, category } };
   }
 
-  async timeseries(tenantId: string, q: AnalyticsTimeseriesQuery) {
+  async timeseries(ownerUserId: string, q: AnalyticsTimeseriesQuery) {
     const now = new Date();
     const days = q.range === '90d' ? 90 : q.range === '7d' ? 7 : 30;
     const start = new Date(now.getTime() - days*24*60*60*1000);
@@ -75,7 +75,7 @@ export class AnalyticsRepository {
     const fmt = group === 'week' ? 'IYYY-IW' : group === 'month' ? 'IYYY-MM' : 'YYYY-MM-DD';
     const metricCol = q.metric === 'clicks' ? 'clicks' : q.metric === 'favorites' ? 'favorites' : 'views';
     const rows = await this.Property.findAll({
-      where: { tenant_id: tenantId, updated_at: { [Op.gte]: start } },
+      where: { owner_user_id: ownerUserId, updated_at: { [Op.gte]: start } },
       attributes: [[sequelize.fn('to_char', sequelize.fn('date_trunc', group, sequelize.col('updated_at')), fmt), 'label'], [sequelize.fn('SUM', sequelize.col(metricCol)), 'value']],
       group: [literal('label')],
       order: [literal('label ASC')],
@@ -86,15 +86,15 @@ export class AnalyticsRepository {
     return { labels, datasets };
   }
 
-  async listEvents(tenantId: string, propertyId: string, type?: string) {
-    const where: any = { tenant_id: tenantId, property_id: propertyId };
+  async listEvents(ownerUserId: string, propertyId: string, type?: string) {
+    const where: any = { owner_user_id: ownerUserId, property_id: propertyId };
     if (type) where.event_type = type;
     const items = await this.Event.findAll({ where, order: [['occurred_at','DESC']], limit: 200 });
     return items.map((i:any)=>({ id: i.id, eventType: i.event_type, occurredAt: i.occurred_at, metadata: i.metadata }));
   }
 
-  async addEvent(tenantId: string, propertyId: string, dto: CreateEventDTO, customerId?: string) {
-    const e = await this.Event.create({ tenant_id: tenantId, property_id: propertyId, customer_id: customerId, event_type: dto.eventType, metadata: dto.metadata });
+  async addEvent(ownerUserId: string, propertyId: string, dto: CreateEventDTO, customerId?: string) {
+    const e = await this.Event.create({ owner_user_id: ownerUserId, property_id: propertyId, customer_id: customerId, event_type: dto.eventType, metadata: dto.metadata });
     return { id: e.id, eventType: e.event_type, occurredAt: e.occurred_at };
   }
 }

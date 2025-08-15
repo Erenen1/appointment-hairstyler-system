@@ -9,6 +9,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     balance: { type: DataTypes.DECIMAL(14,2), allowNull: false, defaultValue: 0 },
     last_transaction_at: { type: DataTypes.DATE },
     status: { type: DataTypes.ENUM('active','paid','overdue','cancelled'), allowNull: false, defaultValue: 'active' },
+    owner_user_id: { type: DataTypes.UUID },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   }, {
@@ -17,6 +18,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+    indexes: [ { fields: ['owner_user_id'] } ],
   });
   return FinanceCurrentAccount;
 };

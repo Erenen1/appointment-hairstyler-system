@@ -1,7 +1,7 @@
 ## CRM Customers API
 
 - Base URL: `/api/crm/customers`
-- Header'lar: `Authorization: Bearer <token>`, `x-tenant-id: <uuid>`, `Content-Type: application/json`
+- Header'lar: `Authorization: Bearer <token>`, `Content-Type: application/json`
 
 ### Standart Yanıt Yapısı
 ```json
@@ -128,7 +128,7 @@ Yanıt: `{ "success": true, "data": { "ok": true } }`
 ### Fetch örneği
 ```ts
 async function listCustomers(token: string, tenantId: string, p=1) {
-  const res = await fetch(`/api/crm/customers?page=${p}`, { headers: { Authorization: `Bearer ${token}`, 'x-tenant-id': tenantId } });
+  const res = await fetch(`/api/crm/customers?page=${p}`, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) throw await res.json();
   return res.json();
 }

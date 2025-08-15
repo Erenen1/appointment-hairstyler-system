@@ -1,7 +1,7 @@
 ## Settings API
 
 - Base: `/api/settings`
-- Header'lar: `Authorization`, `x-tenant-id`, `Content-Type: application/json`
+- Header'lar: `Authorization`, `Content-Type: application/json`
 
 ### Business Settings
 - GET `/business`

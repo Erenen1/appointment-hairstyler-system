@@ -10,10 +10,10 @@ export class AppointmentsRepository {
   private get Customer() { return sequelize.models.CrmCustomer as any; }
   private get History() { return sequelize.models.ScheduleAppointmentHistory as any; }
 
-  async list(tenantId: string, q: AppointmentListQuery) {
+  async list(ownerUserId: string, q: AppointmentListQuery) {
     const page = q.page && q.page > 0 ? q.page : 1;
     const pageSize = q.pageSize && q.pageSize > 0 ? q.pageSize : 20;
-    const where: any = { tenant_id: tenantId };
+    const where: any = { owner_user_id: ownerUserId };
     if (q.startDate) where.appointment_date = { [Op.gte]: q.startDate };
     if (q.endDate) where.appointment_date = { ...(where.appointment_date || {}), [Op.lte]: q.endDate };
     if (q.customerId) where.customer_id = q.customerId;
@@ -26,14 +26,15 @@ export class AppointmentsRepository {
     return { items: rows.map((r: any)=>r.toJSON()), pagination: { page, pageSize, total: count } };
   }
 
-  async getById(tenantId: string, id: string) {
-    const a = await this.Appointment.findOne({ where: { id, tenant_id: tenantId } });
+  async getById(ownerUserId: string, id: string) {
+    const where: any = { id, owner_user_id: ownerUserId };
+    const a = await this.Appointment.findOne({ where });
     return a ? a.toJSON() : null;
   }
 
-  async create(tenantId: string, dto: CreateAppointmentDTO) {
+  async create(ownerUserId: string, dto: CreateAppointmentDTO) {
     const created = await this.Appointment.create({
-      tenant_id: tenantId,
+      owner_user_id: ownerUserId,
       customer_id: dto.customerId,
       staff_id: dto.staffId,
       service_id: dto.serviceId,
@@ -44,11 +45,12 @@ export class AppointmentsRepository {
       notes: dto.notes,
       price: dto.price,
     });
-    return this.getById(tenantId, created.id);
+    return this.getById(ownerUserId, created.id);
   }
 
-  async update(tenantId: string, id: string, dto: UpdateAppointmentDTO) {
-    const existing = await this.Appointment.findOne({ where: { id, tenant_id: tenantId } });
+  async update(ownerUserId: string, id: string, dto: UpdateAppointmentDTO) {
+    const where: any = { id, owner_user_id: ownerUserId };
+    const existing = await this.Appointment.findOne({ where });
     if (!existing) return null;
     await existing.update({
       customer_id: dto.customerId ?? existing.customer_id,
@@ -61,11 +63,12 @@ export class AppointmentsRepository {
       notes: dto.notes ?? existing.notes,
       price: dto.price ?? existing.price,
     });
-    return this.getById(tenantId, id);
+    return this.getById(ownerUserId, id);
   }
 
-  async remove(tenantId: string, id: string) {
-    const existing = await this.Appointment.findOne({ where: { id, tenant_id: tenantId } });
+  async remove(ownerUserId: string, id: string) {
+    const where: any = { id, owner_user_id: ownerUserId };
+    const existing = await this.Appointment.findOne({ where });
     if (!existing) return false;
     await existing.destroy();
     return true;
@@ -88,16 +91,16 @@ export class AppointmentsRepository {
     return this.getHistory(id);
   }
 
-  async listServices(tenantId: string) {
-    const items = await this.Service.findAll({ where: { tenant_id: tenantId }, order: [['title', 'ASC']] });
+  async listServices(ownerUserId: string) {
+    const items = await this.Service.findAll({ where: { owner_user_id: ownerUserId }, order: [['title', 'ASC']] });
     return items.map((i: any) => ({ id: i.id, title: i.title, price: i.price, duration: i.duration_mins }));
   }
-  async listStaff(tenantId: string) {
-    const items = await this.Staff.findAll({ where: { tenant_id: tenantId, is_active: true }, order: [['full_name', 'ASC']] });
+  async listStaff(ownerUserId: string) {
+    const items = await this.Staff.findAll({ where: { owner_user_id: ownerUserId, is_active: true }, order: [['full_name', 'ASC']] });
     return items.map((i: any) => ({ id: i.id, fullName: i.full_name }));
   }
-  async listStatuses(tenantId: string) {
-    const items = await this.Status.findAll({ where: { tenant_id: tenantId }, order: [['display_name', 'ASC']] });
+  async listStatuses(ownerUserId: string) {
+    const items = await this.Status.findAll({ where: { owner_user_id: ownerUserId }, order: [['display_name', 'ASC']] });
     return items.map((i: any) => ({ id: i.id, displayName: i.display_name, color: i.color }));
   }
 }

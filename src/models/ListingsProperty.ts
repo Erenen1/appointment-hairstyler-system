@@ -36,6 +36,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     is_urgent: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     is_new: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     status: { type: DataTypes.ENUM('active','pending','sold','rented','inactive'), allowNull: false, defaultValue: 'active' },
+    owner_user_id: { type: DataTypes.UUID },
     expires_at: { type: DataTypes.DATE },
     agent_id: { type: DataTypes.UUID },
     owner_customer_id: { type: DataTypes.UUID },
@@ -53,6 +54,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     indexes: [
       { fields: ['tenant_id', 'status'] },
       { fields: ['city_name', 'district_name'] },
+      { fields: ['owner_user_id'] },
     ],
   });
 

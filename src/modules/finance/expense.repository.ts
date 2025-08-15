@@ -6,10 +6,11 @@ export class ExpenseRepository {
   private get Expense() { return sequelize.models.FinanceExpense as any; }
   private get Category() { return sequelize.models.FinanceExpenseCategory as any; }
 
-  async list(tenantId: string, q: ExpenseListQuery) {
+  async list(tenantId: string, q: ExpenseListQuery, ownerUserId?: string) {
     const page = q.page && q.page > 0 ? q.page : 1;
     const pageSize = q.pageSize && q.pageSize > 0 ? q.pageSize : 20;
     const where: any = { tenant_id: tenantId };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
     if (q.startDate) where.date = { [Op.gte]: q.startDate };
     if (q.endDate) where.date = { ...(where.date || {}), [Op.lte]: q.endDate };
     if (q.categoryId) where.category_id = q.categoryId;
@@ -23,14 +24,17 @@ export class ExpenseRepository {
     return { items: rows.map((r:any)=>r.toJSON()), pagination: { page, pageSize, total: count } };
   }
 
-  async getById(tenantId: string, id: string) {
-    const i = await this.Expense.findOne({ where: { id, tenant_id: tenantId } });
+  async getById(tenantId: string, id: string, ownerUserId?: string) {
+    const where: any = { id, tenant_id: tenantId };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
+    const i = await this.Expense.findOne({ where });
     return i ? i.toJSON() : null;
   }
 
-  async create(tenantId: string, dto: CreateExpenseDTO) {
+  async create(tenantId: string, dto: CreateExpenseDTO, ownerUserId?: string) {
     const created = await this.Expense.create({
       tenant_id: tenantId,
+      owner_user_id: ownerUserId,
       category_id: dto.categoryId,
       amount: dto.amount,
       date: dto.date,
@@ -38,11 +42,13 @@ export class ExpenseRepository {
       payment_method: dto.paymentMethod,
       type: dto.type,
     });
-    return this.getById(tenantId, created.id);
+    return this.getById(tenantId, created.id, ownerUserId);
   }
 
-  async update(tenantId: string, id: string, dto: UpdateExpenseDTO) {
-    const existing = await this.Expense.findOne({ where: { id, tenant_id: tenantId } });
+  async update(tenantId: string, id: string, dto: UpdateExpenseDTO, ownerUserId?: string) {
+    const where: any = { id, tenant_id: tenantId };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
+    const existing = await this.Expense.findOne({ where });
     if (!existing) return null;
     await existing.update({
       category_id: dto.categoryId ?? existing.category_id,
@@ -52,27 +58,29 @@ export class ExpenseRepository {
       payment_method: dto.paymentMethod ?? existing.payment_method,
       type: dto.type ?? existing.type,
     });
-    return this.getById(tenantId, id);
+    return this.getById(tenantId, id, ownerUserId);
   }
 
-  async remove(tenantId: string, id: string) {
-    const existing = await this.Expense.findOne({ where: { id, tenant_id: tenantId } });
+  async remove(tenantId: string, id: string, ownerUserId?: string) {
+    const where: any = { id, tenant_id: tenantId };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
+    const existing = await this.Expense.findOne({ where });
     if (!existing) return false;
     await existing.destroy();
     return true;
   }
 
   // Categories
-  async listCategories(tenantId: string) {
-    const items = await this.Category.findAll({ where: { tenant_id: tenantId }, order: [['name','ASC']] });
+  async listCategories(ownerUserId: string) {
+    const items = await this.Category.findAll({ where: { owner_user_id: ownerUserId }, order: [['name','ASC']] });
     return items.map((i:any)=>({ id: i.id, name: i.name, description: i.description, color: i.color, budget: i.budget }));
   }
-  async createCategory(tenantId: string, dto: ExpenseCategoryDTO) {
-    const created = await this.Category.create({ tenant_id: tenantId, name: dto.name, description: dto.description, color: dto.color, budget: dto.budget });
+  async createCategory(ownerUserId: string, dto: ExpenseCategoryDTO) {
+    const created = await this.Category.create({ owner_user_id: ownerUserId, name: dto.name, description: dto.description, color: dto.color, budget: dto.budget });
     return { id: created.id, name: created.name, description: created.description, color: created.color, budget: created.budget };
   }
-  async updateCategory(tenantId: string, id: string, dto: UpdateExpenseCategoryDTO) {
-    const existing = await this.Category.findOne({ where: { id, tenant_id: tenantId } });
+  async updateCategory(ownerUserId: string, id: string, dto: UpdateExpenseCategoryDTO) {
+    const existing = await this.Category.findOne({ where: { id, owner_user_id: ownerUserId } });
     if (!existing) return null;
     await existing.update({
       name: dto.name ?? existing.name,
@@ -82,8 +90,8 @@ export class ExpenseRepository {
     });
     return { id: existing.id, name: existing.name, description: existing.description, color: existing.color, budget: existing.budget };
   }
-  async removeCategory(tenantId: string, id: string) {
-    const existing = await this.Category.findOne({ where: { id, tenant_id: tenantId } });
+  async removeCategory(ownerUserId: string, id: string) {
+    const existing = await this.Category.findOne({ where: { id, owner_user_id: ownerUserId } });
     if (!existing) return false;
     await existing.destroy();
     return true;

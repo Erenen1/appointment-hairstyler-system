@@ -1,7 +1,7 @@
 module.exports = (sequelize: any, DataTypes: any) => {
   const ListingsPropertyEvent = sequelize.define('ListingsPropertyEvent', {
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-    tenant_id: { type: DataTypes.UUID, allowNull: false },
+    owner_user_id: { type: DataTypes.UUID, allowNull: false },
     property_id: { type: DataTypes.UUID, allowNull: false },
     customer_id: { type: DataTypes.UUID },
     event_type: { type: DataTypes.TEXT, allowNull: false },

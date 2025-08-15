@@ -7,10 +7,11 @@ export class CurrentAccountRepository {
   private get Tx() { return sequelize.models.FinanceCurrentAccountTransaction as any; }
   private get Customer() { return sequelize.models.CrmCustomer as any; }
 
-  async list(tenantId: string, q: CurrentAccountListQuery) {
+  async list(tenantId: string, q: CurrentAccountListQuery, ownerUserId?: string) {
     const page = q.page && q.page > 0 ? q.page : 1;
     const pageSize = q.pageSize && q.pageSize > 0 ? q.pageSize : 20;
     const where: any = { tenant_id: tenantId };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
     if (q.customerId) where.customer_id = q.customerId;
     if (q.status) where.status = q.status;
     if (q.minAmount !== undefined) where.balance = { [Op.gte]: q.minAmount };
@@ -20,25 +21,31 @@ export class CurrentAccountRepository {
     return { items: rows.map((r:any)=>r.toJSON()), pagination: { page, pageSize, total: count } };
   }
 
-  async getById(tenantId: string, id: string) {
-    const a = await this.Account.findOne({ where: { id, tenant_id: tenantId } });
+  async getById(tenantId: string, id: string, ownerUserId?: string) {
+    const where: any = { id, tenant_id: tenantId };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
+    const a = await this.Account.findOne({ where });
     return a ? a.toJSON() : null;
   }
 
-  async create(tenantId: string, dto: CreateCurrentAccountDTO) {
-    const created = await this.Account.create({ tenant_id: tenantId, customer_id: dto.customerId, name: dto.name, phone: dto.phone, email: dto.email });
-    return this.getById(tenantId, created.id);
+  async create(tenantId: string, dto: CreateCurrentAccountDTO, ownerUserId?: string) {
+    const created = await this.Account.create({ tenant_id: tenantId, owner_user_id: ownerUserId, customer_id: dto.customerId, name: dto.name, phone: dto.phone, email: dto.email });
+    return this.getById(tenantId, created.id, ownerUserId);
   }
 
-  async update(tenantId: string, id: string, dto: UpdateCurrentAccountDTO) {
-    const existing = await this.Account.findOne({ where: { id, tenant_id: tenantId } });
+  async update(tenantId: string, id: string, dto: UpdateCurrentAccountDTO, ownerUserId?: string) {
+    const where: any = { id, tenant_id: tenantId };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
+    const existing = await this.Account.findOne({ where });
     if (!existing) return null;
     await existing.update({ name: dto.name ?? existing.name, phone: dto.phone ?? existing.phone, email: dto.email ?? existing.email, status: dto.status ?? existing.status });
-    return this.getById(tenantId, id);
+    return this.getById(tenantId, id, ownerUserId);
   }
 
-  async remove(tenantId: string, id: string) {
-    const existing = await this.Account.findOne({ where: { id, tenant_id: tenantId } });
+  async remove(tenantId: string, id: string, ownerUserId?: string) {
+    const where: any = { id, tenant_id: tenantId };
+    if (ownerUserId) where.owner_user_id = ownerUserId;
+    const existing = await this.Account.findOne({ where });
     if (!existing) return false;
     await existing.destroy();
     return true;

@@ -22,8 +22,8 @@ export class AuthService {
     };
   }
 
-  async login(tenantId: string, dto: LoginDto) {
-    const user = await this.repo.findUserByUsernameOrEmail(tenantId, dto.username);
+  async login(dto: LoginDto) {
+    const user = await this.repo.findUserByUsernameOrEmailGlobal(dto.username);
     if (!user) throw ApiError.authentication('Kullanıcı bulunamadı');
 
     const ok = HashUtils.verifyPassword(dto.password, user.password_hash || '');
@@ -32,30 +32,20 @@ export class AuthService {
 
     await this.repo.updateLastLogin(user.id);
 
-    const token = JwtUtils.generateToken({
-      userId: user.id,
-      tenantId: user.tenant_id,
-      username: user.username,
-      role: user.role,
-    });
-    const refreshToken = JwtUtils.generateRefreshToken({
-      userId: user.id,
-      tenantId: user.tenant_id,
-      username: user.username,
-      role: user.role,
-    });
+    const token = JwtUtils.generateToken({ userId: user.id, username: user.username, role: user.role });
+    const refreshToken = JwtUtils.generateRefreshToken({ userId: user.id, username: user.username, role: user.role });
 
     const resUser = this.toResponse(user);
     return { user: resUser, token, refreshToken };
   }
 
-  async register(tenantId: string, dto: RegisterDto) {
-    const existing = await this.repo.findUserByUsernameOrEmail(tenantId, dto.username) || await this.repo.findUserByUsernameOrEmail(tenantId, dto.email);
+  async register(dto: RegisterDto) {
+    const existing = await this.repo.findUserByUsernameOrEmailGlobal(dto.username) || await this.repo.findUserByUsernameOrEmailGlobal(dto.email);
     if (existing) throw ApiError.conflict('Kullanıcı adı veya email zaten kayıtlı');
     const passwordHash = HashUtils.hashPassword(dto.password);
-    const user = await this.repo.createUser({ tenantId, username: dto.username, email: dto.email, passwordHash, role: dto.role });
-    const token = JwtUtils.generateToken({ userId: user.id, tenantId: user.tenant_id, username: user.username, role: user.role });
-    const refreshToken = JwtUtils.generateRefreshToken({ userId: user.id, tenantId: user.tenant_id, username: user.username, role: user.role });
+    const user = await this.repo.createUser({ username: dto.username, email: dto.email, passwordHash, role: dto.role });
+    const token = JwtUtils.generateToken({ userId: user.id, username: user.username, role: user.role });
+    const refreshToken = JwtUtils.generateRefreshToken({ userId: user.id, username: user.username, role: user.role });
     return { user: this.toResponse(user), token, refreshToken };
   }
 
@@ -64,19 +54,14 @@ export class AuthService {
     if (!payload.userId) throw ApiError.authentication('Geçersiz refresh token');
     const user = await this.repo.findById(payload.userId);
     if (!user || !user.is_active) throw ApiError.authentication('Hesap pasif veya bulunamadı');
-    const token = JwtUtils.generateToken({
-      userId: user.id,
-      tenantId: user.tenant_id,
-      username: user.username,
-      role: user.role,
-    });
+    const token = JwtUtils.generateToken({ userId: user.id, username: user.username, role: user.role });
     return { token };
   }
 
-  async requestPasswordReset(tenantId: string, email: string) {
-    const user = await this.repo.findUserByUsernameOrEmail(tenantId, email);
+  async requestPasswordReset(email: string) {
+    const user = await this.repo.findUserByUsernameOrEmailGlobal(email);
     if (!user) return { ok: true }; // bilgi sızdırma engeli
-    const token = JwtUtils.generatePasswordResetToken({ userId: user.id, tenantId, email: user.email });
+    const token = JwtUtils.generatePasswordResetToken({ userId: user.id, email: user.email });
     // TODO: mail gönderimi burada (SMTP ayarlarıyla)
     return { ok: true, token }; // şimdilik geliştirme amaçlı token döndürüyoruz
   }

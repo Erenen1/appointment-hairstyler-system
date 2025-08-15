@@ -12,6 +12,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     notes: { type: DataTypes.TEXT },
     duration_mins: { type: DataTypes.SMALLINT },
     price: { type: DataTypes.DECIMAL(14,2) },
+    owner_user_id: { type: DataTypes.UUID },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   }, {

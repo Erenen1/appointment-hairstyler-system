@@ -8,8 +8,7 @@ export class AppointmentsController {
 
   list = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      const result = await this.service.list(tenantId, req.query as any);
+      const result = await this.service.list(req.user?.userId as string, req.query as any);
       const pagination = {
         currentPage: result.pagination.page,
         itemsPerPage: result.pagination.pageSize,
@@ -22,32 +21,28 @@ export class AppointmentsController {
 
   get = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      const data = await this.service.get(tenantId, req.params.id);
+      const data = await this.service.get(req.user?.userId as string, req.params.id);
       res.json(ApiSuccess.item(data));
     } catch (err) { next(err); }
   };
 
   create = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      const data = await this.service.create(tenantId, req.body);
+      const data = await this.service.create(req.user?.userId as string, req.body);
       res.status(201).json(ApiSuccess.created(data));
     } catch (err) { next(err); }
   };
 
   update = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      const data = await this.service.update(tenantId, req.params.id, req.body);
+      const data = await this.service.update(req.user?.userId as string, req.params.id, req.body);
       res.json(ApiSuccess.updated(data));
     } catch (err) { next(err); }
   };
 
   remove = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      await this.service.remove(tenantId, req.params.id);
+      await this.service.remove(req.user?.userId as string, req.params.id);
       res.json(ApiSuccess.deleted());
     } catch (err) { next(err); }
   };
@@ -66,13 +61,13 @@ export class AppointmentsController {
 
   // helpers
   services = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try { const items = await this.service.listServices(req.user?.tenantId as string); res.json(ApiSuccess.item({ items })); } catch (err) { next(err); }
+    try { const items = await this.service.listServices(req.user?.userId as string); res.json(ApiSuccess.item({ items })); } catch (err) { next(err); }
   };
   staff = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try { const items = await this.service.listStaff(req.user?.tenantId as string); res.json(ApiSuccess.item({ items })); } catch (err) { next(err); }
+    try { const items = await this.service.listStaff(req.user?.userId as string); res.json(ApiSuccess.item({ items })); } catch (err) { next(err); }
   };
   statuses = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try { const items = await this.service.listStatuses(req.user?.tenantId as string); res.json(ApiSuccess.item({ items })); } catch (err) { next(err); }
+    try { const items = await this.service.listStatuses(req.user?.userId as string); res.json(ApiSuccess.item({ items })); } catch (err) { next(err); }
   };
 }
 
