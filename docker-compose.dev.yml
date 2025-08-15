@@ -3,19 +3,21 @@ version: '3.8'
 services:
   db:
     image: postgres:15-alpine
-    container_name: kuafor_db
+    container_name: real-estate-dev-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: kuafor_db
+      POSTGRES_DB: real-estate-dev-db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password123
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-dev-network
     ports:
       - "5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d kuafor_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d real-estate-dev-db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,7 +26,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: kuafor_app
+    container_name: real-estate-dev-backend
     restart: unless-stopped
     env_file:
       - ./.env.development
@@ -38,6 +40,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - app-dev-network
     volumes:
       - ./:/usr/src/app
       - /usr/src/app/node_modules
@@ -45,12 +49,16 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: kuafor_pgadmin
+    container_name: real-estate-dev-pgadmin
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@kuafor.com
-      PGADMIN_DEFAULT_PASSWORD: password123
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
       PGADMIN_CONFIG_SERVER_MODE: 'False'
+    networks:
+      - app-dev-network
+    logging:
+      driver: false
     ports:
       - "5050:80"
     depends_on:
@@ -63,3 +71,7 @@ volumes:
     driver: local
   pgadmin_data:
     driver: local
+
+networks:
+  app-dev-network:
+    driver: bridge
