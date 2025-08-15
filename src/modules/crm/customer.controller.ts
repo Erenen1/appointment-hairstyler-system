@@ -8,8 +8,7 @@ export class CustomerController {
 
   list = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      const result = await this.service.list(tenantId, req.query as any, req.user?.userId);
+      const result = await this.service.list(req.user?.userId as string, req.query as any, req.user?.userId);
       const pagination = {
         currentPage: result.pagination.page,
         itemsPerPage: result.pagination.pageSize,
@@ -22,82 +21,72 @@ export class CustomerController {
 
   get = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      const data = await this.service.get(tenantId, req.params.id, req.user?.userId);
+      const data = await this.service.get(req.user?.userId as string, req.params.id, req.user?.userId);
       res.json(ApiSuccess.item(data));
     } catch (err) { next(err); }
   };
 
   create = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      const data = await this.service.create(tenantId, req.body, req.user?.userId);
+      const data = await this.service.create(req.user?.userId as string, req.body, req.user?.userId);
       res.status(201).json(ApiSuccess.created(data));
     } catch (err) { next(err); }
   };
 
   update = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      const data = await this.service.update(tenantId, req.params.id, req.body, req.user?.userId);
+      const data = await this.service.update(req.user?.userId as string, req.params.id, req.body, req.user?.userId);
       res.json(ApiSuccess.updated(data));
     } catch (err) { next(err); }
   };
 
   remove = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      await this.service.remove(tenantId, req.params.id, req.user?.userId);
+      await this.service.remove(req.user?.userId as string, req.params.id, req.user?.userId);
       res.json(ApiSuccess.deleted());
     } catch (err) { next(err); }
   };
 
   getPreferences = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      const data = await this.service.getPreferences(tenantId, req.params.id);
+      const data = await this.service.getPreferences(req.user?.userId as string, req.params.id);
       res.json(ApiSuccess.item(data));
     } catch (err) { next(err); }
   };
 
   updatePreferences = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      const data = await this.service.updatePreferences(tenantId, req.params.id, req.body);
+      const data = await this.service.updatePreferences(req.user?.userId as string, req.params.id, req.body);
       res.json(ApiSuccess.updated(data));
     } catch (err) { next(err); }
   };
 
   getViewedProperties = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      const data = await this.service.getViewedProperties(tenantId, req.params.id);
+      const data = await this.service.getViewedProperties(req.user?.userId as string, req.params.id);
       res.json(ApiSuccess.item(data));
     } catch (err) { next(err); }
   };
 
   addViewedProperty = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
       const { propertyId } = req.body as { propertyId: string };
-      const data = await this.service.addViewedProperty(tenantId, req.params.id, propertyId);
+      const data = await this.service.addViewedProperty(req.user?.userId as string, req.params.id, propertyId);
       res.json(ApiSuccess.item(data));
     } catch (err) { next(err); }
   };
 
   removeViewedProperty = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
       const { propertyId } = req.params as any;
-      const data = await this.service.removeViewedProperty(tenantId, req.params.id, propertyId);
+      const data = await this.service.removeViewedProperty(req.user?.userId as string, req.params.id, propertyId);
       res.json(ApiSuccess.item(data));
     } catch (err) { next(err); }
   };
 
   getStats = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const tenantId = req.user?.tenantId as string;
-      const data = await this.service.getStats(tenantId);
+      const data = await this.service.getStats(req.user?.userId as string);
       res.json(ApiSuccess.item(data));
     } catch (err) { next(err); }
   };
