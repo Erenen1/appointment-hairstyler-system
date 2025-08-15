@@ -16,7 +16,7 @@ jobs:
       BRANCH: ${{ github.ref_name }}
       REPO: ${{ github.repository }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      COMPOSE_FILE: backend/docker-compose.dev.yml
+      COMPOSE_FILE: docker-compose.dev.yml
       REMOTE_PATH: ${{ vars.REMOTE_PATH }}
     steps:
       - name: Deploy over SSH
