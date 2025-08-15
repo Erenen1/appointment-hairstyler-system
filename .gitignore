@@ -6,3 +6,5 @@ dist
 uploads/profiles
 uploads/services
 uploads/gallery
+.cursor/rules
+.cursor

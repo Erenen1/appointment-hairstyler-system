@@ -16,8 +16,8 @@ jobs:
       BRANCH: ${{ github.ref_name }}
       REPO: ${{ github.repository }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  COMPOSE_FILE: backend/docker-compose.dev.yml
-  REMOTE_PATH: ${{ vars.REMOTE_PATH }}
+      COMPOSE_FILE: backend/docker-compose.dev.yml
+      REMOTE_PATH: ${{ vars.REMOTE_PATH }}
     steps:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -78,5 +78,4 @@ jobs:
             fi
 
             $DC -f "$COMPOSE_FILE" down --remove-orphans || true
-
             $DC -f "$COMPOSE_FILE" up -d --build
