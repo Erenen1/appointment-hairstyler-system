@@ -1,0 +1,82 @@
+name: Deploy to Remote (Dev)
+
+on:
+  push:
+    branches:
+      - feature/backend-v1.0.0
+
+concurrency:
+  group: deploy-dev-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      BRANCH: ${{ github.ref_name }}
+      REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  COMPOSE_FILE: backend/docker-compose.dev.yml
+  REMOTE_PATH: ${{ vars.REMOTE_PATH }}
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ vars.SSH_HOST }}
+          username: ${{ vars.SSH_USER }}
+          password: ${{ vars.SSH_PASSWORD }}
+          port: 22
+          script_stop: true
+          envs: BRANCH,REPO,GH_TOKEN,COMPOSE_FILE,REMOTE_PATH
+          script: |
+            set -e
+
+            if [ -z "$REMOTE_PATH" ]; then
+              echo "REMOTE_PATH is not set. Define it as a repository variable." >&2
+              exit 1
+            fi
+
+            mkdir -p "$REMOTE_PATH"
+
+            if [ -n "$GH_TOKEN" ]; then
+              CLONE_URL="https://${GH_TOKEN}@github.com/${REPO}.git"
+            else
+              CLONE_URL="https://github.com/${REPO}.git"
+            fi
+
+            if [ -d "$REMOTE_PATH/.git" ]; then
+              cd "$REMOTE_PATH"
+              if [ -n "$GH_TOKEN" ]; then
+                git remote set-url origin "https://${GH_TOKEN}@github.com/${REPO}.git" || true
+              else
+                git remote set-url origin "https://github.com/${REPO}.git" || true
+              fi
+              git fetch --all --prune
+              if git switch -C "$BRANCH" 2>/dev/null; then
+                :
+              else
+                git checkout -B "$BRANCH" "origin/$BRANCH" || git checkout -B "$BRANCH"
+              fi
+              git reset --hard "origin/$BRANCH" || true
+            else
+              git clone "$CLONE_URL" "$REMOTE_PATH"
+              cd "$REMOTE_PATH"
+              if git switch -C "$BRANCH" 2>/dev/null; then
+                :
+              else
+                git checkout -B "$BRANCH" "origin/$BRANCH" || git checkout -B "$BRANCH"
+              fi
+            fi
+
+            if docker compose version >/dev/null 2>&1; then
+              DC="docker compose"
+            elif docker-compose version >/dev/null 2>&1; then
+              DC="docker-compose"
+            else
+              echo "docker compose not found on remote host" >&2
+              exit 1
+            fi
+
+            $DC -f "$COMPOSE_FILE" down --remove-orphans || true
+
+            $DC -f "$COMPOSE_FILE" up -d --build

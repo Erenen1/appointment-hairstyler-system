@@ -5,7 +5,7 @@ export const corsConfig: CorsOptions = {
     origin: true,
     credentials: true, 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-API-KEY'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-TENANT-ID', 'X-API-KEY',"Authorization Bearer"],
     exposedHeaders: ['Set-Cookie'],
     optionsSuccessStatus: 200
   }; 
