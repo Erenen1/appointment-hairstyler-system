@@ -57,8 +57,6 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     networks:
       - app-dev-network
-    logging:
-      driver: false
     ports:
       - "5050:80"
     depends_on:
