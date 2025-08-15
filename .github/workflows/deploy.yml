@@ -26,13 +26,13 @@ jobs:
           username: ${{ vars.SSH_USER }}
           password: ${{ vars.SSH_PASSWORD }}
           port: 22
-          script_stop: true
+          # ÖNEMLİ: koşul içindeki non-zero'lar yüzünden kesmesin:
+          script_stop: false
           debug: true
           envs: BRANCH,REPO,GH_TOKEN,COMPOSE_FILE,REMOTE_PATH
           script: |
             #! /usr/bin/env sh
             set -eux
-            # pipefail bazı sistemlerde yok; destekleniyorsa aç
             (set -o pipefail) 2>/dev/null || true
 
             echo "======== ENV CHECK ========"
@@ -54,7 +54,6 @@ jobs:
             uname -a || true
             cat /etc/os-release 2>/dev/null || true
             id || true
-            echo "PWD=$(pwd)"
             df -h || true
             echo "==========================="
 
@@ -69,7 +68,6 @@ jobs:
             echo "======== GIT SETUP ========"
             command -v git
             git --version
-            # bazı sunucularda ownership uyarısı olabilir
             git config --global --add safe.directory "$REMOTE_PATH" || true
 
             if [ -d "$REMOTE_PATH/.git" ]; then
@@ -82,14 +80,9 @@ jobs:
               fi
               git remote -v
               git fetch --all --prune
-              git branch -a || true
-              # branch'e geçiş
-              if git switch -C "$BRANCH" 2>/dev/null; then
-                :
-              else
+              if git switch -C "$BRANCH" 2>/dev/null; then :; else
                 git checkout -B "$BRANCH" "origin/$BRANCH" || git checkout -B "$BRANCH"
               fi
-              git rev-parse --abbrev-ref HEAD || true
               git reset --hard "origin/$BRANCH" || true
             else
               echo "[Fresh clone] to $REMOTE_PATH"
@@ -97,12 +90,9 @@ jobs:
               cd "$REMOTE_PATH"
               git remote -v
               git fetch --all --prune || true
-              if git switch -C "$BRANCH" 2>/dev/null; then
-                :
-              else
+              if git switch -C "$BRANCH" 2>/dev/null; then :; else
                 git checkout -B "$BRANCH" "origin/$BRANCH" || git checkout -B "$BRANCH"
               fi
-              git rev-parse --abbrev-ref HEAD || true
             fi
 
             echo "======== REPO STATE ======="
@@ -114,7 +104,6 @@ jobs:
             echo "==== DOCKER/COMPOSE INFO ===="
             command -v docker
             docker --version || true
-            # compose v2 ya da eski docker-compose
             if docker compose version >/dev/null 2>&1; then
               DC="docker compose"
               docker compose version
@@ -133,7 +122,6 @@ jobs:
               echo "Compose file found: $COMPOSE_FILE"
             else
               echo "Compose file NOT found at: $COMPOSE_FILE" >&2
-              echo "Listing likely compose files (depth 3):"
               find . -maxdepth 3 -type f \( -name "docker-compose*.yml" -o -name "compose*.yml" \) -print || true
               exit 1
             fi
@@ -147,6 +135,5 @@ jobs:
 
             echo "======== POST DEPLOY ======="
             $DC -f "$COMPOSE_FILE" ps || true
-            # son 100 log satırı (başarısız olursa pipeline kırılmasın)
             $DC -f "$COMPOSE_FILE" logs --tail=100 || true
             echo "============================"
