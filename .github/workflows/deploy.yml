@@ -27,55 +27,126 @@ jobs:
           password: ${{ vars.SSH_PASSWORD }}
           port: 22
           script_stop: true
+          debug: true
           envs: BRANCH,REPO,GH_TOKEN,COMPOSE_FILE,REMOTE_PATH
           script: |
-            set -e
+            #! /usr/bin/env sh
+            set -eux
+            # pipefail bazı sistemlerde yok; destekleniyorsa aç
+            (set -o pipefail) 2>/dev/null || true
 
-            if [ -z "$REMOTE_PATH" ]; then
+            echo "======== ENV CHECK ========"
+            echo "BRANCH=$BRANCH"
+            echo "REPO=$REPO"
+            echo "COMPOSE_FILE=$COMPOSE_FILE"
+            echo "REMOTE_PATH=${REMOTE_PATH:-<EMPTY>}"
+            echo "GH_TOKEN set? ${GH_TOKEN:+yes}"
+            echo "==========================="
+
+            if [ -z "${REMOTE_PATH:-}" ]; then
               echo "REMOTE_PATH is not set. Define it as a repository variable." >&2
               exit 1
             fi
 
+            echo "======== HOST INFO ========"
+            whoami || true
+            hostname || true
+            uname -a || true
+            cat /etc/os-release 2>/dev/null || true
+            id || true
+            echo "PWD=$(pwd)"
+            df -h || true
+            echo "==========================="
+
             mkdir -p "$REMOTE_PATH"
 
-            if [ -n "$GH_TOKEN" ]; then
+            if [ -n "${GH_TOKEN:-}" ]; then
               CLONE_URL="https://${GH_TOKEN}@github.com/${REPO}.git"
             else
               CLONE_URL="https://github.com/${REPO}.git"
             fi
 
+            echo "======== GIT SETUP ========"
+            command -v git
+            git --version
+            # bazı sunucularda ownership uyarısı olabilir
+            git config --global --add safe.directory "$REMOTE_PATH" || true
+
             if [ -d "$REMOTE_PATH/.git" ]; then
+              echo "[Existing repo] cd $REMOTE_PATH"
               cd "$REMOTE_PATH"
-              if [ -n "$GH_TOKEN" ]; then
+              if [ -n "${GH_TOKEN:-}" ]; then
                 git remote set-url origin "https://${GH_TOKEN}@github.com/${REPO}.git" || true
               else
                 git remote set-url origin "https://github.com/${REPO}.git" || true
               fi
+              git remote -v
               git fetch --all --prune
+              git branch -a || true
+              # branch'e geçiş
               if git switch -C "$BRANCH" 2>/dev/null; then
                 :
               else
                 git checkout -B "$BRANCH" "origin/$BRANCH" || git checkout -B "$BRANCH"
               fi
+              git rev-parse --abbrev-ref HEAD || true
               git reset --hard "origin/$BRANCH" || true
             else
+              echo "[Fresh clone] to $REMOTE_PATH"
               git clone "$CLONE_URL" "$REMOTE_PATH"
               cd "$REMOTE_PATH"
+              git remote -v
+              git fetch --all --prune || true
               if git switch -C "$BRANCH" 2>/dev/null; then
                 :
               else
                 git checkout -B "$BRANCH" "origin/$BRANCH" || git checkout -B "$BRANCH"
               fi
+              git rev-parse --abbrev-ref HEAD || true
             fi
 
+            echo "======== REPO STATE ======="
+            pwd
+            git status || true
+            ls -la
+            echo "==========================="
+
+            echo "==== DOCKER/COMPOSE INFO ===="
+            command -v docker
+            docker --version || true
+            # compose v2 ya da eski docker-compose
             if docker compose version >/dev/null 2>&1; then
               DC="docker compose"
+              docker compose version
             elif docker-compose version >/dev/null 2>&1; then
               DC="docker-compose"
+              docker-compose version
             else
               echo "docker compose not found on remote host" >&2
               exit 1
             fi
+            docker ps || true
+            echo "============================="
 
+            echo "==== COMPOSE FILE CHECK ===="
+            if [ -f "$COMPOSE_FILE" ]; then
+              echo "Compose file found: $COMPOSE_FILE"
+            else
+              echo "Compose file NOT found at: $COMPOSE_FILE" >&2
+              echo "Listing likely compose files (depth 3):"
+              find . -maxdepth 3 -type f \( -name "docker-compose*.yml" -o -name "compose*.yml" \) -print || true
+              exit 1
+            fi
+            echo "============================"
+
+            echo "======== DEPLOY DOWN ======="
             $DC -f "$COMPOSE_FILE" down --remove-orphans || true
+
+            echo "======== DEPLOY UP ========"
             $DC -f "$COMPOSE_FILE" up -d --build
+
+            echo "======== POST DEPLOY ======="
+            $DC -f "$COMPOSE_FILE" ps || true
+            # son 100 log satırı (başarısız olursa pipeline kırılmasın)
+            $DC -f "$COMPOSE_FILE" logs --tail=100 || true
+            echo "============================"
